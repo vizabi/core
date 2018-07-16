@@ -30,7 +30,7 @@ export default window.markerStore = observable.map([
                 for (let [prop, encoding] of this.encoding) {
                     //dataMapMods[encoding.modType].push(encoding.mod);
                     if (!this.space.includes(encoding.which)) {
-                        encoding.data.forEach(row => {
+                        encoding._data.forEach(row => {
                             const obj = getOrCreateObj(dataMap, row, this.space);
                             obj[prop] = row[encoding.which];
                         })

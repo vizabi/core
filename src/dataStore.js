@@ -4,13 +4,10 @@ import { assign } from './utils'
 
 const dataConfig = {
     gap: {
-        file: "basic.csv"
+        file: "fullgap.gapodd.csv"
     },
-    gap2: {
-        file: "fullgap.csv"
-    },
-    gap3: {
-        file: "basic_filtered.csv"
+    soder: {
+        file: "soder.csv"
     }
 }
 

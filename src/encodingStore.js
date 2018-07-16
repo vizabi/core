@@ -7,19 +7,19 @@ const encodingConfig = {
     x: {
         type: "x",
         which: "GDP",
-        dataSource: "gap2",
+        dataSource: "gap",
         scale: "log"
     },
     y: {
         type: "y",
         which: "LEX",
-        dataSource: "gap2",
+        dataSource: "gap",
         scale: "linear"
     },
     size: {
         type: "size",
         which: "POP",
-        dataSource: "gap2",
+        dataSource: "gap",
         scale: "sqrt"
     },
     color: {
@@ -51,6 +51,9 @@ window.encodingStore = observable({
     get: function(id) {
         return this.encodings.get(id);
     },
+    getAll: function() {
+        return this.encodings;
+    },
     set: action(function(id, config) {
         this.encodings.set(id, encodingFactory(config));
     }),
@@ -66,24 +69,34 @@ const encodingFactory = function(config) {
     const encodings = {
         base: () => ({
             which: "var",
-            scale: "linear",
+            scale: null,
             dataSource: dataStore.get("data"),
-            get data() {
+            domain: null,
+            range: null,
+            data: null,
+            get _data() {
                 return this.dataSource.data.get();
             },
-            get range() {
+            get _range() {
+                if (this.range != null)
+                    return this.range
                 return (this.scale == "ordinal") ?
                     d3.schemeCategory10 : [0, 1];
             },
-            get d3Scale() {
-                const scale = scales[this.scale]();
-                const domain = (this.scale == "log" && this.domain[0] == 0) ? [1, this.domain[1]] : this.domain;
-                return scale.range(this.range).domain(domain);
+            get _scale() {
+                return scales[this.scale] ? this.scale : "linear";
             },
-            get domain() {
+            get d3Scale() {
+                const scale = scales[this._scale]();
+                const domain = (this.scale == "log" && this._domain[0] == 0) ? [1, this._domain[1]] : this._domain;
+                return scale.range(this._range).domain(domain);
+            },
+            get _domain() {
+                if (this.domain != null)
+                    return this.domain
                 return (["ordinal", "point"].includes(this.scale)) ?
-                    d3.set(this.data, d => d[this.which]).values().sort() :
-                    d3.extent(this.data, d => d[this.which]);
+                    d3.set(this._data, d => d[this.which]).values().sort() :
+                    d3.extent(this._data, d => d[this.which]);
             }
 
         }),
@@ -98,8 +111,6 @@ const encodingFactory = function(config) {
             }
             props.forEach(prop => {
                 if (config[prop]) {
-                    // need to overwrite this way because it might be a getter
-                    delete obj[prop];
                     // special case for range being a d3 color scheme
                     if (prop == "range" && Array.isArray(d3[config[prop]]))
                         obj[prop] = d3[config[prop]];
@@ -113,22 +124,22 @@ const encodingFactory = function(config) {
         },
         size: () => ({
             scale: "sqrt",
-            get range() {
+            get _range() {
                 return [0, 20]
             }
         }),
         x: () => ({
-            get range() {
+            get _range() {
                 return [0, appState.width]
             }
         }),
         y: () => ({
-            get range() {
+            get _range() {
                 return [appState.height, 0]
             }
         }),
         color: () => ({
-            get range() {
+            get _range() {
                 return d3.schemeCategory10;
             }
         }),
@@ -137,9 +148,10 @@ const encodingFactory = function(config) {
             speed: 100,
             playing: false,
             timeout: null,
+            interpolate: true,
             startPlaying: action(function() {
-                if (this.value == this.domain[1])
-                    this.value = this.domain[0];
+                if (this.value == this._domain[1])
+                    this.value = this._domain[0];
                 this.playing = true;
             }),
             stopPlaying: action(function() {
@@ -147,12 +159,11 @@ const encodingFactory = function(config) {
             }),
             update: action(function() {
                 if (this.playing) {
-                    if (this.value == this.domain[1])
+                    this.value++;
+                    if (this.value == this._domain[1])
                         this.stopPlaying();
-                    else {
-                        this.value++;
-                        //this.timeout = setTimeout(this.update.bind(this), this.speed);
-                    }
+                    // used for timeout instead of interval timing
+                    // else this.timeout = setTimeout(this.update.bind(this), this.speed);
                 }
             }),
             createFrameMap: function(flatDataMap, space) {
@@ -164,6 +175,8 @@ const encodingFactory = function(config) {
                     row[Symbol.for('key')] = key;
                     dataMap.set(key, row);
                 }
+                if (this.interpolate)
+                    this.interpolateFrames(frameMap, frameSpace);
                 return frameMap;
             },
             getOrCreateDataMap(frameMap, row) {
@@ -175,6 +188,84 @@ const encodingFactory = function(config) {
                     frameMap.set(row[this.which], dataMap);
                 }
                 return dataMap;
+            },
+            interpolateFrames(frameMap, frameSpace) {
+                function createLatestObj(marker, frameId) {
+                    const obj = {};
+                    Object.keys(marker).forEach(key => {
+                        obj[key] = {
+                            frameId: frameId,
+                            value: marker[key]
+                        }
+                    });
+                    return obj;
+                }
+
+                var frames = [...frameMap.keys()].sort();
+                var latestSeenValuesMarkers = new Map();
+                frames.forEach(frameId => {
+                    for (let [markerKey, marker] of frameMap.get(frameId).entries()) {
+                        let latestObj;
+
+                        if (!latestSeenValuesMarkers.has(markerKey)) {
+                            latestObj = createLatestObj(marker, frameId)
+                            latestSeenValuesMarkers.set(markerKey, latestObj);
+                        } else {
+                            latestObj = latestSeenValuesMarkers.get(markerKey);
+                            const props = Object.keys(marker);
+                            props
+                                .filter(prop => marker[prop] != null)
+                                .forEach(prop => {
+                                    if (latestObj[prop].frameId + 1 < frameId) {
+                                        const intVals = this.interpolatePoint(latestObj[prop], { frameId, value: marker[prop] });
+                                        intVals.forEach(({ frameId, value }) => {
+                                            let markerObj;
+                                            let markerMap;
+
+                                            // get right frame
+                                            if (!frameMap.has(frameId)) {
+                                                markerMap = new Map();
+                                                frameMap.set(frameId, markerMap);
+                                            } else {
+                                                markerMap = frameMap.get(frameId);
+                                            }
+
+                                            // get right marker
+                                            if (markerMap.has(markerKey)) {
+                                                markerObj = markerMap.get(markerKey);
+                                            } else {
+                                                markerObj = {
+                                                    [Symbol.for('key')]: markerKey,
+                                                    [this.which]: frameId
+                                                }
+                                                markerMap.set(markerKey, markerObj);
+                                                frameSpace.forEach(dim => markerObj[dim] = marker[dim]);
+                                            }
+
+                                            // add value to marker
+                                            markerObj[prop] = value;
+                                        });
+                                        latestObj[prop] = {
+                                            frameId,
+                                            value: marker[prop]
+                                        }
+                                    }
+                                });
+                        }
+
+                    }
+                });
+            },
+            interpolatePoint(start, end) {
+                const int = d3.interpolate(start.value, end.value);
+                const delta = end.frameId - start.frameId;
+                const intVals = [];
+                for (let i = 1; i < delta; i++) {
+                    const frameId = start.frameId + i;
+                    const value = int(i / delta);
+                    intVals.push({ frameId, value })
+                }
+                return intVals;
             }
         })
     }
@@ -205,6 +296,15 @@ const controlTimer = reaction(
     }
 );
 
-
+// on which change, reset domain and scale (keep range)
+for (let enc of encodingStore.getAll().values()) {
+    reaction(
+        function() { return { which: enc.which } },
+        function({ which }) {
+            enc.domain = null;
+            enc.scale = null
+        }
+    )
+}
 
 export default encodingStore;
