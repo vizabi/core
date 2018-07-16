@@ -1,46 +1,142 @@
 import dataStore from './dataStore'
 import appState from './appState'
+import { assign, createKey } from './utils'
 import { observable, action, reaction } from 'mobx'
-import * as d3 from 'd3'
 
-export default window.encodingStore = observable.map([
-    [
-        "size", {
-            extent: [0, 20],
-            which: "POP",
-            dataSource: dataStore.get("gap"),
+const encodingConfig = {
+    x: {
+        type: "x",
+        which: "GDP",
+        dataSource: "gap2",
+        scale: "log"
+    },
+    y: {
+        type: "y",
+        which: "LEX",
+        dataSource: "gap2",
+        scale: "linear"
+    },
+    size: {
+        type: "size",
+        which: "POP",
+        dataSource: "gap2",
+        scale: "sqrt"
+    },
+    color: {
+        type: "color",
+        which: "world_region",
+        dataSource: "gap",
+        scale: "ordinal",
+        range: "schemeCategory10"
+    },
+    frame: {
+        type: "frame",
+        which: "time",
+        dataSource: "gap",
+        value: 1990,
+        speed: 200
+    }
+}
+
+const scales = {
+    "linear": d3.scaleLinear,
+    "log": d3.scaleLog,
+    "sqrt": d3.scaleSqrt,
+    "ordinal": d3.scaleOrdinal,
+    "point": d3.scalePoint
+}
+
+window.encodingStore = observable({
+    encodings: new Map(),
+    get: function(id) {
+        return this.encodings.get(id);
+    },
+    set: action(function(id, config) {
+        this.encodings.set(id, encodingFactory(config));
+    }),
+    setMany: action(function(configs) {
+        for (let id in configs) {
+            this.set(id, configs[id]);
+        }
+    })
+});
+
+const encodingFactory = function(config) {
+
+    const encodings = {
+        base: () => ({
+            which: "var",
+            scale: "linear",
+            dataSource: dataStore.get("data"),
             get data() {
                 return this.dataSource.data.get();
+            },
+            get range() {
+                return (this.scale == "ordinal") ?
+                    d3.schemeCategory10 : [0, 1];
             },
             get d3Scale() {
-                return d3.scaleSqrt().range(this.extent).domain(this.domain);
+                const scale = scales[this.scale]();
+                const domain = (this.scale == "log" && this.domain[0] == 0) ? [1, this.domain[1]] : this.domain;
+                return scale.range(this.range).domain(domain);
             },
             get domain() {
-                return d3.extent(this.data, d => +d[this.which]);
+                return (["ordinal", "point"].includes(this.scale)) ?
+                    d3.set(this.data, d => d[this.which]).values().sort() :
+                    d3.extent(this.data, d => d[this.which]);
             }
-        }
-    ],
-    [
-        "color", {
-            which: "world_region",
-            dataSource: dataStore.get("gap"),
-            get data() {
-                return this.dataSource.data.get();
+
+        }),
+        config: config => {
+            const obj = {};
+            const props = ["which", "scale", "data", "domain", "range"];
+            const typeProps = {
+                frame: ["value", "speed"]
             }
-        }
-    ],
-    [
-        "frame", {
-            which: "time",
-            dataSource: dataStore.get("gap"),
-            value: 1990,
-            speed: 600,
+            if (config.type && typeProps[config.type]) {
+                props.push(...typeProps[config.type]);
+            }
+            props.forEach(prop => {
+                if (config[prop]) {
+                    // need to overwrite this way because it might be a getter
+                    delete obj[prop];
+                    // special case for range being a d3 color scheme
+                    if (prop == "range" && Array.isArray(d3[config[prop]]))
+                        obj[prop] = d3[config[prop]];
+                    else
+                        obj[prop] = config[prop];
+                }
+            });
+            // special dataSource syntax
+            if (config.dataSource) obj.dataSource = dataStore.get(config.dataSource);
+            return obj;
+        },
+        size: () => ({
+            scale: "sqrt",
+            get range() {
+                return [0, 20]
+            }
+        }),
+        x: () => ({
+            get range() {
+                return [0, appState.width]
+            }
+        }),
+        y: () => ({
+            get range() {
+                return [appState.height, 0]
+            }
+        }),
+        color: () => ({
+            get range() {
+                return d3.schemeCategory10;
+            }
+        }),
+        frame: () => ({
+            value: (new Date()).getFullYear(),
+            speed: 100,
             playing: false,
             timeout: null,
-            domain: [1990, 2014],
-            get data() {
-                return this.dataSource.data.get();
-            },
             startPlaying: action(function() {
                 if (this.value == this.domain[1])
                     this.value = this.domain[0];
@@ -59,17 +155,6 @@ export default window.encodingStore = observable.map([
                     }
                 }
             }),
-            modifyDataMap: function(dataMap, space) {
-                const frameSpace = space.filter(dim => dim != this.which);
-                for (let [key, row] of dataMap) {
-                    if (row[this.which] == this.value) {
-                        const key = createKey(frameSpace, row);
-                        row[Symbol.for('key')] = key;
-                    } else {
-                        dataMap.delete(key)
-                    }
-                }
-            },
             createFrameMap: function(flatDataMap, space) {
                 const frameMap = new Map();
                 const frameSpace = space.filter(dim => dim != this.which);
@@ -91,39 +176,22 @@ export default window.encodingStore = observable.map([
                 }
                 return dataMap;
             }
-        }
-    ],
-    [
-        "y", {
-            which: "LEX",
-            dataSource: dataStore.get("gap"),
-            get data() {
-                return this.dataSource.data.get();
-            }
-        }
-    ],
-    [
-        "x", {
-            which: "GDP",
-            dataSource: dataStore.get("gap"),
-            scale: "linear",
-            get data() {
-                return this.dataSource.data.get();
-            },
-            get d3Scale() {
-                const scale = this.scale == "linear" ? d3.scaleLinear() : d3.scaleLog();
-                return scale.range(this.range).domain(this.domain);
-            },
-            get range() {
-                return [0, appState.width]
-            },
-            get domain() {
-                return d3.extent(this.data, d => +d[this.which]);
-            }
-        }
-    ]
+        })
+    }
 
-]);
+    // default encoding object
+    let encoding = encodings.base();
+
+    // extend
+    if (config.type && encodings[config.type])
+        assign(encoding, encodings[config.type]());
+
+    assign(encoding, encodings.config(config))
+
+    return observable(encoding);
+}
+
+encodingStore.setMany(encodingConfig);
 
 const frame = encodingStore.get("frame");
 
@@ -138,4 +206,5 @@ const controlTimer = reaction(
 );
 
 
-const createKey = (space, row) => space.map(dim => row[dim]).join('-');
+
+export default encodingStore;

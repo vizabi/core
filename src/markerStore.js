@@ -1,9 +1,11 @@
 import encodingStore from './encodingStore'
 import { observable } from 'mobx'
+import { createKey } from './utils'
 
 export default window.markerStore = observable.map([
     [
         "bubbles", observable({
+            important: ["x", "y", "size"],
             space: ["geo", "time"],
             encoding: observable.map([
                 [
@@ -24,7 +26,7 @@ export default window.markerStore = observable.map([
             ]),
             get dataMap() {
                 let dataMap = new Map();
-                const dataMapMods = { select: [], filter: [] };
+                //const dataMapMods = { select: [], filter: [] };
                 for (let [prop, encoding] of this.encoding) {
                     //dataMapMods[encoding.modType].push(encoding.mod);
                     if (!this.space.includes(encoding.which)) {
@@ -34,6 +36,9 @@ export default window.markerStore = observable.map([
                         })
                     }
                 }
+                // remove markers which miss important values
+                for (let [key, row] of dataMap)
+                    if (this.important.some(prop => !row.hasOwnProperty(prop) || !row[prop])) dataMap.delete(key);
                 return dataMap;
             },
             get frameMap() {
@@ -52,7 +57,6 @@ export default window.markerStore = observable.map([
     ]
 ]);
 
-const createKey = (space, row) => space.map(dim => row[dim]).join('-');
 const createObj = (space, row) => {
     const obj = {}
     space.forEach(dim => {
