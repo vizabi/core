@@ -190,44 +190,44 @@ const encodingFactory = function(config) {
                 return dataMap;
             },
             interpolateFrames(frameMap, frameSpace) {
-                function createLatestObj(marker, frameId) {
-                    const obj = {};
-                    Object.keys(marker).forEach(key => {
-                        obj[key] = {
-                            frameId: frameId,
-                            value: marker[key]
-                        }
-                    });
-                    return obj;
-                }
+                var t0 = performance.now();
 
                 var frames = [...frameMap.keys()].sort();
-                var latestSeenValuesMarkers = new Map();
+                var previousMarkerValues = new Map();
+                // for each frame
                 frames.forEach(frameId => {
+                    // for each marker in that frame
                     for (let [markerKey, marker] of frameMap.get(frameId).entries()) {
-                        let latestObj;
 
-                        if (!latestSeenValuesMarkers.has(markerKey)) {
-                            latestObj = createLatestObj(marker, frameId)
-                            latestSeenValuesMarkers.set(markerKey, latestObj);
+                        // get previous values for this marker
+                        let previous;
+                        if (!previousMarkerValues.has(markerKey)) {
+                            previous = {};
+                            previousMarkerValues.set(markerKey, previous);
                         } else {
-                            latestObj = latestSeenValuesMarkers.get(markerKey);
-                            const props = Object.keys(marker);
-                            props
-                                .filter(prop => marker[prop] != null)
-                                .forEach(prop => {
-                                    if (latestObj[prop].frameId + 1 < frameId) {
-                                        const intVals = this.interpolatePoint(latestObj[prop], { frameId, value: marker[prop] });
-                                        intVals.forEach(({ frameId, value }) => {
+                            previous = previousMarkerValues.get(markerKey);
+                        }
+
+                        // for every property on marker
+                        Object.keys(marker)
+                            // remove properties without data
+                            .filter(prop => marker[prop] != null)
+                            .forEach(prop => {
+                                // if there is a previous value and gap is > 1
+                                if (previous[prop] && previous[prop].frameId + 1 < frameId) {
+                                    // interpolate and save results in frameMap
+                                    this.interpolatePoint(previous[prop], { frameId, value: marker[prop] })
+                                        .forEach(({ frameId, value }) => {
+                                            // could maybe be optimized with batch updating all interpolations
                                             let markerObj;
                                             let markerMap;
 
                                             // get right frame
-                                            if (!frameMap.has(frameId)) {
+                                            if (frameMap.has(frameId)) {
+                                                markerMap = frameMap.get(frameId);
+                                            } else {
                                                 markerMap = new Map();
                                                 frameMap.set(frameId, markerMap);
-                                            } else {
-                                                markerMap = frameMap.get(frameId);
                                             }
 
                                             // get right marker
@@ -238,23 +238,27 @@ const encodingFactory = function(config) {
                                                     [Symbol.for('key')]: markerKey,
                                                     [this.which]: frameId
                                                 }
-                                                markerMap.set(markerKey, markerObj);
                                                 frameSpace.forEach(dim => markerObj[dim] = marker[dim]);
+                                                markerMap.set(markerKey, markerObj);
                                             }
 
                                             // add value to marker
                                             markerObj[prop] = value;
                                         });
-                                        latestObj[prop] = {
-                                            frameId,
-                                            value: marker[prop]
-                                        }
-                                    }
-                                });
-                        }
+                                }
+
+                                // update previous value to current
+                                previous[prop] = {
+                                    frameId,
+                                    value: marker[prop]
+                                }
+                            });
+
 
                     }
                 });
+                var t1 = performance.now();
+                console.log("Call to interpolateFrames took " + (t1 - t0) + " milliseconds.")
             },
             interpolatePoint(start, end) {
                 const int = d3.interpolate(start.value, end.value);
