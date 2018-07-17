@@ -43,9 +43,11 @@ function chart() {
     autorun(newData);
     autorun(redrawChart);
 
+    //marker.encoding.get("frame").playing = true;
+
     function newData() {
 
-        const data = marker.frameData;
+        const data = marker.data;
         const sizeConfig = marker.encoding.get("size");
         const colorConfig = marker.encoding.get("color");
         const xConfig = marker.encoding.get("x");
@@ -57,34 +59,37 @@ function chart() {
                 data,
                 d => d[Symbol.for('key')]
             );
-        update.exit().remove();
 
-        update.enter().append("circle")
+        const updateTransition = (frameConfig && frameConfig.playing) ?
+            update.transition(getTransition(frameConfig)) :
+            update.interrupt();
+
+        [
+            updateTransition,
+            update.enter().append("circle")
             .attr("class", "dot")
-            .style("fill", function(d) {
-                return colorConfig.d3Scale(d.color); // fills color domain
-            });
+            .attr("id", d => d[Symbol.for('key')])
+        ].map(selection => {
+            selection.attr("cx", function(d) {
+                    return xConfig.d3Scale(d.x);
+                })
+                .attr("cy", function(d) {
+                    return yConfig.d3Scale(d.y);
+                })
+                .style("fill", function(d) {
+                    return colorConfig.d3Scale(d.color);
+                })
+                .attr("r", d => {
+                    const which = sizeConfig.which;
+                    const radius = isNaN(which) ? sizeConfig.d3Scale(d.size) : which;
+                    return radius;
+                });
+        })
 
-        var t = d3.transition()
-            .duration(frameConfig.speed)
-            .ease(d3.easeLinear);
 
-        svg.selectAll(".dot")
-            .transition(t)
-            .attr("cx", function(d) {
-                return xConfig.d3Scale(d.x);
-            })
-            .attr("cy", function(d) {
-                return yConfig.d3Scale(d.y);
-            })
-            .style("fill", function(d) {
-                return colorConfig.d3Scale(d.color);
-            })
-            .attr("r", d => {
-                const which = sizeConfig.which;
-                const radius = isNaN(which) ? sizeConfig.d3Scale(d.size) : which;
-                return radius;
-            })
+
+
+        update.exit().remove();
 
         var legend = svg.selectAll(".legend")
             .data(colorConfig.d3Scale.domain())
@@ -109,21 +114,19 @@ function chart() {
         svg.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
-        var t = d3.transition()
-            .duration(frameConfig.speed)
-            .ease(d3.easeLinear);
+        // var t = getTransition(frameConfig);
 
         xAxis.scale(xConfig.d3Scale);
         yAxis.scale(yConfig.d3Scale);
         xAxisSVG
             .attr("transform", "translate(0," + config.height + ")")
-            .transition(t)
+            //.transition(t)
             .call(xAxis)
         xAxisSVGtext
             .attr("x", config.width)
             .text(xConfig.which)
         yAxisSVG
-            .transition(t)
+        //.transition(t)
             .call(yAxis);
         yAxisSVGtext
             .text(yConfig.which)
@@ -150,5 +153,11 @@ function chart() {
 
 
     };
+
+    function getTransition(frameConfig) {
+        return (!frameConfig) ? d3.transition() : d3.transition()
+            .duration(frameConfig.speed)
+            .ease(d3.easeLinear);
+    }
 
 };
