@@ -10,7 +10,7 @@
     "license": "ISC",
     "dependencies": {
         "d3": "^5.5.0",
-        "mobx": "^5.0.3",
+        "mobx": "^4.3.1",
         "mobx-task": "^1.0.0-alpha.0"
     },
     "devDependencies": {

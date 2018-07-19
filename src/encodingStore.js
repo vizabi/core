@@ -35,6 +35,7 @@ const encodingConfig = {
         which: "time",
         dataSource: "gap",
         value: 1800,
+        interpolate: true,
         speed: 100
     }
 }

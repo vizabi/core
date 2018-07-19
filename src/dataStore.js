@@ -6,12 +6,12 @@ const dataConfig = {
     gap: {
         file: "fullgap.gapodd.csv",
         space: ["geo", "time"],
-        transforms: [{
+        /*transforms: [{
             type: "interpolate",
             dimension: "time",
             step: 1,
             concepts: ["POP", "GDP", "LEX", "world_region"],
-        }]
+        }]*/
     },
     soder: {
         file: "soder.csv"
@@ -21,6 +21,7 @@ const dataConfig = {
 export default window.dataStore = store({
     base: () => ({
         file: "data.csv",
+        transforms: [],
         get load() {
             return promisedComputed([],
                 async() => await d3.csv(this.file, tryParseRow)
