@@ -7,14 +7,14 @@ export default window.appState = observable({
         bottom: 30,
         left: 40
     },
-    size: {
+    wrapper: {
         width: 400,
         height: 500
     },
     get width() {
-        return this.size.width - this.margin.left - this.margin.right;
+        return this.wrapper.width - this.margin.left - this.margin.right;
     },
     get height() {
-        return this.size.height - this.margin.top - this.margin.bottom;
+        return this.wrapper.height - this.margin.top - this.margin.bottom;
     }
 });

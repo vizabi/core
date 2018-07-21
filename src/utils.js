@@ -13,6 +13,16 @@ export function assign(target, ...sources) {
     return target;
 }
 
+// gets a getter accessor from an object and binds it to the object
+// used to overload methods when decorating objects
+export function getBoundGetter(obj, prop) {
+    return Object.getOwnPropertyDescriptor(obj, prop).get.bind(obj);
+}
+
+export function moveProperty(oldObj, oldProp, newObj, newProp) {
+    Object.defineProperty(newObj, newProp, Object.getOwnPropertyDescriptor(oldObj, oldProp));
+}
+
 export function processConfig(config, props) {
     const obj = {};
     props.forEach(p => {
@@ -22,6 +32,19 @@ export function processConfig(config, props) {
         }
     });
     return obj;
+}
+
+export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
+    if (Array.isArray(functions)) functions = assign({}, ...functions);
+    return function decorate(config) {
+        config = deepmerge.all([{}, defaultConfig, config]);
+        base = (base == null) ? config => ({ config: config }) : base;
+        return assign(base(config), functions);
+    }
+}
+
+export function isString(value) {
+    return typeof value == 'string';
 }
 
 // code from https://github.com/TehShrike/is-mergeable-object
@@ -85,9 +108,11 @@ function mergeObject(target, source, options) {
     return destination
 }
 
+const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray
+
 export function deepmerge(target, source, options) {
     options = options || {}
-    options.arrayMerge = options.arrayMerge || defaultArrayMerge
+    options.arrayMerge = options.arrayMerge || overwriteMerge
     options.isMergeableObject = options.isMergeableObject || isMergeableObject
 
     var sourceIsArray = Array.isArray(source)

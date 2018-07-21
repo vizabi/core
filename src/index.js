@@ -1,13 +1,14 @@
-import { observable, autorun, action } from 'mobx'
-import markerStore from './markerStore'
+import { autorun, action, spy } from 'mobx'
+import markerStore from './marker/markerStore'
 import appState from './appState'
+import * as d3 from 'd3'
 
 chart();
 
 function chart() {
 
     const config = appState;
-    const marker = markerStore.get("bubbles");
+    const marker = markerStore.get("bubble");
 
     var margin = config.margin;
 
@@ -32,20 +33,21 @@ function chart() {
         .attr("dy", ".71em")
         .style("text-anchor", "end");
 
-    const updateSize = action(function(e) {
+    const updateSize = action("wrapper size", function(e) {
         var wrap = document.getElementById("wrapper");
-        appState.size.height = wrap.clientHeight;
-        appState.size.width = wrap.clientWidth;
+        appState.wrapper.height = wrap.clientHeight;
+        appState.wrapper.width = wrap.clientWidth;
     });
     window.addEventListener("resize", updateSize);
     updateSize();
 
-    autorun(newData);
-    autorun(redrawChart);
+    autorun(drawBubbles);
+    autorun(drawChart);
+    autorun(drawLegend);
 
     //marker.encoding.get("frame").playing = true;
 
-    function newData() {
+    function drawBubbles() {
 
         const data = marker.data;
         const sizeConfig = marker.encoding.get("size");
@@ -86,22 +88,44 @@ function chart() {
                 });
         })
 
-
-
-
         update.exit().remove();
+    }
 
-        var legend = svg.selectAll(".legend")
+    function drawLegend() {
+
+        const colorConfig = marker.encoding.get("color");
+
+        const legendEntered = svg.selectAll(".legend")
             .data(colorConfig.d3Scale.domain())
             .enter().append("g")
             .attr("class", "legend");
 
-        legend.append("rect");
-        legend.append("text");
+        legendEntered.append('text');
+        legendEntered.append('rect');
 
+        const legend = svg.selectAll(".legend");
+
+        legend.attr("transform", function(d, i) {
+            return "translate(0," + i * 20 + ")";
+        });
+
+        legend.select("rect")
+            .attr("x", config.width - 18)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", colorConfig.d3Scale);
+
+        legend.select("text")
+            .attr("x", config.width - 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) {
+                return d;
+            });
     }
 
-    function redrawChart() {
+    function drawChart() {
 
         const sizeConfig = marker.encoding.get("size");
         const colorConfig = marker.encoding.get("color");
@@ -112,7 +136,6 @@ function chart() {
         chart.attr("width", config.width + margin.left + margin.right)
             .attr("height", config.height + margin.top + margin.bottom)
         svg.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
 
         // var t = getTransition(frameConfig);
 
@@ -130,26 +153,6 @@ function chart() {
             .call(yAxis);
         yAxisSVGtext
             .text(yConfig.which)
-
-        var legend = svg.selectAll(".legend")
-            .attr("transform", function(d, i) {
-                return "translate(0," + i * 20 + ")";
-            });
-
-        legend.select("rect")
-            .attr("x", config.width - 18)
-            .attr("width", 18)
-            .attr("height", 18)
-            .style("fill", colorConfig.d3Scale);
-
-        legend.select("text")
-            .attr("x", config.width - 24)
-            .attr("y", 9)
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(function(d) {
-                return d;
-            });
 
 
     };

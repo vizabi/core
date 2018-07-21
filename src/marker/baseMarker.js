@@ -1,5 +1,7 @@
 import { observable, action } from 'mobx';
-import { assign, processConfig, createKey, deepmerge } from "../utils";
+import { encodingStore } from '../encoding/encodingStore'
+import { assign, createKey, deepmerge, isString } from "../utils";
+import { configurable } from '../configurable';
 
 const createObj = (space, row, key) => {
     const obj = {
@@ -23,37 +25,21 @@ const getOrCreateObj = (dataMap, space, row) => {
 
 // outside of function scope, shared by markers
 let functions = {
-    config: {},
-    applyConfig: action(function(config) {
-        this.config = deepmerge(this.config, config);
-        return this;
-    }),
     get space() { return this.config.space },
     get important() { return this.config.important },
     get selected() { return this.config.selected },
-    get encoding() {
-        const encodingConfig = this.config.encoding;
-        const encoding = [];
-        Object.keys(encodingConfig).forEach(key => {
-            const encodingId = encodingConfig[key];
-            if (encodingStore.has(encodingId))
-                encoding.push([key, encodingStore.get(encodingId)]);
-            else
-                throw ("markerStore config: encodingStore does not have encoding with key: " + key);
-        });
-        return observable.map(encoding);
-    },
+    get encoding() { return encodingStore.getByDefinitions(this.config.encoding) },
     get dataMap() {
         let dataMap = new Map();
         let dataSources = new Map();
 
         // get all datasources used by marker
-        for (let [prop, { _data, which }] of this.encoding) {
+        for (let [prop, { data, which }] of this.encoding) {
             if (!this.space.includes(which)) {
-                if (dataSources.has(_data))
-                    dataSources.get(_data).push({ which, prop });
+                if (dataSources.has(data))
+                    dataSources.get(data).push({ which, prop });
                 else
-                    dataSources.set(_data, [{ which, prop }]);
+                    dataSources.set(data, [{ which, prop }]);
             }
         }
 
@@ -96,20 +82,14 @@ let functions = {
     }
 }
 
+const defaultConfig = {
+    space: ["entity", "time"],
+    important: [],
+    selected: [],
+    encoding: {}
+};
+
 export function baseMarker(config) {
-
-    config = deepmerge({
-        space: ["entity", "time"],
-        important: [],
-        selected: [],
-        encoding: {}
-    }, config);
-
-    // create object
-    return assign({}, functions).applyConfig(config);
-}
-
-export default function marker_observable(config) {
-    // create observable out of it
-    return observable(baseMarker(config));
+    config = deepmerge.all([{}, defaultConfig, config]);
+    return assign({}, functions, configurable, { config });
 }
