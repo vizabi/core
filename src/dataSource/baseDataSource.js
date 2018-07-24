@@ -5,24 +5,39 @@ import { csv, interpolate } from 'd3';
 import { promisedComputed } from 'computed-async-mobx';
 
 const defaultConfig = {
-    file: "data.csv",
+    reader: "csv",
+    path: "data.csv",
     transforms: [],
     space: ['marker', 'time']
 }
 
 const functions = {
-    get file() { return this.config.file },
+    get path() { return this.config.path },
     get transforms() { return this.config.transforms },
     get space() { return this.config.space },
+    get reader() {
+        this.config.reader.init({
+            path: this.path
+        })
+        return this.config.reader;
+    },
     get load() {
-        return promisedComputed([],
-            async() => await csv(this.file, tryParseRow)
-        );
+        //return promisedComputed([],
+        //    async() => await csv(this.path, tryParseRow)
+        //);
     },
     get data() {
-        return this.transforms.reduce(
-            (data, t) => this[t.type](data, t),
-            this.load.get()
+        //return this.transforms.reduce(
+        //    (data, t) => this[t.type](data, t),
+        //    this.load.get()
+        //);
+        return [];
+    },
+    query: function(query) {
+        //return [];
+        console.log('Querying', query);
+        return promisedComputed(null,
+            async() => await this.reader.read(query).map(tryParseRow)
         );
     },
     interpolate: function(data, { dimension, concepts, step }) {

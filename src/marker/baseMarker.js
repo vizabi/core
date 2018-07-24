@@ -2,6 +2,7 @@ import { observable, action } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { assign, createKey, deepmerge, isString } from "../utils";
 import { configurable } from '../configurable';
+import { nest } from 'd3'
 
 const createObj = (space, row, key) => {
     const obj = {
@@ -28,34 +29,89 @@ let functions = {
     get space() { return this.config.space },
     get important() { return this.config.important },
     get selected() { return this.config.selected },
-    get encoding() { return encodingStore.getByDefinitions(this.config.encoding) },
+    get encoding() {
+        // TODO: on config.encoding change, new encodings will be created
+        // shouldn't happen, only for actual new encodings, new encodings should be created
+        return encodingStore.getByDefinitions(this.config.encoding)
+    },
+    get encodingWhich() {
+        return [...this.encoding.values()].map(enc => ({
+            which: enc.which,
+            space: enc.space || this.space,
+            dataSource: enc.dataSource
+        }));
+    },
+    get ddfqlQuery() {
+        return {
+            select: {
+                key: this.space,
+                value: this.encodingWhich
+            }
+        }
+    },
     get dataMap() {
-        let dataMap = new Map();
-        let dataSources = new Map();
+        const dataMap = new Map();
+        const lookups = new Map();
+        const spaces = new Map();
 
-        // get all datasources used by marker
-        for (let [prop, { data, which }] of this.encoding) {
-            if (!this.space.includes(which)) {
-                if (dataSources.has(data))
-                    dataSources.get(data).push({ which, prop });
-                else
-                    dataSources.set(data, [{ which, prop }]);
+        // sort visual encodings by space: marker space and (strict) subspaces
+        for (let [prop, encoding] of this.encoding) {
+            if (encoding.data == null) return null;
+            const spaceOverlap = intersect(this.space, encoding.space);
+            const spaceOverlapKey = spaceOverlap.join('-');
+            if (spaces.has(spaceOverlapKey))
+                spaces.get(spaceOverlapKey).push({ prop, encoding });
+            else
+                spaces.set(spaceOverlapKey, [{ prop, encoding }]);
+        }
+
+        // data in marker space defines the actual markers in viz
+        const markerSpaceKey = this.space.join('-');
+        for (let { prop, encoding }
+            of spaces.get(markerSpaceKey)) {
+            const which = encoding.which;
+            encoding.data.forEach(row => {
+                const obj = getOrCreateObj(dataMap, this.space, row);
+                obj[prop] = row[which];
+            });
+        }
+
+        // create lookups for data in subspaces of marker
+        for (let [spaceKey, encodings] of spaces) {
+            if (spaceKey == markerSpaceKey)
+                continue;
+            const space = spaceKey.split('-');
+            const lookup = new Map();
+            for (let { prop, encoding }
+                of encodings) {
+                const which = encoding.which;
+                encoding.data.forEach(row => {
+                    const obj = getOrCreateObj(lookup, space, row);
+                    obj[prop] = row[which];
+                });
+            }
+            lookups.set(space, lookup);
+        }
+
+        // merge subspace data onto markers, using subspace lookups
+        for (let row of dataMap.values()) {
+            for (let [space, lookup] of lookups) {
+                const key = createKey(space, row);
+                Object.assign(row, lookup.get(key));
             }
         }
 
-        // save relevant data to dataMap
-        for (let [data, encodings] of dataSources) {
-            data.forEach(row => {
-                const obj = getOrCreateObj(dataMap, this.space, row);
-                encodings.forEach(({ prop, which }) => {
-                    obj[prop] = row[which];
-                })
-            })
+        // intersect of two arrays (representing sets)
+        function intersect(a, b) {
+            return a.filter(e => b.includes(e));
         }
 
         return dataMap;
     },
     get frameMap() {
+        // loading
+        if (this.dataMap == null) return null;
+
         const frameMap = this.encoding.get("frame").createFrameMap(this.dataMap, this.space);
         for (let [frameId, dataMap] of frameMap) {
             this.checkImportantEncodings(dataMap);
@@ -63,6 +119,9 @@ let functions = {
         return frameMap;
     },
     get data() {
+        // loading
+        if (this.dataMap == null) return null;
+
         // return a frame if there is one
         if (this.encoding.has("frame")) {
             const currentFrameId = this.encoding.get("frame").value;

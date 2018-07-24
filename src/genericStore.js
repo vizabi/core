@@ -1,4 +1,4 @@
-import { observable, action } from 'mobx'
+import { observable, action, toJS, isObservableObject } from 'mobx'
 import { isString } from './utils'
 
 export const createStore = function(baseType, extendedTypes = {}) {
@@ -17,7 +17,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
         },
         addType: function(type, modelConstructor) {
             if (this.modelTypes[type])
-                throw ("Adding model type " + type + " failed. Type already exists", this);
+                console.warn("Adding model type " + type + " failed. Type already exists", this);
             this.modelTypes[type] = modelConstructor;
         },
         getAll: function() {
@@ -27,8 +27,9 @@ export const createStore = function(baseType, extendedTypes = {}) {
             return this.named.has(id);
         },
         create: function(config) {
+            if (isObservableObject(config)) config = toJS(config);
             let modelType = this.modelTypes.all[config.type] || this.modelTypes.base;
-            let model = observable(modelType(config), null, { name: config.type });
+            let model = observable(modelType(config), null, { name: config.type || 'base' });
             if (model.setUpReactions) model.setUpReactions();
             return model;
         },

@@ -1,7 +1,8 @@
-import { action } from 'mobx';
+import { action, toJS } from 'mobx';
 import { deepmerge, assign, defaultDecorator } from "../utils";
 import { configurable } from '../configurable';
 import { dataSourceStore } from '../dataSource/dataSourceStore';
+import { markerStore } from '../marker/markerStore';
 import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
 let counter = 0;
 const scales = {
@@ -18,15 +19,40 @@ const defaultConfig = {
     dataSource: "data",
     domain: null,
     range: null,
+    space: null,
+    filter: null
 }
 let count = 1;
 const functions = {
     get which() { return this.config.which; },
+    get filter() { return this.config.filter },
+    get marker() {
+        return markerStore.getMarkerForEncoding(this) || console.warn("Couldn't find marker model for encoding.", { encoding: this });
+    },
+    get space() {
+        return this.config.space || this.marker.space;
+    },
     get dataSource() {
         return dataSourceStore.getByDefinition(this.config.dataSource)
     },
+    get ddfQuery() {
+        const query = {
+            select: {
+                key: this.space.toJS(),
+                value: [this.which]
+            }
+        }
+        if (this.filter) {
+            query.where = toJS(this.filter);
+        }
+        return query;
+    },
+    get load() {
+        return this.dataSource.query(this.ddfQuery);
+    },
     get data() {
-        return this.dataSource.data;
+        if (this.space.includes(this.which)) return [];
+        else return this.load.get();
     },
     get range() {
         if (this.config.range != null)

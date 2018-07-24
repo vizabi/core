@@ -1,21 +1,27 @@
 import { autorun, action, spy } from 'mobx'
-import markerStore from './marker/markerStore'
+import { vizabi } from './vizabi'
+import { config } from './config'
 import appState from './appState'
 import * as d3 from 'd3'
 
+window.viz = vizabi(config);
+window.vizabi = vizabi;
+window.autorun = autorun;
+
+//autorun(chart);
 chart();
 
 function chart() {
 
     const config = appState;
-    const marker = markerStore.get("bubble");
+    const marker = viz.markerStore.get("pcbs");
 
     var margin = config.margin;
 
     var xAxis = d3.axisBottom();
     var yAxis = d3.axisLeft();
 
-    var chart = d3.select("#chart");
+    var chart = d3.select("#chart"); //.html("");
     var svg = chart.append("g");
     var xAxisSVG = svg.append("g")
         .attr("class", "x axis");
@@ -44,12 +50,14 @@ function chart() {
     autorun(drawBubbles);
     autorun(drawChart);
     autorun(drawLegend);
-
-    //marker.encoding.get("frame").playing = true;
+    //drawBubbles();
+    //drawChart();
+    //drawLegend();
 
     function drawBubbles() {
 
         const data = marker.data;
+        if (data == null) { console.log('loading'); return; }
         const sizeConfig = marker.encoding.get("size");
         const colorConfig = marker.encoding.get("color");
         const xConfig = marker.encoding.get("x");
@@ -93,6 +101,7 @@ function chart() {
 
     function drawLegend() {
 
+        if (marker.data == null) return;
         const colorConfig = marker.encoding.get("color");
 
         const legendEntered = svg.selectAll(".legend")
@@ -127,11 +136,10 @@ function chart() {
 
     function drawChart() {
 
-        const sizeConfig = marker.encoding.get("size");
-        const colorConfig = marker.encoding.get("color");
+        if (marker.data == null) return;
+
         const xConfig = marker.encoding.get("x");
         const yConfig = marker.encoding.get("y");
-        const frameConfig = marker.encoding.get("frame");
 
         chart.attr("width", config.width + margin.left + margin.right)
             .attr("height", config.height + margin.top + margin.bottom)
