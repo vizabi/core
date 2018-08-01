@@ -18,7 +18,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
         addType: function(type, modelConstructor) {
             if (this.modelTypes[type])
                 console.warn("Adding model type " + type + " failed. Type already exists", this);
-            this.modelTypes[type] = modelConstructor;
+            this.modelTypes.all[type] = modelConstructor;
         },
         getAll: function() {
             return [...this.named.values(), ...this.anonymous];

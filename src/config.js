@@ -1,16 +1,15 @@
-var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
-
 export const config = {
     dataSources: {
         gap: {
-            reader: ddfcsv,
+            type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
         },
         pcbs: {
-            reader: ddfcsv,
+            type: "ddfcsv",
             path: "./ddf--pcbs--census2017/"
         },
         gapcsv: {
+            type: "csv",
             file: "fullgap.gapodd.csv",
             space: ["geo", "time"],
             /*transforms: [{
@@ -21,7 +20,8 @@ export const config = {
             }]*/
         },
         soder: {
-            file: "soder.csv"
+            reader: "csv",
+            path: "soder.csv"
         }
     },
     markers: {
@@ -98,13 +98,14 @@ export const config = {
                 },
                 "size": {
                     type: "size",
-                    which: "population",
-                    dataSource: "gappop",
+                    which: "population_total",
+                    dataSource: "gap",
                     scale: "sqrt",
-                    space: ["geo", "age", "year"],
+                    /*
+                    space: ["geo", "time", "year"],
                     filter: {
                         age: "0"
-                    }
+                    }*/
                 },
                 "color": {
                     space: ["geo"],

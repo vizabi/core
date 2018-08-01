@@ -1,7 +1,61 @@
-export const createKey = (space, row) => space.map(dim => row[dim]).join('-');
+export const createKey2 = (space, row) => space.map(dim => row[dim]).join('-');
+// micro-optimizations below as this is code that runs for each row in data to create key to the row
+
+// string replace functions jsperf: https://jsperf.com/string-replace-methods2
+// regexp not here, not fast in any browser
+/**
+ * Verbose string replace using progressive indexOf. Fastest in Chrome.
+ * Does not manipulate input string.
+ * @param {*} str Input string
+ * @param {*} ndl Needle to find in input string
+ * @param {*} repl Replacement string to replace needle with
+ */
+function replace(str, ndl, repl) {
+    var outstr = '',
+        start = 0,
+        end = 0,
+        l = ndl.length;
+    while ((end = str.indexOf(ndl, start)) > -1) {
+        outstr += str.slice(start, end) + repl;
+        start = end + l;
+    }
+    return outstr + str.slice(start);
+}
+// fastest in firefox
+function replace_sj(str, ndl, repl) {
+    return str.split(ndl).join(repl);
+}
+
+// precalc strings for optimization
+const escapechar = "\\";
+const joinchar = "-";
+const dblescape = escapechar + escapechar;
+const joinescape = escapechar + joinchar;
+var esc = str => isNumeric(str) ? str : replace(replace(str, escapechar, dblescape), joinchar, joinescape);
+
+// jsperf of key-creation options. Simple concat hash + escaping wins: https://jsperf.com/shallow-hash-of-object
+// for loop is faster than keys.map().join('-');
+// but in Edge, json.stringify is faster
+// pre-escaped space would add extra performance
+export const createKey = (space, row) => {
+    var l = space.length;
+    var res = (l > 0) ? esc(space[0]) + joinchar + esc(row[space[0]]) : '';
+    for (var i = 1; i < l; i++) {
+        var dim = space[i];
+        res += '-' + esc(dim) + joinchar + esc(row[dim]);
+    }
+    return res
+}
+
+// end micro-optimizations
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
+export function isString(value) {
+    return typeof value == 'string';
+}
+
+// copies properties using property descriptors so accessors (and other meta-properties) get correctly copied
 // https://www.webreflection.co.uk/blog/2015/10/06/how-to-copy-objects-in-javascript
 // rewrote for clarity and make sources overwrite target (mimic Object.assign)
 export function assign(target, ...sources) {
@@ -41,10 +95,6 @@ export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
         base = (base == null) ? config => ({ config: config }) : base;
         return assign(base(config), functions);
     }
-}
-
-export function isString(value) {
-    return typeof value == 'string';
 }
 
 // code from https://github.com/TehShrike/is-mergeable-object
@@ -136,4 +186,34 @@ deepmerge.all = function deepmergeAll(array, options) {
     return array.reduce(function(prev, next) {
         return deepmerge(prev, next, options)
     }, {})
+}
+
+export function deepmerge_new(target, source, options) {
+    options = options || {}
+    options.arrayMerge = options.arrayMerge || overwriteMerge
+    options.isMergeableObject = options.isMergeableObject || isMergeableObject
+
+    var sourceIsArray = Array.isArray(source)
+    var targetIsArray = Array.isArray(target)
+    var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray
+
+    if (!sourceAndTargetTypesMatch) {
+        return cloneUnlessOtherwiseSpecified(source, options)
+    } else if (sourceIsArray) {
+        return options.arrayMerge(target, source, options)
+    } else {
+        return mergeObject(target, source, options)
+    }
+}
+
+deepmerge_new.all = function deepmergeAll_new(array, options) {
+    if (!Array.isArray(array)) {
+        throw new Error('first argument should be an array')
+    }
+
+    const base = array.shift();
+
+    return array.reduce(function(prev, next) {
+        return deepmerge(prev, next, options)
+    }, base)
 }

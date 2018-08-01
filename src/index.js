@@ -4,9 +4,13 @@ import { config } from './config'
 import appState from './appState'
 import * as d3 from 'd3'
 
+var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
+vizabi.dataSourceStore.createAndAddType('ddfcsv', ddfcsv);
 window.viz = vizabi(config);
 window.vizabi = vizabi;
 window.autorun = autorun;
+
+
 
 //autorun(chart);
 chart();
@@ -14,7 +18,7 @@ chart();
 function chart() {
 
     const config = appState;
-    const marker = viz.markerStore.get("pcbs");
+    const marker = viz.markerStore.get("bubble");
 
     var margin = config.margin;
 
@@ -63,6 +67,7 @@ function chart() {
         const xConfig = marker.encoding.get("x");
         const yConfig = marker.encoding.get("y");
         const frameConfig = marker.encoding.get("frame");
+        const selectedMarkers = marker.selection;
 
         const update = svg.selectAll(".dot")
             .data(
@@ -76,9 +81,13 @@ function chart() {
 
         [
             updateTransition,
-            update.enter().append("circle")
+            update.enter()
+            .append("circle")
             .attr("class", "dot")
             .attr("id", d => d[Symbol.for('key')])
+            //.on("click", marker.toggleSelection.bind(marker))
+            //.on("mouseover", marker.addHighlight.bind(marker))
+            //.on("mouseout", marker.removeHighlight.bind(marker))
         ].map(selection => {
             selection.attr("cx", function(d) {
                     return xConfig.d3Scale(d.x);
@@ -88,6 +97,12 @@ function chart() {
                 })
                 .style("fill", function(d) {
                     return colorConfig.d3Scale(d.color);
+                })
+                .style('stroke', d => {
+                    return 'none';
+                    return selectedMarkers.has(d[Symbol.for('key')]) ?
+                        'black' :
+                        'none';
                 })
                 .attr("r", d => {
                     const which = sizeConfig.which;

@@ -4,7 +4,7 @@ import { configurable } from '../configurable';
 import { dataSourceStore } from '../dataSource/dataSourceStore';
 import { markerStore } from '../marker/markerStore';
 import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
-let counter = 0;
+
 const scales = {
     "linear": scaleLinear,
     "log": scaleLog,
@@ -22,7 +22,7 @@ const defaultConfig = {
     space: null,
     filter: null
 }
-let count = 1;
+
 const functions = {
     get which() { return this.config.which; },
     get filter() { return this.config.filter },
@@ -75,7 +75,6 @@ const functions = {
             return this.config.domain
 
         // default to unique values or extent, depending on scale
-        console.log(count++, "domain", this.which);
         const which = this.which;
         return (["ordinal", "point"].includes(this.scale)) ?
             set(this.data, d => d[which]).values().sort() :
@@ -91,8 +90,7 @@ const functions = {
         this.config.scale = null;
     })
 }
-let oldData;
-let oldWhich;
+
 export function baseEncoding(config) {
     config = deepmerge.all([{}, defaultConfig, config]);
     return assign({}, functions, configurable, { config });

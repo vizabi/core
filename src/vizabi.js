@@ -13,3 +13,7 @@ export const vizabi = function(config) {
         dataSourceStore
     }
 }
+
+vizabi.markerStore = markerStore;
+vizabi.encodingStore = encodingStore;
+vizabi.dataSourceStore = dataSourceStore;

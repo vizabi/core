@@ -17,7 +17,7 @@ const functions = {
         const trailsStart = (minFrame > this.trails.start) ? minFrame : this.trails.start;
         for (let i = maxFrame - 1; i >= trailsStart; i--) {
             const trailFrame = frameMap.get(i);
-            this.selected.forEach(markerKey => {
+            for (let markerKey of this.selection) {
                 const markerData = trailFrame.get(markerKey);
                 const newKey = markerKey + '-' + i;
                 const newData = Object.assign({}, markerData, {
@@ -28,7 +28,7 @@ const functions = {
                         .get(j)
                         .set(newKey, newData);
                 }
-            });
+            }
         }
         return frameMap;
     }
@@ -39,6 +39,12 @@ const defaultConfig = {
     trails: {
         show: false,
         start: null,
+    },
+    selections: {
+        select: {},
+        highlight: {},
+        show: {},
+        superhighlight: {}
     }
 }
 
@@ -52,6 +58,7 @@ export function bubble(config) {
         return assign(baseMarker, functions, {
             get frameMap() {
                 // decorate frameMap with trails
+                return this.baseFrameMap;
                 return this.addTrails(this.baseFrameMap);
             }
         });

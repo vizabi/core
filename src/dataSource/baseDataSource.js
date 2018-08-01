@@ -5,7 +5,7 @@ import { csv, interpolate } from 'd3';
 import { promisedComputed } from 'computed-async-mobx';
 
 const defaultConfig = {
-    reader: "csv",
+    type: "csv",
     path: "data.csv",
     transforms: [],
     space: ['marker', 'time']
@@ -16,10 +16,7 @@ const functions = {
     get transforms() { return this.config.transforms },
     get space() { return this.config.space },
     get reader() {
-        this.config.reader.init({
-            path: this.path
-        })
-        return this.config.reader;
+        console.warn("Called stub dataSource.reader getter. No reader set.", this)
     },
     get load() {
         //return promisedComputed([],
@@ -32,6 +29,17 @@ const functions = {
         //    this.load.get()
         //);
         return [];
+    },
+    get availability() {
+
+    },
+    get concepts() {
+        return this.query({
+            select: {
+                key: ["concept"],
+                value: ["name", "domain", "concept_type"]
+            }
+        }).get();
     },
     query: function(query) {
         //return [];

@@ -1,8 +1,7 @@
-import { observable, action } from 'mobx';
+import { action } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { assign, createKey, deepmerge, isString } from "../utils";
 import { configurable } from '../configurable';
-import { nest } from 'd3'
 
 const createObj = (space, row, key) => {
     const obj = {
@@ -24,15 +23,25 @@ const getOrCreateObj = (dataMap, space, row) => {
     return obj;
 }
 
+const defaultConfig = {
+    space: ["entity", "time"],
+    important: [],
+    selections: {},
+    encoding: {}
+};
+
 // outside of function scope, shared by markers
 let functions = {
     get space() { return this.config.space },
     get important() { return this.config.important },
-    get selected() { return this.config.selected },
+    // TODO: create selections class. Possibly close to datasource for use in same situations
+    get selections() {
+        return selectionStore.getByDefinitions(this.config.selections);
+    },
     get encoding() {
         // TODO: on config.encoding change, new encodings will be created
         // shouldn't happen, only for actual new encodings, new encodings should be created
-        return encodingStore.getByDefinitions(this.config.encoding)
+        return encodingStore.getByDefinitions(this.config.encoding);
     },
     get encodingWhich() {
         return [...this.encoding.values()].map(enc => ({
@@ -54,6 +63,8 @@ let functions = {
         const lookups = new Map();
         const spaces = new Map();
 
+        // TODO: move this to generic data merge to space transformation
+
         // sort visual encodings by space: marker space and (strict) subspaces
         for (let [prop, encoding] of this.encoding) {
             if (encoding.data == null) return null;
@@ -66,6 +77,8 @@ let functions = {
         }
 
         // data in marker space defines the actual markers in viz
+        // TODO: add check for non-marker space dimensions to contain only one value
+        // -> save first row values and all next values should be equal to first
         const markerSpaceKey = this.space.join('-');
         for (let { prop, encoding }
             of spaces.get(markerSpaceKey)) {
@@ -97,7 +110,12 @@ let functions = {
         for (let row of dataMap.values()) {
             for (let [space, lookup] of lookups) {
                 const key = createKey(space, row);
-                Object.assign(row, lookup.get(key));
+                // will not copy key-Symbol as it's not enumerable
+                // speed comparison: https://jsperf.com/shallow-merge-options/
+                const source = lookup.get(key);
+                for (var i in source) {
+                    row[i] = source[i];
+                }
             }
         }
 
@@ -140,13 +158,6 @@ let functions = {
         return dataMap;
     }
 }
-
-const defaultConfig = {
-    space: ["entity", "time"],
-    important: [],
-    selected: [],
-    encoding: {}
-};
 
 export function baseMarker(config) {
     config = deepmerge.all([{}, defaultConfig, config]);
