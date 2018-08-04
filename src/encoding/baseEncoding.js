@@ -33,7 +33,7 @@ const functions = {
         return this.config.space || this.marker.space;
     },
     get dataSource() {
-        return dataSourceStore.getByDefinition(this.config.dataSource)
+        return dataSourceStore.getByDefinition(this.config.dataSource);
     },
     get ddfQuery() {
         const query = {

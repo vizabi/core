@@ -63,7 +63,7 @@ let functions = {
         const lookups = new Map();
         const spaces = new Map();
 
-        // TODO: move this to generic data merge to space transformation
+        // TODO: move this to generic data merge to data transformation layer
 
         // sort visual encodings by space: marker space and (strict) subspaces
         for (let [prop, encoding] of this.encoding) {
@@ -146,7 +146,7 @@ let functions = {
             if (this.frameMap.has(currentFrameId))
                 return [...this.frameMap.get(currentFrameId).values()];
             if (currentFrameId != null)
-                return new Map();
+                return [];
         }
         // otherwise, just return data
         return [...this.checkImportantEncodings(this.dataMap).values()];

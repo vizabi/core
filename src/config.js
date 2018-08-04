@@ -68,7 +68,6 @@ export const config = {
                 "frame": {
                     type: "frame",
                     which: "year",
-                    dataSource: "pcbs",
                     value: 2017,
                     interpolate: true,
                     speed: 100
@@ -84,6 +83,25 @@ export const config = {
             },
             encoding: {
                 // "markerProperty": "encoding definition"
+                /*"label": {
+                    type: "label",
+                    which: "name",
+                    space: [
+                        ["geo"],
+                        ["gender"]
+                    ],
+                    scale: "concat"
+                },*/
+                "selected": {
+                    type: "selection",
+                    markers: ["geo-usa"]
+                },
+                "highlighted": {
+                    type: "selection"
+                },
+                "superhighlighted": {
+                    type: "selection"
+                },
                 "x": {
                     type: "x",
                     which: "income_per_person_gdppercapita_ppp_inflation_adjusted",
@@ -101,11 +119,12 @@ export const config = {
                     which: "population_total",
                     dataSource: "gap",
                     scale: "sqrt",
-                    /*
-                    space: ["geo", "time", "year"],
-                    filter: {
-                        age: "0"
-                    }*/
+                    range: [0, 50]
+                        /*
+                        space: ["geo", "time", "year"],
+                        filter: {
+                            age: "0"
+                        }*/
                 },
                 "color": {
                     space: ["geo"],
@@ -118,7 +137,6 @@ export const config = {
                 "frame": {
                     type: "frame",
                     which: "time",
-                    dataSource: "gap",
                     value: 1800,
                     interpolate: true,
                     speed: 100

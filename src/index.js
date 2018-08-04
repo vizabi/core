@@ -67,28 +67,37 @@ function chart() {
         const xConfig = marker.encoding.get("x");
         const yConfig = marker.encoding.get("y");
         const frameConfig = marker.encoding.get("frame");
-        const selectedMarkers = marker.selection;
+        const selectedConfig = marker.encoding.get("selected");
+        const highlightConfig = marker.encoding.get("highlighted");
+        const superHighlight = marker.encoding.get("superhighlighted");
 
-        const update = svg.selectAll(".dot")
+        // data join
+        let update = svg.selectAll(".dot")
             .data(
                 data,
                 d => d[Symbol.for('key')]
             );
 
-        const updateTransition = (frameConfig && frameConfig.playing) ?
-            update.transition(getTransition(frameConfig)) :
-            update.interrupt();
-
-        [
-            updateTransition,
-            update.enter()
+        // create new bubbles
+        const enter = update.enter()
             .append("circle")
             .attr("class", "dot")
             .attr("id", d => d[Symbol.for('key')])
-            //.on("click", marker.toggleSelection.bind(marker))
-            //.on("mouseover", marker.addHighlight.bind(marker))
-            //.on("mouseout", marker.removeHighlight.bind(marker))
-        ].map(selection => {
+            .on("click", selectedConfig.toggleSelection.bind(selectedConfig))
+            .on("mouseover", highlightConfig.addSelection.bind(highlightConfig))
+            .on("mouseout", highlightConfig.removeSelection.bind(highlightConfig));
+
+        // remove old bubbles
+        const exit = update.exit().remove();
+
+        // create or stop transition of update selection
+        update = (frameConfig && frameConfig.playing) ?
+            update.transition(getTransition(frameConfig)) :
+            update.interrupt();
+
+        // update bubble properties
+        // can't use merge as you can't merge transitions and selections without losing transition
+        [enter, update].map(selection => {
             selection.attr("cx", function(d) {
                     return xConfig.d3Scale(d.x);
                 })
@@ -98,26 +107,61 @@ function chart() {
                 .style("fill", function(d) {
                     return colorConfig.d3Scale(d.color);
                 })
-                .style('stroke', d => {
-                    return 'none';
-                    return selectedMarkers.has(d[Symbol.for('key')]) ?
-                        'black' :
+                .style('animation', d => {
+                    return superHighlight.isSelected(d) ?
+                        'blink 1s step-start 0s infinite' :
                         'none';
+                })
+                .style('stroke', 'black')
+                .style('opacity', d => {
+                    const highlight = 0.3;
+                    const select = 0.5;
+                    const other = 1;
+                    const highlighted = highlightConfig.isSelected(d);
+                    const selected = selectedConfig.isSelected(d);
+                    const trail = d[Symbol.for('trail')] === true;
+
+                    if (highlighted || selected || trail) return other;
+                    if (selectedConfig.anySelected) return select;
+                    if (highlightConfig.anySelected) return highlight;
+                    return other;
                 })
                 .attr("r", d => {
                     const which = sizeConfig.which;
                     const radius = isNaN(which) ? sizeConfig.d3Scale(d.size) : which;
                     return radius;
                 });
+
         })
 
-        update.exit().remove();
+        // sort bubbles        
+        // why not just data.sort()? 
+        // Because when d3-joining the data, data is split in two: enter and update.
+        // Enter selection elements are always appended before update selection (which was already in DOM), regardless of data sorting
+        // https://github.com/d3/d3-selection#selection_append
+        // could sort data in marker, then use indexes for sorting bubbles, but d3.selection.sort() needed.
+        const orderBy = "size";
+        const orderTrailBy = frameConfig.which; // doesn't work if frame.which is value instead of key (then it's a.frame/b.frame)
+        enter.merge(update).sort((a, b) => {
+            const [aTrail, bTrail] = [a, b].map(d => typeof d[Symbol.for('trailHeadKey')] !== "undefined");
+
+            // both trail or normal
+            if (!aTrail && !bTrail) return b[orderBy] - a[orderBy] // sort normal bubbles
+            if (aTrail && bTrail) return a[orderTrailBy] - b[orderTrailBy]; // sort trail bubbles
+
+            // trail vs normal
+            const [trail, normal] = bTrail ? [b, a] : [a, b]; // identify which is trail (one must be)
+            if (normal[Symbol.for('key')] == trail[Symbol.for('trailHeadKey')]) return aTrail ? -1 : 1; // sort head of trail and trail (head of trail wins)
+            return aTrail ? 1 : -1; // sort normal bubbles and trail (trail wins)
+        })
+
     }
 
     function drawLegend() {
 
         if (marker.data == null) return;
         const colorConfig = marker.encoding.get("color");
+        const superHighlight = marker.encoding.get("superhighlighted");
 
         const legendEntered = svg.selectAll(".legend")
             .data(colorConfig.d3Scale.domain())
@@ -137,7 +181,15 @@ function chart() {
             .attr("x", config.width - 18)
             .attr("width", 18)
             .attr("height", 18)
-            .style("fill", colorConfig.d3Scale);
+            .style("fill", colorConfig.d3Scale)
+            .on("mouseover", d => {
+                const values = marker.data.filter(d2 => d2["color"] == d && !d2[Symbol.for('trail')]);
+                superHighlight.addSelection(values);
+            })
+            .on("mouseout", d => {
+                const values = marker.data.filter(d2 => d2["color"] == d && !d2[Symbol.for('trail')]);
+                superHighlight.removeSelection(values);
+            });;
 
         legend.select("text")
             .attr("x", config.width - 24)

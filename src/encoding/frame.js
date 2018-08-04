@@ -1,9 +1,10 @@
 import { baseEncoding } from './baseEncoding';
 import { action, reaction } from 'mobx'
 import { assign, deepmerge, createKey } from '../utils';
-import { interpolate } from 'd3';
+import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
+    type: "frame",
     value: (new Date()).getFullYear(),
     speed: 100,
     interpolate: true
@@ -12,6 +13,10 @@ const defaultConfig = {
 const functions = {
     get value() { return this.config.value },
     get speed() { return this.config.speed },
+    get domain() {
+        if (this.marker.frameMap == null) return this.config.domain;
+        return extent([...this.marker.frameMap.keys()]);
+    },
     get interpolate() { return this.config.interpolate },
     playing: false,
     timeout: null,
@@ -23,17 +28,23 @@ const functions = {
     stopPlaying: action('stopPlaying', function() {
         this.playing = false;
     }),
+    setValue: action('setValue', function(value) {
+        const domain = this.domain;
+        value = Math.min(Math.max(value, domain[0]), domain[1]);
+        this.config.value = value;
+    }),
     setValueAndStop: action('setValueAndStop', function(value) {
         this.stopPlaying();
-        this.config.value = value;
+        this.setValue(value);
     }),
     update: action('update frame value', function() {
         if (this.playing) {
-            this.config.value++;
-            if (this.value == this.domain[1])
+            const newValue = this.value + 1;
+            this.setValue(newValue);
+            if (newValue > this.domain[1])
                 this.stopPlaying();
             // used for timeout instead of interval timing
-            // else this.timeout = setTimeout(this.update.bind(this), this.speed);
+            //else this.timeout = setTimeout(this.update.bind(this), this.speed);
         }
     }),
     createFrameMap: function(flatDataMap, space) {
@@ -142,14 +153,14 @@ const functions = {
         const controlTimer = reaction(
             // mention all observables (state & computed) which you want to be tracked
             // if not tracked, they will always be recomputed, their values are not cached
-            () => { return { playing: this.playing, speed: this.speed, domain: this.domain } },
+            () => { return { playing: this.playing, speed: this.speed } },
             ({ playing, speed }) => {
-                this.timeout = clearInterval(this.timeout);
+                clearInterval(this.playInterval);
                 if (playing) {
                     this.update();
-                    this.timeout = setInterval(this.update.bind(this), speed);
+                    this.playInterval = setInterval(this.update.bind(this), speed);
                 }
-            }
+            }, { name: "frame" }
         );
     }
 }

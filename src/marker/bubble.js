@@ -8,6 +8,9 @@ const functions = {
         if (!this.trails.show)
             return frameMap;
 
+        const frame = this.encoding.get('frame');
+
+        // can't use frame.domain because of cycle frame.domain -> frameMap -> frame.domain
         const [minFrame, maxFrame] = extent([...frameMap.keys()]);
         if (!maxFrame)
             return frameMap;
@@ -17,11 +20,13 @@ const functions = {
         const trailsStart = (minFrame > this.trails.start) ? minFrame : this.trails.start;
         for (let i = maxFrame - 1; i >= trailsStart; i--) {
             const trailFrame = frameMap.get(i);
-            for (let markerKey of this.selection) {
+            for (let markerKey of this.encoding.get('selected').markerKeys) {
                 const markerData = trailFrame.get(markerKey);
-                const newKey = markerKey + '-' + i;
+                const newKey = markerKey + '-' + frame.which + '-' + i;
                 const newData = Object.assign({}, markerData, {
-                    [Symbol.for('key')]: newKey
+                    [Symbol.for('key')]: newKey,
+                    [Symbol.for('trail')]: true,
+                    [Symbol.for('trailHeadKey')]: markerKey
                 });
                 for (let j = i + 1; j <= maxFrame; j++) {
                     frameMap
@@ -58,7 +63,7 @@ export function bubble(config) {
         return assign(baseMarker, functions, {
             get frameMap() {
                 // decorate frameMap with trails
-                return this.baseFrameMap;
+                //return this.baseFrameMap;
                 return this.addTrails(this.baseFrameMap);
             }
         });
