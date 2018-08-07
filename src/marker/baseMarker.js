@@ -1,4 +1,4 @@
-import { action } from 'mobx';
+import { action, trace, computed } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { assign, createKey, deepmerge, isString } from "../utils";
 import { configurable } from '../configurable';
@@ -26,19 +26,15 @@ const getOrCreateObj = (dataMap, space, row) => {
 const defaultConfig = {
     space: ["entity", "time"],
     important: [],
-    selections: {},
-    encoding: {}
+    encoding: {},
 };
 
 // outside of function scope, shared by markers
 let functions = {
     get space() { return this.config.space },
     get important() { return this.config.important },
-    // TODO: create selections class. Possibly close to datasource for use in same situations
-    get selections() {
-        return selectionStore.getByDefinitions(this.config.selections);
-    },
     get encoding() {
+        //trace();
         // TODO: on config.encoding change, new encodings will be created
         // shouldn't happen, only for actual new encodings, new encodings should be created
         return encodingStore.getByDefinitions(this.config.encoding);
@@ -50,15 +46,15 @@ let functions = {
             dataSource: enc.dataSource
         }));
     },
-    get ddfqlQuery() {
-        return {
-            select: {
-                key: this.space,
-                value: this.encodingWhich
-            }
-        }
+    get ownDataEncoding() {
+        //trace();
+        return new Map(
+            Array.from(this.encoding).filter(([prop, enc]) => enc.hasOwnData)
+        );
     },
-    get dataMap() {
+    // computed to cache calculation
+    get dataMapCache() {
+        //trace();
         const dataMap = new Map();
         const lookups = new Map();
         const spaces = new Map();
@@ -66,8 +62,10 @@ let functions = {
         // TODO: move this to generic data merge to data transformation layer
 
         // sort visual encodings by space: marker space and (strict) subspaces
-        for (let [prop, encoding] of this.encoding) {
-            if (encoding.data == null) return null;
+        for (let [prop, encoding] of this.ownDataEncoding) {
+
+            if (encoding.response == null) return null; // loading
+
             const spaceOverlap = intersect(this.space, encoding.space);
             const spaceOverlapKey = spaceOverlap.join('-');
             if (spaces.has(spaceOverlapKey))
@@ -82,10 +80,9 @@ let functions = {
         const markerSpaceKey = this.space.join('-');
         for (let { prop, encoding }
             of spaces.get(markerSpaceKey)) {
-            const which = encoding.which;
-            encoding.data.forEach(row => {
+            encoding.response.forEach(row => {
                 const obj = getOrCreateObj(dataMap, this.space, row);
-                obj[prop] = row[which];
+                obj[prop] = encoding.processRow(row);
             });
         }
 
@@ -97,10 +94,9 @@ let functions = {
             const lookup = new Map();
             for (let { prop, encoding }
                 of encodings) {
-                const which = encoding.which;
-                encoding.data.forEach(row => {
+                encoding.response.forEach(row => {
                     const obj = getOrCreateObj(lookup, space, row);
-                    obj[prop] = row[which];
+                    obj[prop] = encoding.processRow(row);
                 });
             }
             lookups.set(space, lookup);
@@ -124,42 +120,62 @@ let functions = {
             return a.filter(e => b.includes(e));
         }
 
+        this.checkImportantEncodings(dataMap);
+
         return dataMap;
     },
-    get frameMap() {
-        // loading
-        if (this.dataMap == null) return null;
+    get dataMap() {
+        //trace();
 
-        const frameMap = this.encoding.get("frame").createFrameMap(this.dataMap, this.space);
-        for (let [frameId, dataMap] of frameMap) {
-            this.checkImportantEncodings(dataMap);
-        }
-        return frameMap;
+        const frameEnc = this.encoding.get("frame") || {};
+        const frame = frameEnc.currentFrame;
+        const dataMap = frame ? frame : this.dataMapCache;
+
+        if (dataMap == null)
+            return null;
+        const orderEnc = this.encoding.get("order");
+        return orderEnc ? orderEnc.order(dataMap) : dataMap;
     },
     get data() {
-        // loading
-        if (this.dataMap == null) return null;
+        //trace();
 
-        // return a frame if there is one
-        if (this.encoding.has("frame")) {
-            const currentFrameId = this.encoding.get("frame").value;
-            if (this.frameMap.has(currentFrameId))
-                return [...this.frameMap.get(currentFrameId).values()];
-            if (currentFrameId != null)
-                return [];
+        let data;
+        if (this.encoding.has('frame')) {
+            const frameEnc = this.encoding.get("frame") || {};
+            data = frameEnc.currentFrameArray;
         }
-        // otherwise, just return data
-        return [...this.checkImportantEncodings(this.dataMap).values()];
+        data = data ? data : this.dataMap ? [...this.dataMap.values()] : null;
+
+        if (data == null)
+            return null; // loading
+        else
+            return data;
     },
     checkImportantEncodings: function(dataMap) {
         // remove markers which miss important values. Should only be done áfter interpolation though.
+        const important = this.important;
         for (let [key, row] of dataMap)
-            if (this.important.some(prop => !row.hasOwnProperty(prop) || !row[prop])) dataMap.delete(key);
-        return dataMap;
+            if (important.some(prop => !row.hasOwnProperty(prop) || !row[prop])) dataMap.delete(key);
     }
 }
 
 export function baseMarker(config) {
     config = deepmerge.all([{}, defaultConfig, config]);
     return assign({}, functions, configurable, { config });
+}
+
+baseMarker.decorate = {
+    ownDataEncoding: computed({
+        equals(a, b) {
+            let l = a.size;
+            if (l != b.size) return false;
+            let aKeys = a.keys();
+            for (let i = 0; i < l; i++) {
+                let key = aKeys[i];
+                if (!b.has(key)) return false;
+                if (!a.get(key) === b.get(key)) return false;
+            }
+            return true;
+        }
+    })
 }

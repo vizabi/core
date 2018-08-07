@@ -6,18 +6,27 @@
     <style type="text/css">
         html,
         body {
+            font-family: arial, sans;
             height: 100%;
             overflow: hidden;
             margin: 0;
         }
         
+        #timecontrol {
+            height: 50px;
+        }
+        
+        #toggle {
+            width: 40px;
+        }
+        
         #wrapper {
-            height: 100%;
+            flex: 1;
         }
         
         body {
-            margin: 0;
-            font-family: arial, sans;
+            display: flex;
+            flex-flow: column;
         }
         
         .label {
@@ -71,6 +80,12 @@
 </head>
 
 <body>
+    <div id="timecontrol">
+        <input type="button" id="toggle"> frame:
+        <input type="range" id="timeslider"> speed:
+        <input type="range" id="speedslider">
+
+    </div>
     <div id="wrapper">
         <svg id="chart"></svg>
     </div>

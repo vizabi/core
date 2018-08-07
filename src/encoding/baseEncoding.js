@@ -1,5 +1,6 @@
-import { action, toJS } from 'mobx';
-import { deepmerge, assign, defaultDecorator } from "../utils";
+import { action, toJS, isObservableArray, trace, observable } from 'mobx';
+import { deepmerge, assign, defaultDecorator, isString } from "../utils";
+import { resolveRef } from '../vizabi';
 import { configurable } from '../configurable';
 import { dataSourceStore } from '../dataSource/dataSourceStore';
 import { markerStore } from '../marker/markerStore';
@@ -14,82 +15,144 @@ const scales = {
 }
 
 const defaultConfig = {
-    which: "var",
-    scale: null,
-    dataSource: "data",
-    domain: null,
-    range: null,
-    space: null,
-    filter: null
+    data: {
+        source: null,
+        concept: "var",
+        space: null,
+        filter: null
+    },
+    scale: {
+        type: null,
+        domain: null,
+        range: null
+    }
 }
 
 const functions = {
-    get which() { return this.config.which; },
-    get filter() { return this.config.filter },
     get marker() {
-        return markerStore.getMarkerForEncoding(this) || console.warn("Couldn't find marker model for encoding.", { encoding: this });
-    },
-    get space() {
-        return this.config.space || this.marker.space;
-    },
-    get dataSource() {
-        return dataSourceStore.getByDefinition(this.config.dataSource);
-    },
-    get ddfQuery() {
-        const query = {
-            select: {
-                key: this.space.toJS(),
-                value: [this.which]
-            }
-        }
-        if (this.filter) {
-            query.where = toJS(this.filter);
-        }
-        return query;
-    },
-    get load() {
-        return this.dataSource.query(this.ddfQuery);
+        //trace();
+        const marker = markerStore.getMarkerForEncoding(this);
+        if (marker == null) console.warn("Couldn't find marker model for encoding.", { encoding: this });
+        return marker;
     },
     get data() {
-        if (this.space.includes(this.which)) return [];
-        else return this.load.get();
-    },
-    get range() {
-        if (this.config.range != null)
-            return this.config.range
+        //trace();
+        var cfg = this.config.data;
+        if (isString(cfg.ref))
+            return resolveRef(cfg);
 
-        // default
-        return (this.config.scale == "ordinal") ?
-            schemeCategory10 : [0, 1];
+        return this.createDataProp(cfg);
+    },
+    createDataProp(cfg) {
+        return observable(Object.defineProperties({}, {
+            source: { get: () => (cfg.source == null) ? null : dataSourceStore.getByDefinition(cfg.source), enumerable: true },
+            space: {
+                get: () => {
+                    //trace();
+                    return cfg.space || ((this.marker) ? this.marker.space : null)
+                },
+                enumerable: true
+            },
+            concept: { get: () => resolveRef(cfg.concept), enumerable: true },
+            filter: { get: () => cfg.filter, enumerable: true },
+            load: {
+                get: function() {
+                    //trace();
+                    return this.source.query(this.ddfQuery)
+                },
+                enumerable: true
+            },
+            response: {
+                get: function() {
+                    //trace();
+                    if (!this.hasOwnData) return [];
+                    else return this.load.get();
+                },
+                enumerable: true
+            },
+            hasOwnData: {
+                get: function() {
+                    return this.space && !this.space.includes(this.concept) && this.source;
+                },
+                enumerable: true
+            },
+            ddfQuery: {
+                get: function() {
+                    const query = {
+                        select: {
+                            key: this.space.slice(), // slice to make sure it's a normal array (not mobx)
+                            value: [this.concept]
+                        }
+                    }
+                    if (this.filter) {
+                        query.where = toJS(this.filter);
+                    }
+                    return query;
+                },
+                enumerable: true
+            }
+        }))
+    },
+    get dataConnected() {
+        this.space.includes(this.data);
+    },
+    get response() {
+        //trace();
+        return this.data.response
+    },
+    get space() {
+        return this.data.space
+    },
+    get hasOwnData() {
+        return this.data.hasOwnData
     },
     get scale() {
-        return scales[this.config.scale] ? this.config.scale : "linear";
+        if (isString(this.config.scale.ref))
+            return resolveRef(this.config.scale);
+
+        const scaleType = () => {
+            return scales[this.config.scale.type] ? this.config.scale.type : "linear";
+        }
+
+        return Object.defineProperties({}, {
+            type: { get: scaleType },
+            domain: { get: this.domain.bind(this) },
+            range: { get: this.range.bind(this) }
+        });
     },
-    get d3Scale() {
-        const scale = scales[this.scale]();
-        const domain = (this.scale == "log" && this.domain[0] == 0) ? [1, this.domain[1]] : this.domain;
-        return scale.range(this.range).domain(domain);
+    range() {
+        if (this.config.scale.range != null)
+            return this.config.scale.range
+
+        // default
+        return (this.scale.type == "ordinal") ?
+            schemeCategory10 : [0, 1];
     },
-    get domain() {
-        if (this.config.domain != null)
-            return this.config.domain
+    domain() {
+        if (this.config.scale.domain != null)
+            return this.config.scale.domain
 
         // default to unique values or extent, depending on scale
-        const which = this.which;
-        return (["ordinal", "point"].includes(this.scale)) ?
-            set(this.data, d => d[which]).values().sort() :
-            this.extent
+        const which = this.data.concept;
+        return (["ordinal", "point"].includes(this.scale.type)) ?
+            set(this.response, d => d[which]).values().sort() :
+            extent(this.response, d => d[which]);
     },
-    get extent() {
-        const which = this.which;
-        return extent(this.data, d => d[which]);
+    processRow(row) {
+        return row[this.data.concept];
+    },
+    get d3Scale() {
+        const scale = scales[this.scale.type]();
+        const domain = (this.scale.type == "log" && this.scale.domain[0] == 0) ? [1, this.scale.domain[1]] : this.scale.domain;
+        return scale.range(this.scale.range).domain(domain);
     },
     setWhich: action('setWhich', function(which) {
-        this.config.which = which;
-        this.config.domain = null;
-        this.config.scale = null;
+        this.config.data.concept = which;
+        this.config.scale.domain = null;
+        this.config.scale.type = null;
     })
 }
+
 
 export function baseEncoding(config) {
     config = deepmerge.all([{}, defaultConfig, config]);

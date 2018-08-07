@@ -5,7 +5,7 @@ import appState from '../appState'
 export const x = defaultDecorator({
     base: baseEncoding,
     functions: {
-        get range() {
+        range() {
             return [0, appState.width]
         }
     }

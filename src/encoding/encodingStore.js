@@ -6,6 +6,7 @@ import { y } from './y'
 import { size } from './size'
 import { color } from './color'
 import { selection } from './selection'
+import { order } from './order'
 
 export const encodingStore = createStore(baseEncoding, {
     frame,
@@ -13,5 +14,6 @@ export const encodingStore = createStore(baseEncoding, {
     y,
     color,
     size,
-    selection
+    selection,
+    order
 });

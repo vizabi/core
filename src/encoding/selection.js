@@ -10,27 +10,27 @@ const defaultConfig = {
 }
 
 const functions = {
-    get markerKeys() {
+    get markers() {
         return new Set(this.config.markers);
     },
     isSelected(d) {
-        return this.markerKeys.has(this.getKey(d));
+        return this.markers.has(this.getKey(d));
     },
     get anySelected() {
-        return this.markerKeys.size !== 0;
+        return this.markers.size !== 0;
     },
-    addSelection: action('addSelection', function(d) {
+    addSelection: function(d) {
         this.changeSelection(d, "add");
-    }),
-    removeSelection: action('removeSelection', function(d) {
+    },
+    removeSelection: function(d) {
         this.changeSelection(d, "delete");
-    }),
+    },
     // add/remove a bit verbose but better to not alter object (Set)
     // coming from computed property
     changeSelection: action('changeSelection', function(d, changeFn) {
-        const newKeys = new Set(this.markerKeys);
+        const newKeys = new Set(this.markers);
         if (Array.isArray(d)) {
-            d.map(this.getKey).forEach(newKeys[changeFn].bind(newKeys));
+            d.map(this.getKey).forEach(key => newKeys[changeFn](key));
         } else {
             newKeys[changeFn](this.getKey(d));
         }
@@ -48,7 +48,7 @@ const functions = {
     },
     // selections don't have their own data (yet)
     // possibly they take dataMap and add 'selected/highlighted' boolean properties
-    get data() {
+    get response() {
         return [];
     }
 }

@@ -8,11 +8,13 @@ const colors = { schemeCategory10 }
 export const color = defaultDecorator({
     base: baseEncoding,
     defaultConfig: {
-        range: schemeCategory10
+        scale: {
+            range: "schemeCategory10"
+        }
     },
     functions: {
-        get range() {
-            const range = this.config.range;
+        range() {
+            const range = this.config.scale.range;
             if (isString(range) && colors[range]) {
                 return colors[range];
             } else if (Array.isArray(range)) {

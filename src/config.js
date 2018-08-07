@@ -28,10 +28,6 @@ export const config = {
         "pcbs": {
             type: "bubble",
             space: ["region", "year", "locality_type"],
-            trails: {
-                show: true,
-                start: 1800
-            },
             encoding: {
                 // "markerProperty": "encoding definition"
                 "x": {
@@ -77,10 +73,6 @@ export const config = {
         "bubble": {
             type: "bubble",
             space: ["geo", "time"],
-            trails: {
-                show: true,
-                start: 1800
-            },
             encoding: {
                 // "markerProperty": "encoding definition"
                 /*"label": {
@@ -104,42 +96,71 @@ export const config = {
                 },
                 "x": {
                     type: "x",
-                    which: "income_per_person_gdppercapita_ppp_inflation_adjusted",
-                    dataSource: "gap",
-                    scale: "log"
+                    data: {
+                        source: "gap",
+                        concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
+                    },
+                    scale: {
+                        type: "log"
+                    }
                 },
                 "y": {
                     type: "y",
-                    which: "life_expectancy_years",
-                    dataSource: "gap",
-                    scale: "linear"
+                    data: {
+                        source: "gap",
+                        concept: "life_expectancy_years"
+                    },
+                    scale: {
+                        type: "linear"
+                    }
+                },
+                "order": {
+                    type: "order",
+                    data: [
+                        { ref: "marker.bubble.encoding.size.data", direction: "descending" }
+                    ]
                 },
                 "size": {
                     type: "size",
-                    which: "population_total",
-                    dataSource: "gap",
-                    scale: "sqrt",
-                    range: [0, 50]
-                        /*
-                        space: ["geo", "time", "year"],
-                        filter: {
-                            age: "0"
-                        }*/
+                    data: {
+                        source: "gap",
+                        concept: "population_total"
+                    },
+                    scale: {
+                        type: "sqrt",
+                        range: [0, 50]
+                    }
+                    /*
+                    space: ["geo", "time", "year"],
+                    filter: {
+                        age: "0"
+                    }*/
                 },
                 "color": {
-                    space: ["geo"],
                     type: "color",
-                    which: "world_4region",
-                    dataSource: "gap",
-                    scale: "ordinal",
-                    range: "schemeCategory10"
+                    data: {
+                        source: "gap",
+                        space: ["geo"],
+                        concept: "world_4region"
+                    },
+                    scale: {
+                        type: "ordinal",
+                        range: "schemeCategory10"
+                    }
                 },
                 "frame": {
                     type: "frame",
-                    which: "time",
-                    value: 1800,
+                    data: {
+                        concept: "time"
+                    },
+                    value: 2018,
                     interpolate: true,
-                    speed: 100
+                    speed: 100,
+                    trails: {
+                        show: true,
+                        start: 1800,
+                        markers: { ref: "marker.bubble.encoding.selected.markers" }
+                    }
                 }
             }
         }

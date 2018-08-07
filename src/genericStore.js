@@ -29,7 +29,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
         create: function(config) {
             if (isObservableObject(config)) config = toJS(config);
             let modelType = this.modelTypes.all[config.type] || this.modelTypes.base;
-            let model = observable(modelType(config), null, { name: config.type || 'base' });
+            let model = observable(modelType(config), modelType.decorate || null, { name: config.type || 'base' });
             if (model.setUpReactions) model.setUpReactions();
             return model;
         },

@@ -5,12 +5,14 @@ import appState from './appState'
 import * as d3 from 'd3'
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
-vizabi.dataSourceStore.createAndAddType('ddfcsv', ddfcsv);
+vizabi.stores.dataSource.createAndAddType('ddfcsv', ddfcsv);
 window.viz = vizabi(config);
 window.vizabi = vizabi;
 window.autorun = autorun;
 
-
+/*spy((event) => {
+    console.log(`${event.name}`, event)
+})*/
 
 //autorun(chart);
 chart();
@@ -18,7 +20,7 @@ chart();
 function chart() {
 
     const config = appState;
-    const marker = viz.markerStore.get("bubble");
+    const marker = viz.stores.marker.get("bubble");
 
     var margin = config.margin;
 
@@ -43,6 +45,25 @@ function chart() {
         .attr("dy", ".71em")
         .style("text-anchor", "end");
 
+
+    let playtoggle, timeslider, speedslider;
+
+    function setupTimecontrol() {
+
+        const frameCfg = marker.encoding.get("frame");
+
+        const timecontrol = d3.select("#timecontrol");
+        playtoggle = timecontrol.select("#toggle")
+            .on('click', function() { frameCfg.togglePlaying() })
+        timeslider = timecontrol.select("#timeslider")
+            .on('input', function() { frameCfg.setValueAndStop(this.value) });
+        speedslider = timecontrol.select("#speedslider")
+            .attr('min', 1)
+            .attr('max', 1000)
+            .style('direction', 'rtl')
+            .on('input', function() { frameCfg.setSpeed(this.value) });
+    }
+
     const updateSize = action("wrapper size", function(e) {
         var wrap = document.getElementById("wrapper");
         appState.wrapper.height = wrap.clientHeight;
@@ -51,15 +72,30 @@ function chart() {
     window.addEventListener("resize", updateSize);
     updateSize();
 
+    autorun(setupTimecontrol);
     autorun(drawBubbles);
     autorun(drawChart);
     autorun(drawLegend);
+    autorun(drawTimecontrol);
     //drawBubbles();
     //drawChart();
     //drawLegend();
 
-    function drawBubbles() {
+    function drawTimecontrol() {
+        const frameCfg = marker.encoding.get("frame");
+        const [min, max] = frameCfg.scale.domain || [0, 1];
+        timeslider.attr('min', min)
+            .attr('max', max)
+            .property('value', frameCfg.value)
+            .attr('step', 1);
 
+        speedslider.property('value', frameCfg.speed);
+
+        playtoggle.property('value', frameCfg.playing ? 'stop' : 'play')
+
+    }
+
+    function drawBubbles() {
         const data = marker.data;
         if (data == null) { console.log('loading'); return; }
         const sizeConfig = marker.encoding.get("size");
@@ -83,9 +119,11 @@ function chart() {
             .append("circle")
             .attr("class", "dot")
             .attr("id", d => d[Symbol.for('key')])
-            .on("click", selectedConfig.toggleSelection.bind(selectedConfig))
-            .on("mouseover", highlightConfig.addSelection.bind(highlightConfig))
-            .on("mouseout", highlightConfig.removeSelection.bind(highlightConfig));
+            .on("click", d => {
+                if (!d[Symbol.for('trailHeadKey')]) selectedConfig.toggleSelection(d);
+            })
+            .on("mouseover", d => highlightConfig.addSelection(d))
+            .on("mouseout", d => highlightConfig.removeSelection(d));
 
         // remove old bubbles
         const exit = update.exit().remove();
@@ -112,20 +150,11 @@ function chart() {
                         'blink 1s step-start 0s infinite' :
                         'none';
                 })
+                .style('zIndex', d => isHighlightedTrail(d) ? 100 : 'auto')
                 .style('stroke', 'black')
-                .style('opacity', d => {
-                    const highlight = 0.3;
-                    const select = 0.5;
-                    const other = 1;
-                    const highlighted = highlightConfig.isSelected(d);
-                    const selected = selectedConfig.isSelected(d);
-                    const trail = d[Symbol.for('trail')] === true;
-
-                    if (highlighted || selected || trail) return other;
-                    if (selectedConfig.anySelected) return select;
-                    if (highlightConfig.anySelected) return highlight;
-                    return other;
-                })
+                .style('stroke-width', d => isHighlightedTrail(d) ? 3 : 1)
+                .style('stroke-opacity', getOpacity)
+                .style('opacity', getOpacity)
                 .attr("r", d => {
                     const which = sizeConfig.which;
                     const radius = isNaN(which) ? sizeConfig.d3Scale(d.size) : which;
@@ -134,26 +163,29 @@ function chart() {
 
         })
 
-        // sort bubbles        
-        // why not just data.sort()? 
-        // Because when d3-joining the data, data is split in two: enter and update.
-        // Enter selection elements are always appended before update selection (which was already in DOM), regardless of data sorting
-        // https://github.com/d3/d3-selection#selection_append
-        // could sort data in marker, then use indexes for sorting bubbles, but d3.selection.sort() needed.
-        const orderBy = "size";
-        const orderTrailBy = frameConfig.which; // doesn't work if frame.which is value instead of key (then it's a.frame/b.frame)
-        enter.merge(update).sort((a, b) => {
-            const [aTrail, bTrail] = [a, b].map(d => typeof d[Symbol.for('trailHeadKey')] !== "undefined");
+        // sort bubbles in data order
+        svg.selectAll(".dot").order();
 
-            // both trail or normal
-            if (!aTrail && !bTrail) return b[orderBy] - a[orderBy] // sort normal bubbles
-            if (aTrail && bTrail) return a[orderTrailBy] - b[orderTrailBy]; // sort trail bubbles
+        function getOpacity(d) {
+            const highlightOthers = 0.3;
+            const selectOthers = 0.5;
+            const regular = 0.8;
+            const full = 1;
+            const highlighted = highlightConfig.isSelected(d);
+            const selected = selectedConfig.isSelected(d);
+            const trail = d[Symbol.for('trailHeadKey')];
 
-            // trail vs normal
-            const [trail, normal] = bTrail ? [b, a] : [a, b]; // identify which is trail (one must be)
-            if (normal[Symbol.for('key')] == trail[Symbol.for('trailHeadKey')]) return aTrail ? -1 : 1; // sort head of trail and trail (head of trail wins)
-            return aTrail ? 1 : -1; // sort normal bubbles and trail (trail wins)
-        })
+            if (highlighted || selected) return full;
+            if (trail) return regular;
+            if (selectedConfig.anySelected) return selectOthers;
+            if (highlightConfig.anySelected) return highlightOthers;
+            return regular;
+        }
+
+        function isHighlightedTrail(d) {
+            const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
+            return selectedConfig.isSelected(key) && highlightConfig.isSelected(d)
+        }
 
     }
 
