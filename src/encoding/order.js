@@ -9,7 +9,6 @@ const directions = {
     descending: 1
 }
 
-
 export const order = defaultDecorator({
     base: baseEncoding,
     defaultConfig,

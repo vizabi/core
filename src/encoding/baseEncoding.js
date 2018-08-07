@@ -4,14 +4,14 @@ import { resolveRef } from '../vizabi';
 import { configurable } from '../configurable';
 import { dataSourceStore } from '../dataSource/dataSourceStore';
 import { markerStore } from '../marker/markerStore';
-import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
+//import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
 
 const scales = {
-    "linear": scaleLinear,
-    "log": scaleLog,
-    "sqrt": scaleSqrt,
-    "ordinal": scaleOrdinal,
-    "point": scalePoint
+    "linear": d3.scaleLinear,
+    "log": d3.scaleLog,
+    "sqrt": d3.scaleSqrt,
+    "ordinal": d3.scaleOrdinal,
+    "point": d3.scalePoint
 }
 
 const defaultConfig = {
@@ -78,11 +78,13 @@ const functions = {
             },
             ddfQuery: {
                 get: function() {
+                    const from = (this.space.length == 1) ? "entities" : "datapoints";
                     const query = {
                         select: {
                             key: this.space.slice(), // slice to make sure it's a normal array (not mobx)
                             value: [this.concept]
-                        }
+                        },
+                        from
                     }
                     if (this.filter) {
                         query.where = toJS(this.filter);
@@ -126,17 +128,19 @@ const functions = {
 
         // default
         return (this.scale.type == "ordinal") ?
-            schemeCategory10 : [0, 1];
+            d3.schemeCategory10 : [0, 1];
     },
     domain() {
         if (this.config.scale.domain != null)
             return this.config.scale.domain
+        if (this.response == null)
+            return [0, 1];
 
         // default to unique values or extent, depending on scale
         const which = this.data.concept;
         return (["ordinal", "point"].includes(this.scale.type)) ?
-            set(this.response, d => d[which]).values().sort() :
-            extent(this.response, d => d[which]);
+            d3.set(this.response, d => d[which]).values().sort() :
+            d3.extent(this.response, d => d[which]);
     },
     processRow(row) {
         return row[this.data.concept];

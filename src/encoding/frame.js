@@ -2,7 +2,7 @@ import { baseEncoding } from './baseEncoding';
 import { action, reaction, trace } from 'mobx'
 import { resolveRef } from '../vizabi';
 import { assign, deepmerge, createKey, isString } from '../utils';
-import { interpolate, extent } from 'd3';
+//import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
     type: "frame",
@@ -21,7 +21,7 @@ const functions = {
     get speed() { return this.config.speed },
     domain() {
         if (this.config.scale.domain || this.frameMapCache == null) return this.config.scale.domain;
-        return extent([...this.frameMapCache.keys()]);
+        return d3.extent([...this.frameMapCache.keys()]);
     },
     get trails() {
         const cfg = this.config.trails;
@@ -264,7 +264,7 @@ const functions = {
         });
     },
     interpolatePoint(start, end) {
-        const int = interpolate(start.value, end.value);
+        const int = d3.interpolate(start.value, end.value);
         const delta = end.frameId - start.frameId;
         const intVals = [];
         for (let i = 1; i < delta; i++) {

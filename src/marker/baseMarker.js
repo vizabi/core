@@ -1,4 +1,4 @@
-import { action, trace, computed } from 'mobx';
+import { trace, computed } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { assign, createKey, deepmerge, isString } from "../utils";
 import { configurable } from '../configurable';

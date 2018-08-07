@@ -1,9 +1,8 @@
 import { baseEncoding } from './baseEncoding';
 import { defaultDecorator, isString } from '../utils';
-import { schemeCategory10 } from 'd3';
-import { configurable } from '../configurable';
+//import { schemeCategory10 } from 'd3';
 
-const colors = { schemeCategory10 }
+const colors = { schemeCategory10: d3.schemeCategory10 }
 
 export const color = defaultDecorator({
     base: baseEncoding,
@@ -20,7 +19,7 @@ export const color = defaultDecorator({
             } else if (Array.isArray(range)) {
                 return range;
             }
-            return schemeCategory10;
+            return colors.schemeCategory10;
         }
     }
 });

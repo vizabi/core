@@ -1,8 +1,13 @@
 export const config = {
     dataSources: {
-        gap: {
+        gapcsv: {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
+        },
+        gap: {
+            type: "waffle",
+            "path": "https://waffle-server.gapminder.org/api/ddf/ql",
+            "assetsPath": "https://import-waffle-server.gapminder.org/api/ddf/assets/"
         },
         pcbs: {
             type: "ddfcsv",

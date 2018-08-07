@@ -1,11 +1,12 @@
-import { autorun, action, spy } from 'mobx'
+import { autorun, action } from 'mobx'
 import { vizabi } from './vizabi'
 import { config } from './config'
 import appState from './appState'
-import * as d3 from 'd3'
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
+var waffle = new WsReader.WsReader.getReader();
 vizabi.stores.dataSource.createAndAddType('ddfcsv', ddfcsv);
+vizabi.stores.dataSource.createAndAddType('waffle', waffle);
 window.viz = vizabi(config);
 window.vizabi = vizabi;
 window.autorun = autorun;
@@ -191,7 +192,6 @@ function chart() {
 
     function drawLegend() {
 
-        if (marker.data == null) return;
         const colorConfig = marker.encoding.get("color");
         const superHighlight = marker.encoding.get("superhighlighted");
 
@@ -234,8 +234,6 @@ function chart() {
     }
 
     function drawChart() {
-
-        if (marker.data == null) return;
 
         const xConfig = marker.encoding.get("x");
         const yConfig = marker.encoding.get("y");

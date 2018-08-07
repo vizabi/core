@@ -1,7 +1,7 @@
 import { action } from 'mobx';
 import { deepmerge, assign, defaultDecorator } from "../utils";
 import { configurable } from '../configurable';
-import { csv, interpolate } from 'd3';
+//import { csv, interpolate } from 'd3';
 import { promisedComputed } from 'computed-async-mobx';
 
 const defaultConfig = {
@@ -20,7 +20,7 @@ const functions = {
     },
     get load() {
         //return promisedComputed([],
-        //    async() => await csv(this.path, tryParseRow)
+        //    async() => await d3.csv(this.path, tryParseRow)
         //);
     },
     get data() {
@@ -45,7 +45,7 @@ const functions = {
         //return [];
         console.log('Querying', query);
         return promisedComputed(null,
-            async() => await this.reader.read(query).map(tryParseRow)
+            async() => await this.reader.read(query).then(data => data.map(tryParseRow))
         );
     },
     interpolate: function(data, { dimension, concepts, step }) {
@@ -123,7 +123,7 @@ const functions = {
         return flatData;
     },
     interpolatePoint: function(start, end) {
-        const int = interpolate(start.value, end.value);
+        const int = d3.interpolate(start.value, end.value);
         const delta = end.frameId - start.frameId;
         const intVals = [];
         for (let i = 1; i < delta; i++) {
