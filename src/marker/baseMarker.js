@@ -1,7 +1,9 @@
 import { trace, computed } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
-import { assign, createKey, deepmerge, isString } from "../utils";
+import { dataSourceStore } from '../dataSource/dataSourceStore'
+import { assign, createMarkerKey, deepmerge, isString } from "../utils";
 import { configurable } from '../configurable';
+import { PENDING, FULFILLED, REJECTED, fromPromise } from 'mobx-utils'
 
 const createObj = (space, row, key) => {
     const obj = {
@@ -13,7 +15,7 @@ const createObj = (space, row, key) => {
 
 const getOrCreateObj = (dataMap, space, row) => {
     let obj;
-    const key = createKey(space, row);
+    const key = createMarkerKey(space, row);
     if (!dataMap.has(key)) {
         obj = createObj(space, row, key);
         dataMap.set(key, obj);
@@ -49,8 +51,29 @@ let functions = {
     get ownDataEncoding() {
         //trace();
         return new Map(
-            Array.from(this.encoding).filter(([prop, enc]) => enc.hasOwnData)
+            Array.from(this.encoding).filter(([prop, enc]) => enc.data.hasOwnData)
         );
+    },
+    get readyPromise() {
+        return this.dataPromises;
+    },
+    get availabilityPromise() {
+        return fromPromise(Promise.all(dataSourceStore.getAll().map(ds => ds.availabilityPromise)))
+    },
+    get conceptsPromise() {
+        return fromPromise(Promise.all(dataSourceStore.getAll().map(ds => ds.conceptsPromise)))
+    },
+    get dataPromise() {
+        return fromPromise(Promise.all([...this.ownDataEncoding.values()].map(enc => enc.data.promise)))
+    },
+    get availability() {
+        const items = [];
+        dataSourceStore.getAll().forEach(ds => {
+            ds.availability.data.forEach(kv => {
+                items.push({ key: kv.key, value: ds.getConcept(kv.value) });
+            })
+        })
+        return items;
     },
     // computed to cache calculation
     get dataMapCache() {
@@ -63,10 +86,8 @@ let functions = {
 
         // sort visual encodings by space: marker space and (strict) subspaces
         for (let [prop, encoding] of this.ownDataEncoding) {
-
-            if (encoding.response == null) return null; // loading
-
-            const spaceOverlap = intersect(this.space, encoding.space);
+            if (prop == "label") continue;
+            const spaceOverlap = intersect(this.space, encoding.data.space);
             const spaceOverlapKey = spaceOverlap.join('-');
             if (spaces.has(spaceOverlapKey))
                 spaces.get(spaceOverlapKey).push({ prop, encoding });
@@ -78,13 +99,14 @@ let functions = {
         // TODO: add check for non-marker space dimensions to contain only one value
         // -> save first row values and all next values should be equal to first
         const markerSpaceKey = this.space.join('-');
-        for (let { prop, encoding }
-            of spaces.get(markerSpaceKey)) {
-            encoding.response.forEach(row => {
-                const obj = getOrCreateObj(dataMap, this.space, row);
-                obj[prop] = encoding.processRow(row);
-            });
-        }
+        if (spaces.has(markerSpaceKey))
+            for (let { prop, encoding }
+                of spaces.get(markerSpaceKey)) {
+                encoding.data.response.forEach(row => {
+                    const obj = getOrCreateObj(dataMap, this.space, row);
+                    obj[prop] = encoding.processRow(row);
+                });
+            }
 
         // create lookups for data in subspaces of marker
         for (let [spaceKey, encodings] of spaces) {
@@ -94,7 +116,7 @@ let functions = {
             const lookup = new Map();
             for (let { prop, encoding }
                 of encodings) {
-                encoding.response.forEach(row => {
+                encoding.data.response.forEach(row => {
                     const obj = getOrCreateObj(lookup, space, row);
                     obj[prop] = encoding.processRow(row);
                 });
@@ -105,7 +127,7 @@ let functions = {
         // merge subspace data onto markers, using subspace lookups
         for (let row of dataMap.values()) {
             for (let [space, lookup] of lookups) {
-                const key = createKey(space, row);
+                const key = createMarkerKey(space, row);
                 // will not copy key-Symbol as it's not enumerable
                 // speed comparison: https://jsperf.com/shallow-merge-options/
                 const source = lookup.get(key);
@@ -114,6 +136,9 @@ let functions = {
                 }
             }
         }
+
+        if (this.encoding.has('label'))
+            this.encoding.get('label').data.addLabels(dataMap, 'label');
 
         // intersect of two arrays (representing sets)
         function intersect(a, b) {
@@ -131,8 +156,6 @@ let functions = {
         const frame = frameEnc.currentFrame;
         const dataMap = frame ? frame : this.dataMapCache;
 
-        if (dataMap == null)
-            return null;
         const orderEnc = this.encoding.get("order");
         return orderEnc ? orderEnc.order(dataMap) : dataMap;
     },
@@ -146,10 +169,7 @@ let functions = {
         }
         data = data ? data : this.dataMap ? [...this.dataMap.values()] : null;
 
-        if (data == null)
-            return null; // loading
-        else
-            return data;
+        return data;
     },
     checkImportantEncodings: function(dataMap) {
         // remove markers which miss important values. Should only be done áfter interpolation though.

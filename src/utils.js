@@ -37,7 +37,7 @@ var esc = str => isNumeric(str) ? str : replace(replace(str, escapechar, dblesca
 // for loop is faster than keys.map().join('-');
 // but in Edge, json.stringify is faster
 // pre-escaped space would add extra performance
-export const createKey = (space, row) => {
+export const createMarkerKey = (space, row) => {
     var l = space.length;
     var res = (l > 0) ? esc(space[0]) + joinchar + esc(row[space[0]]) : '';
     for (var i = 1; i < l; i++) {
@@ -49,10 +49,18 @@ export const createKey = (space, row) => {
 
 // end micro-optimizations
 
+export const createKeyStr = (key) => key.map(esc).join('-');
+
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
 export function isString(value) {
     return typeof value == 'string';
+}
+
+export function mapToObj(map) {
+    const obj = {};
+    map.forEach((v, k) => { obj[k] = v });
+    return obj;
 }
 
 // copies properties using property descriptors so accessors (and other meta-properties) get correctly copied
@@ -66,6 +74,9 @@ export function assign(target, ...sources) {
     });
     return target;
 }
+export function compose(...parts) {
+    return assign({}, ...parts);
+}
 
 // gets a getter accessor from an object and binds it to the object
 // used to overload methods when decorating objects
@@ -75,6 +86,9 @@ export function getBoundGetter(obj, prop) {
 
 export function moveProperty(oldObj, oldProp, newObj, newProp) {
     Object.defineProperty(newObj, newProp, Object.getOwnPropertyDescriptor(oldObj, oldProp));
+}
+export function renameProperty(obj, oldProp, newProp) {
+    moveProperty(obj, oldProp, obj, newProp)
 }
 
 export function processConfig(config, props) {
@@ -91,7 +105,8 @@ export function processConfig(config, props) {
 export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
     if (Array.isArray(functions)) functions = assign({}, ...functions);
     return function decorate(config) {
-        config = deepmerge.all([{}, defaultConfig, config]);
+        config = deepmerge.all([{}, defaultConfig, config, functions.config || {}]);
+        delete functions.config;
         base = (base == null) ? config => ({ config: config }) : base;
         return assign(base(config), functions);
     }

@@ -13,6 +13,7 @@ export const order = defaultDecorator({
     base: baseEncoding,
     defaultConfig,
     functions: {
+        /*
         get data() {
             var cfgs = this.config.data;
             if (!isObservableArray(cfgs))
@@ -24,9 +25,6 @@ export const order = defaultDecorator({
 
                 return this.createDataProp(cfg);
             }).filter(data => data != null);
-        },
-        get directions() {
-            return this.config.data.map(d => directions[d.direction]);
         },
         get response() {
             for (let data of this.data) {
@@ -43,25 +41,6 @@ export const order = defaultDecorator({
         get hasOwnData() {
             return this.data.some(d => d.hasOwnData);
         },
-        order(dataMap) {
-            const data = Array.from(dataMap);
-            const dirs = this.directions;
-            data.sort((a, b) => {
-                let ao = a[1].order,
-                    bo = b[1].order,
-                    l = ao.length,
-                    sort = 0;
-
-                for (let i = 0; sort == 0 && i < l; i++) {
-                    if (dirs[i] == directions.ascending)
-                        sort = ao[i] - bo[i];
-                    else
-                        sort = bo[i] - ao[i];
-                }
-                return sort;
-            });
-            return new Map(data);
-        },
         processRow(row) {
             const result = [];
             for (let data of this.data) {
@@ -69,6 +48,21 @@ export const order = defaultDecorator({
                     result.push(row[data.concept])
             }
             return result;
+        },*/
+        get direction() {
+            return this.data.config.direction;
+        },
+        order(dataMap) {
+            const data = Array.from(dataMap);
+            data.sort((a, b) => {
+                let ao = a[1].order,
+                    bo = b[1].order;
+
+                return this.direction == directions.ascending ?
+                    ao - bo :
+                    bo - ao;
+            });
+            return new Map(data);
         }
     }
 });

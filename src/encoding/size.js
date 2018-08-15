@@ -8,5 +8,15 @@ export const size = defaultDecorator({
             type: "sqrt",
             range: [0, 20]
         }
+    },
+    functions: {
+        ordinalScale: "point",
+        range() {
+            if (this.config.range != null)
+                return this.config.range
+            if (this.type == "point")
+                return [1, 20];
+            return [0, 20];
+        }
     }
 });

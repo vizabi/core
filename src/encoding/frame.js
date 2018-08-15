@@ -1,7 +1,8 @@
 import { baseEncoding } from './baseEncoding';
-import { action, reaction, trace } from 'mobx'
-import { resolveRef } from '../vizabi';
-import { assign, deepmerge, createKey, isString } from '../utils';
+import { selection } from '../selection'
+import { action, reaction, observable, computed, trace } from 'mobx'
+import { FULFILLED } from 'mobx-utils'
+import { assign, deepmerge, createMarkerKey, isString } from '../utils';
 //import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
@@ -11,25 +12,41 @@ const defaultConfig = {
     interpolate: true,
     trails: {
         show: false,
-        start: null,
-        markers: []
+        markers: {}
     }
 }
 
+const trails = function(config, parent) {
+    const sel = selection(config, parent);
+
+    return assign(sel, {
+        get show() { return this.config.show },
+        setTrail(d) {
+            this.set(d, d[this.parent.data.concept]);
+        }
+    })
+}
+
 const functions = {
-    get value() { return this.config.value },
+    get value() {
+        let value = this.config.value;
+        if (value != null) {
+            const domain = this.scale.domain;
+            value = Math.min(Math.max(value, domain[0]), domain[1]);
+        }
+        return value;
+    },
     get speed() { return this.config.speed },
     domain() {
-        if (this.config.scale.domain || this.frameMapCache == null) return this.config.scale.domain;
-        return d3.extent([...this.frameMapCache.keys()]);
+        if (this.config.domain) return this.config.domain;
+        return d3.extent([...this.parent.frameMapCache.keys()]);
     },
     get trails() {
+        trace();
+        const frame = this;
         const cfg = this.config.trails;
-        return {
-            show: cfg.show,
-            start: cfg.start,
-            markers: resolveRef(cfg.markers)
-        }
+
+        return observable(trails(cfg, this));
     },
     get interpolate() { return this.config.interpolate },
     playing: false,
@@ -61,13 +78,17 @@ const functions = {
             value = Math.min(Math.max(value, domain[0]), domain[1]);
         }
         this.config.value = value;
+        this.updateTrailStart();
     }),
     setValueAndStop: action('setValueAndStop', function(value) {
         this.stopPlaying();
         this.setValue(value);
     }),
+    setTrail: action('set trail', function(d) {
+        this.trail.add(d, payload);
+    }),
     update: action('update frame value', function() {
-        if (this.playing) {
+        if (this.playing && this.marker.dataPromise.state == FULFILLED) {
             const newValue = this.value + 1;
             this.setValue(newValue);
             if (newValue > this.scale.domain[1])
@@ -76,12 +97,16 @@ const functions = {
             //else this.timeout = setTimeout(this.update.bind(this), this.speed);
         }
     }),
+    updateTrailStart: action('update trail start', function() {
+        this.trails.markers.forEach((start, key) => {
+            if (this.value < start)
+                this.trails.config.markers[key] = this.value;
+        });
+    }),
     get frameMap() {
         //trace();
         // loading
-        if (this.marker.dataMapCache == null)
-            return null;
-
+        this.trails;
         if (this.trails.show)
             return this.trailedFrameMap;
         else
@@ -89,9 +114,6 @@ const functions = {
     },
     get frameMapArray() {
         //trace();
-        if (this.frameMap == null)
-            return null;
-
         const frames = new Map();
         for (let [frameId, markers] of this.frameMap) {
             frames.set(frameId, [...markers.values()]);
@@ -102,8 +124,6 @@ const functions = {
     get currentFrameArray() { return this.currentFrameFromMap(this.frameMapArray, []) },
     currentFrameFromMap(map, empty) {
         //trace();
-        if (map == null)
-            return null;
 
         if (map.has(this.value)) {
             return map.get(this.value);
@@ -114,14 +134,12 @@ const functions = {
     },
     get frameMapCache() {
         const flatDataMap = this.marker.dataMapCache;
-        if (flatDataMap == null)
-            return null;
 
         const frameMap = new Map();
         const frameSpace = this.data.space.filter(dim => dim != this.data.concept);
         for (let [key, row] of flatDataMap) {
             const dataMap = this.getOrCreateDataMap(frameMap, row);
-            const key = createKey(frameSpace, row);
+            const key = createMarkerKey(frameSpace, row);
             row[Symbol.for('key')] = key;
             dataMap.set(key, row);
         }
@@ -148,18 +166,16 @@ const functions = {
     // basically transpose and filter framemap
     get trailedFrameMap() {
         const frameMap = this.frameMapCache;
-        const markerKeys = this.trails.markers;
+        const markers = this.trails.markers;
 
-        if (frameMap == null)
-            return null;
-        if (markerKeys.length == 0)
+        if (markers.length == 0)
             return frameMap;
 
         const [minFrameId, maxFrameId] = this.scale.domain;
 
         // create trails
         const trails = new Map();
-        for (let key of markerKeys) {
+        for (let key of markers.keys()) {
             const trail = new Map();
             trails.set(key, trail);
             for (let [i, frame] of frameMap) {
@@ -176,7 +192,7 @@ const functions = {
                 // insert trails before its head marker
                 if (trails.has(markerKey)) {
                     const trail = trails.get(markerKey);
-                    const trailStart = (minFrameId > this.trails.start) ? minFrameId : this.trails.start;
+                    const trailStart = this.trails.getPayload(markerKey); //(minFrameId > this.trails.start) ? minFrameId : this.trails.start;
                     // add trail markers in ascending order
                     for (let i = trailStart; i < id; i++) {
                         const trailMarker = trail.get(i);
@@ -215,10 +231,10 @@ const functions = {
 
                 // for every property on marker
                 Object.keys(marker)
-                    // remove properties without data
+                    // ignore properties without data
                     .filter(prop => marker[prop] != null)
                     .forEach(prop => {
-                        // if there is a previous value and gap is > 1
+                        // if there is a previous value and gap is > 1 step
                         if (previous[prop] && previous[prop].frameId + 1 < frameId) {
                             // interpolate and save results in frameMap
                             this.interpolatePoint(previous[prop], { frameId, value: marker[prop] })

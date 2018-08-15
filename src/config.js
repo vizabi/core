@@ -1,14 +1,15 @@
 export const config = {
     dataSources: {
-        gapcsv: {
+        /*gapcsv: {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
-        },
+        },*/
         gap: {
             type: "waffle",
             "path": "https://waffle-server.gapminder.org/api/ddf/ql",
             "assetsPath": "https://import-waffle-server.gapminder.org/api/ddf/assets/"
         },
+        /*
         pcbs: {
             type: "ddfcsv",
             path: "./ddf--pcbs--census2017/"
@@ -17,17 +18,18 @@ export const config = {
             type: "csv",
             file: "fullgap.gapodd.csv",
             space: ["geo", "time"],
-            /*transforms: [{
+            transforms: [{
                 type: "interpolate",
                 dimension: "time",
                 step: 1,
                 concepts: ["POP", "GDP", "LEX", "world_region"],
-            }]*/
+            }]
         },
         soder: {
             reader: "csv",
             path: "soder.csv"
         }
+        */
     },
     markers: {
         "pcbs": {
@@ -63,8 +65,7 @@ export const config = {
                     type: "color",
                     which: "region",
                     dataSource: "pcbs",
-                    scale: "ordinal",
-                    range: "schemeCategory10"
+                    scale: "ordinal"
                 },
                 "frame": {
                     type: "frame",
@@ -91,7 +92,7 @@ export const config = {
                 },*/
                 "selected": {
                     type: "selection",
-                    markers: ["geo-usa"]
+                    markers: { ref: "marker.bubble.encoding.frame.trails.markers" }
                 },
                 "highlighted": {
                     type: "selection"
@@ -121,9 +122,7 @@ export const config = {
                 },
                 "order": {
                     type: "order",
-                    data: [
-                        { ref: "marker.bubble.encoding.size.data", direction: "descending" }
-                    ]
+                    data: { ref: "marker.bubble.encoding.size.data", direction: "descending" }
                 },
                 "size": {
                     type: "size",
@@ -149,8 +148,14 @@ export const config = {
                         concept: "world_4region"
                     },
                     scale: {
-                        type: "ordinal",
-                        range: "schemeCategory10"
+                        type: "ordinal"
+                    }
+                },
+                "label": {
+                    type: "label",
+                    data: {
+                        source: "gap",
+                        concept: "name"
                     }
                 },
                 "frame": {
@@ -163,8 +168,7 @@ export const config = {
                     speed: 100,
                     trails: {
                         show: true,
-                        start: 1800,
-                        markers: { ref: "marker.bubble.encoding.selected.markers" }
+                        markers: {}
                     }
                 }
             }

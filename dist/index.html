@@ -21,12 +21,16 @@
         }
         
         #wrapper {
-            flex: 1;
+            flex: 2;
+        }
+        
+        #encodingcontrol {
+            height: 100px;
         }
         
         body {
             display: flex;
-            flex-flow: column;
+            flex-direction: column;
         }
         
         .label {
@@ -81,10 +85,9 @@
 
 <body>
     <div id="timecontrol">
-        <input type="button" id="toggle"> frame:
-        <input type="range" id="timeslider"> speed:
-        <input type="range" id="speedslider">
-
+        <input type="button" id="toggle"> frame: <span class="frameval"></span> <input type="range" id="timeslider"> speed: <input type="range" id="speedslider">
+    </div>
+    <div id="encodingcontrol">
     </div>
     <div id="wrapper">
         <svg id="chart"></svg>

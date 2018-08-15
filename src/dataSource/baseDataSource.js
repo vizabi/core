@@ -1,8 +1,8 @@
-import { action } from 'mobx';
-import { deepmerge, assign, defaultDecorator } from "../utils";
+import { fromPromise, FULFILLED } from 'mobx-utils'
+import { deepmerge, assign, createKeyStr } from "../utils";
 import { configurable } from '../configurable';
+import { trace } from 'mobx';
 //import { csv, interpolate } from 'd3';
-import { promisedComputed } from 'computed-async-mobx';
 
 const defaultConfig = {
     type: "csv",
@@ -31,22 +31,66 @@ const functions = {
         return [];
     },
     get availability() {
-
+        const av = {
+            key: new Map(),
+            data: []
+        }
+        this.availabilityPromise.value.forEach(data => {
+            data.forEach(row => {
+                const key = JSON.parse(row.key).sort();
+                const keyStr = createKeyStr(key);
+                av.data.push({ key, value: row.value });
+                av.key.set(keyStr, key);
+            });
+        })
+        return av;
     },
-    get concepts() {
+    get availabilityPromise() {
+        const conceptsQuery = {
+            select: {
+                key: ["key", "value"],
+                value: []
+            },
+            from: "concepts.schema"
+        };
+        const entitiesQuery = deepmerge.all([{}, conceptsQuery, { from: "entities.schema" }]);
+        const datapointsQuery = deepmerge.all([{}, conceptsQuery, { from: "datapoints.schema" }]);
+
+        return fromPromise(Promise.all([
+            this.query(conceptsQuery),
+            this.query(entitiesQuery),
+            this.query(datapointsQuery)
+        ]));
+    },
+    get conceptsPromise() {
         return this.query({
             select: {
                 key: ["concept"],
                 value: ["name", "domain", "concept_type"]
-            }
-        }).get();
+            },
+            from: "concepts"
+        });
+    },
+    get readyPromise() {
+        return fromPromise(Promise.all([this.availabilityPromise, this.conceptsPromise]));
+    },
+    get concepts() {
+        if (this.conceptsPromise.state != FULFILLED) return new Map();
+        else return new Map(this.conceptsPromise.value.map(c => [c.concept, c]));
+    },
+    getConcept(conceptId) {
+        if (conceptId == "concept_type" || conceptId.indexOf('is--') === 0)
+            return { concept: conceptId, name: conceptId }
+        return this.concepts.get(conceptId);
+    },
+    isEntityConcept(conceptId) {
+        return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
     },
     query: function(query) {
         //return [];
         console.log('Querying', query);
-        return promisedComputed(null,
-            async() => await this.reader.read(query).then(data => data.map(tryParseRow))
-        );
+        const readPromise = this.reader.read(query).then(data => data.map(tryParseRow));
+        return fromPromise(readPromise);
     },
     interpolate: function(data, { dimension, concepts, step }) {
         const space = this.space;
@@ -63,7 +107,7 @@ const functions = {
         const spaceRest = this.space.filter(v => v != dimension);
         const groupMap = new Map();
         data.forEach(row => {
-            const groupKey = createKey(spaceRest, row);
+            const groupKey = createMarkerKey(spaceRest, row);
             if (groupMap.has(groupKey))
                 groupMap.get(groupKey).set(row[dimension], row);
             else
