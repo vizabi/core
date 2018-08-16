@@ -1,5 +1,5 @@
 import { action, toJS, isObservableArray, trace, observable } from 'mobx';
-import { deepmerge, assign, defaultDecorator, isString } from "../utils";
+import { deepmerge, assign, defaultDecorator, isString, applyDefaults } from "../utils";
 import { resolveRef } from '../vizabi';
 import { configurable } from '../configurable';
 import { dataSourceStore } from '../dataSource/dataSourceStore';
@@ -112,6 +112,6 @@ const functions = {
 }
 
 export function baseEncoding(config) {
-    config = deepmerge.all([{}, defaultConfig, config]);
+    applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
 }

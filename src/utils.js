@@ -232,3 +232,13 @@ deepmerge_new.all = function deepmergeAll_new(array, options) {
         return deepmerge(prev, next, options)
     }, base)
 }
+
+export function applyDefaults(config, defaults) {
+    const defaultProps = Object.keys(defaults);
+    defaultProps.forEach(prop => {
+        if (!config.hasOwnProperty(prop))
+            config[prop] = defaults[prop];
+        else if (isMergeableObject(config[prop]) && isMergeableObject(defaults[prop]))
+            applyDefaults(config[prop], defaults[prop]);
+    })
+}

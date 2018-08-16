@@ -9,10 +9,14 @@ export const stores = {
     encoding: encodingStore
 }
 
-export const vizabi = function(config) {
-    dataSourceStore.setMany(config.dataSources || {});
-    encodingStore.setMany(config.encodings || {});
-    markerStore.setMany(config.markers || {});
+let config;
+
+export const vizabi = function(cfg) {
+    config = cfg;
+
+    dataSourceStore.setMany(cfg.dataSource || {});
+    encodingStore.setMany(cfg.encoding || {});
+    markerStore.setMany(cfg.marker || {});
 
     return { stores };
 }
@@ -34,6 +38,25 @@ export function resolveRef(possibleRef) {
             model = model.get(child);
         else
             model = model[child];
+    }
+    return model;
+}
+
+export function resolveRefCfg(possibleRef) {
+    // no ref
+    if (!isString(possibleRef.ref))
+        return possibleRef
+
+    // reference
+    const ref = possibleRef.ref.split('.');
+    let model = config;
+    for (let i = 0; i < ref.length; i++) {
+        let child = ref[i];
+        if (typeof model == "undefined") {
+            console.warn("Couldn't resolve reference " + possibleRef.ref);
+            return null;
+        }
+        model = model[child];
     }
     return model;
 }

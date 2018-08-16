@@ -1,5 +1,5 @@
 export const config = {
-    dataSources: {
+    dataSource: {
         /*gapcsv: {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
@@ -31,7 +31,7 @@ export const config = {
         }
         */
     },
-    markers: {
+    marker: {
         "pcbs": {
             type: "bubble",
             space: ["region", "year", "locality_type"],
@@ -122,7 +122,10 @@ export const config = {
                 },
                 "order": {
                     type: "order",
-                    data: { ref: "marker.bubble.encoding.size.data", direction: "descending" }
+                    data: {
+                        ref: "marker.bubble.encoding.size.data",
+                        direction: "descending"
+                    }
                 },
                 "size": {
                     type: "size",

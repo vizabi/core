@@ -3,13 +3,14 @@ import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { observable, trace } from "mobx";
 
 
-export function dataConfig(cfg, parent) {
+export function dataConfig(config, parent) {
     return {
-        config: cfg,
+        config,
+        parent,
         get source() { return (this.config.source == null) ? null : dataSourceStore.getByDefinition(this.config.source) },
         get space() {
             //trace();
-            return this.config.space || ((parent.marker) ? parent.marker.space : null)
+            return this.config.space || ((this.parent.marker) ? this.parent.marker.space : null)
         },
         get concept() { return resolveRef(this.config.concept) },
         get conceptProps() { return this.source.getConcept(this.concept) },

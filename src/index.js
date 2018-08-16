@@ -1,4 +1,4 @@
-import { autorun, action, spy } from 'mobx'
+import { autorun, action, spy, observable } from 'mobx'
 import { vizabi } from './vizabi'
 import { config } from './config'
 import appState from './appState'
@@ -12,9 +12,9 @@ window.vizabi = vizabi;
 window.autorun = autorun;
 
 
-spy((event) => {
-    console.log(`${event.name}`, event)
-})
+//spy((event) => {
+//    console.log(`${event.name}`, event)
+//})
 
 //autorun(chart);
 chart();
@@ -104,6 +104,34 @@ function chart() {
     //drawChart();
     //drawLegend();
 
+    let zoomScales;
+    setupZoom();
+
+    function setupZoom() {
+
+        const xConfig = marker.encoding.get("x");
+        const yConfig = marker.encoding.get("y");
+
+        var zoom = d3.zoom()
+            //.scaleExtent([.1, 20])
+            .on("zoom", zoomed);
+
+        chart.call(zoom);
+
+        zoomScales = observable({
+            t: d3.zoomTransform(chart),
+            get x() { return this.t.rescaleX(xConfig.d3Scale) },
+            get y() { return this.t.rescaleY(yConfig.d3Scale) },
+            setTransform: action(function(t) {
+                this.t = t
+            })
+        });
+
+        function zoomed() {
+            zoomScales.setTransform(d3.event.transform);
+        }
+    }
+
     function drawTimecontrol() {
 
         start({
@@ -192,10 +220,10 @@ function chart() {
             labels.selectAll("*").remove();
             [enter, update].map(selection => {
                 selection.attr("cx", function(d) {
-                        return xConfig.d3Scale(d.x);
+                        return zoomScales.x(d.x);
                     })
                     .attr("cy", function(d) {
-                        return yConfig.d3Scale(d.y);
+                        return zoomScales.y(d.y);
                     })
                     .style("fill", function(d) {
                         return colorConfig.d3Scale(d.color);
@@ -252,6 +280,9 @@ function chart() {
                     // if this bubble is trail start bubble
                     if (trailStart == d[frameConfig.data.concept])
                         labelStr = marker.space.map(dim => d.label[dim]).join(', ');
+                    else if (highlightConfig.has(d)) {
+                        labelStr = d[frameConfig.data.concept];
+                    }
                 }
                 /*
                 if (selectedConfig.has(d)) {
@@ -266,12 +297,15 @@ function chart() {
                 if (labelStr) {
                     const padding = 4;
                     const strokeWidth = 1;
-                    const rect = labels
+                    const g = labels
+                        .append("g")
+                        .classed("labelgroup", true);
+                    const rect = g
                         .append("rect")
                         .attr("fill", "white")
                         .attr("stroke", "black")
                         .attr("stroke-width", strokeWidth)
-                    const text = labels
+                    const text = g
                         .append("text")
                         .text(labelStr)
                         .attr("x", (+this.getAttribute("cx")) + (+this.getAttribute("r")) + padding)
@@ -376,8 +410,8 @@ function chart() {
 
             // var t = getTransition(frameConfig);
 
-            xAxis.scale(xConfig.d3Scale);
-            yAxis.scale(yConfig.d3Scale);
+            xAxis.scale(zoomScales.x);
+            yAxis.scale(zoomScales.y);
             xAxisSVG
                 .attr("transform", "translate(0," + config.height + ")")
                 //.transition(t)
