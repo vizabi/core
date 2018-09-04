@@ -1,5 +1,6 @@
 import { observable, action, toJS, isObservableObject } from 'mobx'
 import { isString } from './utils'
+import { resolveRef } from './vizabi';
 
 export const createStore = function(baseType, extendedTypes = {}) {
     return observable({
@@ -27,7 +28,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
             return this.named.has(id);
         },
         create: function(config) {
-            if (isObservableObject(config)) config = toJS(config);
+            //if (isObservableObject(config)) config = toJS(config);
             let modelType = this.modelTypes.all[config.type] || this.modelTypes.base;
             let model = observable(modelType(config), modelType.decorate || null, { name: config.type || 'base' });
             if (model.setUpReactions) model.setUpReactions();
@@ -53,12 +54,15 @@ export const createStore = function(baseType, extendedTypes = {}) {
          * @returns {model} Returns the model that was fetched or created
          */
         getByDefinition(def) {
-            if (!isString(def)) {
+            if (isString(def.ref))
+                return resolveRef(def);
+            if (!isString(def) && def !== null) {
                 return this.set(def);
-            } else if (this.has(def))
+            } else if (this.has(def)) {
                 return this.get(def);
-            else
-                console.warn("Store: cannot find model with id: " + def, { store: this });
+            }
+            console.warn("Store: cannot find model with id: " + def, { store: this });
+            return null;
         },
         /**
          * 

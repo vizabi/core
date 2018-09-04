@@ -32,6 +32,7 @@ export const config = {
         */
     },
     marker: {
+        /*
         "pcbs": {
             type: "bubble",
             space: ["region", "year", "locality_type"],
@@ -76,34 +77,49 @@ export const config = {
                 }
             }
         },
+        */
+        "legend": {
+            data: {
+                ref: {
+                    transform: "entityConcept",
+                    model: "marker.bubble.encoding.color"
+                }
+            },
+            encoding: {
+                color: {
+                    data: { concept: { ref: "marker.bubble.encoding.color.data.concept" } },
+                    scale: { ref: "marker.bubble.encoding.color.scale" }
+                },
+                name: { data: { concept: "name" } },
+                rank: { data: { concept: "rank" } },
+                map: { data: { concept: "shape_lores_svg" } }
+            },
+        },
         "bubble": {
             type: "bubble",
-            space: ["geo", "time"],
+            data: {
+                source: "gap",
+                space: ["geo", "time"],
+                /*filter: {
+                    markers: {},
+                    dimensions: {
+                        geo: {
+                            "geo.world_4region": "europe"
+                        },
+                        time: {
+                            "time": { "$gte": 2000 }
+                        }
+                    }
+                }*/
+            },
             encoding: {
-                // "markerProperty": "encoding definition"
-                /*"label": {
-                    type: "label",
-                    which: "name",
-                    space: [
-                        ["geo"],
-                        ["gender"]
-                    ],
-                    scale: "concat"
-                },*/
                 "selected": {
                     type: "selection",
-                    markers: { ref: "marker.bubble.encoding.frame.trails.markers" }
-                },
-                "highlighted": {
-                    type: "selection"
-                },
-                "superhighlighted": {
-                    type: "selection"
+                    data: { ref: "marker.bubble.encoding.frame.trail.data" }
                 },
                 "x": {
                     type: "x",
                     data: {
-                        source: "gap",
                         concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
                     },
                     scale: {
@@ -113,7 +129,6 @@ export const config = {
                 "y": {
                     type: "y",
                     data: {
-                        source: "gap",
                         concept: "life_expectancy_years"
                     },
                     scale: {
@@ -130,23 +145,16 @@ export const config = {
                 "size": {
                     type: "size",
                     data: {
-                        source: "gap",
                         concept: "population_total"
                     },
                     scale: {
                         type: "sqrt",
                         range: [0, 50]
                     }
-                    /*
-                    space: ["geo", "time", "year"],
-                    filter: {
-                        age: "0"
-                    }*/
                 },
                 "color": {
                     type: "color",
                     data: {
-                        source: "gap",
                         space: ["geo"],
                         concept: "world_4region"
                     },
@@ -157,7 +165,6 @@ export const config = {
                 "label": {
                     type: "label",
                     data: {
-                        source: "gap",
                         concept: "name"
                     }
                 },
@@ -169,9 +176,14 @@ export const config = {
                     value: 2018,
                     interpolate: true,
                     speed: 100,
-                    trails: {
+                    trail: {
                         show: true,
-                        markers: {}
+                        starts: {},
+                        data: {
+                            filter: {
+                                markers: {}
+                            }
+                        }
                     }
                 }
             }

@@ -1,5 +1,5 @@
 import { action, toJS, isObservableArray, trace, observable } from 'mobx';
-import { deepmerge, assign, defaultDecorator, isString, applyDefaults } from "../utils";
+import { deepmerge, assign, defaultDecorator, isString, applyDefaults, createMarkerKey } from "../utils";
 import { resolveRef } from '../vizabi';
 import { configurable } from '../configurable';
 import { dataSourceStore } from '../dataSource/dataSourceStore';
@@ -18,17 +18,12 @@ const scales = {
 }
 
 const defaultConfig = {
-    data: {
-        source: null,
-        concept: "var",
-        space: null,
-        filter: null
-    },
     scale: {
         type: null,
         domain: null,
         range: null
-    }
+    },
+    data: {}
 }
 
 const functions = {
@@ -41,10 +36,30 @@ const functions = {
     get data() {
         //trace();
         var cfg = this.config.data;
-        if (isString(cfg.ref))
-            return resolveRef(cfg);
+        cfg = resolveRef(cfg);
 
         return observable(dataConfig(cfg, this));
+    },
+    get hasOwnData() {
+        return this.data && this.data.hasOwnData;
+    },
+    addPropertyToDataMap(dataMap, prop) {
+        if (this.data && this.data.concept) {
+            // simply copy from row key
+            if (this.marker.data.space.includes(this.data.concept)) {
+                for (let row of dataMap.values()) {
+                    row[prop] = row[this.data.concept];
+                }
+            } else {
+                for (let row of dataMap.values()) {
+                    const key = createMarkerKey(this.data.space, row);
+                    // add data to marker if this encoding has data for it 
+                    if (this.data.responseMap.has(key)) {
+                        row[prop] = this.data.responseMap.get(key)[this.data.concept];
+                    }
+                }
+            }
+        }
     },
     get scale() {
         if (isString(this.config.scale.ref))
@@ -111,7 +126,7 @@ const functions = {
     }),
 }
 
-export function baseEncoding(config) {
+export function baseEncoding(config, parent) {
     applyDefaults(config, defaultConfig);
-    return assign({}, functions, configurable, { config });
+    return assign({}, functions, configurable, { config, parent });
 }

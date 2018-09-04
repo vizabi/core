@@ -12,6 +12,10 @@
             margin: 0;
         }
         
+        body {
+            display: flex;
+        }
+        
         #timecontrol {
             height: 50px;
         }
@@ -21,16 +25,23 @@
         }
         
         #wrapper {
-            flex: 2;
+            flex: 1;
         }
         
         #encodingcontrol {
             height: 100px;
         }
         
-        body {
+        #left {
+            height: 100%;
             display: flex;
+            width: 80%;
             flex-direction: column;
+        }
+        
+        #right {
+            height: 100%;
+            width: 20%;
         }
         
         .label {
@@ -84,18 +95,23 @@
 </head>
 
 <body>
-    <div id="timecontrol">
-        <input type="button" id="toggle"> frame: <span class="frameval"></span> <input type="range" id="timeslider"> speed: <input type="range" id="speedslider">
+    <div id="left">
+        <div id="timecontrol">
+            <input type="button" id="toggle"> frame: <span class="frameval"></span> <input type="range" id="timeslider"> speed: <input type="range" id="speedslider">
+        </div>
+        <div id="encodingcontrol">
+        </div>
+        <div id="wrapper">
+            <svg id="chart"></svg>
+        </div>
+        <script src="https://d3js.org/d3.v5.js"></script>
+        <script src="vizabi-ddfcsv-reader.js"></script>
+        <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/preview/master/assets/vendor/js/vizabi-ws-reader/vizabi-ws-reader.js"></script>
+        <script src="main.js"></script>
     </div>
-    <div id="encodingcontrol">
+    <div id="right" style="overflow: scroll">
+        <pre></pre>
     </div>
-    <div id="wrapper">
-        <svg id="chart"></svg>
-    </div>
-    <script src="https://d3js.org/d3.v5.js"></script>
-    <script src="vizabi-ddfcsv-reader.js"></script>
-    <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/preview/master/assets/vendor/js/vizabi-ws-reader/vizabi-ws-reader.js"></script>
-    <script src="main.js"></script>
 </body>
 
 </html>

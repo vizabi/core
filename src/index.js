@@ -2,6 +2,8 @@ import { autorun, action, spy, observable } from 'mobx'
 import { vizabi } from './vizabi'
 import { config } from './config'
 import appState from './appState'
+import { fromPromise } from 'mobx-utils';
+import { isEntityConcept } from './utils';
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
 var waffle = new WsReader.WsReader.getReader();
@@ -10,6 +12,10 @@ vizabi.stores.dataSource.createAndAddType('waffle', waffle);
 window.viz = vizabi(config);
 window.vizabi = vizabi;
 window.autorun = autorun;
+
+autorun(() => {
+    d3.select("#right pre").html(JSON.stringify(vizabi.config, null, 2))
+}, { name: "showcfg" })
 
 
 //spy((event) => {
@@ -21,10 +27,8 @@ chart();
 
 function chart() {
 
-    const config = appState;
     const marker = viz.stores.marker.get("bubble");
-
-    var margin = config.margin;
+    const legendmarker = viz.stores.marker.get("legend");
 
     var xAxis = d3.axisBottom();
     var yAxis = d3.axisLeft();
@@ -70,20 +74,25 @@ function chart() {
             .on('input', function() { frameCfg.setSpeed(this.value) });
     }
 
-    function start({ fulfilled, rejected, pending }) {
-        marker.availabilityPromise.case({
-            fulfilled: () => {
-                marker.conceptsPromise.case({
-                    fulfilled: () => {
-                        marker.dataPromise.case({
-                            fulfilled,
-                            rejected,
-                            pending
-                        })
-                    }
-                })
-            }
+    function start(markers, { fulfilled, rejected, pending }) {
+        if (!Array.isArray(markers)) markers = [markers];
+        const dataPromises = [];
+        markers.forEach(marker => {
+            marker.availabilityPromise.case({
+                fulfilled: () => {
+                    marker.conceptsPromise.case({
+                        fulfilled: () => {
+                            dataPromises.push(marker.dataPromise);
+                        }
+                    })
+                }
+            })
         })
+        if (dataPromises.length == markers.length) {
+            if (dataPromises.some(p => p.state == "rejeted")) rejected();
+            else if (dataPromises.every(p => p.state == "fulfilled")) fulfilled();
+            else pending();
+        }
     }
 
     const updateSize = action("wrapper size", function(e) {
@@ -134,7 +143,7 @@ function chart() {
 
     function drawTimecontrol() {
 
-        start({
+        start(marker, {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
@@ -164,7 +173,7 @@ function chart() {
     }
 
     function drawBubbles() {
-        start({
+        start(marker, {
             pending: showLoading,
             rejected: showError,
             fulfilled: showData
@@ -179,7 +188,7 @@ function chart() {
         }
 
         function showData() {
-            const data = marker.data;
+            const data = marker.dataArray;
             const sizeConfig = marker.encoding.get("size");
             const colorConfig = marker.encoding.get("color");
             const xConfig = marker.encoding.get("x");
@@ -188,6 +197,10 @@ function chart() {
             const selectedConfig = marker.encoding.get("selected");
             const highlightConfig = marker.encoding.get("highlighted");
             const superHighlight = marker.encoding.get("superhighlighted");
+
+            const labelWithoutFrame = (d) => marker.data.space.filter(dim => frameConfig.data.concept != dim).map(dim => d.label[dim]).join(', ')
+            const labelAll = (d) => marker.data.space.map(dim => d.label[dim]).join(', ');
+            const labelOnlyFrame = (d) => d[frameConfig.data.concept];
 
             // data join
             let update = bubbles.selectAll(".dot")
@@ -204,8 +217,8 @@ function chart() {
                 .on("click", d => {
                     if (!d[Symbol.for('trailHeadKey')]) marker.toggleSelection(d);
                 })
-                .on("mouseover", d => highlightConfig.set(d))
-                .on("mouseout", d => highlightConfig.delete(d));
+                .on("mouseover", d => highlightConfig.data.filter.set(d))
+                .on("mouseout", d => highlightConfig.data.filter.delete(d));
 
             // remove old bubbles
             const exit = update.exit().remove();
@@ -229,11 +242,10 @@ function chart() {
                         return colorConfig.d3Scale(d.color);
                     })
                     .style('animation', d => {
-                        return superHighlight.has(d) ?
+                        return superHighlight.data.filter.has(d) ?
                             'blink 1s step-start 0s infinite' :
                             'none';
                     })
-                    .style('zIndex', d => isHighlightedTrail(d) ? 100 : 'auto')
                     .style('stroke', 'black')
                     .style('stroke-width', d => isHighlightedTrail(d) ? 3 : 1)
                     .style('stroke-opacity', getOpacity)
@@ -255,8 +267,8 @@ function chart() {
                 const selectOthers = 0.5;
                 const regular = 0.8;
                 const full = 1;
-                const highlighted = highlightConfig.has(d);
-                const selected = selectedConfig.has(d);
+                const highlighted = highlightConfig.data.filter.has(d);
+                const selected = selectedConfig.data.filter.has(d);
                 const trail = d[Symbol.for('trailHeadKey')];
 
                 if (highlighted || selected) return full;
@@ -268,30 +280,32 @@ function chart() {
 
             function isHighlightedTrail(d) {
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
-                return selectedConfig.has(key) && highlightConfig.has(d)
+                return selectedConfig.data.filter.has(key) && highlightConfig.data.filter.has(d)
             }
+
 
             function drawLabel(d) {
                 let labelStr;
+
                 // if trail, put label at trail start
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
-                if (frameConfig.trails.has(key)) {
-                    const trailStart = frameConfig.trails.getPayload(key);
-                    // if this bubble is trail start bubble
-                    if (trailStart == d[frameConfig.data.concept])
-                        labelStr = marker.space.map(dim => d.label[dim]).join(', ');
-                    else if (highlightConfig.has(d)) {
-                        labelStr = d[frameConfig.data.concept];
+                if (frameConfig.trail.data.filter.has(key)) {
+                    if (frameConfig.trail.show) {
+                        const trailStart = frameConfig.trail.starts[key];
+                        // if this bubble is trail start bubble
+                        if (trailStart == d[frameConfig.data.concept])
+                            labelStr = labelAll(d);
+                        else if (highlightConfig.data.filter.has(d)) {
+                            labelStr = labelOnlyFrame(d);
+                        }
+                    } else {
+                        labelStr = labelWithoutFrame(d);
                     }
                 }
-                /*
-                if (selectedConfig.has(d)) {
-                    labelStr = marker.space.map(dim => d.label[dim]).join(', ');
-                }
-                */
+
                 // if highlight, put on highlight =)
-                else if (highlightConfig.has(d)) {
-                    labelStr = marker.space.filter(dim => frameConfig.data.concept != dim).map(dim => d.label[dim]).join(', ');
+                else if (highlightConfig.data.filter.has(d)) {
+                    labelStr = labelWithoutFrame(d);
                 }
                 // draw label
                 if (labelStr) {
@@ -326,7 +340,7 @@ function chart() {
     }
 
     function drawLegend() {
-        start({
+        start([marker, legendmarker], {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
@@ -341,11 +355,20 @@ function chart() {
         }
 
         function draw() {
+
             const colorConfig = marker.encoding.get("color");
             const superHighlight = marker.encoding.get("superhighlighted");
+            let data;
+
+            if (isEntityConcept(colorConfig.data.conceptProps)) {
+                // need extra query
+                data = legendmarker.dataArray;
+            } else {
+                data = colorConfig.domain.map(d => ({ color: d, name: d }));
+            }
 
             const update = svg.selectAll(".legend")
-                .data(colorConfig.d3Scale.domain());
+                .data(data);
             const enter = update.enter().append("g")
                 .attr("class", "legend");
             const exit = update.exit().remove();
@@ -360,33 +383,33 @@ function chart() {
             });
 
             legend.select("rect")
-                .attr("x", config.width - 18)
+                .attr("x", appState.width - 18)
                 .attr("width", 18)
                 .attr("height", 18)
-                .style("fill", colorConfig.d3Scale)
+                .style("fill", d => colorConfig.d3Scale(d.color))
                 .on("mouseover", d => {
-                    const values = marker.data.filter(d2 => d2["color"] == d && !d2[Symbol.for('trail')]);
-                    superHighlight.set(values);
+                    const values = marker.dataArray.filter(d2 => d2["color"] == d["color"] && !d2[Symbol.for('trail')]);
+                    superHighlight.data.filter.set(values);
                 })
                 .on("mouseout", d => {
-                    const values = marker.data.filter(d2 => d2["color"] == d && !d2[Symbol.for('trail')]);
-                    superHighlight.delete(values);
-                });;
+                    const values = marker.dataArray.filter(d2 => d2["color"] == d["color"] && !d2[Symbol.for('trail')]);
+                    superHighlight.data.filter.delete(values);
+                });
 
             legend.select("text")
-                .attr("x", config.width - 24)
+                .attr("x", appState.width - 24)
                 .attr("y", 9)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
                 .text(function(d) {
-                    return d;
+                    return d.name;
                 });
         }
     }
 
     function drawChart() {
 
-        start({
+        start([marker, legendmarker], {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
@@ -404,20 +427,20 @@ function chart() {
             const xConfig = marker.encoding.get("x");
             const yConfig = marker.encoding.get("y");
 
-            chart.attr("width", config.width + margin.left + margin.right)
-                .attr("height", config.height + margin.top + margin.bottom)
-            svg.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            chart.attr("width", appState.width + appState.margin.left + appState.margin.right)
+                .attr("height", appState.height + appState.margin.top + appState.margin.bottom)
+            svg.attr("transform", "translate(" + appState.margin.left + "," + appState.margin.top + ")");
 
             // var t = getTransition(frameConfig);
 
             xAxis.scale(zoomScales.x);
             yAxis.scale(zoomScales.y);
             xAxisSVG
-                .attr("transform", "translate(0," + config.height + ")")
+                .attr("transform", "translate(0," + appState.height + ")")
                 //.transition(t)
                 .call(xAxis)
             xAxisSVGtext
-                .attr("x", config.width)
+                .attr("x", appState.width)
                 .text(xConfig.data.conceptProps.name)
             yAxisSVG
             //.transition(t)
@@ -435,7 +458,7 @@ function chart() {
 
     function drawEncoding() {
 
-        start({
+        start(marker, {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw

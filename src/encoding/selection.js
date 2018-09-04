@@ -1,10 +1,11 @@
 import { baseEncoding } from './baseEncoding';
-import { selection as selFn } from '../selection';
 import { defaultDecorator } from '../utils';
 
 const defaultConfig = {
     type: "selection",
-    markers: {},
+    data: {
+        filter: {} // force own filter value so it doesn't fall back to marker filter like a normal encoding
+    }
 }
 
 const functions = {
@@ -17,6 +18,6 @@ const functions = {
 
 export const selection = defaultDecorator({
     base: baseEncoding,
-    defaultConfig: defaultConfig,
-    functions: [functions, selFn()]
+    defaultConfig,
+    functions: functions
 });

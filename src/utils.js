@@ -57,10 +57,25 @@ export function isString(value) {
     return typeof value == 'string';
 }
 
+export function isEntityConcept(concept) {
+    return ["entity_set", "entity_domain"].includes(concept.concept_type);
+}
+
 export function mapToObj(map) {
     const obj = {};
     map.forEach((v, k) => { obj[k] = v });
     return obj;
+}
+
+// intersect of two arrays (representing sets)
+export function intersect(a, b) {
+    return a.filter(e => b.includes(e));
+}
+
+// returns true if a and b are identical, regardless of order (i.e. like sets)
+export function arrayEquals(a, b) {
+    const overlap = intersect(a, b);
+    return overlap.length == a.length;
 }
 
 // copies properties using property descriptors so accessors (and other meta-properties) get correctly copied
@@ -104,11 +119,11 @@ export function processConfig(config, props) {
 
 export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
     if (Array.isArray(functions)) functions = assign({}, ...functions);
-    return function decorate(config) {
-        config = deepmerge.all([{}, defaultConfig, config, functions.config || {}]);
+    return function decorate(config, parent) {
+        applyDefaults(config, defaultConfig);
         delete functions.config;
-        base = (base == null) ? config => ({ config: config }) : base;
-        return assign(base(config), functions);
+        base = (base == null) ? (config, parent) => ({ config, parent }) : base;
+        return assign(base(config, parent), functions);
     }
 }
 
@@ -138,7 +153,7 @@ function isReactElement(value) {
     return value.$$typeof === REACT_ELEMENT_TYPE
 }
 
-// deep merge and helpers
+// c merge and helpers
 // code from https://github.com/KyleAMathews/deepmerge
 function emptyTarget(val) {
     return Array.isArray(val) ? [] : {}
@@ -203,41 +218,18 @@ deepmerge.all = function deepmergeAll(array, options) {
     }, {})
 }
 
-export function deepmerge_new(target, source, options) {
-    options = options || {}
-    options.arrayMerge = options.arrayMerge || overwriteMerge
-    options.isMergeableObject = options.isMergeableObject || isMergeableObject
-
-    var sourceIsArray = Array.isArray(source)
-    var targetIsArray = Array.isArray(target)
-    var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray
-
-    if (!sourceAndTargetTypesMatch) {
-        return cloneUnlessOtherwiseSpecified(source, options)
-    } else if (sourceIsArray) {
-        return options.arrayMerge(target, source, options)
-    } else {
-        return mergeObject(target, source, options)
-    }
-}
-
-deepmerge_new.all = function deepmergeAll_new(array, options) {
-    if (!Array.isArray(array)) {
-        throw new Error('first argument should be an array')
-    }
-
-    const base = array.shift();
-
-    return array.reduce(function(prev, next) {
-        return deepmerge(prev, next, options)
-    }, base)
+export function deepclone(object) {
+    return deepmerge({}, object);
 }
 
 export function applyDefaults(config, defaults) {
     const defaultProps = Object.keys(defaults);
     defaultProps.forEach(prop => {
         if (!config.hasOwnProperty(prop))
-            config[prop] = defaults[prop];
+            if (isMergeableObject(defaults[prop]))
+                config[prop] = deepclone(defaults[prop]); // object
+            else
+                config[prop] = defaults[prop]; // non object, e.g. null
         else if (isMergeableObject(config[prop]) && isMergeableObject(defaults[prop]))
             applyDefaults(config[prop], defaults[prop]);
     })

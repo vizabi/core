@@ -1,9 +1,11 @@
-import { trace, computed } from 'mobx';
+import { trace, computed, observable, toJS } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
-import { assign, createMarkerKey, deepmerge, isString } from "../utils";
+import { assign, createMarkerKey, applyDefaults, isString, intersect } from "../utils";
 import { configurable } from '../configurable';
-import { PENDING, FULFILLED, REJECTED, fromPromise } from 'mobx-utils'
+import { fromPromise } from 'mobx-utils'
+import { resolveRef } from '../vizabi';
+import { dataConfig } from '../dataConfig/dataConfig';
 
 const createObj = (space, row, key) => {
     const obj = {
@@ -33,25 +35,29 @@ const defaultConfig = {
 
 // outside of function scope, shared by markers
 let functions = {
-    get space() { return this.config.space },
+    get data() {
+        var cfg = this.config.data;
+        cfg = resolveRef(cfg);
+
+        return observable(dataConfig(cfg, this));
+    },
     get important() { return this.config.important },
     get encoding() {
         //trace();
         // TODO: on config.encoding change, new encodings will be created
         // shouldn't happen, only for actual new encodings, new encodings should be created
+        // called consolidating in MST 
         return encodingStore.getByDefinitions(this.config.encoding);
-    },
-    get encodingWhich() {
-        return [...this.encoding.values()].map(enc => ({
-            which: enc.which,
-            space: enc.space || this.space,
-            dataSource: enc.dataSource
-        }));
     },
     get ownDataEncoding() {
         //trace();
         return new Map(
-            Array.from(this.encoding).filter(([prop, enc]) => enc.data.hasOwnData)
+            Array.from(this.encoding).filter(([prop, enc]) => enc.hasOwnData)
+        );
+    },
+    get notOwnDataEncoding() {
+        return new Map(
+            Array.from(this.encoding).filter(([prop, enc]) => !enc.hasOwnData)
         );
     },
     get readyPromise() {
@@ -79,72 +85,53 @@ let functions = {
     get dataMapCache() {
         //trace();
         const dataMap = new Map();
-        const lookups = new Map();
-        const spaces = new Map();
+        const markerDefiningEncodings = [];
+        const markerAmmendingEncodings = [];
 
-        // TODO: move this to generic data merge to data transformation layer
+        // TODO: 
+        // - move this to generic data merge to data transformation layer
+        // - no special case for label
 
-        // sort visual encodings by space: marker space and (strict) subspaces
-        for (let [prop, encoding] of this.ownDataEncoding) {
-            if (prop == "label") continue;
-            const spaceOverlap = intersect(this.space, encoding.data.space);
+        // sort visual encodings if they define or ammend markers
+        // define marker if they have own data and have space identical to marker space
+        const markerSpaceKey = this.data.space.join('-');
+        for (let [prop, encoding] of this.encoding) {
+            const spaceOverlap = intersect(this.data.space, encoding.data.space);
             const spaceOverlapKey = spaceOverlap.join('-');
-            if (spaces.has(spaceOverlapKey))
-                spaces.get(spaceOverlapKey).push({ prop, encoding });
+            const importantDefEnc = this.important.length == 0 || this.important.includes(prop);
+            // important data in marker space defines the actual markers in viz
+            // this data is necessary but not sufficient for defining markers
+            // data available in all important encodings is sufficient, this is checked later in checkImportantEncodings()
+            if (encoding.hasOwnData && importantDefEnc && spaceOverlapKey == markerSpaceKey)
+                markerDefiningEncodings.push({ prop, encoding });
             else
-                spaces.set(spaceOverlapKey, [{ prop, encoding }]);
+                markerAmmendingEncodings.push({ prop, encoding });
         }
 
-        // data in marker space defines the actual markers in viz
+        // define markers (full join encoding data)
         // TODO: add check for non-marker space dimensions to contain only one value
         // -> save first row values and all next values should be equal to first
-        const markerSpaceKey = this.space.join('-');
-        if (spaces.has(markerSpaceKey))
-            for (let { prop, encoding }
-                of spaces.get(markerSpaceKey)) {
-                encoding.data.response.forEach(row => {
-                    const obj = getOrCreateObj(dataMap, this.space, row);
-                    obj[prop] = encoding.processRow(row);
-                });
-            }
-
-        // create lookups for data in subspaces of marker
-        for (let [spaceKey, encodings] of spaces) {
-            if (spaceKey == markerSpaceKey)
-                continue;
-            const space = spaceKey.split('-');
-            const lookup = new Map();
-            for (let { prop, encoding }
-                of encodings) {
-                encoding.data.response.forEach(row => {
-                    const obj = getOrCreateObj(lookup, space, row);
-                    obj[prop] = encoding.processRow(row);
-                });
-            }
-            lookups.set(space, lookup);
+        const plainSpace = toJS(this.data.space); // no mobx overhead
+        for (let { prop, encoding }
+            of markerDefiningEncodings) {
+            const processFn = encoding.processRow.bind(encoding); // no mobx overhead
+            // old school for loop fastest
+            const response = encoding.data.response;
+            const n = response.length;
+            for (let i = 0; i < n; i++) {
+                let row = response[i];
+                const obj = getOrCreateObj(dataMap, plainSpace, row);
+                obj[prop] = processFn(row);
+            };
         }
 
-        // merge subspace data onto markers, using subspace lookups
-        for (let row of dataMap.values()) {
-            for (let [space, lookup] of lookups) {
-                const key = createMarkerKey(space, row);
-                // will not copy key-Symbol as it's not enumerable
-                // speed comparison: https://jsperf.com/shallow-merge-options/
-                const source = lookup.get(key);
-                for (var i in source) {
-                    row[i] = source[i];
-                }
-            }
+        // ammend markers (left join encoding data)
+        for (let { prop, encoding }
+            of markerAmmendingEncodings) {
+            encoding.addPropertyToDataMap(dataMap, prop);
         }
 
-        if (this.encoding.has('label'))
-            this.encoding.get('label').data.addLabels(dataMap, 'label');
-
-        // intersect of two arrays (representing sets)
-        function intersect(a, b) {
-            return a.filter(e => b.includes(e));
-        }
-
+        // TODO: this should only happen áfter interpolation
         this.checkImportantEncodings(dataMap);
 
         return dataMap;
@@ -159,7 +146,7 @@ let functions = {
         const orderEnc = this.encoding.get("order");
         return orderEnc ? orderEnc.order(dataMap) : dataMap;
     },
-    get data() {
+    get dataArray() {
         //trace();
 
         let data;
@@ -180,7 +167,7 @@ let functions = {
 }
 
 export function baseMarker(config) {
-    config = deepmerge.all([{}, defaultConfig, config]);
+    applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
 }
 

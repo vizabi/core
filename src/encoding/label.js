@@ -4,15 +4,17 @@ import { labelDataConfig } from '../dataConfig/labelDataConfig';
 import { resolveRef } from '../vizabi';
 import { observable } from 'mobx';
 
+
 export const label = defaultDecorator({
     base: baseEncoding,
     functions: {
         get data() {
-            var cfg = this.config.data;
-            if (isString(cfg.ref))
-                return resolveRef(cfg);
+            var cfg = resolveRef(this.config.data);
 
             return observable(labelDataConfig(cfg, this));
+        },
+        addPropertyToDataMap(dataMap, prop) {
+            this.data.addLabels(dataMap, prop);
         }
     }
 });

@@ -1,14 +1,14 @@
 import { fromPromise, FULFILLED } from 'mobx-utils'
-import { deepmerge, assign, createKeyStr } from "../utils";
+import { deepmerge, assign, createKeyStr, applyDefaults } from "../utils";
 import { configurable } from '../configurable';
 import { trace } from 'mobx';
+import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 //import { csv, interpolate } from 'd3';
 
 const defaultConfig = {
     type: "csv",
     path: "data.csv",
-    transforms: [],
-    space: ['marker', 'time']
+    transforms: []
 }
 
 const functions = {
@@ -88,6 +88,8 @@ const functions = {
     },
     query: function(query) {
         //return [];
+        query = dotToJoin(query);
+        query = addExplicitAnd(query);
         console.log('Querying', query);
         const readPromise = this.reader.read(query).then(data => data.map(tryParseRow));
         return fromPromise(readPromise);
@@ -190,6 +192,6 @@ const tryParseRow = d => {
 const parse = (val) => (val == '') ? null : +val || val;
 
 export function baseDataSource(config) {
-    config = deepmerge.all([{}, defaultConfig, config]);
+    applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
 }

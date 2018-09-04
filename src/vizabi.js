@@ -2,6 +2,7 @@ import { markerStore } from './marker/markerStore'
 import { encodingStore } from './encoding/encodingStore'
 import { dataSourceStore } from './dataSource/dataSourceStore'
 import { isString } from './utils'
+import { observable } from 'mobx';
 
 export const stores = {
     marker: markerStore,
@@ -12,7 +13,7 @@ export const stores = {
 let config;
 
 export const vizabi = function(cfg) {
-    config = cfg;
+    config = observable(cfg);
 
     dataSourceStore.setMany(cfg.dataSource || {});
     encodingStore.setMany(cfg.encoding || {});
@@ -21,42 +22,68 @@ export const vizabi = function(cfg) {
     return { stores };
 }
 vizabi.stores = stores;
+vizabi.config = config;
 
+/**
+ * 
+ * @param {*} possibleRef 
+ * @returns config Config object as described in reference config
+ */
 export function resolveRef(possibleRef) {
-    if (!isString(possibleRef.ref))
+    let ref;
+    // no ref
+    if (!possibleRef.ref)
         return possibleRef
 
-    const ref = possibleRef.ref.split('.');
-    let model = stores;
-    for (let i = 0; i < ref.length; i++) {
-        let child = ref[i];
-        if (typeof model == "undefined") {
-            console.warn("Couldn't resolve reference " + possibleRef.ref);
-            return null;
-        }
-        if (typeof model.get == "function")
-            model = model.get(child);
-        else
-            model = model[child];
+    // handle shorthand
+    ref = (isString(possibleRef.ref)) ? { config: possibleRef.ref } : possibleRef.ref;
+
+    // invalid ref
+    if (!(ref.config || ref.model)) {
+        console.warn("Invalid reference, expected string reference in ref, ref.model or ref.config", possibleRef);
     }
-    return model;
+
+    if (ref.config) {
+        return resolveTreeRef(ref.config, config);
+    } else {
+        const model = resolveTreeRef(ref.model, stores);
+        return transformModel(model, ref.transform);
+    }
 }
 
-export function resolveRefCfg(possibleRef) {
-    // no ref
-    if (!isString(possibleRef.ref))
-        return possibleRef
-
-    // reference
-    const ref = possibleRef.ref.split('.');
-    let model = config;
+function resolveTreeRef(refStr, tree) {
+    const ref = refStr.split('.');
+    let node = tree;
     for (let i = 0; i < ref.length; i++) {
         let child = ref[i];
-        if (typeof model == "undefined") {
-            console.warn("Couldn't resolve reference " + possibleRef.ref);
+        if (typeof node == "undefined") {
+            console.warn("Couldn't resolve reference " + refStr);
             return null;
         }
-        model = model[child];
+        if (typeof node.get == "function")
+            node = node.get(child);
+        else
+            node = node[child];
     }
-    return model;
+    return node;
+}
+
+function transformModel(model, transform) {
+    switch (transform) {
+        case "entityConcept":
+            return observable({
+                space: [model.data.concept],
+                filter: {
+                    dimensions: {
+                        [model.data.concept]: {
+                            [model.data.concept]: { $in: model.scale.domain }
+                        }
+                    }
+                },
+                source: "gap"
+            });
+        default:
+            // build new config based on model.config
+            break;
+    }
 }

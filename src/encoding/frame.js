@@ -1,8 +1,9 @@
 import { baseEncoding } from './baseEncoding';
-import { selection } from '../selection'
+import { selection } from '../encoding/selection'
 import { action, reaction, observable, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, deepmerge, createMarkerKey, isString } from '../utils';
+import { assign, deepmerge, createMarkerKey, isString, applyDefaults } from '../utils';
+import { trail } from './trail';
 //import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
@@ -12,7 +13,7 @@ const defaultConfig = {
     interpolate: true,
     trails: {
         show: false,
-        markers: {}
+        data: {}
     }
 }
 
@@ -22,7 +23,7 @@ const trails = function(config, parent) {
     return assign(sel, {
         get show() { return this.config.show },
         setTrail(d) {
-            this.set(d, d[this.parent.data.concept]);
+            this.data.filter.set(d, d[this.parent.data.concept]);
         }
     })
 }
@@ -38,15 +39,14 @@ const functions = {
     },
     get speed() { return this.config.speed },
     domain() {
+        // function is used by scale so this refers to scale, not frame
         if (this.config.domain) return this.config.domain;
         return d3.extent([...this.parent.frameMapCache.keys()]);
     },
-    get trails() {
+    get trail() {
         trace();
-        const frame = this;
-        const cfg = this.config.trails;
-
-        return observable(trails(cfg, this));
+        const cfg = this.config.trail;
+        return observable(trail(cfg, this));
     },
     get interpolate() { return this.config.interpolate },
     playing: false,
@@ -84,9 +84,6 @@ const functions = {
         this.stopPlaying();
         this.setValue(value);
     }),
-    setTrail: action('set trail', function(d) {
-        this.trail.add(d, payload);
-    }),
     update: action('update frame value', function() {
         if (this.playing && this.marker.dataPromise.state == FULFILLED) {
             const newValue = this.value + 1;
@@ -98,16 +95,16 @@ const functions = {
         }
     }),
     updateTrailStart: action('update trail start', function() {
-        this.trails.markers.forEach((start, key) => {
+        this.trail.data.filter.markers.forEach((payload, key) => {
+            const start = this.config.trail.starts[key];
             if (this.value < start)
-                this.trails.config.markers[key] = this.value;
+                this.config.trail.starts[key] = this.value;
         });
     }),
     get frameMap() {
         //trace();
         // loading
-        this.trails;
-        if (this.trails.show)
+        if (this.trail.show)
             return this.trailedFrameMap;
         else
             return this.frameMapCache;
@@ -165,8 +162,9 @@ const functions = {
     },
     // basically transpose and filter framemap
     get trailedFrameMap() {
+        trace();
         const frameMap = this.frameMapCache;
-        const markers = this.trails.markers;
+        const markers = this.trail.data.filter.markers;
 
         if (markers.length == 0)
             return frameMap;
@@ -192,7 +190,7 @@ const functions = {
                 // insert trails before its head marker
                 if (trails.has(markerKey)) {
                     const trail = trails.get(markerKey);
-                    const trailStart = this.trails.getPayload(markerKey); //(minFrameId > this.trails.start) ? minFrameId : this.trails.start;
+                    const trailStart = this.trail.starts[markerKey]; //.filter.getPayload(markerKey); //(minFrameId > this.trails.start) ? minFrameId : this.trails.start;
                     // add trail markers in ascending order
                     for (let i = trailStart; i < id; i++) {
                         const trailMarker = trail.get(i);
@@ -307,6 +305,6 @@ const functions = {
 }
 
 export function frame(config) {
-    config = deepmerge.all([{}, defaultConfig, config]);
+    applyDefaults(config, defaultConfig);
     return assign(baseEncoding(config), functions);
 }
