@@ -13,7 +13,7 @@ export const label = defaultDecorator({
 
             return observable(labelDataConfig(cfg, this));
         },
-        addPropertyToDataMap(dataMap, prop) {
+        addPropertyToMarkers(dataMap, prop) {
             this.data.addLabels(dataMap, prop);
         }
     }

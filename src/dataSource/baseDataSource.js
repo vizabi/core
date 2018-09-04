@@ -35,14 +35,19 @@ const functions = {
             key: new Map(),
             data: []
         }
-        this.availabilityPromise.value.forEach(data => {
+        const val = this.availabilityPromise.case({
+            fulfilled: v => v,
+            pending: () => []
+        })
+
+        val.forEach(data => {
             data.forEach(row => {
-                const key = JSON.parse(row.key).sort();
+                const key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();
                 const keyStr = createKeyStr(key);
                 av.data.push({ key, value: row.value });
                 av.key.set(keyStr, key);
             });
-        })
+        });
         return av;
     },
     get availabilityPromise() {
@@ -71,7 +76,7 @@ const functions = {
             from: "concepts"
         });
     },
-    get readyPromise() {
+    get metaDataPromise() {
         return fromPromise(Promise.all([this.availabilityPromise, this.conceptsPromise]));
     },
     get concepts() {

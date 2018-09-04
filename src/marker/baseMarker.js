@@ -7,26 +7,6 @@ import { fromPromise } from 'mobx-utils'
 import { resolveRef } from '../vizabi';
 import { dataConfig } from '../dataConfig/dataConfig';
 
-const createObj = (space, row, key) => {
-    const obj = {
-        [Symbol.for('key')]: key
-    };
-    space.forEach(dim => obj[dim] = row[dim])
-    return obj;
-}
-
-const getOrCreateObj = (dataMap, space, row) => {
-    let obj;
-    const key = createMarkerKey(space, row);
-    if (!dataMap.has(key)) {
-        obj = createObj(space, row, key);
-        dataMap.set(key, obj);
-    } else {
-        obj = dataMap.get(key);
-    }
-    return obj;
-}
-
 const defaultConfig = {
     space: ["entity", "time"],
     important: [],
@@ -60,23 +40,28 @@ let functions = {
             Array.from(this.encoding).filter(([prop, enc]) => !enc.hasOwnData)
         );
     },
-    get readyPromise() {
-        return this.dataPromises;
-    },
-    get availabilityPromise() {
-        return fromPromise(Promise.all(dataSourceStore.getAll().map(ds => ds.availabilityPromise)))
-    },
-    get conceptsPromise() {
-        return fromPromise(Promise.all(dataSourceStore.getAll().map(ds => ds.conceptsPromise)))
-    },
     get dataPromise() {
         return fromPromise(Promise.all([...this.ownDataEncoding.values()].map(enc => enc.data.promise)))
+    },
+    get metaDataPromise() {
+        return fromPromise(Promise.all([
+            ...dataSourceStore.getAll().map(ds => ds.metaDataPromise)
+        ])); // [...this.ownDataEncoding.values()].map(enc => enc.data.promise)))
     },
     get availability() {
         const items = [];
         dataSourceStore.getAll().forEach(ds => {
             ds.availability.data.forEach(kv => {
                 items.push({ key: kv.key, value: ds.getConcept(kv.value) });
+            })
+        })
+        return items;
+    },
+    get spaceAvailability() {
+        const items = [];
+        dataSourceStore.getAll().forEach(ds => {
+            ds.availability.key.forEach((val, key) => {
+                items.push(val);
             })
         })
         return items;
@@ -111,24 +96,15 @@ let functions = {
         // define markers (full join encoding data)
         // TODO: add check for non-marker space dimensions to contain only one value
         // -> save first row values and all next values should be equal to first
-        const plainSpace = toJS(this.data.space); // no mobx overhead
         for (let { prop, encoding }
             of markerDefiningEncodings) {
-            const processFn = encoding.processRow.bind(encoding); // no mobx overhead
-            // old school for loop fastest
-            const response = encoding.data.response;
-            const n = response.length;
-            for (let i = 0; i < n; i++) {
-                let row = response[i];
-                const obj = getOrCreateObj(dataMap, plainSpace, row);
-                obj[prop] = processFn(row);
-            };
+            encoding.createMarkersWithProperty(dataMap, prop);
         }
 
         // ammend markers (left join encoding data)
         for (let { prop, encoding }
             of markerAmmendingEncodings) {
-            encoding.addPropertyToDataMap(dataMap, prop);
+            encoding.addPropertyToMarkers(dataMap, prop);
         }
 
         // TODO: this should only happen áfter interpolation

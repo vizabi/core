@@ -3,7 +3,7 @@ import { vizabi } from './vizabi'
 import { config } from './config'
 import appState from './appState'
 import { fromPromise } from 'mobx-utils';
-import { isEntityConcept } from './utils';
+import { isEntityConcept, fromPromiseAll, arrayEquals, relativeComplement } from './utils';
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
 var waffle = new WsReader.WsReader.getReader();
@@ -21,6 +21,13 @@ autorun(() => {
 //spy((event) => {
 //    console.log(`${event.name}`, event)
 //})
+/*
+spy((event) => {
+    if (event.type === 'action') {
+        console.log(`${event.name} with args: `, event, event.arguments)
+    }
+})
+*/
 
 //autorun(chart);
 chart();
@@ -56,6 +63,11 @@ function chart() {
         .attr("class", "labels");
 
 
+    const spaceSel = d3.select('#encodingcontrol')
+        .append('select')
+        .attr('id', 'spaceSel');
+
+
     let playtoggle, timeslider, speedslider;
 
     function setupTimecontrol() {
@@ -74,7 +86,10 @@ function chart() {
             .on('input', function() { frameCfg.setSpeed(this.value) });
     }
 
-    function start(markers, { fulfilled, rejected, pending }) {
+    function start(marker, caseImpl) {
+        marker.dataPromise.case(caseImpl);
+    }
+    /*
         if (!Array.isArray(markers)) markers = [markers];
         const dataPromises = [];
         markers.forEach(marker => {
@@ -94,7 +109,7 @@ function chart() {
             else pending();
         }
     }
-
+    */
     const updateSize = action("wrapper size", function(e) {
         var wrap = document.getElementById("wrapper");
         appState.wrapper.height = wrap.clientHeight;
@@ -340,7 +355,8 @@ function chart() {
     }
 
     function drawLegend() {
-        start([marker, legendmarker], {
+
+        start(marker, {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
@@ -364,7 +380,7 @@ function chart() {
                 // need extra query
                 data = legendmarker.dataArray;
             } else {
-                data = colorConfig.domain.map(d => ({ color: d, name: d }));
+                data = colorConfig.scale.domain.map(d => ({ color: d, name: d }));
             }
 
             const update = svg.selectAll(".legend")
@@ -405,11 +421,12 @@ function chart() {
                     return d.name;
                 });
         }
+
     }
 
     function drawChart() {
 
-        start([marker, legendmarker], {
+        start(marker, {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
@@ -458,11 +475,7 @@ function chart() {
 
     function drawEncoding() {
 
-        start(marker, {
-            pending: showLoading,
-            rejected: showError,
-            fulfilled: draw
-        });
+        draw();
 
         function showLoading() {
             console.log("loading");
@@ -474,36 +487,113 @@ function chart() {
 
         function draw() {
 
+            spaceSel
+                .on("change", function() {
+                    const space = d3.select(this.options[this.selectedIndex]).datum();
+                    marker.config.data.space = space;
+                });
+
+            const spaceOptUpd = spaceSel
+                .selectAll('option')
+                .data(marker.spaceAvailability);
+
+            const spaceOptEnter = spaceOptUpd.enter()
+                .append('option')
+                .text(d => d.join(', '));
+
+            spaceOptEnter.merge(spaceOptUpd)
+                .property('selected', function(d) {
+                    return arrayEquals(d, marker.data.space);
+                });
+
+
             // create selects
             const encs = ["x", "y", "size", "color"];
-            const divs = d3.select('#encodingcontrol')
+            const divsUpdate = d3.select('#encodingcontrol')
                 .selectAll('div')
-                .data(encs)
+                .data(encs);
+            const divsEnter = divsUpdate
                 .enter()
                 .append('div');
-            const selects = divs
+
+            divsEnter
                 .append('select')
                 .attr('id', d => d + "select")
+                .attr('class', 'encConceptSelect')
                 .on("change", function(enc) {
                     const kv = d3.select(this.options[this.selectedIndex]).datum();
                     marker.encoding.get(enc).setWhich(kv);
                 });
-            divs.insert("label", ":first-child").attr('for', d => d + "select").text(d => d);
+            divsEnter.insert("label", ":first-child").attr('for', d => d + "select").text(d => d);
+            const divs = divsEnter.merge(divsUpdate);
 
+            const extraDims = divsEnter.append('span').attr('id', d => d + 'dims').attr('class', "dims");
+            divs.selectAll('.dims').each((prop, i, nodes) => {
+                const div = nodes[i];
+                const encoding = marker.encoding.get(prop);
+                const encSpace = encoding.data.space;
+                const dims = relativeComplement(marker.data.space, encSpace).map(dim => ({ dim, encoding }));
+                const promises = dims.map(d => {
+                    return d.encoding.data.source.query({
+                        select: {
+                            key: [d.dim],
+                            value: ["name"]
+                        },
+                        from: "entities"
+                    }).then(data => {
+                        return { data, dim: d.dim }
+                    });
+                });
+                Promise.all(promises).then(dims => {
+                    const dimUpdate = d3.select(div).selectAll('span')
+                        .data(dims);
+                    const dimEnter = dimUpdate
+                        .enter()
+                        .append('span');
+                    dimEnter
+                        .append('label').attr('for', d => d.dim + "_extraDim").text(d => d.dim)
+                    dimEnter
+                        .append('select')
+                        .attr('id', d => d.dim + "_extraDim")
+                        .on("change", function(enc) {
+                            const dim = d3.select(this).datum().dim;
+                            const kv = d3.select(this.options[this.selectedIndex]).datum();
+                            encoding.data.filter.config.dimensions[dim] = {
+                                [dim]: kv[dim]
+                            };
+                        })
+                        .selectAll('option')
+                        .data(d => {
+                            return d.data
+                        })
+                        .enter()
+                        .append('option')
+                        .text(d => d.name);
+                    dimUpdate.exit().remove().each(function(d) {
+                        const dim = d3.select(this).datum().dim;
+                        encoding.data.filter.config.dimensions[dim] = {};
+                    });
+                });
+            });
             // populate select options
             const items = marker.availability;
-            const selUpdate = selects.selectAll("option")
-                .data(items);
+
+            const selects = divs.selectAll('select.encConceptSelect');
+            const selUpdate = selects.selectAll("option").data(items);
             const selEnter = selUpdate.enter()
-                .append('option')
-                .attr('value', d => d.value.concept + ' (' + d.key.join(',') + ')')
+                .append('option');
+            selEnter.merge(selUpdate)
+                .attr('value', d => !d.value ? 'n/a' : d.value.concept + ' (' + d.key.join(',') + ')')
                 .property('selected', function(d) {
                     const encId = d3.select(this.parentNode).datum();
                     const enc = marker.encoding.get(encId)
-                    return d.value.concept == enc.data.concept;
+                    return d.value && d.value.concept == enc.data.concept && arrayEquals(d.key, enc.data.space);
                 })
-                .text(d => d.value.name + ' (' + d.key.join(',') + ')');
+                .text(d => !d.value ? 'n/a' : d.value.name + ' (' + d.key.join(',') + ')')
+                .sort((a, b) => !a.value || !b.value ? 0 : (a.value.name > b.value.name ? 1 : -1));
             const selExit = selUpdate.exit().remove();
+
+
         };
     }
 };

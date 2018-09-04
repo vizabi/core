@@ -17,6 +17,26 @@ const scales = {
     "band": d3.scaleBand
 }
 
+const createObj = (space, row, key) => {
+    const obj = {
+        [Symbol.for('key')]: key
+    };
+    space.forEach(dim => obj[dim] = row[dim])
+    return obj;
+}
+
+const getOrCreateObj = (dataMap, space, row) => {
+    let obj;
+    const key = createMarkerKey(space, row);
+    if (!dataMap.has(key)) {
+        obj = createObj(space, row, key);
+        dataMap.set(key, obj);
+    } else {
+        obj = dataMap.get(key);
+    }
+    return obj;
+}
+
 const defaultConfig = {
     scale: {
         type: null,
@@ -43,23 +63,40 @@ const functions = {
     get hasOwnData() {
         return this.data && this.data.hasOwnData;
     },
-    addPropertyToDataMap(dataMap, prop) {
+    addPropertyToMarkers(dataMap, prop) {
         if (this.data && this.data.concept) {
             // simply copy from row key
             if (this.marker.data.space.includes(this.data.concept)) {
+                const concept = this.data.concept;
                 for (let row of dataMap.values()) {
-                    row[prop] = row[this.data.concept];
+                    row[prop] = row[concept];
                 }
             } else {
+                const space = toJS(this.data.space);
+                const response = this.data.responseMap;
+                const concept = this.data.concept;
                 for (let row of dataMap.values()) {
-                    const key = createMarkerKey(this.data.space, row);
+                    const key = createMarkerKey(space, row);
                     // add data to marker if this encoding has data for it 
-                    if (this.data.responseMap.has(key)) {
-                        row[prop] = this.data.responseMap.get(key)[this.data.concept];
+                    if (response.has(key)) {
+                        row[prop] = response.get(key)[concept];
                     }
                 }
             }
         }
+    },
+    createMarkersWithProperty(dataMap, prop) {
+        const markerSpace = toJS(this.marker.data.space)
+        const concept = this.data.concept;
+        const response = this.data.response;
+        const n = response.length
+
+        // old school for loop fastest;
+        for (let i = 0; i < n; i++) {
+            let row = response[i];
+            const obj = getOrCreateObj(dataMap, markerSpace, row);
+            obj[prop] = row[concept];
+        };
     },
     get scale() {
         if (isString(this.config.scale.ref))

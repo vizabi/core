@@ -1,3 +1,6 @@
+import { autorun } from "mobx";
+import { fromPromise } from "mobx-utils";
+
 export const createKey2 = (space, row) => space.map(dim => row[dim]).join('-');
 // micro-optimizations below as this is code that runs for each row in data to create key to the row
 
@@ -72,10 +75,15 @@ export function intersect(a, b) {
     return a.filter(e => b.includes(e));
 }
 
+// relative complement of A with respect to B
+export function relativeComplement(a, b) {
+    return b.filter(e => !a.includes(e));
+}
+
 // returns true if a and b are identical, regardless of order (i.e. like sets)
 export function arrayEquals(a, b) {
     const overlap = intersect(a, b);
-    return overlap.length == a.length;
+    return overlap.length == a.length && overlap.length == b.length;
 }
 
 // copies properties using property descriptors so accessors (and other meta-properties) get correctly copied

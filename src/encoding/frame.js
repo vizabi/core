@@ -65,7 +65,7 @@ const functions = {
     stopPlaying: function() {
         this.setPlaying(false);
     },
-    setPlaying: ('setPlaying', function(playing) {
+    setPlaying: action('setPlaying', function(playing) {
         this.playing = playing;
     }),
     setSpeed: action('setSpeed', function(speed) {
@@ -134,8 +134,11 @@ const functions = {
 
         const frameMap = new Map();
         const frameSpace = this.data.space.filter(dim => dim != this.data.concept);
+        const concept = this.data.concept;
+        const getOrCreateDataMap = this.getOrCreateDataMap.bind(this); // no mobx lookups
         for (let [key, row] of flatDataMap) {
-            const dataMap = this.getOrCreateDataMap(frameMap, row);
+            const frameId = row[concept];
+            const dataMap = getOrCreateDataMap(frameMap, frameId);
             const key = createMarkerKey(frameSpace, row);
             row[Symbol.for('key')] = key;
             dataMap.set(key, row);
@@ -150,13 +153,13 @@ const functions = {
 
         return frameMap;
     },
-    getOrCreateDataMap(frameMap, row) {
+    getOrCreateDataMap(frameMap, frameId) {
         let dataMap;
-        if (frameMap.has(row[this.data.concept])) {
-            dataMap = frameMap.get(row[this.data.concept]);
+        if (frameMap.has(frameId)) {
+            dataMap = frameMap.get(frameId);
         } else {
             dataMap = new Map();
-            frameMap.set(row[this.data.concept], dataMap);
+            frameMap.set(frameId, dataMap);
         }
         return dataMap;
     },

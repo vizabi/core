@@ -4,10 +4,14 @@ export const config = {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
         },*/
-        gap: {
+        /*gap: {
             type: "waffle",
             "path": "https://waffle-server.gapminder.org/api/ddf/ql",
             "assetsPath": "https://import-waffle-server.gapminder.org/api/ddf/assets/"
+        },*/
+        gap: {
+            type: "ddfcsv",
+            path: "./ddf--jheeffer--mdtest/"
         },
         /*
         pcbs: {
@@ -129,7 +133,8 @@ export const config = {
                 "y": {
                     type: "y",
                     data: {
-                        concept: "life_expectancy_years"
+                        concept: "life_expectancy",
+                        space: ["geo", "gender", "time"]
                     },
                     scale: {
                         type: "linear"

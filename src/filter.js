@@ -33,12 +33,12 @@ export function filter(config = {}, parent) {
         getPayload(d) {
             return this.markers.get(this.getKey(d));
         },
-        set: action(function(d, payLoad = true) {
+        set: action("setFilter", function(d, payLoad = true) {
             if (Array.isArray(d)) d.forEach(this.set.bind(this))
             const key = this.getKey(d);
             this.config.markers = mapToObj(this.markers.set(key, payLoad));
         }),
-        delete: action(function(d) {
+        delete: action("deleteFilter", function(d) {
             if (Array.isArray(d)) d.forEach(this.delete.bind(this))
             const key = this.getKey(d);
             const success = this.markers.delete(key)

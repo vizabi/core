@@ -54,11 +54,12 @@ export const order = defaultDecorator({
         },
         order(dataMap) {
             const data = Array.from(dataMap);
+            const direction = this.direction;
             data.sort((a, b) => {
                 let ao = a[1].order,
                     bo = b[1].order;
 
-                return this.direction == directions.ascending ?
+                return direction == directions.ascending ?
                     ao - bo :
                     bo - ao;
             });
