@@ -245,7 +245,10 @@ export function applyDefaults(config, defaults) {
                 config[prop] = deepclone(defaults[prop]); // object
             else
                 config[prop] = defaults[prop]; // non object, e.g. null
-        else if (isMergeableObject(config[prop]) && isMergeableObject(defaults[prop]))
-            applyDefaults(config[prop], defaults[prop]);
+        else if (isMergeableObject(defaults[prop]))
+            if (isMergeableObject(config[prop]))
+                applyDefaults(config[prop], defaults[prop]);
+            else
+                config[prop] = deepclone(defaults[prop]);
     })
 }

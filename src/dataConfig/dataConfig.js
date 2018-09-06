@@ -1,7 +1,7 @@
 import { resolveRef } from "../vizabi";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable, toJS } from "mobx";
-import { createMarkerKey, arrayEquals, deepmerge, applyDefaults, intersect } from "../utils";
+import { createMarkerKey, arrayEquals, deepmerge, applyDefaults, intersect, isEntityConcept } from "../utils";
 import { filter } from "../filter";
 
 const defaultConfig = {
@@ -44,6 +44,12 @@ export function dataConfig(config = {}, parent) {
         },
         get state() {
             return this.promise.state;
+        },
+        get domain() {
+            const concept = this.concept;
+            return (this.conceptProps.concept_type == "measure") ?
+                d3.extent(this.response, d => d[concept]) :
+                d3.set(this.response, d => d[concept]).values().sort();
         },
         get response() {
             //trace();

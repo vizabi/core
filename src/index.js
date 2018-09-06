@@ -143,8 +143,8 @@ function chart() {
 
         zoomScales = observable({
             t: d3.zoomTransform(chart),
-            get x() { return this.t.rescaleX(xConfig.d3Scale) },
-            get y() { return this.t.rescaleY(yConfig.d3Scale) },
+            get x() { return this.t.rescaleX(xConfig.scale.d3Scale) },
+            get y() { return this.t.rescaleY(yConfig.scale.d3Scale) },
             setTransform: action(function(t) {
                 this.t = t
             })
@@ -255,7 +255,7 @@ function chart() {
                     .style("fill", function(d) {
                         return d.color == null ?
                             "#ffffff" :
-                            colorConfig.d3Scale(d.color);
+                            colorConfig.scale.d3Scale(d.color);
                     })
                     .style('animation', d => {
                         return superHighlight.data.filter.has(d) ?
@@ -268,7 +268,7 @@ function chart() {
                     .style('opacity', getOpacity)
                     .attr("r", d => {
                         const which = sizeConfig.which;
-                        const radius = isNaN(which) ? sizeConfig.d3Scale(d.size) : which;
+                        const radius = isNaN(which) ? sizeConfig.scale.d3Scale(d.size) : which;
                         return radius;
                     })
                     .each(drawLabel);
@@ -404,7 +404,7 @@ function chart() {
                 .attr("x", appState.width - 18)
                 .attr("width", 18)
                 .attr("height", 18)
-                .style("fill", d => colorConfig.d3Scale(d.color))
+                .style("fill", d => colorConfig.scale.d3Scale(d.color))
                 .on("mouseover", d => {
                     const values = marker.dataArray.filter(d2 => d2["color"] == d["color"] && !d2[Symbol.for('trail')]);
                     superHighlight.data.filter.set(values);

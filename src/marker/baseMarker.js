@@ -34,11 +34,6 @@ let functions = {
             Array.from(this.encoding).filter(([prop, enc]) => enc.hasOwnData)
         );
     },
-    get notOwnDataEncoding() {
-        return new Map(
-            Array.from(this.encoding).filter(([prop, enc]) => !enc.hasOwnData)
-        );
-    },
     get dataPromise() {
         return fromPromise(Promise.all([...this.ownDataEncoding.values()].map(enc => enc.data.promise)))
     },

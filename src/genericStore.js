@@ -16,10 +16,10 @@ export const createStore = function(baseType, extendedTypes = {}) {
         get: function(id) {
             return this.named.get(id);
         },
-        addType: function(type, modelConstructor) {
-            if (this.modelTypes[type])
-                console.warn("Adding model type " + type + " failed. Type already exists", this);
-            this.modelTypes.all[type] = modelConstructor;
+        addType: function(modelType, modelConstructor) {
+            if (this.modelTypes[modelType])
+                console.warn("Adding model type " + modelType + " failed. Type already exists", this);
+            this.modelTypes.all[modelType] = modelConstructor;
         },
         getAll: function() {
             return [...this.named.values(), ...this.anonymous];
@@ -29,8 +29,8 @@ export const createStore = function(baseType, extendedTypes = {}) {
         },
         create: function(config) {
             //if (isObservableObject(config)) config = toJS(config);
-            let modelType = this.modelTypes.all[config.type] || this.modelTypes.base;
-            let model = observable(modelType(config), modelType.decorate || null, { name: config.type || 'base' });
+            let modelType = this.modelTypes.all[config.modelType] || this.modelTypes.base;
+            let model = observable(modelType(config), modelType.decorate || null, { name: config.modelType || 'base' });
             if (model.setUpReactions) model.setUpReactions();
             return model;
         },

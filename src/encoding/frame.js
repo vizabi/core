@@ -1,5 +1,5 @@
 import { baseEncoding } from './baseEncoding';
-import { selection } from '../encoding/selection'
+import { selection } from './selection'
 import { action, reaction, observable, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, deepmerge, createMarkerKey, isString, applyDefaults } from '../utils';
@@ -7,25 +7,12 @@ import { trail } from './trail';
 //import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
-    type: "frame",
+    modelType: "frame",
     value: (new Date()).getFullYear(),
     speed: 100,
     interpolate: true,
-    trails: {
-        show: false,
-        data: {}
-    }
-}
-
-const trails = function(config, parent) {
-    const sel = selection(config, parent);
-
-    return assign(sel, {
-        get show() { return this.config.show },
-        setTrail(d) {
-            this.data.filter.set(d, d[this.parent.data.concept]);
-        }
-    })
+    scale: { modelType: "frame" },
+    trails: {}
 }
 
 const functions = {
@@ -38,11 +25,6 @@ const functions = {
         return value;
     },
     get speed() { return this.config.speed },
-    domain() {
-        // function is used by scale so this refers to scale, not frame
-        if (this.config.domain) return this.config.domain;
-        return d3.extent([...this.parent.frameMapCache.keys()]);
-    },
     get trail() {
         trace();
         const cfg = this.config.trail;

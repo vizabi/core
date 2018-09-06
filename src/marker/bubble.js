@@ -5,6 +5,11 @@ import { encodingStore } from '../encoding/encodingStore';
 
 const defaultConfig = {
     important: ["x", "y", "size"],
+    encoding: {
+        x: { scale: { modelType: "x" } },
+        y: { scale: { modelType: "y" } },
+        size: { scale: { modelType: "size" } }
+    }
 }
 
 export function bubble(config) {
@@ -16,8 +21,8 @@ export function bubble(config) {
     return assign(base, {
         get encoding() {
             const enc = this.superEncoding;
-            enc.set('highlighted', encodingStore.getByDefinition({ type: "selection" }));
-            enc.set('superhighlighted', encodingStore.getByDefinition({ type: "selection" }));
+            enc.set('highlighted', encodingStore.getByDefinition({ modelType: "selection" }));
+            enc.set('superhighlighted', encodingStore.getByDefinition({ modelType: "selection" }));
             return enc;
         },
         toggleSelection: action(function(d) {

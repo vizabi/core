@@ -10,7 +10,7 @@ export const config = {
             "assetsPath": "https://import-waffle-server.gapminder.org/api/ddf/assets/"
         },*/
         gap: {
-            type: "ddfcsv",
+            modelType: "ddfcsv",
             path: "./ddf--jheeffer--mdtest/"
         },
         /*
@@ -96,7 +96,6 @@ export const config = {
             },
             encoding: {
                 color: {
-                    type: "color",
                     data: { concept: { ref: "marker.bubble.encoding.color.data.concept" } },
                     scale: { ref: "marker.bubble.encoding.color.scale" }
                 },
@@ -106,7 +105,7 @@ export const config = {
             },
         },
         "bubble": {
-            type: "bubble",
+            modelType: "bubble",
             data: {
                 source: "gap",
                 space: ["geo", "time"],
@@ -124,11 +123,10 @@ export const config = {
             },
             encoding: {
                 "selected": {
-                    type: "selection",
+                    modelType: "selection",
                     data: { ref: "marker.bubble.encoding.frame.trail.data" }
                 },
                 "x": {
-                    type: "x",
                     data: {
                         concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
                     },
@@ -137,7 +135,6 @@ export const config = {
                     }
                 },
                 "y": {
-                    type: "y",
                     data: {
                         concept: "life_expectancy",
                         space: ["geo", "gender", "time"]
@@ -147,14 +144,14 @@ export const config = {
                     }
                 },
                 "order": {
-                    type: "order",
+                    modelType: "order",
                     data: {
                         ref: "marker.bubble.encoding.size.data",
                         direction: "descending"
                     }
                 },
                 "size": {
-                    type: "size",
+                    modelType: "size",
                     data: {
                         concept: "population_total"
                     },
@@ -164,7 +161,6 @@ export const config = {
                     }
                 },
                 "color": {
-                    type: "color",
                     data: {
                         space: ["geo"],
                         concept: "world_4region"
@@ -174,13 +170,13 @@ export const config = {
                     }
                 },
                 "label": {
-                    type: "label",
+                    modelType: "label",
                     data: {
                         concept: "name"
                     }
                 },
                 "frame": {
-                    type: "frame",
+                    modelType: "frame",
                     data: {
                         concept: "time"
                     },

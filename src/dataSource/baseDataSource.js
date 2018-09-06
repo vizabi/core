@@ -6,7 +6,7 @@ import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 //import { csv, interpolate } from 'd3';
 
 const defaultConfig = {
-    type: "csv",
+    modelType: "csv",
     path: "data.csv",
     transforms: []
 }
