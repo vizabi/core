@@ -114,6 +114,13 @@ export function renameProperty(obj, oldProp, newProp) {
     moveProperty(obj, oldProp, obj, newProp)
 }
 
+export function fromPromiseAll(promiseArray) {
+    if (promiseArray.every(p.state == "fulfilled"))
+        return fromPromise.resolve(promiseArray);
+    if (promiseArray.some(p => p.state == "rejected"))
+        return fromPromise.reject(promiseArray);
+}
+
 export function processConfig(config, props) {
     const obj = {};
     props.forEach(p => {

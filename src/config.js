@@ -14,6 +14,11 @@ export const config = {
             path: "./ddf--jheeffer--mdtest/"
         },
         /*
+                sg: {
+                    type: "ddfcsv",
+                    path: "./systema_globalis/"
+                },*/
+        /*
         pcbs: {
             type: "ddfcsv",
             path: "./ddf--pcbs--census2017/"
@@ -91,6 +96,7 @@ export const config = {
             },
             encoding: {
                 color: {
+                    type: "color",
                     data: { concept: { ref: "marker.bubble.encoding.color.data.concept" } },
                     scale: { ref: "marker.bubble.encoding.color.scale" }
                 },

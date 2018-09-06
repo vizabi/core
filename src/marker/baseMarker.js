@@ -8,7 +8,6 @@ import { resolveRef } from '../vizabi';
 import { dataConfig } from '../dataConfig/dataConfig';
 
 const defaultConfig = {
-    space: ["entity", "time"],
     important: [],
     encoding: {},
 };
@@ -52,7 +51,7 @@ let functions = {
         const items = [];
         dataSourceStore.getAll().forEach(ds => {
             ds.availability.data.forEach(kv => {
-                items.push({ key: kv.key, value: ds.getConcept(kv.value) });
+                items.push({ key: kv.key, value: ds.getConcept(kv.value), source: ds });
             })
         })
         return items;

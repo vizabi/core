@@ -15,14 +15,13 @@ let config;
 export const vizabi = function(cfg) {
     config = observable(cfg);
 
-    dataSourceStore.setMany(cfg.dataSource || {});
-    encodingStore.setMany(cfg.encoding || {});
-    markerStore.setMany(cfg.marker || {});
+    dataSourceStore.setMany(config.dataSource || {});
+    encodingStore.setMany(config.encoding || {});
+    markerStore.setMany(config.marker || {});
 
-    return { stores };
+    return { stores, config };
 }
 vizabi.stores = stores;
-vizabi.config = config;
 
 /**
  * 

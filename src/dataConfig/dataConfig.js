@@ -1,7 +1,7 @@
 import { resolveRef } from "../vizabi";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
-import { trace, observable } from "mobx";
-import { createMarkerKey, arrayEquals, deepmerge, applyDefaults } from "../utils";
+import { trace, observable, toJS } from "mobx";
+import { createMarkerKey, arrayEquals, deepmerge, applyDefaults, intersect } from "../utils";
 import { filter } from "../filter";
 
 const defaultConfig = {
@@ -13,6 +13,7 @@ const defaultConfig = {
 export function dataConfig(config = {}, parent) {
 
     applyDefaults(config, defaultConfig);
+    let latestResponse = [];
 
     return {
         config,
@@ -26,6 +27,9 @@ export function dataConfig(config = {}, parent) {
         get space() {
             //trace();
             return this.config.space || ((this.parent.marker) ? this.parent.marker.data.space : null)
+        },
+        get commonSpace() {
+            return intersect(this.space, this.parent.marker.data.space);
         },
         get filter() {
             const config = this.config.filter || ((this.parent.marker) ? this.parent.marker.data.config.filter : {})
@@ -43,14 +47,29 @@ export function dataConfig(config = {}, parent) {
         },
         get response() {
             //trace();
-            return this.promise.value;
+            // constant response
+            if (this.space.length == 0) {
+                if (!this.value) {
+                    console.warn("Space is empty but no constant value is given. Can't create response for dataConfig", this);
+                    return [{ value: 0 }]
+                }
+                return [{ value: this.value }]
+            }
+            // data response
+            return this.promise.case({
+                pending: () => latestResponse,
+                rejected: e => latestResponse,
+                fulfilled: v => latestResponse = v
+            });
         },
         get responseMap() {
             //trace();
             const responseMap = new Map();
             this.response.forEach(row => {
-                const key = createMarkerKey(this.space, row);
+                const key = createMarkerKey(this.commonSpace, row);
                 row[Symbol.for('key')] = key;
+                if (responseMap.has(key))
+                    console.warn('Response map already contains row for key: ' + key, responseMap.get(key), row)
                 responseMap.set(key, row);
             });
             return responseMap;

@@ -1,11 +1,9 @@
-import { action, toJS, isObservableArray, trace, observable } from 'mobx';
-import { deepmerge, assign, defaultDecorator, isString, applyDefaults, createMarkerKey } from "../utils";
+import { action, toJS, trace, observable } from 'mobx';
+import { assign, applyDefaults, createMarkerKey } from "../utils";
 import { resolveRef } from '../vizabi';
 import { configurable } from '../configurable';
-import { dataSourceStore } from '../dataSource/dataSourceStore';
 import { markerStore } from '../marker/markerStore';
 import { dataConfig } from '../dataConfig/dataConfig';
-import { FULFILLED } from 'mobx-utils'
 //import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
 
 const scales = {
@@ -72,11 +70,11 @@ const functions = {
                     row[prop] = row[concept];
                 }
             } else {
-                const space = toJS(this.data.space);
+                const commonSpace = this.data.commonSpace;
                 const response = this.data.responseMap;
                 const concept = this.data.concept;
                 for (let row of dataMap.values()) {
-                    const key = createMarkerKey(space, row);
+                    const key = createMarkerKey(commonSpace, row);
                     // add data to marker if this encoding has data for it 
                     if (response.has(key)) {
                         row[prop] = response.get(key)[concept];
@@ -99,12 +97,12 @@ const functions = {
         };
     },
     get scale() {
-        if (isString(this.config.scale.ref))
-            return resolveRef(this.config.scale);
+        const config = resolveRef(this.config.scale);
+        const parent = this;
 
         return observable(Object.defineProperties({}, {
-            parent: { value: this, enumerable: true },
-            config: { value: this.config.scale, enumerable: true },
+            parent: { value: parent, enumerable: true },
+            config: { value: config, enumerable: true },
             data: { value: this.data, enumerable: true },
             type: { get: this.scaleType, enumerable: true },
             domain: { get: this.domain, enumerable: true },

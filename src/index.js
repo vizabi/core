@@ -2,8 +2,7 @@ import { autorun, action, spy, observable } from 'mobx'
 import { vizabi } from './vizabi'
 import { config } from './config'
 import appState from './appState'
-import { fromPromise } from 'mobx-utils';
-import { isEntityConcept, fromPromiseAll, arrayEquals, relativeComplement } from './utils';
+import { isEntityConcept, arrayEquals, relativeComplement } from './utils';
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
 var waffle = new WsReader.WsReader.getReader();
@@ -14,7 +13,7 @@ window.vizabi = vizabi;
 window.autorun = autorun;
 
 autorun(() => {
-    d3.select("#right pre").html(JSON.stringify(vizabi.config, null, 2))
+    d3.select("#right pre").html(JSON.stringify(viz.config, null, 2))
 }, { name: "showcfg" })
 
 
@@ -254,7 +253,9 @@ function chart() {
                         return zoomScales.y(d.y);
                     })
                     .style("fill", function(d) {
-                        return colorConfig.d3Scale(d.color);
+                        return d.color == null ?
+                            "#ffffff" :
+                            colorConfig.d3Scale(d.color);
                     })
                     .style('animation', d => {
                         return superHighlight.data.filter.has(d) ?
@@ -372,13 +373,14 @@ function chart() {
 
         function draw() {
 
-            const colorConfig = marker.encoding.get("color");
             const superHighlight = marker.encoding.get("superhighlighted");
+            let colorConfig = marker.encoding.get('color');
             let data;
 
             if (isEntityConcept(colorConfig.data.conceptProps)) {
                 // need extra query
                 data = legendmarker.dataArray;
+                colorConfig = legendmarker.encoding.get('color');
             } else {
                 data = colorConfig.scale.domain.map(d => ({ color: d, name: d }));
             }
@@ -589,7 +591,7 @@ function chart() {
                     const enc = marker.encoding.get(encId)
                     return d.value && d.value.concept == enc.data.concept && arrayEquals(d.key, enc.data.space);
                 })
-                .text(d => !d.value ? 'n/a' : d.value.name + ' (' + d.key.join(',') + ')')
+                .text(d => !d.value ? 'n/a' : d.value.name + ' (' + d.key.join(',') + ') [' + d.source.path + ']')
                 .sort((a, b) => !a.value || !b.value ? 0 : (a.value.name > b.value.name ? 1 : -1));
             const selExit = selUpdate.exit().remove();
 
