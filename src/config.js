@@ -102,13 +102,13 @@ export const config = {
                 name: { data: { concept: "name" } },
                 rank: { data: { concept: "rank" } },
                 map: { data: { concept: "shape_lores_svg" } }
-            },
+            }
         },
         "bubble": {
             modelType: "bubble",
             data: {
                 source: "gap",
-                space: ["geo", "time"],
+                space: ["country", "time"],
                 /*filter: {
                     markers: {},
                     dimensions: {
@@ -137,10 +137,16 @@ export const config = {
                 "y": {
                     data: {
                         concept: "life_expectancy",
-                        space: ["geo", "gender", "time"]
+                        space: ["country", "gender", "time"],
+                        filter: {
+                            dimensions: {
+                                gender: { gender: "male" }
+                            }
+                        }
                     },
                     scale: {
-                        type: "linear"
+                        type: "linear",
+                       // domain: [50, 60]
                     }
                 },
                 "order": {
@@ -162,7 +168,7 @@ export const config = {
                 },
                 "color": {
                     data: {
-                        space: ["geo"],
+                        space: ["country"],
                         concept: "world_4region"
                     },
                     scale: {
