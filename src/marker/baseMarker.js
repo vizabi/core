@@ -1,11 +1,13 @@
 import { trace, computed, observable, toJS } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
-import { assign, createMarkerKey, applyDefaults, isString, intersect } from "../utils";
+import { dataConfigStore } from '../dataConfig/dataConfigStore'
+import { assign, applyDefaults, intersect } from "../utils";
 import { configurable } from '../configurable';
 import { fromPromise } from 'mobx-utils'
 import { resolveRef } from '../vizabi';
 import { dataConfig } from '../dataConfig/dataConfig';
+import { fullJoin } from '../dataFrame';
 
 const defaultConfig = {
     important: [],
@@ -15,23 +17,24 @@ const defaultConfig = {
 // outside of function scope, shared by markers
 let functions = {
     get data() {
-        var cfg = this.config.data;
+        return dataConfigStore.getByDefinition(this.config.data, this)
+        
         cfg = resolveRef(cfg);
-
         return observable(dataConfig(cfg, this));
     },
     get important() { return this.config.important },
     get encoding() {
-        //trace();
+        trace();
         // TODO: on config.encoding change, new encodings will be created
         // shouldn't happen, only for actual new encodings, new encodings should be created
         // called consolidating in MST 
+        // having encoding ids in config can help in consolidating (match ids). maybe other ways possible too
         return encodingStore.getByDefinitions(this.config.encoding);
     },
     get ownDataEncoding() {
-        //trace();
+        trace();
         return new Map(
-            Array.from(this.encoding).filter(([prop, enc]) => enc.hasOwnData)
+            Array.from(this.encoding).filter(([prop, enc]) => enc.data.hasOwnData)
         );
     },
     get dataPromise() {
@@ -54,7 +57,7 @@ let functions = {
     get spaceAvailability() {
         const items = [];
         dataSourceStore.getAll().forEach(ds => {
-            ds.availability.key.forEach((val, key) => {
+            ds.availability.keyLookup.forEach((val, key) => {
                 items.push(val);
             })
         })
@@ -62,44 +65,45 @@ let functions = {
     },
     // computed to cache calculation
     get dataMapCache() {
-        //trace();
-        const dataMap = new Map();
+        trace();
         const markerDefiningEncodings = [];
         const markerAmmendingEncodings = [];
-
-        // TODO: 
-        // - move this to generic data merge to data transformation layer
-        // - no special case for label
 
         // sort visual encodings if they define or ammend markers
         // define marker if they have own data and have space identical to marker space
         const markerSpaceKey = this.data.space.join('-');
         for (let [prop, encoding] of this.encoding) {
+
+            // selections don't have concept set and are not part of marker data
+            // prevents rejoining data on each select/highlight change
+            if (!encoding.data.concept)
+                continue; 
+
             const spaceOverlap = intersect(this.data.space, encoding.data.space);
             const spaceOverlapKey = spaceOverlap.join('-');
             const importantDefEnc = this.important.length == 0 || this.important.includes(prop);
+            const joinConfig = { 
+                projection: { 
+                    [encoding.data.concept]: prop
+                },
+                dataFrame: encoding.data.responseMap
+            }
+
             // important data in marker space defines the actual markers in viz
             // this data is necessary but not sufficient for defining markers
-            // data available in all important encodings is sufficient, this is checked later in checkImportantEncodings()
-            if (encoding.hasOwnData && importantDefEnc && spaceOverlapKey == markerSpaceKey)
-                markerDefiningEncodings.push({ prop, encoding });
+            // encoding in subspace can't be defining because value for one or more dimension(s) is missing. 
+            // Superspace is fine.
+            if (importantDefEnc && encoding.data.hasOwnData && spaceOverlapKey == markerSpaceKey)
+                markerDefiningEncodings.push(joinConfig);
             else
-                markerAmmendingEncodings.push({ prop, encoding });
+                markerAmmendingEncodings.push(joinConfig);
         }
 
         // define markers (full join encoding data)
         // TODO: add check for non-marker space dimensions to contain only one value
         // -> save first row values and all next values should be equal to first
-        for (let { prop, encoding }
-            of markerDefiningEncodings) {
-            encoding.createMarkersWithProperty(dataMap, prop);
-        }
-
-        // ammend markers (left join encoding data)
-        for (let { prop, encoding }
-            of markerAmmendingEncodings) {
-            encoding.addPropertyToMarkers(dataMap, prop);
-        }
+        let dataMap = fullJoin(markerDefiningEncodings, this.data.space);
+        dataMap = dataMap.leftJoin(markerAmmendingEncodings);
 
         // TODO: this should only happen áfter interpolation
         this.checkImportantEncodings(dataMap);

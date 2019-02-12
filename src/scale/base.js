@@ -50,6 +50,9 @@ export function base(config = {}, parent) {
             return (this.type == "ordinal") ?
                 d3.schemeCategory10 : [0, 1];
         },
+        set range(range) {
+            this.config.range = range;
+        },
         get domain() {
             if (this.config.domain)
                 return this.config.domain;

@@ -1,5 +1,5 @@
 import { action, isObservableArray, toJS } from 'mobx';
-import { isString, mapToObj, applyDefaults, deepmerge } from './utils';
+import { isString, mapToObj, applyDefaults, deepmerge, arrayEquals } from './utils';
 import { resolveRef } from './vizabi';
 
 const defaultConfig = {

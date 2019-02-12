@@ -178,6 +178,7 @@ export const config = {
                 "label": {
                     modelType: "label",
                     data: {
+                        modelType: "entityPropertyDataConfig",
                         concept: "name"
                     }
                 },

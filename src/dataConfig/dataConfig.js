@@ -1,12 +1,15 @@
 import { resolveRef } from "../vizabi";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
-import { trace, observable, toJS } from "mobx";
-import { createMarkerKey, arrayEquals, deepmerge, applyDefaults, intersect, isEntityConcept } from "../utils";
+import { trace, observable } from "mobx";
+import { applyDefaults, intersect } from "../utils";
 import { filter } from "../filter";
+import { DataFrame } from "../dataFrame";
 
 const defaultConfig = {
     source: null,
     concept: null,
+    space: null,
+    value: null,
     filter: {}
 }
 
@@ -27,6 +30,12 @@ export function dataConfig(config = {}, parent) {
         get space() {
             //trace();
             return this.config.space || ((this.parent.marker) ? this.parent.marker.data.space : null)
+        },
+        get value() {
+            if (this.config.value == null) {
+                console.warn("dataConfig.value is null. Probably you set an empty space but didn't set a constant value.", this);
+            }
+            return this.config.value;
         },
         get commonSpace() {
             return intersect(this.space, this.parent.marker.data.space);
@@ -52,33 +61,24 @@ export function dataConfig(config = {}, parent) {
                 d3.set(this.response, d => d[concept]).values().sort();
         },
         get response() {
-            //trace();
+            trace();
             // constant response
             if (this.space.length == 0) {
-                if (!this.value) {
-                    console.warn("Space is empty but no constant value is given. Can't create response for dataConfig", this);
-                    return [{ value: 0 }]
-                }
                 return [{ value: this.value }]
             }
             // data response
             return this.promise.case({
                 pending: () => latestResponse,
                 rejected: e => latestResponse,
-                fulfilled: v => latestResponse = v
+                fulfilled: v => latestResponse = this.processResponse(v)
             });
         },
+        processResponse(response) {
+            return response;
+        },
         get responseMap() {
-            //trace();
-            const responseMap = new Map();
-            this.response.forEach(row => {
-                const key = createMarkerKey(this.commonSpace, row);
-                row[Symbol.for('key')] = key;
-                if (responseMap.has(key))
-                    console.warn('Response map already contains row for key: ' + key, responseMap.get(key), row)
-                responseMap.set(key, row);
-            });
-            return responseMap;
+            trace();
+            return DataFrame(this.response, this.commonSpace);
         },
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
@@ -87,6 +87,7 @@ export function dataConfig(config = {}, parent) {
             return this.source && this.concept && !this.conceptInSpace;
         },
         get ddfQuery() {
+            trace();
             const query = {};
             // select
             query.select = {

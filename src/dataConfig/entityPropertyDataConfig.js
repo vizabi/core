@@ -2,11 +2,12 @@ import { dataConfig } from './dataConfig';
 import { compose, renameProperty } from '../utils';
 import { observable, trace, toJS } from 'mobx';
 import { fromPromise } from 'mobx-utils';
+import { DataFrame } from '../dataFrame';
 
-export function labelDataConfig(cfg, parent) {
-    const dataPlain = dataConfig(cfg, parent);
+export function entityPropertyDataConfig(cfg, parent) {
+    const base = dataConfig(cfg, parent);
 
-    return compose(dataPlain, {
+    return compose(base, {
 
         get promise() {
             return fromPromise(this.source.conceptsPromise.then(() => {
@@ -37,7 +38,10 @@ export function labelDataConfig(cfg, parent) {
                     lookup.set(row[dim], row[concept]);
                 })
             });
-            return lookups;
+            return new Map([[this.concept, lookups]]);
+        },
+        get responseMap() {
+            return DataFrame.fromLookups(this.lookups, this.commonSpace)
         },
         addLabels(markers, encName) {
             // reduce lookups

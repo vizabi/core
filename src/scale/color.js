@@ -15,14 +15,16 @@ export function color(config, parent) {
     return assign(s, {
         get range() {
             const range = this.config.range;
-            if (isString(range) && colors[range]) {
-                return colors[range];
-            } else if (Array.isArray(range)) {
+            if (Array.isArray(range))
                 return range;
-            }
+            
+            if (isString(range) && colors[range])
+                return colors[range];
 
-            return (this.type == "ordinal") ?
-                d3.schemeCategory10 : ["red", "green"];
+            if (this.type == "ordinal")
+                return d3.schemeCategory10;
+
+            return ["red", "green"];
         }
     });
 }

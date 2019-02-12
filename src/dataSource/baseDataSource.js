@@ -3,6 +3,8 @@ import { deepmerge, assign, createKeyStr, applyDefaults } from "../utils";
 import { configurable } from '../configurable';
 import { trace } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
+import { resolveRef } from '../vizabi';
+import { promisedComputed } from 'computed-async-mobx';
 //import { csv, interpolate } from 'd3';
 
 const defaultConfig = {
@@ -31,67 +33,122 @@ const functions = {
         return [];
     },
     get availability() {
-        const av = {
-            key: new Map(),
-            data: []
-        }
-        const val = this.availabilityPromise.case({
-            fulfilled: v => v,
-            pending: () => []
+        let empty = this.buildAvailability();
+        return this.availabilityPromise.case({
+            fulfilled: v => this.buildAvailability(v),
+            pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },
+            error: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); return empty }
         })
+    },
+    get concepts() {
+        const empty = new Map();
+        return this.conceptsPromise.case({
+            fulfilled: v => new Map(v.map(c => [c.concept, c])),
+            pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
+            error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
+        })
+    },
+    buildAvailability(responses = []) {
+        const 
+            keyValueLookup = new Map(),
+            keyLookup = new Map(),
+            data = [];
 
-        val.forEach(data => {
-            data.forEach(row => {
-                const key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();
-                const keyStr = createKeyStr(key);
-                av.data.push({ key, value: row.value });
-                av.key.set(keyStr, key);
+        /* utility functions, probably move later */
+        const getFromMap = (map, key, getNewVal) => {
+            map.has(key) || map.set(key, getNewVal());
+            return map.get(key);
+        }
+        const getNewMap = () => new Map();
+        const getMapFromMap = (map, key) => getFromMap(map, key, getNewMap);
+
+        /* handle availability responses */
+        responses.forEach(response => {
+            response.forEach((row) => {
+                let keyStr, valueLookup;
+                row.key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();
+                keyStr = createKeyStr(row.key);
+                data.push(row);
+                keyLookup.set(keyStr, row.key);
+                valueLookup = getMapFromMap(keyValueLookup, keyStr);
+                valueLookup.set(row.value, row);    
             });
         });
-        return av;
+
+        return {
+            keyValueLookup,
+            keyLookup,
+            data
+        };
     },
     get availabilityPromise() {
-        const conceptsQuery = {
+        const collections = ["concepts", "entities", "datapoints"];
+        const getCollAvailPromise = (collection) => this.query({
             select: {
                 key: ["key", "value"],
                 value: []
             },
-            from: "concepts.schema"
-        };
-        const entitiesQuery = deepmerge.all([{}, conceptsQuery, { from: "entities.schema" }]);
-        const datapointsQuery = deepmerge.all([{}, conceptsQuery, { from: "datapoints.schema" }]);
+            from: collection + ".schema"
+        });
 
-        return fromPromise(Promise.all([
-            this.query(conceptsQuery),
-            this.query(entitiesQuery),
-            this.query(datapointsQuery)
-        ]));
+        return fromPromise(
+            Promise.all(collections.map(getCollAvailPromise))
+        );
     },
     get conceptsPromise() {
-        return this.query({
-            select: {
-                key: ["concept"],
-                value: ["name", "domain", "concept_type"]
-            },
-            from: "concepts"
+        
+        const createConceptsPromise = () => {
+            const concepts = ["name", "domain", "concept_type"];
+            const conceptKeyString = createKeyStr(["concept"]);
+            const avConcepts = concepts.filter(c => this.availability.keyValueLookup.get(conceptKeyString).has(c));
+    
+            const query = {
+                select: {
+                    key: ["concept"],
+                    value: avConcepts
+                },
+                from: "concepts"
+            };
+    
+            return this.query(query);
+        }
+
+        const p = this.availabilityPromise.case({
+            pending: () => new Promise(() => undefined),
+            fulfilled: (d) => createConceptsPromise(),
+            rejected: (e) => Promise.reject(e)
         });
+        return fromPromise(p);
     },
     get metaDataPromise() {
-        return fromPromise(Promise.all([this.availabilityPromise, this.conceptsPromise]));
+        return fromPromise(
+            Promise.all([this.availabilityPromise, this.conceptsPromise])
+        );
     },
-    get concepts() {
-        if (this.conceptsPromise.state != FULFILLED) return new Map();
-        else return new Map(this.conceptsPromise.value.map(c => [c.concept, c]));
+    /* 
+    *  separate state computed which don't become stale with new promise in same state 
+    *  might use these later to make own .case({pending, fulfilled, rejected}) functionality    
+    */
+    get availabilityState() {
+        return this.availabilityPromise.state;
+    },
+    get conceptsState() {
+        return this.conceptsPromise.state;
+    },
+    get metaDataState() {
+        this.metaDataPromise.state;
     },
     getConcept(conceptId) {
         if (conceptId == "concept_type" || conceptId.indexOf('is--') === 0)
             return { concept: conceptId, name: conceptId }
+        if (!this.concepts.has(conceptId))
+            console.warn("Could not find concept " + conceptId + " in data source ", this);
         return this.concepts.get(conceptId);
     },
     isEntityConcept(conceptId) {
         return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
     },
-    query: function(query) {
+    query(query) {
         //return [];
         query = dotToJoin(query);
         query = addExplicitAnd(query);
@@ -99,7 +156,7 @@ const functions = {
         const readPromise = this.reader.read(query).then(data => data.map(tryParseRow));
         return fromPromise(readPromise);
     },
-    interpolate: function(data, { dimension, concepts, step }) {
+    interpolate(data, { dimension, concepts, step }) {
         const space = this.space;
         if (!space.includes(dimension))
             throw ("data transform, interpolate: dimension not included in data space.", { space, dimension });
@@ -114,7 +171,7 @@ const functions = {
         const spaceRest = this.space.filter(v => v != dimension);
         const groupMap = new Map();
         data.forEach(row => {
-            const groupKey = createMarkerKey(spaceRest, row);
+            const groupKey = createMarkerKey(row, spaceRest);
             if (groupMap.has(groupKey))
                 groupMap.get(groupKey).set(row[dimension], row);
             else
@@ -173,7 +230,7 @@ const functions = {
 
         return flatData;
     },
-    interpolatePoint: function(start, end) {
+    interpolatePoint(start, end) {
         const int = d3.interpolate(start.value, end.value);
         const delta = end.frameId - start.frameId;
         const intVals = [];

@@ -497,7 +497,11 @@ function chart() {
 
     function drawEncoding() {
 
-        draw();
+        viz.stores.dataSource.get('gap').metaDataPromise.case({
+            pending: showLoading,
+            rejected: showError,
+            fulfilled: draw
+        });
 
         function showLoading() {
             console.log("loading");

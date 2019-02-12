@@ -40,14 +40,22 @@ var esc = str => isNumeric(str) ? str : replace(replace(str, escapechar, dblesca
 // for loop is faster than keys.map().join('-');
 // but in Edge, json.stringify is faster
 // pre-escaped space would add extra performance
-export const createMarkerKey = (space, row) => {
-    var l = space.length;
-    var res = (l > 0) ? esc(space[0]) + joinchar + esc(row[space[0]]) : '';
+const createDimKeyStr = (dim, row) => {
+    if (dim === undefined || row[dim] === undefined) debugger;
+    return esc(dim) + joinchar + esc(row[dim]);
+}
+export const createMarkerKey = (row, space = Object.keys(row).sort()) => {
+    const l = space.length;
+
+    var res = (l > 0) ? createDimKeyStr(space[0], row) : '';
     for (var i = 1; i < l; i++) {
-        var dim = space[i];
-        res += '-' + esc(dim) + joinchar + esc(row[dim]);
+        res += joinchar + createDimKeyStr(space[i], row);
     }
     return res
+}
+
+export function normalizeKey(key) {
+    return key.slice(0).sort();
 }
 
 // end micro-optimizations

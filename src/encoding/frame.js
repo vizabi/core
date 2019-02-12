@@ -4,6 +4,7 @@ import { action, reaction, observable, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, deepmerge, createMarkerKey, isString, applyDefaults } from '../utils';
 import { trail } from './trail';
+import { encodingStore } from './encodingStore';
 //import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
@@ -28,7 +29,7 @@ const functions = {
     get trail() {
         trace();
         const cfg = this.config.trail;
-        return observable(trail(cfg, this));
+        return encodingStore.getByDefinition(cfg, this);
     },
     get interpolate() { return this.config.interpolate },
     playing: false,
@@ -121,7 +122,7 @@ const functions = {
         for (let [key, row] of flatDataMap) {
             const frameId = row[concept];
             const dataMap = getOrCreateDataMap(frameMap, frameId);
-            const key = createMarkerKey(frameSpace, row);
+            const key = createMarkerKey(row, frameSpace);
             row[Symbol.for('key')] = key;
             dataMap.set(key, row);
         }
@@ -151,7 +152,7 @@ const functions = {
         const frameMap = this.frameMapCache;
         const markers = this.trail.data.filter.markers;
 
-        if (markers.length == 0)
+        if (markers.size == 0)
             return frameMap;
 
         const [minFrameId, maxFrameId] = this.scale.domain;
@@ -274,6 +275,8 @@ const functions = {
         return intVals;
     },
     setUpReactions() {
+        // need reaction for timer as it has to set frame value
+        // not allowed to call action (which changes state) from inside observable/computed, thus reaction needed
         const controlTimer = reaction(
             // mention all observables (state & computed) which you want to be tracked
             // if not tracked, they will always be recomputed, their values are not cached
@@ -284,7 +287,8 @@ const functions = {
                     this.update();
                     this.playInterval = setInterval(this.update.bind(this), speed);
                 }
-            }, { name: "frame" }
+            }, 
+            { name: "frame" }
         );
     }
 }
