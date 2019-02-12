@@ -12,7 +12,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
             }
         },
         named: new Map(),
-        anonymous: [],
+        configRef: new Map(),
         get: function(id) {
             return this.named.get(id);
         },
@@ -22,21 +22,25 @@ export const createStore = function(baseType, extendedTypes = {}) {
             this.modelTypes.all[modelType] = modelConstructor;
         },
         getAll: function() {
-            return [...this.named.values(), ...this.anonymous];
+            return [...this.named.values(), ...this.configRef.values()];
         },
         has: function(id) {
             return this.named.has(id);
         },
-        create: function(config) {
+        create: function(config, parent) {
             //if (isObservableObject(config)) config = toJS(config);
             let modelType = this.modelTypes.all[config.modelType] || this.modelTypes.base;
-            let model = observable(modelType(config), modelType.decorate || null, { name: config.modelType || 'base' });
+            let model = observable(
+                modelType(config, parent), 
+                modelType.decorate || null, 
+                { name: config.modelType || 'base' }
+            );
             if (model.setUpReactions) model.setUpReactions();
             return model;
         },
-        set: action('store set', function(config, id) {
-            let model = this.create(config);
-            id ? this.named.set(id, model) : this.anonymous.push(model);
+        set: action('store set', function(config, id, parent) {
+            let model = this.create(config, parent);
+            id ? this.named.set(id, model) : this.configRef.set(config, model);
             return model;
         }),
         setMany: function(configs) {
@@ -53,15 +57,19 @@ export const createStore = function(baseType, extendedTypes = {}) {
          * @param {string/object} def 
          * @returns {model} Returns the model that was fetched or created
          */
-        getByDefinition(def) {
+        getByDefinition(def, parent) {
             if (isString(def.ref))
-                return resolveRef(def);
+                if (this.configRef.has(def)) 
+                    return this.configRef.get(def);
+                def = resolveRef(def);
             if (!isString(def) && def !== null) {
-                return this.set(def);
+                if (this.configRef.has(def)) 
+                    return this.configRef.get(def);
+                return this.set(def, null, parent);
             } else if (this.has(def)) {
                 return this.get(def);
             }
-            console.warn("Store: cannot find model with id: " + def, { store: this });
+            console.warn("Store: cannot find model with id: ", def, { store: this });
             return null;
         },
         /**
