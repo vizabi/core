@@ -1,7 +1,6 @@
 import { autorun, action, spy, observable } from 'mobx'
 import { vizabi } from './vizabi'
 import { config } from './config'
-import appState from './appState'
 import { isEntityConcept, arrayEquals, relativeComplement } from './utils';
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
@@ -27,6 +26,25 @@ spy((event) => {
     }
 })
 */
+
+const appLayout = observable({
+    margin: {
+        top: 20,
+        right: 20,
+        bottom: 30,
+        left: 40
+    },
+    wrapper: {
+        width: 400,
+        height: 500
+    },
+    get width() {
+        return this.wrapper.width - this.margin.left - this.margin.right;
+    },
+    get height() {
+        return this.wrapper.height - this.margin.top - this.margin.bottom;
+    }
+});
 
 //autorun(chart);
 chart();
@@ -111,8 +129,10 @@ function chart() {
     */
     const updateSize = action("wrapper size", function(e) {
         var wrap = document.getElementById("wrapper");
-        appState.wrapper.height = wrap.clientHeight;
-        appState.wrapper.width = wrap.clientWidth;
+        appLayout.wrapper.height = wrap.clientHeight;
+        appLayout.wrapper.width = wrap.clientWidth;
+        marker.encoding.get('x').scale.range = [0,wrap.clientWidth];
+        marker.encoding.get('y').scale.range = [wrap.clientHeight,0];
     });
     window.addEventListener("resize", updateSize);
     updateSize();
@@ -212,10 +232,6 @@ function chart() {
             const highlightConfig = marker.encoding.get("highlighted");
             const superHighlight = marker.encoding.get("superhighlighted");
 
-            const labelWithoutFrame = (d) => marker.data.space.filter(dim => frameConfig.data.concept != dim).map(dim => d.label[dim]).join(', ')
-            const labelAll = (d) => marker.data.space.map(dim => d.label[dim]).join(', ');
-            const labelOnlyFrame = (d) => d[frameConfig.data.concept];
-
             // data join
             let update = bubbles.selectAll(".dot")
                 .data(
@@ -302,6 +318,10 @@ function chart() {
 
             function drawLabel(d) {
                 let labelStr;
+
+                const labelWithoutFrame = (d) => marker.data.space.filter(dim => frameConfig.data.concept != dim).map(dim => d.label[dim]).join(', ')
+                const labelAll = (d) => marker.data.space.map(dim => d.label[dim]).join(', ');
+                const labelOnlyFrame = (d) => d[frameConfig.data.concept];
 
                 // if trail, put label at trail start
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
@@ -401,7 +421,7 @@ function chart() {
             });
 
             legend.select("rect")
-                .attr("x", appState.width - 18)
+                .attr("x", appLayout.width - 18)
                 .attr("width", 18)
                 .attr("height", 18)
                 .style("fill", d => colorConfig.scale.d3Scale(d.color))
@@ -415,7 +435,7 @@ function chart() {
                 });
 
             legend.select("text")
-                .attr("x", appState.width - 24)
+                .attr("x", appLayout.width - 24)
                 .attr("y", 9)
                 .attr("dy", ".35em")
                 .style("text-anchor", "end")
@@ -446,20 +466,20 @@ function chart() {
             const xConfig = marker.encoding.get("x");
             const yConfig = marker.encoding.get("y");
 
-            chart.attr("width", appState.width + appState.margin.left + appState.margin.right)
-                .attr("height", appState.height + appState.margin.top + appState.margin.bottom)
-            svg.attr("transform", "translate(" + appState.margin.left + "," + appState.margin.top + ")");
+            chart.attr("width", appLayout.width + appLayout.margin.left + appLayout.margin.right)
+                .attr("height", appLayout.height + appLayout.margin.top + appLayout.margin.bottom)
+            svg.attr("transform", "translate(" + appLayout.margin.left + "," + appLayout.margin.top + ")");
 
             // var t = getTransition(frameConfig);
 
             xAxis.scale(zoomScales.x);
             yAxis.scale(zoomScales.y);
             xAxisSVG
-                .attr("transform", "translate(0," + appState.height + ")")
+                .attr("transform", "translate(0," + appLayout.height + ")")
                 //.transition(t)
                 .call(xAxis)
             xAxisSVGtext
-                .attr("x", appState.width)
+                .attr("x", appLayout.width)
                 .text(xConfig.data.conceptProps.name)
             yAxisSVG
             //.transition(t)
