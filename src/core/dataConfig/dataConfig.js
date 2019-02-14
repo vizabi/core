@@ -3,7 +3,7 @@ import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
 import { applyDefaults, intersect } from "../utils";
 import { filter } from "../filter";
-import { DataFrame } from "../dataFrame";
+import { DataFrame } from "../../dataframe/dataFrame";
 
 const defaultConfig = {
     source: null,

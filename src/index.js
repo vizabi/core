@@ -1,7 +1,7 @@
 import { autorun, action, spy, observable } from 'mobx'
-import { vizabi } from './vizabi'
-import { config } from './config'
-import { isEntityConcept, arrayEquals, relativeComplement } from './utils';
+import { vizabi } from './core/vizabi'
+import { config } from './view/config'
+import { isEntityConcept, arrayEquals, relativeComplement } from './core/utils';
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
 var waffle = new WsReader.WsReader.getReader();

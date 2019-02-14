@@ -1,4 +1,4 @@
-import { createMarkerKey, normalizeKey, arrayEquals } from "./utils";
+import { createMarkerKey, normalizeKey, arrayEquals } from "../core/utils";
 
 //df.get(["swe","2015"]).population
 
@@ -102,12 +102,12 @@ export function mapFromObjectArray(objectArray, key) {
     return map;
 }
 
-export function order(df, direction) {
+export function order(df, direction, orderField = 'order') {
     const data = Array.from(df.data);
 
     data.sort((a, b) => {
-        let ao = a[1].order,
-            bo = b[1].order;
+        let ao = a[1][orderField],
+            bo = b[1][orderField];
 
         return direction == directions.ascending ?
             ao - bo :

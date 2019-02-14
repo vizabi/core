@@ -2,7 +2,7 @@ import { dataConfig } from './dataConfig';
 import { compose, renameProperty } from '../utils';
 import { observable, trace, toJS } from 'mobx';
 import { fromPromise } from 'mobx-utils';
-import { DataFrame } from '../dataFrame';
+import { DataFrame } from '../../dataframe/dataFrame';
 
 export function entityPropertyDataConfig(cfg, parent) {
     const base = dataConfig(cfg, parent);

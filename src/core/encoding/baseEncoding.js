@@ -32,7 +32,6 @@ const functions = {
         this.config.data.concept = concept.concept;
         this.config.data.space = kv.key;
         this.config.scale.domain = null;
-        this.config.scale.range = null;
         this.config.scale.type = null;
     }),
 }

@@ -7,7 +7,7 @@ import { configurable } from '../configurable';
 import { fromPromise } from 'mobx-utils'
 import { resolveRef } from '../vizabi';
 import { dataConfig } from '../dataConfig/dataConfig';
-import { fullJoin } from '../dataFrame';
+import { fullJoin } from '../../dataframe/dataFrame';
 
 const defaultConfig = {
     important: [],
