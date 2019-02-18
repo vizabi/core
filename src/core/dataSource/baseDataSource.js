@@ -1,11 +1,8 @@
 import { fromPromise, FULFILLED } from 'mobx-utils'
-import { deepmerge, assign, createKeyStr, applyDefaults } from "../utils";
+import { assign, createKeyStr, applyDefaults } from "../utils";
 import { configurable } from '../configurable';
 import { trace } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
-import { resolveRef } from '../vizabi';
-import { promisedComputed } from 'computed-async-mobx';
-//import { csv, interpolate } from 'd3';
 
 const defaultConfig = {
     modelType: "csv",
@@ -15,21 +12,13 @@ const defaultConfig = {
 
 const functions = {
     get path() { return this.config.path },
-    get transforms() { return this.config.transforms },
     get space() { return this.config.space },
     get reader() {
         console.warn("Called stub dataSource.reader getter. No reader set.", this)
     },
     get load() {
-        //return promisedComputed([],
-        //    async() => await d3.csv(this.path, tryParseRow)
-        //);
     },
     get data() {
-        //return this.transforms.reduce(
-        //    (data, t) => this[t.type](data, t),
-        //    this.load.get()
-        //);
         return [];
     },
     get availability() {
