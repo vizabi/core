@@ -1,4 +1,4 @@
-import { trace, computed, observable, toJS } from 'mobx';
+import { trace, computed, observable, toJS, reaction } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
@@ -7,7 +7,7 @@ import { configurable } from '../configurable';
 import { fromPromise } from 'mobx-utils'
 import { resolveRef } from '../vizabi';
 import { dataConfig } from '../dataConfig/dataConfig';
-import { fullJoin } from '../../dataframe/dataFrame';
+import { fullJoin } from '../../dataframe/transforms/fulljoin';
 
 const defaultConfig = {
     important: [],
