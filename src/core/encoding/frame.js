@@ -67,7 +67,7 @@ const functions = {
     }),
     update: action('update frame value', function() {
         if (this.playing && this.marker.dataPromise.state == FULFILLED) {
-            const newValue = this.value + 1;
+            const newValue = +this.value + 1;
             this.setValue(newValue);
             if (newValue > this.scale.domain[this.scale.domain.length-1])
                 this.stopPlaying();
