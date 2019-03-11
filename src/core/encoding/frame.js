@@ -22,7 +22,7 @@ const functions = {
         if (value != null) {
             value = this.scale.clampToDomain(value);
         }
-        return ""+value; // TODO: fix/align types of frame value and map
+        return value + ""; // TODO: fix/align types of frame value and map
     },
     get speed() { return this.config.speed },
     get trail() {
@@ -175,7 +175,7 @@ const functions = {
                     const trailStart = this.trail.starts[markerKey];
                     // add trail markers in ascending order
                     for (let i = trailStart; i < id; i++) {
-                        const trailMarker = trail.get(i);
+                        const trailMarker = trail.get(i + ""); // TODO fix time parsing
                         const newKey = markerKey + '-' + this.data.concept + '-' + i;
                         const newData = Object.assign({}, trailMarker, {
                             [Symbol.for('key')]: newKey,
