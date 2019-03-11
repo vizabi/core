@@ -5,8 +5,8 @@ import { isEntityConcept, arrayEquals, relativeComplement } from './core/utils';
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
 var waffle = new WsReader.WsReader.getReader();
-vizabi.stores.dataSource.createAndAddType('ddfcsv', ddfcsv);
-vizabi.stores.dataSource.createAndAddType('waffle', waffle);
+vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
+vizabi.stores.dataSources.createAndAddType('waffle', waffle);
 window.viz = vizabi(config);
 window.vizabi = vizabi;
 window.autorun = autorun;

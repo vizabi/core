@@ -1,5 +1,5 @@
 const config = {
-    dataSource: {
+    dataSources: {
         /*gapcsv: {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
@@ -40,7 +40,7 @@ const config = {
         }
         */
     },
-    marker: {
+    markers: {
         /*
         "pcbs": {
             type: "bubble",
@@ -91,13 +91,13 @@ const config = {
             data: {
                 ref: {
                     transform: "entityConcept",
-                    model: "marker.bubble.encoding.color"
+                    model: "markers.bubble.encoding.color"
                 }
             },
             encoding: {
                 color: {
-                    data: { concept: { ref: "marker.bubble.encoding.color.data.concept" } },
-                    scale: { ref: "marker.bubble.encoding.color.scale" }
+                    data: { concept: { ref: "markers.bubble.encoding.color.data.concept" } },
+                    scale: { ref: "markers.bubble.encoding.color.scale" }
                 },
                 name: { data: { concept: "name" } },
                 rank: { data: { concept: "rank" } },
@@ -124,7 +124,7 @@ const config = {
             encoding: {
                 "selected": {
                     modelType: "selection",
-                    data: { ref: "marker.bubble.encoding.frame.trail.data" }
+                    data: { ref: "markers.bubble.encoding.frame.trail.data" }
                 },
                 "x": {
                     data: {
@@ -152,7 +152,7 @@ const config = {
                 "order": {
                     modelType: "order",
                     data: {
-                        ref: "marker.bubble.encoding.size.data",
+                        ref: "markers.bubble.encoding.size.data",
                         direction: "descending"
                     }
                 },

@@ -5,9 +5,9 @@ import * as utils from './utils'
 import { observable } from 'mobx';
 
 export const stores = {
-    marker: markerStore,
-    dataSource: dataSourceStore,
-    encoding: encodingStore
+    markers: markerStore,
+    dataSources: dataSourceStore,
+    encodings: encodingStore
 }
 
 let config;
@@ -15,9 +15,9 @@ let config;
 const vizabi = function(cfg) {
     config = observable(cfg);
 
-    dataSourceStore.setMany(config.dataSource || {});
-    encodingStore.setMany(config.encoding || {});
-    markerStore.setMany(config.marker || {});
+    dataSourceStore.setMany(config.dataSources || {});
+    encodingStore.setMany(config.encodings || {});
+    markerStore.setMany(config.markers || {});
 
     return { stores, config };
 }

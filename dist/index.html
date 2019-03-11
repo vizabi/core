@@ -116,8 +116,8 @@
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
 var waffle = new WsReader.WsReader.getReader();
-Vizabi.stores.dataSource.createAndAddType('ddfcsv', ddfcsv);
-Vizabi.stores.dataSource.createAndAddType('waffle', waffle);
+Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
+Vizabi.stores.dataSources.createAndAddType('waffle', waffle);
 window.viz = Vizabi(config);
 window.Vizabi = Vizabi;
 window.autorun = mobx.autorun;
@@ -162,8 +162,8 @@ chart();
 
 function chart() {
 
-    const marker = viz.stores.marker.get("bubble");
-    const legendmarker = viz.stores.marker.get("legend");
+    const marker = viz.stores.markers.get("bubble");
+    const legendmarker = viz.stores.markers.get("legend");
 
     var xAxis = d3.axisBottom();
     var yAxis = d3.axisLeft();
@@ -608,7 +608,7 @@ function chart() {
 
     function drawEncoding() {
 
-        viz.stores.dataSource.get('gap').metaDataPromise.case({
+        viz.stores.dataSources.get('gap').metaDataPromise.case({
             pending: showLoading,
             rejected: showError,
             fulfilled: draw

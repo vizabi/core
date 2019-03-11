@@ -59,7 +59,7 @@ function getSchema(data, { from }, keyConcepts) {
     if (from == "entities.schema") {
         return [];
     }
-    console.warn("Invalid schema query from: ", from);
+    console.warn("Invalid schema query `from` clause: ", from);
 }
 
 function applyQuery(data, query) {
