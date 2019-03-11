@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<div id="container"></div>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="vizabi.js"></script>
+<script>
+
+var data = d3.range(100000).map((m, i) => ({uniq: i, time: ""+i, value: i/1000, value2: Math.sin(i/100000*8*Math.PI)}));
+  
+
+var source = Vizabi.dataSource({
+  values: data
+})
+var marker = Vizabi.marker({
+  data: { source: source },
+  encoding: {
+    time: { data: { concept: "time" }},
+    x: { data: { concept: "value" }},
+    y: { data: { concept: "value2" }},
+    frame: {
+      modelType: "frame",
+      value: "2000",
+      data: { concept: "time" },
+    }
+  }
+});
+
+marker.on('fulfilled', draw);
+
+var width = 1400, height = 1100;
+var canvas = d3.select('#container')
+  .append('canvas')
+  .attr('width', width)
+  .attr('height', height);
+var context = canvas.node().getContext('2d');
+  
+// === Bind data to custom elements === //
+var customBase = document.createElement('custom');
+var custom = d3.select(customBase); // this is our svg replacement
+
+  
+
+
+  
+function draw(data) {
+
+  var colorScale = d3.scaleSequential(d3.interpolateSpectral).domain(d3.extent(data, function(d) { return d.x * d.y; }));
+
+  var join = custom.selectAll('custom.rect')
+    .data(data);
+
+  var enterSel = join.enter()
+    .append('custom')
+    .attr('class', 'rect')
+    .attr('x', function(d, i) {
+      return i % width;
+    })
+    .attr('y', function(d, i) {
+      return Math.floor(i/width)*2
+    })
+    .attr('width', 1)
+    .attr('height', 2);
+
+  join
+    .merge(enterSel)
+    .attr('fillStyle', function(d) { 
+      return colorScale(d.x * d.y); 
+    });
+
+  var exitSel = join.exit()
+    .remove();
+
+
+  // clear canvas
+  context.fillStyle = '#fff';
+  context.fillRect(0, 0, width, height);
+  
+  // draw each individual custom element with their properties
+  custom.selectAll('custom.rect').each(function(d,i) {
+    // for each virtual/custom element...
+    var node = d3.select(this);
+    context.fillStyle = node.attr('fillStyle');
+    context.fillRect(node.attr('x'), node.attr('y'), node.attr('width'), node.attr('height'))
+  });
+
+}
+
+
+</script>
