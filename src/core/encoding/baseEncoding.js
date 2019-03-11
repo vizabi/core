@@ -19,11 +19,9 @@ const functions = {
         return marker;
     },
     get data() {
-        trace();
         return dataConfigStore.getByDefinition(this.config.data, this);
     },
     get scale() {
-        trace();
         return scaleStore.getByDefinition(this.config.scale, this);
     },
     setWhich: action('setWhich', function(kv) {

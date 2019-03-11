@@ -1,4 +1,4 @@
-export const config = {
+const config = {
     dataSource: {
         /*gapcsv: {
             type: "ddfcsv",

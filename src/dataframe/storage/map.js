@@ -1,8 +1,10 @@
 import { createMarkerKey } from "../../core/utils";
+import { observable } from "mobx";
 
 export function DataFrameStorageMap(data = new Map(), keyArr) {
     const storage = {};
     const map = storage.data = (data instanceof Map) ? data : mapFromObjectArray(data, keyArr);
+    storage.fields = Object.keys(data[0] || {});
     storage.has = (keyObj) => map.has(createMarkerKey(keyObj, keyArr));
     storage.get = (keyObj) => map.get(createMarkerKey(keyObj, keyArr));
     storage.hasByObjOrStr = (keyObj, keyStr) => map.has(keyStr);
@@ -17,16 +19,36 @@ export function DataFrameStorageMap(data = new Map(), keyArr) {
 }
 
 function mapFromObjectArray(objectArray, key) {
-    const map = new Map();
+    const map = new Map()
+    const n = objectArray.length;
     const duplicates = [];
+    
+    const emptyKey = key.length == 0;
+    const keyFn = emptyKey ? rangeIndex(0, n) : createMarkerKey;
+
     for (let row of objectArray) {
-        const keyStr = createMarkerKey(row, key);
+        const keyStr = keyFn(row, key);
         row[Symbol.for('key')] = keyStr;
         if (map.has(keyStr))
             duplicates.push({ keyStr, orig: map.get(keyStr), new: row})
         map.set(keyStr, row);
     }
+
     if (duplicates.length > 0)
-        console.warn('Frame already contains row for key: ', duplicates);
+        console.warn('Found duplicates for given key when constructing dataframe.', { key, duplicates });
+
     return map;
+}
+
+function rangeIndex(start, end) {
+    const gen = range(start, end);
+    return (row, key) => {
+        return gen.next().value;
+    }
+}
+
+function* range(start, end = Infinity) {
+    for (let i=start; i<end; i++) {
+        yield i;
+    }
 }

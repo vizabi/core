@@ -2,7 +2,10 @@ import { DataFrame } from "../dataFrame";
 
 export function fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {
 
-    return joinParams.reduce(_fullJoin, DataFrame([], joinKey));
+    return joinParams.reduce(
+        _fullJoin, 
+        DataFrame([], joinKey)
+    );
 
 }
 
@@ -15,7 +18,7 @@ function _fullJoin(left, rightCfg) {
     // join or copy right rows onto result
     const joinKey = left.key;
     const dataKey = rightCfg.dataFrame.key;
-    const projection = rightCfg.projection || {};
+    const projection = normalizeProjection(rightCfg.projection) || {};
 
     if (!joinKey.every(dim => dataKey.includes(dim)))
         console.warn("Right key does not contain all join fields.", { left: left, right: rightCfg });
@@ -31,6 +34,17 @@ function _fullJoin(left, rightCfg) {
     }
 
     return left;
+}
+
+// change array ["geo","year"] to { geo: "geo", year: "year" }
+function normalizeProjection(projection) {
+    if (!Array.isArray(projection))
+        return projection;
+    
+    return projection.reduce((obj, field) => {
+        obj[field] = field;
+        return obj;
+    }, {});
 }
 
 function createObj(space, row, keyStr) {

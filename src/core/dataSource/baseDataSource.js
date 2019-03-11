@@ -3,10 +3,13 @@ import { assign, createKeyStr, applyDefaults } from "../utils";
 import { configurable } from '../configurable';
 import { trace } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
+import { DataFrame } from '../../dataframe/dataFrame';
+import { inlineReader } from '../../reader/inline';
 
 const defaultConfig = {
     modelType: "csv",
     path: "data.csv",
+    values: null,
     transforms: []
 }
 
@@ -14,13 +17,10 @@ const functions = {
     get path() { return this.config.path },
     get space() { return this.config.space },
     get reader() {
+        return inlineReader({ values: this.values });
         console.warn("Called stub dataSource.reader getter. No reader set.", this)
     },
-    get load() {
-    },
-    get data() {
-        return [];
-    },
+    get values() { return this.config.values },
     get availability() {
         let empty = this.buildAvailability();
         return this.availabilityPromise.case({
@@ -32,10 +32,13 @@ const functions = {
     get concepts() {
         const empty = new Map();
         return this.conceptsPromise.case({
-            fulfilled: v => new Map(v.map(c => [c.concept, c])),
+            fulfilled: v => DataFrame(v, ["concept"]),
             pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
             error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
         })
+    },
+    get defaultEncoding() {
+        return this.reader.getDefaultEncoding() || false;
     },
     buildAvailability(responses = []) {
         const 
@@ -53,7 +56,8 @@ const functions = {
 
         /* handle availability responses */
         responses.forEach(response => {
-            response.forEach((row) => {
+            response = response.values ? response.values() : response; // get dataframe iterator if there
+            for(let row of response) {
                 let keyStr, valueLookup;
                 row.key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();
                 keyStr = createKeyStr(row.key);
@@ -61,7 +65,7 @@ const functions = {
                 keyLookup.set(keyStr, row.key);
                 valueLookup = getMapFromMap(keyValueLookup, keyStr);
                 valueLookup.set(row.value, row);    
-            });
+            };
         });
 
         return {
@@ -127,12 +131,12 @@ const functions = {
     get metaDataState() {
         this.metaDataPromise.state;
     },
-    getConcept(conceptId) {
-        if (conceptId == "concept_type" || conceptId.indexOf('is--') === 0)
-            return { concept: conceptId, name: conceptId }
-        if (!this.concepts.has(conceptId))
-            console.warn("Could not find concept " + conceptId + " in data source ", this);
-        return this.concepts.get(conceptId);
+    getConcept(concept) {
+        if (concept == "concept_type" || concept.indexOf('is--') === 0)
+            return { concept, name: concept }
+        if (!this.concepts.has({ concept }))
+            console.warn("Could not find concept " + concept + " in data source ", this);
+        return this.concepts.get({ concept });
     },
     isEntityConcept(conceptId) {
         return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
@@ -142,7 +146,7 @@ const functions = {
         query = dotToJoin(query);
         query = addExplicitAnd(query);
         console.log('Querying', query);
-        const readPromise = this.reader.read(query).then(data => data.map(tryParseRow));
+        const readPromise = this.reader.read(query); // .then(data => data.map(tryParseRow));
         return fromPromise(readPromise);
     },
     interpolate(data, { dimension, concepts, step }) {

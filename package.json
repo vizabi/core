@@ -1,25 +1,25 @@
 {
-    "name": "vizabi-mobx",
-    "private": true,
-    "version": "1.0.0",
-    "description": "Vizabi with mobx state",
-    "scripts": {
-        "start": "webpack-serve --open"
-    },
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "mobx": "^5.9.0",
-        "mobx-utils": "^5.1.0"
-    },
-    "devDependencies": {
-        "mobx-formatters": "^1.0.2",
-        "webpack": "^4.29.4",
-        "webpack-cli": "^3.2.3",
-        "webpack-serve": "^2.0.3"
-    },
-    "serve": {
-        "content": "./dist",
-        "hot": false
-    }
+  "name": "vizabi-mobx",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Vizabi with mobx state",
+  "scripts": {
+    "start": "webpack-dev-server -d --open"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mobx": "^5.9.0",
+    "mobx-utils": "^5.1.0"
+  },
+  "devDependencies": {
+    "mobx-formatters": "^1.0.2",
+    "webpack": "^4.29.4",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
+  },
+  "serve": {
+    "content": "./dist",
+    "hot": false
+  }
 }

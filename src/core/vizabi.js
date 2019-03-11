@@ -1,7 +1,7 @@
 import { markerStore } from './marker/markerStore'
 import { encodingStore } from './encoding/encodingStore'
 import { dataSourceStore } from './dataSource/dataSourceStore'
-import { isString } from './utils'
+import * as utils from './utils'
 import { observable } from 'mobx';
 
 export const stores = {
@@ -12,7 +12,7 @@ export const stores = {
 
 let config;
 
-export const vizabi = function(cfg) {
+const vizabi = function(cfg) {
     config = observable(cfg);
 
     dataSourceStore.setMany(config.dataSource || {});
@@ -21,7 +21,24 @@ export const vizabi = function(cfg) {
 
     return { stores, config };
 }
+vizabi.utils = utils;
 vizabi.stores = stores;
+vizabi.dataSource = (cfg, id) =>{
+    // shortcut giving data directly in array-object format: [{...},{...}]
+    if (Array.isArray(cfg)) {
+        cfg = {
+            values: cfg
+        };
+    }
+    cfg = observable(cfg, { values: observable.ref }); 
+    return dataSourceStore.set(cfg, id);
+} 
+vizabi.marker = (cfg, id) => {
+    cfg = observable(cfg);
+    return markerStore.set(cfg, id);
+}
+
+export default vizabi;
 
 /**
  * 
@@ -29,13 +46,12 @@ vizabi.stores = stores;
  * @returns config Config object as described in reference config
  */
 export function resolveRef(possibleRef) {
-    let ref;
     // no ref
-    if (!possibleRef.ref)
+    if (typeof possibleRef.ref === "undefined")
         return possibleRef
 
-    // handle shorthand
-    ref = (isString(possibleRef.ref)) ? { config: possibleRef.ref } : possibleRef.ref;
+    // handle config shorthand
+    let ref = (utils.isString(possibleRef.ref)) ? { config: possibleRef.ref } : possibleRef.ref;
 
     // invalid ref
     if (!(ref.config || ref.model)) {
@@ -43,8 +59,10 @@ export function resolveRef(possibleRef) {
     }
 
     if (ref.config) {
+        // user set config only
         return resolveTreeRef(ref.config, config);
     } else {
+        // model ref includes resolved defaults
         const model = resolveTreeRef(ref.model, stores);
         return transformModel(model, ref.transform);
     }

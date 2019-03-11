@@ -5,6 +5,7 @@
  */
 export function DataFrameStorageLookups(concepts, keyArr) {
     const storage = {};
+    storage.fields = [...keyArr, ...concepts.keys()];
     storage.data = concepts;
     storage.has = (keyObj) => {
         // true if there is at least one concept which has a lookup for every dimension in key

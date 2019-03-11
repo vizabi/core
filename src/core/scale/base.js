@@ -34,9 +34,9 @@ export function base(config = {}, parent) {
             let scale;
             if (scales[this.config.type])
                 scaleType = this.config.type;
-            else if (concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale])
+            else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale])
                 scaleType = scale;
-            else if (["entity_domain", "entity_set", "string"].includes(concept.concept_type))
+            else if (concept && ["entity_domain", "entity_set", "string"].includes(concept.concept_type))
                 scaleType = this.ordinalScale;
             else
                 scaleType = "linear";
@@ -57,6 +57,13 @@ export function base(config = {}, parent) {
             if (this.config.domain)
                 return this.config.domain;
             return this.data.domain;
+        },
+        clampToDomain(val) {
+            const domain = this.domain;
+            if (this.type == "ordinal" || this.type == "band" || this.type == "point")
+                return domain.includes(val) ? val : undefined;
+            
+            return Math.min(Math.max(val, domain[0]), domain[1]);     
         },
         get d3Scale() {
             const scale = scales[this.type]();

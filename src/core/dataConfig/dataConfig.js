@@ -32,9 +32,6 @@ export function dataConfig(config = {}, parent) {
             return this.config.space || ((this.parent.marker) ? this.parent.marker.data.space : null)
         },
         get value() {
-            if (this.config.value == null) {
-                console.warn("dataConfig.value is null. Probably you set an empty space but didn't set a constant value.", this);
-            }
             return this.config.value;
         },
         get commonSpace() {
@@ -56,15 +53,22 @@ export function dataConfig(config = {}, parent) {
         },
         get domain() {
             const concept = this.concept;
-            return (this.conceptProps.concept_type == "measure") ?
-                d3.extent(this.response, d => d[concept]) :
-                d3.set(this.response, d => d[concept]).values().sort();
+            const data = this.space.includes(concept) 
+                ? this.parent.marker.dataMapCache 
+                : this.responseMap;
+
+            if (["measure","time"].includes(this.conceptProps.concept_type)) 
+                return data.extent(concept);
+            
+            const unique = new Set()
+            for (let row of data.values()) unique.add(row[concept]); 
+            return [...unique.values()].sort();
         },
         get response() {
             trace();
             // constant response
-            if (this.space.length == 0) {
-                return [{ value: this.value }]
+            if (this.value != null) {
+                return this.value
             }
             // data response
             return this.promise.case({

@@ -13,17 +13,16 @@ const defaultConfig = {
     speed: 100,
     interpolate: true,
     scale: { modelType: "frame" },
-    trails: {}
+    trail: { modelType: "trail" }
 }
 
 const functions = {
     get value() {
         let value = this.config.value;
         if (value != null) {
-            const domain = this.scale.domain;
-            value = Math.min(Math.max(value, domain[0]), domain[1]);
+            value = this.scale.clampToDomain(value);
         }
-        return value;
+        return ""+value; // TODO: fix/align types of frame value and map
     },
     get speed() { return this.config.speed },
     get trail() {
@@ -40,7 +39,7 @@ const functions = {
             this.startPlaying();
     },
     startPlaying: function() {
-        if (this.value == this.scale.domain[1])
+        if (this.value == this.scale.domain[this.scale.domain.length-1])
             this.setValue(this.scale.domain[0]);
 
         this.setPlaying(true);
@@ -57,8 +56,7 @@ const functions = {
     }),
     setValue: action('setValue', function(value) {
         if (value != null) {
-            const domain = this.scale.domain;
-            value = Math.min(Math.max(value, domain[0]), domain[1]);
+            value = this.scale.clampToDomain(value);
         }
         this.config.value = value;
         this.updateTrailStart();
@@ -71,7 +69,7 @@ const functions = {
         if (this.playing && this.marker.dataPromise.state == FULFILLED) {
             const newValue = this.value + 1;
             this.setValue(newValue);
-            if (newValue > this.scale.domain[1])
+            if (newValue > this.scale.domain[this.scale.domain.length-1])
                 this.stopPlaying();
             // used for timeout instead of interval timing
             //else this.timeout = setTimeout(this.update.bind(this), this.speed);
@@ -155,8 +153,6 @@ const functions = {
         if (markers.size == 0)
             return frameMap;
 
-        const [minFrameId, maxFrameId] = this.scale.domain;
-
         // create trails
         const trails = new Map();
         for (let key of markers.keys()) {
@@ -176,7 +172,7 @@ const functions = {
                 // insert trails before its head marker
                 if (trails.has(markerKey)) {
                     const trail = trails.get(markerKey);
-                    const trailStart = this.trail.starts[markerKey]; //.filter.getPayload(markerKey); //(minFrameId > this.trails.start) ? minFrameId : this.trails.start;
+                    const trailStart = this.trail.starts[markerKey];
                     // add trail markers in ascending order
                     for (let i = trailStart; i < id; i++) {
                         const trailMarker = trail.get(i);

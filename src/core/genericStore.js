@@ -1,5 +1,5 @@
 import { observable, action, toJS, isObservableObject } from 'mobx'
-import { isString } from './utils'
+import { isString, isNonNullObject } from './utils'
 import { resolveRef } from './vizabi';
 
 export const createStore = function(baseType, extendedTypes = {}) {
@@ -58,18 +58,34 @@ export const createStore = function(baseType, extendedTypes = {}) {
          * @returns {model} Returns the model that was fetched or created
          */
         getByDefinition(def, parent) {
-            if (isString(def.ref))
-                if (this.configRef.has(def)) 
+
+            // get by config by reference string
+            // e.g. "markers.bubbles.encoding.size.data.concept"
+            if (isString(def.ref) || isNonNullObject(def.ref)) {
+                if (this.configRef.has(def)) {
                     return this.configRef.get(def);
+                }
                 def = resolveRef(def);
+            }
+
+            // get by config of another model
+            if (isNonNullObject(def) && "config" in def) {
+                def = def.config;
+            }
+
+            // get by config object
             if (!isString(def) && def !== null) {
-                if (this.configRef.has(def)) 
+                if (this.configRef.has(def)) {
                     return this.configRef.get(def);
+                }
                 return this.set(def, null, parent);
-            } else if (this.has(def)) {
+            }
+
+            // get by string name/id
+            if (this.has(def)) {
                 return this.get(def);
             }
-            console.warn("Store: cannot find model with id: ", def, { store: this });
+            console.warn("Store: cannot find model with definition: ", def, { store: this });
             return null;
         },
         /**

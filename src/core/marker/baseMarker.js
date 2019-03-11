@@ -1,26 +1,50 @@
-import { trace, computed, observable, toJS, reaction } from 'mobx';
+import { trace, computed, observable, toJS, reaction, autorun } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, intersect } from "../utils";
 import { configurable } from '../configurable';
 import { fromPromise } from 'mobx-utils'
-import { resolveRef } from '../vizabi';
-import { dataConfig } from '../dataConfig/dataConfig';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 
 const defaultConfig = {
     important: [],
+    data: {
+        space: []
+    },
     encoding: {},
 };
 
 // outside of function scope, shared by markers
 let functions = {
+    on: function(type, fn) {
+        if (this.validEventType(type) && typeof fn == "function") {
+            const disposer = autorun(this.runOnEvent(type, fn));
+            this.eventListeners.get(type).set(fn, disposer);
+        }
+        return this;
+    },
+    off: function(type, fn) {
+        if (this.validEventType(type) && this.eventListeners.get(type).has(fn)){
+            this.eventListeners.get(type).get(fn)();
+            this.eventListeners.get(type).delete(fn);
+        }
+        return this;
+    },
+    eventTypes: ["fulfilled","pending","rejected"],
+    validEventType(type) {
+        return this.eventTypes.includes(type);
+    },
+    runOnEvent(type, fn) {
+        return () => {
+            if (this.dataPromiseState === type) fn.call(this.config, this.dataArray);
+        }
+    },
+    get eventListeners() {
+        return new Map(this.eventTypes.map(evt => [evt, new Map()]));
+    },
     get data() {
         return dataConfigStore.getByDefinition(this.config.data, this)
-        
-        cfg = resolveRef(cfg);
-        return observable(dataConfig(cfg, this));
     },
     get important() { return this.config.important },
     get encoding() {
@@ -29,7 +53,25 @@ let functions = {
         // shouldn't happen, only for actual new encodings, new encodings should be created
         // called consolidating in MST 
         // having encoding ids in config can help in consolidating (match ids). maybe other ways possible too
-        return encodingStore.getByDefinitions(this.config.encoding);
+
+        if (Object.keys(this.config.encoding).length > 0)
+            return encodingStore.getByDefinitions(this.config.encoding);
+        
+        let defaultEnc, encodingCfg = {};
+        if (defaultEnc = this.data.source.defaultEncoding) {
+            defaultEnc.forEach(({concept, space }) => { 
+                encodingCfg[concept] = {
+                    data: {
+                        concept, 
+                        space,
+                        source: this.data.source
+                    }
+                }
+            });
+            return encodingStore.getByDefinitions(encodingCfg);
+        }
+
+        console.warn("No encoding found and marker data source has no default encodings");
     },
     get ownDataEncoding() {
         trace();
@@ -38,7 +80,10 @@ let functions = {
         );
     },
     get dataPromise() {
-        return fromPromise(Promise.all([...this.ownDataEncoding.values()].map(enc => enc.data.promise)))
+        return fromPromise(Promise.all([this.metaDataPromise, ...[...this.ownDataEncoding.values()].map(enc => enc.data.promise)]))
+    },
+    get dataPromiseState() {
+        return this.dataPromise.state;
     },
     get metaDataPromise() {
         return fromPromise(Promise.all([
@@ -66,6 +111,7 @@ let functions = {
     // computed to cache calculation
     get dataMapCache() {
         trace();
+
         const markerDefiningEncodings = [];
         const markerAmmendingEncodings = [];
 

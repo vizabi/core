@@ -79,11 +79,13 @@ export function mapToObj(map) {
 }
 
 // intersect of two arrays (representing sets)
+// i.e. everything in A which is also in B
 export function intersect(a, b) {
     return a.filter(e => b.includes(e));
 }
 
 // relative complement of A with respect to B
+// i.e. everything in B which is not in A
 export function relativeComplement(a, b) {
     return b.filter(e => !a.includes(e));
 }
@@ -156,7 +158,7 @@ function isMergeableObject(value) {
         !isSpecial(value)
 }
 
-function isNonNullObject(value) {
+export function isNonNullObject(value) {
     return !!value && typeof value === 'object'
 }
 

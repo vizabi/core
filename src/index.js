@@ -1,6 +1,6 @@
 import { autorun, action, spy, observable } from 'mobx'
 import { vizabi } from './core/vizabi'
-import { config } from './view/config'
+import { config } from '../dist/config'
 import { isEntityConcept, arrayEquals, relativeComplement } from './core/utils';
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
