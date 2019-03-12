@@ -1,9 +1,10 @@
 import { resolveRef } from "../vizabi";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
-import { applyDefaults, intersect } from "../utils";
+import { applyDefaults, intersect, isNumeric } from "../utils";
 import { filter } from "../filter";
 import { DataFrame } from "../../dataframe/dataFrame";
+import { fromPromise } from "mobx-utils";
 
 const defaultConfig = {
     source: null,
@@ -21,6 +22,13 @@ export function dataConfig(config = {}, parent) {
     return {
         config,
         parent,
+        get invariants() {
+            let fails = [];
+            if (this.value && (this.concept || this.source)) fails.push("Can't have constant value and concept or source set.");
+            if (this.conceptInSpace && this.source) fails.push("Can't have concept in space and have a source simultaneously");
+            if (fails.length > 0)
+                console.warn("One or more invariants not satisfied:",fails,this);
+        },
         get source() {
             if (this.config.source)
                 return dataSourceStore.getByDefinition(this.config.source)
@@ -32,7 +40,7 @@ export function dataConfig(config = {}, parent) {
             return this.config.space || ((this.parent.marker) ? this.parent.marker.data.space : null)
         },
         get value() {
-            return this.config.value;
+            return resolveRef(this.config.value);
         },
         get commonSpace() {
             return intersect(this.space, this.parent.marker.data.space);
@@ -46,14 +54,20 @@ export function dataConfig(config = {}, parent) {
         get availability() { return this.source.availability.data.map(kv => this.source.getConcept(kv.value)) },
         get promise() {
             //trace();
-            return this.source.query(this.ddfQuery);
+            if (this.source && this.concept && !this.conceptInSpace)
+                return this.source.query(this.ddfQuery);
+            else
+                return Promise.resolve(); // fromPromise.resolve();
         },
         get state() {
             return this.promise.state;
         },
         get domain() {
+            if (this.value != null)
+                return isNumeric(this.value) ? [this.value,this.value] : [this.value];
+
             const concept = this.concept;
-            const data = this.space.includes(concept) 
+            const data = this.conceptInSpace
                 ? this.parent.marker.dataMapCache 
                 : this.responseMap;
 
@@ -66,19 +80,11 @@ export function dataConfig(config = {}, parent) {
         },
         get response() {
             trace();
-            // constant response
-            if (this.value != null) {
-                return this.value
-            }
-            // data response
             return this.promise.case({
                 pending: () => latestResponse,
                 rejected: e => latestResponse,
-                fulfilled: v => latestResponse = this.processResponse(v)
+                fulfilled: v => latestResponse = v
             });
-        },
-        processResponse(response) {
-            return response;
         },
         get responseMap() {
             trace();
@@ -86,9 +92,6 @@ export function dataConfig(config = {}, parent) {
         },
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
-        },
-        get hasOwnData() {
-            return this.source && this.concept && !this.conceptInSpace;
         },
         get ddfQuery() {
             trace();

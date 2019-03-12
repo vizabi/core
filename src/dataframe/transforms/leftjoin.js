@@ -2,7 +2,8 @@ import { copyColumn } from "./copycolumn";
 import { arrayEquals } from "../../core/utils";
 import { DataFrame } from "../dataFrame";
 
-
+        // TODO: add check for non-marker space dimensions to contain only one value
+        // -> save first row values and all next values should be equal to first
 
 /**
  * Join right on left with overlapping columns of key as join columns.
@@ -44,7 +45,7 @@ export function leftJoin(left, rights) {
         // weird chrome bug: using for(let col in right.projection) in combination with 
         // assigning right.projection[col] to var or passing into function crashes chrome
         // therefore for...of w/ object.keys
-        //for(var col in right.projection) {
+        // for(let col in right.projection) {
         for (let col of Object.keys(right.projection)) { 
             copyColumn(result, col, right.projection[col]); 
         }   

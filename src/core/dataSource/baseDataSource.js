@@ -5,10 +5,10 @@ import { trace } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline';
+import { csvReader } from '../../reader/csv';
 
 const defaultConfig = {
-    modelType: "csv",
-    path: "data.csv",
+    path: null,
     values: null,
     transforms: []
 }
@@ -17,7 +17,10 @@ const functions = {
     get path() { return this.config.path },
     get space() { return this.config.space },
     get reader() {
-        return inlineReader({ values: this.values });
+        if (this.values)
+            return inlineReader({ values: this.values });
+        else if (this.path)
+            return csvReader({ path: this.path });
         console.warn("Called stub dataSource.reader getter. No reader set.", this)
     },
     get values() { return this.config.values },
@@ -37,8 +40,17 @@ const functions = {
             error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
         })
     },
+    get defaultEncodingPromise() {
+        if ("getDefaultEncoding" in this.reader)
+        return fromPromise(this.reader.getDefaultEncoding());
+    },
     get defaultEncoding() {
-        return this.reader.getDefaultEncoding() || false;
+        const empty = {};
+        return this.defaultEncodingPromise.case({
+            fulfilled: v => v,
+            pending: () => { console.warn('Requesting default encoding before loaded. Will return empty. Recommended to await promise.'); return empty },
+            error: (e) => { console.warn('Requesting default encoding when loading errored. Will return empty. Recommended to check promise.'); return empty }
+        });
     },
     buildAvailability(responses = []) {
         const 
@@ -115,7 +127,7 @@ const functions = {
     },
     get metaDataPromise() {
         return fromPromise(
-            Promise.all([this.availabilityPromise, this.conceptsPromise])
+            Promise.all([this.availabilityPromise, this.conceptsPromise, this.defaultEncodingPromise])
         );
     },
     /* 
@@ -129,7 +141,7 @@ const functions = {
         return this.conceptsPromise.state;
     },
     get metaDataState() {
-        this.metaDataPromise.state;
+        return this.metaDataPromise.state;
     },
     getConcept(concept) {
         if (concept == "concept_type" || concept.indexOf('is--') === 0)

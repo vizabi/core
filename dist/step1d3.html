@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <svg width="960" height="500"></svg>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="https://d3js.org/d3.v5.min.js"></script>
 <script src="vizabi.js"></script>
 <script>
 
@@ -12,16 +12,15 @@ var data = [
   {month: "Q4-2016", apples:  320, bananas:  480, cherries: -640, dates: -400}
 ];
 
-var source = Vizabi.dataSource(data)
+var source = Vizabi.dataSource({ path: "step1d3.csv"});
 var marker = Vizabi.marker({
   data: { source: source },
   encoding: {
-    month: { data: { concept: "month" }},
     apples: { data: { concept: "apples" }},
     bananas: { data: { concept: "bananas" }},
     cherries: { data: { concept: "cherries" }},
     dates: { data: { concept: "dates" }},
-    frame: { modelType: "frame", value: "Q1-2016", data: { concept: "month" }}
+    frame: { modelType: "frame", data: { concept: "month" }}
   }
 });
 

@@ -9,7 +9,7 @@ import { encodingStore } from './encodingStore';
 
 const defaultConfig = {
     modelType: "frame",
-    value: (new Date()).getFullYear(),
+    value: null,
     speed: 100,
     interpolate: true,
     scale: { modelType: "frame" },
@@ -18,9 +18,11 @@ const defaultConfig = {
 
 const functions = {
     get value() {
-        let value = this.config.value;
-        if (value != null) {
-            value = this.scale.clampToDomain(value);
+        let value;
+        if (this.config.value != null) {
+            value = this.scale.clampToDomain(this.config.value);
+        } else {
+            value = this.scale.domain[0];
         }
         return value + ""; // TODO: fix/align types of frame value and map
     },
@@ -112,13 +114,14 @@ const functions = {
     },
     get frameMapCache() {
         const flatDataMap = this.marker.dataMapCache;
+        const prop = this.marker.getPropForEncoding(this);
 
         const frameMap = new Map();
-        const frameSpace = this.data.space.filter(dim => dim != this.data.concept);
         const concept = this.data.concept;
+        const frameSpace = this.data.space.filter(dim => dim != concept);
         const getOrCreateDataMap = this.getOrCreateDataMap.bind(this); // no mobx lookups
         for (let [key, row] of flatDataMap) {
-            const frameId = row[concept];
+            const frameId = row[prop];
             const dataMap = getOrCreateDataMap(frameMap, frameId);
             const key = createMarkerKey(row, frameSpace);
             row[Symbol.for('key')] = key;

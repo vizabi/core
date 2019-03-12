@@ -7,7 +7,7 @@ import { copyColumn } from "./transforms/copycolumn";
 import { leftJoin } from "./transforms/leftjoin";
 import { filter } from "./transforms/filter";
 import { project } from "./transforms/project";
-import { observable } from "mobx";
+import { addColumn } from "./transforms/addColumn";
 
 //df.get(["swe","2015"]).population
 
@@ -38,6 +38,7 @@ function attachMethods(df) {
     df.copyColumn = (src, dest) => copyColumn(df, src, dest);
     df.filter = (filterObj) => filter(df, filterObj);
     df.project = (projection) => project(df, projection);
+    df.addColumn = (name, value) => addColumn(df, name, value);
 
     // has/get/set/info
     df.has = df.data.has;

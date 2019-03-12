@@ -3,24 +3,25 @@ import { relativeComplement } from "../core/utils";
 
 
 export function inlineReader({ values = [], keyConcepts = [] }) {
-    const data = DataFrame(values);
+    const dataPromise = Promise.resolve(values).then(DataFrame);
 
     return {
-        read(query) {
-            let source = data;
+        async read(query) {
+            let source = await dataPromise;
 
             if (isConceptQuery(query))
-                source = DataFrame(getConcepts(data), ["concept"]);
+                source = DataFrame(getConcepts(source), ["concept"]);
 
             if (isSchemaQuery(query))
-                source = DataFrame(getSchema(data, query, keyConcepts), ["key","value"]);
+                source = DataFrame(getSchema(source, query, keyConcepts), ["key","value"]);
 
-            return Promise.resolve(applyQuery(source, query));
+            return applyQuery(source, query);
         },
         getAsset(assetId) {
             console.warn('Inline reader does not support assets', { assetId })
         },
-        getDefaultEncoding() {
+        async getDefaultEncoding() {
+            const data = await dataPromise;
             return data.fields.map(concept => ({
                 concept,
                 space: keyConcepts

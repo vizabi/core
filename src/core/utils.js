@@ -84,8 +84,23 @@ export function intersect(a, b) {
     return a.filter(e => b.includes(e));
 }
 
-// relative complement of A with respect to B
-// i.e. everything in B which is not in A
+/**
+ * Is A a proper subset of B
+ * Every A is in B, but A != B
+ * @param {*} a 
+ * @param {*} b 
+ */
+export function isProperSubset(a, b) {
+    const intersection = intersect(a,b);
+    return intersection.length == a.length && intersection.length != b.length;
+}
+
+/**
+ * Relative complement (difference, B\A) of A with respect to B
+ * Everything in B which is not in A. A=[geo,year], B=[geo,year,gender], B\A = [gender]
+ * @param {*} a array representing set A
+ * @param {*} b array representing set B
+ */
 export function relativeComplement(a, b) {
     return b.filter(e => !a.includes(e));
 }

@@ -30,7 +30,12 @@ vizabi.dataSource = (cfg, id) =>{
             values: cfg
         };
     }
-    cfg = observable(cfg, { values: observable.ref }); 
+
+    // create observable cfg and prevent deep observable on values
+    const decorator = {};
+    if ("values" in cfg) decorator.values = observable.ref;
+    cfg = observable(cfg, decorator); 
+
     return dataSourceStore.set(cfg, id);
 } 
 vizabi.marker = (cfg, id) => {
@@ -47,7 +52,7 @@ export default vizabi;
  */
 export function resolveRef(possibleRef) {
     // no ref
-    if (typeof possibleRef.ref === "undefined")
+    if (!possibleRef || typeof possibleRef.ref === "undefined")
         return possibleRef
 
     // handle config shorthand

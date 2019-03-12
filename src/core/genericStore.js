@@ -93,10 +93,10 @@ export const createStore = function(baseType, extendedTypes = {}) {
          * @param {*} defs Object of model definitions
          * @returns {Map} Map with models according to definitions
          */
-        getByDefinitions(defs) {
+        getByDefinitions(defs, parent) {
             const map = new Map();
             Object.keys(defs).forEach(prop => {
-                map.set(prop, this.getByDefinition(defs[prop]))
+                map.set(prop, this.getByDefinition(defs[prop]), parent)
             })
             return map;
         }
