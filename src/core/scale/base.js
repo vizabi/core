@@ -46,6 +46,10 @@ export function base(config = {}, parent) {
             if (this.config.range != null)
                 return this.config.range
 
+            // default for constant is identity
+            if (this.data.isConstant())
+                return this.domain;
+
             // default
             return (this.type == "ordinal") ?
                 d3.schemeCategory10 : [0, 1];

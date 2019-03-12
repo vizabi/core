@@ -141,11 +141,11 @@ let functions = {
         for (let [prop, encoding] of this.encoding) {
 
             // no data or constant, no further processing (e.g. selections)
-            if (encoding.data.concept == null && encoding.data.value == null)
+            if (encoding.data.concept == null && !encoding.data.isConstant())
                 continue;
 
             // constants value (ignores other config like concept etc)
-            else if (encoding.data.value != null)
+            else if (encoding.data.isConstant())
                 constantEncodings.push({ prop, encoding });
 
             // copy data from space/key
@@ -166,10 +166,11 @@ let functions = {
         let dataMap = fullJoin(markerDefiningEncodings, this.data.space);
         dataMap = dataMap.leftJoin(markerAmmendingEncodings);
         constantEncodings.forEach(({prop, encoding}) => {
-            dataMap = dataMap.addColumn(prop, encoding.data.value);
+            dataMap = dataMap.addColumn(prop, encoding.data.constant);
         })
         spaceEncodings.forEach(({prop, encoding}) => {
-            dataMap = dataMap.addColumn(prop, row => row[encoding.data.concept]);
+            const concept = encoding.data.concept;
+            dataMap = dataMap.addColumn(prop, row => row[concept]);
         });
 
         // TODO: this should only happen áfter interpolation

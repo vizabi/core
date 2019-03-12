@@ -508,7 +508,9 @@ function chart() {
             let colorConfig = marker.encoding.get('color');
             let data;
 
-            if (Vizabi.utils.isEntityConcept(colorConfig.data.conceptProps)) {
+            if (colorConfig.data.isConstant()) {
+                data = [{ color: colorConfig.data.constant, name: "Single color" }]
+            } else if (Vizabi.utils.isEntityConcept(colorConfig.data.conceptProps)) {
                 // need extra query
                 data = legendmarker.dataArray;
                 colorConfig = legendmarker.encoding.get('color');

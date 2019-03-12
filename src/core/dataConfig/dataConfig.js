@@ -24,7 +24,7 @@ export function dataConfig(config = {}, parent) {
         parent,
         get invariants() {
             let fails = [];
-            if (this.value && (this.concept || this.source)) fails.push("Can't have constant value and concept or source set.");
+            if (this.constant && (this.concept || this.source)) fails.push("Can't have constant value and concept or source set.");
             if (this.conceptInSpace && this.source) fails.push("Can't have concept in space and have a source simultaneously");
             if (fails.length > 0)
                 console.warn("One or more invariants not satisfied:",fails,this);
@@ -39,8 +39,11 @@ export function dataConfig(config = {}, parent) {
             //trace();
             return this.config.space || ((this.parent.marker) ? this.parent.marker.data.space : null)
         },
-        get value() {
-            return resolveRef(this.config.value);
+        get constant() {
+            return resolveRef(this.config.constant);
+        },
+        isConstant() {
+            return this.constant != null;
         },
         get commonSpace() {
             return intersect(this.space, this.parent.marker.data.space);
@@ -63,8 +66,8 @@ export function dataConfig(config = {}, parent) {
             return this.promise.state;
         },
         get domain() {
-            if (this.value != null)
-                return isNumeric(this.value) ? [this.value,this.value] : [this.value];
+            if (this.constant != null)
+                return isNumeric(this.constant) ? [this.constant,this.constant] : [this.constant];
 
             const concept = this.concept;
             const data = this.conceptInSpace
