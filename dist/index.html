@@ -340,7 +340,9 @@ function chart() {
             const yConfig = marker.encoding.get("y");
             const frameConfig = marker.encoding.get("frame");
             const selectedConfig = marker.encoding.get("selected");
+            const selectedFilter = selectedConfig.data.filter
             const highlightConfig = marker.encoding.get("highlighted");
+            const highlightFilter = highlightConfig.data.filter;
             const superHighlight = marker.encoding.get("superhighlighted");
 
             // data join
@@ -358,8 +360,8 @@ function chart() {
                 .on("click", d => {
                     if (!d[Symbol.for('trailHeadKey')]) marker.toggleSelection(d);
                 })
-                .on("mouseover", d => highlightConfig.data.filter.set(d))
-                .on("mouseout", d => highlightConfig.data.filter.delete(d));
+                .on("mouseover", d => highlightFilter.set(d))
+                .on("mouseout", d => highlightFilter.delete(d));
 
             // remove old bubbles
             const exit = update.exit().remove();
@@ -410,8 +412,8 @@ function chart() {
                 const selectOthers = 0.5;
                 const regular = 0.8;
                 const full = 1;
-                const highlighted = highlightConfig.data.filter.has(d);
-                const selected = selectedConfig.data.filter.has(d);
+                const highlighted = highlightFilter.has(d);
+                const selected = selectedFilter.has(d);
                 const trail = d[Symbol.for('trailHeadKey')];
 
                 if (highlighted || selected) return full;
@@ -423,7 +425,7 @@ function chart() {
 
             function isHighlightedTrail(d) {
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
-                return selectedConfig.data.filter.has(key) && highlightConfig.data.filter.has(d)
+                return selectedFilter.has(key) && highlightFilter.has(d)
             }
 
 
@@ -442,7 +444,7 @@ function chart() {
                         // if this bubble is trail start bubble
                         if (trailStart == d[frameConfig.data.concept])
                             labelStr = labelAll(d);
-                        else if (highlightConfig.data.filter.has(d)) {
+                        else if (highlightFilter.has(d)) {
                             labelStr = labelOnlyFrame(d);
                         }
                     } else {
@@ -451,7 +453,7 @@ function chart() {
                 }
 
                 // if highlight, put on highlight =)
-                else if (highlightConfig.data.filter.has(d)) {
+                else if (highlightFilter.has(d)) {
                     labelStr = labelWithoutFrame(d);
                 }
                 // draw label
