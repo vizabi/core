@@ -158,7 +158,7 @@ const functions = {
         query = dotToJoin(query);
         query = addExplicitAnd(query);
         console.log('Querying', query);
-        const readPromise = this.reader.read(query); // .then(data => data.map(tryParseRow));
+        const readPromise = this.reader.read(query).then(tryParse);
         return fromPromise(readPromise);
     },
     interpolate(data, { dimension, concepts, step }) {
@@ -247,6 +247,13 @@ const functions = {
         return intVals;
     }
 
+}
+
+const tryParse = data => {
+    for (let row of data) {
+        tryParseRow(row);
+    }
+    return data;
 }
 
 const tryParseRow = d => {
