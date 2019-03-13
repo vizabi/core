@@ -335,7 +335,9 @@ function chart() {
         function showData() {
             const data = marker.dataArray;
             const sizeConfig = marker.encoding.get("size");
+            const sizeScale = sizeConfig.scale.d3Scale;
             const colorConfig = marker.encoding.get("color");
+            const colorScale = colorConfig.scale.d3Scale;
             const xConfig = marker.encoding.get("x");
             const yConfig = marker.encoding.get("y");
             const frameConfig = marker.encoding.get("frame");
@@ -344,6 +346,7 @@ function chart() {
             const highlightConfig = marker.encoding.get("highlighted");
             const highlightFilter = highlightConfig.data.filter;
             const superHighlight = marker.encoding.get("superhighlighted");
+            const superHighlightFilter = superHighlight.data.filter;
 
             // data join
             let update = bubbles.selectAll(".dot")
@@ -384,10 +387,10 @@ function chart() {
                     .style("fill", function(d) {
                         return d.color == null ?
                             "#ffffff" :
-                            colorConfig.scale.d3Scale(d.color);
+                            colorScale(d.color);
                     })
                     .style('animation', d => {
-                        return superHighlight.data.filter.has(d) ?
+                        return superHighlightFilter.has(d) ?
                             'blink 1s step-start 0s infinite' :
                             'none';
                     })
@@ -396,9 +399,7 @@ function chart() {
                     .style('stroke-opacity', getOpacity)
                     .style('opacity', getOpacity)
                     .attr("r", d => {
-                        const which = sizeConfig.which;
-                        const radius = isNaN(which) ? sizeConfig.scale.d3Scale(d.size) : which;
-                        return radius;
+                        return sizeScale(d.size);
                     })
                     .each(drawLabel);
 
