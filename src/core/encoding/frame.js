@@ -196,7 +196,7 @@ const functions = {
     },
     interpolateFrames(frameMap, frameSpace) {
 
-        var frames = [...frameMap.keys()].sort();
+        var frames = [...frameMap.keys()].sort((a,b) => a-b);
         var previousMarkerValues = new Map();
         // for each frame
         frames.forEach(frameId => {
@@ -264,11 +264,10 @@ const functions = {
     },
     interpolatePoint(start, end) {
         const int = d3.interpolate(start.value, end.value);
-        const delta = end.frameId - start.frameId;
+        const delta = 1 / (end.frameId - start.frameId);
         const intVals = [];
-        for (let i = 1; i < delta; i++) {
-            const frameId = start.frameId + i;
-            const value = int(i / delta);
+        for (let i = delta, frameId = start.frameId + 1; i < 1; i+=delta, frameId++) {
+            const value = int(i);
             intVals.push({ frameId, value })
         }
         return intVals;

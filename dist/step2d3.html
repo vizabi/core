@@ -5,7 +5,7 @@
 <script src="vizabi.js"></script>
 <script>
 
-var data = d3.range(100000).map((m, i) => ({uniq: i, time: ""+i, value: i/1000, value2: Math.sin(i/100000*8*Math.PI)}));
+var data = d3.range(100000).map((m, i) => ({time: i, value: i/1000, value2: Math.sin(i/100000*8*Math.PI)}));
   
 
 var source = Vizabi.dataSource({
@@ -19,7 +19,7 @@ var marker = Vizabi.marker({
     y: { data: { concept: "value2" }},
     frame: {
       modelType: "frame",
-      value: "2000",
+      value: 2000,
       data: { concept: "time" },
     }
   }
