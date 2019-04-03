@@ -1,7 +1,7 @@
 import { fromPromise, FULFILLED } from 'mobx-utils'
 import { assign, createKeyStr, applyDefaults } from "../utils";
 import { configurable } from '../configurable';
-import { trace } from 'mobx';
+import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline';
@@ -21,9 +21,12 @@ const functions = {
             return inlineReader({ values: this.values });
         else if (this.path)
             return csvReader({ path: this.path });
-        console.warn("Called stub dataSource.reader getter. No reader set.", this)
+        console.warn("No inline values or csv path found. Please set `values` or `path` property on dataSource.", this)
     },
-    get values() { return this.config.values },
+    get values() { 
+        // toJS: don't want insides of data to be observable (adds overhead & complexity)
+        return toJS(this.config.values);
+    },
     get availability() {
         let empty = this.buildAvailability();
         return this.availabilityPromise.case({
@@ -158,95 +161,9 @@ const functions = {
         query = dotToJoin(query);
         query = addExplicitAnd(query);
         console.log('Querying', query);
-        const readPromise = this.reader.read(query).then(tryParse);
+        const readPromise = this.reader.read(query);
         return fromPromise(readPromise);
-    },
-    interpolate(data, { dimension, concepts, step }) {
-        const space = this.space;
-        if (!space.includes(dimension))
-            throw ("data transform, interpolate: dimension not included in data space.", { space, dimension });
-        if (data.length <= 0)
-            return data;
-
-
-        // sort by interpolation dimension
-        data.sort((a, b) => a[dimension] - b[dimension]);
-
-        // group by other dimensions (Map preserves sorting)
-        const spaceRest = this.space.filter(v => v != dimension);
-        const groupMap = new Map();
-        data.forEach(row => {
-            const groupKey = createMarkerKey(row, spaceRest);
-            if (groupMap.has(groupKey))
-                groupMap.get(groupKey).set(row[dimension], row);
-            else
-                groupMap.set(groupKey, new Map([
-                    [row[dimension], row]
-                ]));
-        });
-
-        // handle each group (= marker) seperately
-        for (let [groupKey, groupData] of groupMap) {
-            var previousMarkerValues = new Map();
-
-            let previous = {};
-            for (let [frameId, row] of groupData) {
-
-                // for every interpolation-concept with data in row
-                concepts
-                    .filter(concept => row[concept] != null)
-                    .forEach(concept => {
-                        // if there is a previous value and gap is > step
-                        if (previous[concept] && previous[concept].frameId + step < frameId) {
-                            // interpolate and save results in frameMap
-                            this.interpolatePoint(previous[concept], { frameId, value: row[concept] })
-                                .forEach(({ frameId, value }) => {
-                                    // could maybe be optimized with batch updating all interpolations
-                                    let frame;
-
-                                    // get/create right frame
-                                    if (groupData.has(frameId)) {
-                                        frame = groupData.get(frameId);
-                                    } else {
-                                        frame = {
-                                            [dimension]: frameId
-                                        };
-                                        spaceRest.forEach(dim => frame[dim] = row[dim]);
-                                        groupData.set(frameId, frame);
-                                    }
-
-                                    // add value to marker
-                                    frame[concept] = value;
-                                });
-                        }
-
-                        // update previous value to current
-                        previous[concept] = {
-                            frameId,
-                            value: row[concept]
-                        }
-                    });
-            }
-        }
-
-        const flatData = [...groupMap.values()].reduce((prev, cur) => {
-            return [...prev.values(), ...cur.values()];
-        }, new Map());
-
-        return flatData;
-    },
-    interpolatePoint(start, end) {
-        const int = d3.interpolate(start.value, end.value);
-        const delta = end.frameId - start.frameId;
-        const intVals = [];
-        for (let i = 1; i < delta; i++) {
-            const frameId = start.frameId + i;
-            const value = int(i / delta);
-            intVals.push({ frameId, value })
-        }
-        return intVals;
     }
-
 }
 
 const tryParse = data => {
@@ -257,6 +174,7 @@ const tryParse = data => {
 }
 
 const tryParseRow = d => {
+    //return d3.autoType(d);
     for (let key in d) {
         d[key] = parse(d[key]);
     }

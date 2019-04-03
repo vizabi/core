@@ -4,7 +4,8 @@ import { fromPromise } from "mobx-utils";
 export const createKey2 = (space, row) => space.map(dim => row[dim]).join('-');
 // micro-optimizations below as this is code that runs for each row in data to create key to the row
 
-// string replace functions jsperf: https://jsperf.com/string-replace-methods2
+// TODO: probably use different replace function, long version in jsperf
+// string replace functions jsperf: https://jsperf.com/string-replace-methods
 // regexp not here, not fast in any browser
 /**
  * Verbose string replace using progressive indexOf. Fastest in Chrome.
@@ -40,16 +41,19 @@ var esc = str => isNumeric(str) ? str : replace(replace(str, escapechar, dblesca
 // for loop is faster than keys.map().join('-');
 // but in Edge, json.stringify is faster
 // pre-escaped space would add extra performance
-const createDimKeyStr = (dim, row) => {
-    if (dim === undefined || row[dim] === undefined) debugger;
-    return esc(dim) + joinchar + esc(row[dim]);
+const createDimKeyStr = (dim, dimVal) => {
+    if (dimVal instanceof Date) dimVal = dimVal.getTime();
+    return esc(dim) + joinchar + esc(dimVal);
 }
 export const createMarkerKey = (row, space = Object.keys(row).sort()) => {
     const l = space.length;
 
-    var res = (l > 0) ? createDimKeyStr(space[0], row) : '';
+    if (l===1)
+        return row[space[0]]+"";
+
+    var res = (l > 0) ? createDimKeyStr(space[0], row[space[0]]) : '';
     for (var i = 1; i < l; i++) {
-        res += joinchar + createDimKeyStr(space[i], row);
+        res += joinchar + createDimKeyStr(space[i], row[space[i]]);
     }
     return res
 }
@@ -124,6 +128,10 @@ export function assign(target, ...sources) {
 }
 export function compose(...parts) {
     return assign({}, ...parts);
+}
+
+export function ucFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // gets a getter accessor from an object and binds it to the object
@@ -277,3 +285,90 @@ export function applyDefaults(config, defaults) {
                 config[prop] = deepclone(defaults[prop]);
     })
 }
+
+export function equals(a,b) {
+    if (a instanceof Date && b instanceof Date) {
+        return a.getTime() === b.getTime();
+    }
+    return a === b;
+}
+
+
+export function getTimeInterval(unit) {
+    let interval;
+    if (interval = d3['utc' + ucFirst(unit)]) return interval;
+}
+
+export function configValue(value, concept) {
+    const { concept_type } = concept;
+    if (concept_type == "time" && value instanceof Date) {
+        return concept.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
+    }
+    return value;
+}
+
+const defaultParsers = [
+    d3.utcParse('%Y'),
+    d3.utcParse('%Y-%m'),
+    d3.utcParse('%Y-%m-%d'),
+    d3.utcParse('%Y-%m-%dT%H'),
+    d3.utcParse('%Y-%m-%dT%H-%M'),
+    d3.utcParse('%Y-%m-%dT%H-%M-%S')
+];
+
+function tryParse(timeString, parsers) {
+    for (let i = 0; i < parsers.length; i++) {
+      let dateObject = parsers[i](timeString);
+      if (dateObject) return dateObject;
+    }
+    console.warn('Could not parse time string ' + timeString)
+    return null;
+}
+
+export function parseConfigValue(valueStr, concept) {
+    const { concept_type } = concept;
+
+    if (concept_type === "time") {
+        let parsers = concept.format 
+            ? [d3.utcParse(concept.format), ...defaultParsers]
+            : defaultParsers;
+        return tryParse(valueStr, parsers);
+    }
+
+    if (concept_type === "measure") {
+        return +valueStr;
+    }
+
+    return ""+valueStr;
+}
+
+function pad(value, width) {
+    var s = value + "", length = s.length;
+    return length < width ? new Array(width - length + 1).join(0) + s : s;
+}
+  
+function formatYear(year) {
+    return year < 0 ? "-" + pad(-year, 6)
+        : year > 9999 ? "+" + pad(year, 6)
+        : pad(year, 4);
+}
+  
+function formatDate(date) {
+    var month = date.getUTCMonth(),
+        day = date.getUTCDate(),
+        hours = date.getUTCHours(),
+        minutes = date.getUTCMinutes(),
+        seconds = date.getUTCSeconds(),
+        milliseconds = date.getUTCMilliseconds();
+    return isNaN(date) ? "Invalid Date"
+        : milliseconds ? formatFullDate(date) + "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z"
+        : seconds ? formatFullDate(date) + "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z"
+        : minutes || hours ? formatFullDate(date) + "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z"
+        : day !== 1 ? formatFullDate(date)
+        : month ? formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2)
+        : formatYear(date.getUTCFullYear(), 4);
+  }
+
+  function formatFullDate(date) {
+      return formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2);
+  }

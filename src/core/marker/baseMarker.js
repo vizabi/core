@@ -10,7 +10,8 @@ import { fullJoin } from '../../dataframe/transforms/fulljoin';
 const defaultConfig = {
     important: [],
     data: {
-        space: []
+        space: [],
+        filter: {}
     },
     encoding: {},
 };
@@ -88,6 +89,7 @@ let functions = {
         fromPromise.all(p);
     },
     get dataPromise() {
+        this.data.source.metaDataPromise.case({ rejected: (e) => console.warn(e) });
         if (this.data.source.metaDataState != "fulfilled")
             return fromPromise(new Promise(() => {}));
 
@@ -115,17 +117,6 @@ let functions = {
             })
         })
         return items;
-    },
-    joinConfig(encoding, prop) {
-        return { 
-            projection: { 
-                [encoding.data.concept]: prop
-            },
-            dataFrame: encoding.data.responseMap
-        }
-    },
-    isImportant(prop) {
-        return this.important.length == 0 || this.important.includes(prop)
     },
     // computed to cache calculation
     get dataMapCache() {
@@ -178,27 +169,33 @@ let functions = {
 
         return dataMap;
     },
+    joinConfig(encoding, prop) {
+        return { 
+            projection: { 
+                [encoding.data.concept]: prop
+            },
+            dataFrame: encoding.data.responseMap
+        }
+    },
+    isImportant(prop) {
+        return this.important.length == 0 || this.important.includes(prop)
+    },
     get dataMap() {
         //trace();
 
         const frameEnc = this.encoding.get("frame") || {};
         const frame = frameEnc.currentFrame;
-        const dataMap = frame ? frame : this.dataMapCache;
-
-        const orderEnc = this.encoding.get("order");
-        return orderEnc ? orderEnc.order(dataMap) : dataMap;
+        if (frame) {
+            return frame;
+        } else {
+            const dataMap = this.dataMapCache;
+            const orderEnc = this.encoding.get("order");
+            return orderEnc ? orderEnc.order(dataMap) : dataMap;
+        }
     },
     get dataArray() {
         //trace();
-
-        let data;
-        if (this.encoding.has('frame')) {
-            const frameEnc = this.encoding.get("frame") || {};
-            data = frameEnc.currentFrameArray;
-        }
-        data = data ? data : this.dataMap ? [...this.dataMap.values()] : null;
-
-        return data;
+        return [...this.dataMap.values()];
     },
     checkImportantEncodings: function(dataMap) {
         // remove markers which miss important values. Should only be done áfter interpolation though.

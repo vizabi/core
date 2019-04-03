@@ -153,7 +153,7 @@ const config = {
                     modelType: "order",
                     data: {
                         ref: "markers.bubble.encoding.size.data",
-                        direction: "descending"
+                        direction: "desc"
                     }
                 },
                 "size": {

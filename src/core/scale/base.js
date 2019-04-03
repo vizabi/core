@@ -1,4 +1,4 @@
-import { applyDefaults } from "../utils";
+import { applyDefaults, parseConfigValue } from "../utils";
 
 const scales = {
     "linear": d3.scaleLinear,
@@ -58,16 +58,18 @@ export function base(config = {}, parent) {
             this.config.range = range;
         },
         get domain() {
-            if (this.config.domain)
-                return this.config.domain;
-            return this.data.domain;
+            return this.config.domain 
+                ? this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps))
+                : this.data.domain;
         },
         clampToDomain(val) {
             const domain = this.domain;
             if (this.type == "ordinal" || this.type == "band" || this.type == "point")
                 return domain.includes(val) ? val : undefined;
             
-            return Math.min(Math.max(val, domain[0]), domain[1]);     
+            if (val < domain[0]) return domain[0];
+            if (val > domain[1]) return domain[1];
+            return val;
         },
         get d3Scale() {
             const scale = scales[this.type]();

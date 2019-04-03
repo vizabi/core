@@ -31,6 +31,7 @@ export function DataFrameStorageLookups(concepts, keyArr) {
     storage.set = (keyObj, value) => { 
         console.warn("Invalid operation. Generated dataframe does not support .set().")
     }
+    storage.setByKeyStr = () => console.warn("Invalid operation. Can't set generated dataframe by key string.");
     storage.values = () => { console.warn("Generated dataframe .values() not implemented yet")};
     storage.delete = () => { console.warn("Invalid operation. Generated dataframe does not support .delete()")};
     storage[Symbol.iterator] = function* generate() {

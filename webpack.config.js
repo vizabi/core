@@ -2,11 +2,14 @@ const path = require('path');
 
 module.exports = {
     mode: 'development',
-    entry: './src/core/vizabi.js',
+    entry: {
+        Vizabi: './src/core/vizabi.js',
+        Dataframe: './src/dataframe/dataFrame.js'
+    },
     output: {
-        filename: 'vizabi.js',
+        filename: '[name].js',
         path: path.resolve(__dirname, 'dist'),
-        library: 'Vizabi',
+        library: '[name]',
         libraryExport: 'default'
     },
 

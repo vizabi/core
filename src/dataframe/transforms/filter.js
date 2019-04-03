@@ -1,20 +1,41 @@
 import { DataFrame } from "../dataFrame";
 
+/**
+ * Filters dataframe based on either filter function or DDFQL filter specification
+ * @param {DataFrame} df 
+ * @param {Function|FilterSpec} filter 
+ */
 export function filter(df, filter) {
-    if (!filter || Object.keys(filter).length == 0)
+
+    if (!validFilterArg(filter))
         return df;
+
+    const filterFn = (typeof filter == "function") ? 
+        filter : createFilterFn(filter);    
 
     const result = DataFrame([], df.key);
     for(let [key, row] of df) {
-        if (filterApplies(row, filter))
+        if (filterFn(row))
             result.setByKeyStr(key, row);
     }
 
     return result;
 }
 
-function filterApplies(row, filter) {
+function validFilterArg(filter) {
+    return filter && (typeof filter === "function" || Object.keys(filter).length > 0)
+}
 
+/**
+ * Partially apply applyFilterRow, giving only the filter spec
+ * @param {Object} filterSpec Filter specification according to DDFQL WHERE spec
+ * @returns {Function} Filter function, returning boolean
+ */
+function createFilterFn(filterSpec) {
+    return (row) => applyFilterRow(row, filterSpec);
+}
+
+function applyFilterRow(row, filter) {
     // implicit $and in filter object handled by .every()
     return Object.keys(filter).every(filterKey => {
         if (operator = operators.get(filterKey)) {
@@ -24,7 +45,7 @@ function filterApplies(row, filter) {
             // { <field>: <value> } is shorthand for { <field>: { $eq: <value> }} 
             return operators.get("$eq")(row[filterKey], filter[filterKey]);
         } else {
-            // filter[filterKey] is an object and will thus contain a comparison operator
+            // filterSpec[filterKey] is an object and will thus contain a comparison operator
             // { <field>: { $<operator>: <value> }}
             // no deep objects (like in Mongo) supported:
             // { <field>: { <subfield>: { ... } } }

@@ -3,7 +3,7 @@ import { observable } from "mobx";
 
 export function DataFrameStorageMap(data = new Map(), keyArr) {
     const storage = {};
-    const map = storage.data = (data instanceof Map) ? data : mapFromObjectArray(data, keyArr);
+    const map = storage.data = (data instanceof Map) ? data : mapFromObjectIter(data, keyArr);
     storage.fields = Object.keys(data[0] || {});
     storage.has = (keyObj) => map.has(createMarkerKey(keyObj, keyArr));
     storage.get = (keyObj) => map.get(createMarkerKey(keyObj, keyArr));
@@ -11,6 +11,7 @@ export function DataFrameStorageMap(data = new Map(), keyArr) {
     storage.getByObjOrStr = (keyObj, keyStr) => map.get(keyStr);
     storage.set = (keyObj, value) => map.set(createMarkerKey(keyObj, keyArr), value);
     storage.setByKeyStr = (keyStr, value) => map.set(keyStr, value);
+    storage.keys = map.keys.bind(map);
     storage.values = map.values.bind(map);
     storage.delete = map.delete.bind(map);
     storage[Symbol.iterator] = map[Symbol.iterator].bind(map);
@@ -18,15 +19,17 @@ export function DataFrameStorageMap(data = new Map(), keyArr) {
     return storage;
 }
 
-function mapFromObjectArray(objectArray, key) {
-    const map = new Map()
-    const n = objectArray.length;
+function mapFromObjectIter(objectIter, key) {
+    const map = new Map();
     const duplicates = [];
-    
-    const emptyKey = key.length == 0;
-    const keyFn = emptyKey ? rangeIndex(0, n) : createMarkerKey;
 
-    for (let row of objectArray) {
+    if (objectIter.hasByObjOrStr)
+        objectIter = objectIter.values();
+
+    const emptyKey = key.length == 0;
+    const keyFn = emptyKey ? rangeIndex(0) : createMarkerKey;
+
+    for (let row of objectIter) {
         const keyStr = keyFn(row, key);
         row[Symbol.for('key')] = keyStr;
         if (map.has(keyStr))

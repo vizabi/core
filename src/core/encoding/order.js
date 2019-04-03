@@ -3,8 +3,8 @@ import { defaultDecorator, isString } from '../utils';
 
 const defaultConfig = {};
 const directions = {
-    ascending: 0,
-    descending: 1
+    ascending: "ascending",
+    descending: "descencding"
 }
 
 export const order = defaultDecorator({
@@ -12,21 +12,12 @@ export const order = defaultDecorator({
     defaultConfig,
     functions: {
         get direction() {
-            return this.data.config.direction;
+            return this.data.config.direction || directions.ascending;
         },
-        order(dataMap) {
+        order(df) {
             const prop = this.marker.getPropForEncoding(this);
-            const data = Array.from(dataMap);
             const direction = this.direction;
-            data.sort((a, b) => {
-                let ao = a[1][prop],
-                    bo = b[1][prop];
-
-                return direction == directions.ascending ?
-                    ao - bo :
-                    bo - ao;
-            });
-            return new Map(data);
+            return df.order([{ [prop]: direction }]);
         }
     }
 });

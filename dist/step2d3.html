@@ -1,25 +1,29 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <div id="container"></div>
-<script src="https://d3js.org/d3.v5.min.js"></script>
-<script src="vizabi.js"></script>
+<script src="d3.v5.min.js"></script>
+<script src="Vizabi.js"></script>
+<script src="Dataframe.js"></script>
+<script src="vizabi-ddfcsv-reader.js"></script>
 <script>
 
-var data = d3.range(100000).map((m, i) => ({time: i, value: i/1000, value2: Math.sin(i/100000*8*Math.PI)}));
-  
+var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
+Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
+
+
+var data = d3.range(100000).map((m, i) => ({time: (i) % 100, frameKey: Math.floor(i / 100), value: i/1000, value2: Math.sin(i/100000*8*Math.PI)}));
 
 var source = Vizabi.dataSource({
   values: data
 })
 var marker = Vizabi.marker({
-  data: { source: source },
+  data: { source: source, space: ["time", "frameKey"] },
   encoding: {
-    time: { data: { concept: "time" }},
     x: { data: { concept: "value" }},
     y: { data: { concept: "value2" }},
     frame: {
       modelType: "frame",
-      value: 2000,
+      value: 1,
       data: { concept: "time" },
     }
   }
@@ -37,10 +41,6 @@ var context = canvas.node().getContext('2d');
 // === Bind data to custom elements === //
 var customBase = document.createElement('custom');
 var custom = d3.select(customBase); // this is our svg replacement
-
-  
-
-
   
 function draw(data) {
 
@@ -85,5 +85,41 @@ function draw(data) {
 
 }
 
+/*
+var mdtest = Vizabi.dataSource({
+  modelType: "ddfcsv",
+  path: "./ddf--jheeffer--mdtest/"
+});
+var marker = Vizabi.marker({
+  data: {
+    source: mdtest,
+    space: ["country", "time"]
+  },
+  encoding: {
+    "x": {
+      data: {
+        concept: "country"
+      },
+    },
+    "y": {
+      data: {
+        concept: "life_expectancy"
+      }
+    },
+    frame: {
+      modelType: "frame",
+      interpolate: true,
+      value: 2000,
+      speed: 1,
+      data: { concept: "time" }
+    }
+  }
+});
+  
+marker.on('fulfilled', draw);
 
+function draw(data) { 
+  console.log(data);
+}
+*/
 </script>

@@ -4,14 +4,13 @@ import { trace, observable } from "mobx";
 import { applyDefaults, intersect, isNumeric } from "../utils";
 import { filter } from "../filter";
 import { DataFrame } from "../../dataframe/dataFrame";
-import { fromPromise } from "mobx-utils";
 
 const defaultConfig = {
     source: null,
     concept: null,
     space: null,
     value: null,
-    filter: {}
+    filter: null
 }
 
 export function dataConfig(config = {}, parent) {

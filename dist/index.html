@@ -105,9 +105,10 @@
             <svg id="chart"></svg>
         </div>
         <script src="https://d3js.org/d3.v5.js"></script>
-        <script src="vizabi-ddfcsv-reader.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.min.js"></script>
+        <script src="vizabi-ddfcsv-reader.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.min.js"></script>
         <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/preview/master/assets/vendor/js/vizabi-ws-reader/vizabi-ws-reader.js"></script>
-        <script src="vizabi.js"></script>
+        <script src="Vizabi.js"></script>
         <script src="config.js"></script>
 
         <script type="text/javascript">
@@ -206,7 +207,7 @@ function chart() {
         playtoggle = timecontrol.select("#toggle")
             .on('click', function() { frameCfg.togglePlaying() })
         timeslider = timecontrol.select("#timeslider")
-            .on('input', function() { frameCfg.setValueAndStop(this.value) });
+            .on('input', function() { frameCfg.setIndexAndStop(this.value) });
         speedslider = timecontrol.select("#speedslider")
             .attr('min', 1)
             .attr('max', 1000)
@@ -304,11 +305,11 @@ function chart() {
 
         function draw() {
             const frameCfg = marker.encoding.get("frame");
-            const [min, max] = frameCfg.scale.domain || [0, 1];
-            d3.select("#timecontrol").select('.frameval').text(frameCfg.value);
-            timeslider.attr('min', min)
-                .attr('max', max)
-                .property('value', frameCfg.value)
+            const [min, max] = frameCfg.scale.domain;
+            d3.select("#timecontrol").select('.frameval').text(frameCfg.value.toISOString());
+            timeslider.attr('min', 0)
+                .attr('max', frameCfg.stepArray.length - 1)
+                .property('value', frameCfg.index)
                 .attr('step', 1);
 
             speedslider.property('value', frameCfg.speed);
@@ -415,7 +416,7 @@ function chart() {
                 const full = 1;
                 const highlighted = highlightFilter.has(d);
                 const selected = selectedFilter.has(d);
-                const trail = d[Symbol.for('trailHeadKey')];
+                const trail = typeof d[Symbol.for('trailHeadKey')] != "undefined";
 
                 if (highlighted || selected) return full;
                 if (trail) return regular;

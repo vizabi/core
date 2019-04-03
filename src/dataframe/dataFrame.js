@@ -1,4 +1,4 @@
-import { normalizeKey, mapToObj } from "../core/utils";
+import { normalizeKey, mapToObj, arrayEquals } from "../core/utils";
 import { order } from "./transforms/order";
 import { fullJoin } from "./transforms/fulljoin";
 import { DataFrameStorageMap } from "./storage/map";
@@ -8,6 +8,9 @@ import { leftJoin } from "./transforms/leftjoin";
 import { filter } from "./transforms/filter";
 import { project } from "./transforms/project";
 import { addColumn } from "./transforms/addColumn";
+import { group } from "./transforms/group";
+import { interpolate } from "./transforms/interpolate";
+import { reindex } from "./transforms/reindex";
 
 //df.get(["swe","2015"]).population
 
@@ -15,8 +18,11 @@ export const DataFrame = (data = [], key = []) => constructDataFrame(data, key, 
 DataFrame.fromLookups = (concepts, key) => constructDataFrame(concepts, key, DataFrameStorageLookups);
 DataFrame.fromArray = DataFrame;
 
+
+export default DataFrame;
+
 function constructDataFrame(data, key, storageBuilderFn) {
-    if (data.hasByObjOrStr) // duck-typing DataFrame
+    if (data.hasByObjOrStr && arrayEquals(data.key, key)) // duck-typing DataFrame
         return data;
 
     const df = {}
@@ -39,6 +45,9 @@ function attachMethods(df) {
     df.filter = (filterObj) => filter(df, filterObj);
     df.project = (projection) => project(df, projection);
     df.addColumn = (name, value) => addColumn(df, name, value);
+    df.group = (groupBy, groupKey) => group(df, groupBy, groupKey);
+    df.interpolate = () => interpolate(df);
+    df.reindex = (stepFn) => reindex(df, stepFn);
 
     // has/get/set/info
     df.has = df.data.has;
@@ -47,6 +56,7 @@ function attachMethods(df) {
     df.getByObjOrStr = df.data.getByObjOrStr;
     df.set = df.data.set;
     df.setByKeyStr = df.data.setByKeyStr;
+    df.keys = df.data.keys;
     df.values = df.data.values;
     df.extent = (concept) => extent(df, concept);
     df.delete = df.data.delete;

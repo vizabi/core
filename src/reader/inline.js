@@ -2,20 +2,22 @@ import { DataFrame } from "../dataframe/dataFrame";
 import { relativeComplement } from "../core/utils";
 
 
-export function inlineReader({ values = [], keyConcepts = [] }) {
-    const dataPromise = Promise.resolve(values).then(DataFrame);
+export function inlineReader({ values = [], keyConcepts = [], dtypes }) {
+    const dataPromise = Promise.resolve(values)
+        .then(parse(dtypes))
+        .then(DataFrame);
 
     return {
         async read(query) {
-            let source = await dataPromise;
+            let data = await dataPromise;
 
             if (isConceptQuery(query))
-                source = DataFrame(getConcepts(source), ["concept"]);
+                data = DataFrame(getConcepts(data), ["concept"]);
 
             if (isSchemaQuery(query))
-                source = DataFrame(getSchema(source, query, keyConcepts), ["key","value"]);
+                data = DataFrame(getSchema(data, query, keyConcepts), ["key","value"]);
 
-            return applyQuery(source, query);
+            return applyQuery(data, query);
         },
         getAsset(assetId) {
             console.warn('Inline reader does not support assets', { assetId })
@@ -34,16 +36,16 @@ function isConceptQuery(query) {
     return "from" in query && query.from == "concepts";
 }
 
+function isSchemaQuery(query) {
+    return "from" in query && query.from.endsWith('.schema');
+}
+
 function getConcepts(data) {
     const types = getTypes(data);
     return data.fields.map(concept => ({
         concept,
         concept_type: types.get(concept)
     }));
-}
-
-function isSchemaQuery(query) {
-    return "from" in query && query.from.endsWith('.schema');
 }
 
 function getSchema(data, { from }, keyConcepts) {
@@ -78,6 +80,76 @@ function applyQuery(data, query) {
     return result;
 }
 
+/*
+{
+    year: { timeFormat: "%Y", locale: "ru-RU" }
+    pop: number
+}
+*/
+function parse(dtypes) {
+    const parseRow = parserFromDtypes(dtypes);
+    return function(data) {
+        let row;
+        for (row of data) {
+            parseRow(row); // in place
+        }
+        return data;
+    }
+}
+
+const dtypeParsers = {
+    string: d => d,
+    number: d => +d,
+    auto: autoParse,
+    year: d3.utcParse("%Y"),
+    month: d3.utcParse("%Y-%m"),
+    day: d3.utcParse("%Y-%m-%d")
+}
+
+function parserFromDtypes(dtypes) {
+
+    if (dtypes == "auto") 
+        return d3.autoType;
+
+    // create field parsers
+    const parsers = {};
+    let field;
+    
+    for (field in dtypes) {
+        const dtype = dtypes[field];
+
+        let parser;
+        if (dtype in dtypeParsers) parser = dtypeParsers[dtype];
+        if ("timeFormat" in dtype) parser = d3.timeParse(dtype.timeFormat);
+
+        if (!parser) console.warn('Unknown date type given, fall back to identity parser.', dtype);
+        parsers[dtype] = parser || (d => d);
+    }
+
+    // return row parser
+    return (row) => {
+        let parse, field;
+        for (field in row) {
+            if (parse = parsers[field]) 
+                row[field] = parse(row[field]);
+        }
+    }
+}
+
+/**
+ * Parse string to js primitives or Date. Based on d3.autoType
+ * @param {any} value Value to be parsed 
+ */
+function autoParse(value) {
+    var value = value.trim(), number;
+    if (!value) value = null;
+    else if (value === "true") value = true;
+    else if (value === "false") value = false;
+    else if (value === "NaN") value = NaN;
+    else if (!isNaN(number = +value)) value = number;
+    else if (/^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)) value = new Date(value);
+    return value;
+}
 
 function getTypes(data) {
     const types = new Map();

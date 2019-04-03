@@ -31,11 +31,6 @@ vizabi.dataSource = (cfg, id) =>{
         };
     }
 
-    // create observable cfg and prevent deep observable on values
-    const decorator = {};
-    if ("values" in cfg) decorator.values = observable.ref;
-    cfg = observable(cfg, decorator); 
-
     return dataSourceStore.set(cfg, id);
 } 
 vizabi.marker = (cfg, id) => {

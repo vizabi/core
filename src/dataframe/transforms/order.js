@@ -31,6 +31,8 @@ export function order(df, order_by = []) {
  * @param {} order 
  */
 function normalizeOrder(order_by) {
+    if (typeof order_by === "string") 
+        return [{ concept: order_by, direction: directions.ascending }];
     return order_by.map(orderPart => {
         if (typeof orderPart == "string") {
             return { concept: orderPart, direction: directions.ascending };
