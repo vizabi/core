@@ -1,8 +1,10 @@
 import { baseEncoding } from './baseEncoding';
 import { action, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, createMarkerKey, applyDefaults, relativeComplement, configValue, parseConfigValue, equals, getTimeInterval } from '../utils';
+import { assign, createMarkerKey, applyDefaults, relativeComplement, configValue, parseConfigValue, equals, getTimeInterval, mapToObj } from '../utils';
 import { encodingStore } from './encodingStore';
+import DataFrame from '../../dataframe/dataFrame';
+import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 //import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
@@ -31,7 +33,8 @@ const functions = {
         return value; 
     },
     get index() {
-        return this.stepArray.indexOf(configValue(this.value, this.data.conceptProps));
+        const value = this.value;
+        return this.stepArray.findIndex(stepVal => equals(stepVal, value));
     },
     get stepArray() {
         return [...this.stepFn()];
@@ -69,20 +72,19 @@ const functions = {
         const domain = this.scale.domain;
         let interval;
         if (interval = getTimeInterval(stepUnit)) {
-            const concept = this.data.conceptProps;
+            const prop = this.prop;
             return function* (min = domain[0], max = domain[1]) { 
                 for (let i = min; i <= max; i = interval.offset(i, stepSize) )
-                    yield configValue(i, concept);
+                    yield i;
             };
-        } else if (stepUnit == "number") {
+        } else if (stepUnit === "number") {
             return function* (min = domain[0], max = domain[1]) { 
                 for (let i = min; i <= max; i += stepSize)
-                    yield i + "";
+                    yield i;
             };
-        } else if (stepUnit == "index") {
+        } else if (stepUnit === "index") {
             return function* (min, max = domain.length) {
-                if (typeof min == undefined) min = 0;
-                else min = domain.indexOf(min);
+                min = (min === undefined) ? 0 : domain.indexOf(min);
                 for (let i = min; i < max; i += stepSize)
                     yield domain[i];
             }
@@ -139,7 +141,7 @@ const functions = {
             if (nxt.done) {
                 if (this.loop) {
                     this.setValue(this.scale.domain[0]);
-                    this.nextValGen = this.stepFn(this.value);
+                    this.nextValGen = this.stepFn();
                 } else {
                     this.stopPlaying();
                 }
@@ -163,28 +165,21 @@ const functions = {
         else
             return this.frameMapCache;
     },
-    get frameMapArray() {
+    get currentFrame() {
         //trace();
-        const frames = new Map();
-        for (let [frameId, markers] of this.frameMap) {
-            frames.set(frameId, [...markers.values()]);
-        }
-        return frames;
-    },
-    get currentFrame() { return this.currentFrameFromMap(this.frameMap, new Map()) },
-    get currentFrameArray() { return this.currentFrameFromMap(this.frameMapArray, []) },
-    currentFrameFromMap(map, empty) {
-        //trace();
-        
+        const map = this.marker.filteredOrderedDataMap;
         if (map.has(this.frameKey)) {
             return map.get(this.frameKey);
         } else {
             console.warn("Frame value not found in frame map", this)
-            return empty;
+            return new Map();
         }
     },
+    get prop() {
+        return this.marker.getPropForEncoding(this);
+    },
     get frameKey() {
-        return createMarkerKey({ [this.data.concept]: this.value }, [this.data.concept]);
+        return createMarkerKey({ [this.prop]: this.value });
     },
     get rowKey() {
         // remove frame concept from key if it's in there
@@ -193,17 +188,29 @@ const functions = {
     },
     get frameMapCache() {
         let result = this.marker.dataMapCache;
-        const prop = this.marker.getPropForEncoding(this);
+        const concept = this.data.concept;
+        const prop = this.prop;
 
-        if (this.interpolate)
+        if (this.interpolate) {
             result = result
-                .group(this.rowKey, [prop])
-                .order([prop])
-                .reindex(this.stepFn)
-                .interpolate()
+                .group(this.rowKey, [this.prop])
+                .reindex(this.stepFn) // reindex also orders (needed for interpolation)
+                .each((group, groupKey) => { 
+                    // fill result key nulls after reindex
+                    const fillFns = {};
+                    result.key.forEach(dim => {
+                        if (dim in groupKey)
+                            fillFns[dim] = groupKey[dim];
+                        if (dim == concept)
+                            fillFns[dim] = row => row[prop]; 
+                    })
+                    group.fillNull(fillFns)
+                })
+                .interpolate() // fill rest of nulls through interpolation
                 .flatten();
+        }
 
-        result = result.group(prop, this.rowKey);
+        result = result.group(this.prop, this.rowKey);
 
         const orderEnc = this.marker.encoding.get("order");
         if (orderEnc)
@@ -231,28 +238,32 @@ const functions = {
             }
         }
 
+
         // add trails to frames
-        const newFrameMap = new Map();
+        const prop = this.prop;
+        const newFrameMap = DataFrameGroup([], [prop], this.rowKey);
         for (let [id, frame] of frameMap) {
-            const newFrame = new Map();
+            const newFrame = DataFrame([], frame.key);
             for (let [markerKey, markerData] of frame) {
                 // insert trails before its head marker
                 if (trails.has(markerKey)) {
                     const trail = trails.get(markerKey);
                     const trailStart = this.trail.starts[markerKey];
+                    const trailEnd = markerData[prop];
                     // add trail markers in ascending order
-                    for (let i = trailStart; i < id; i++) {
-                        const trailMarker = trail.get(i); 
-                        const newKey = markerKey + '-' + this.data.concept + '-' + i;
+                    for (let i of this.stepFn(trailStart, trailEnd)) {
+                        if (equals(i, trailEnd)) break; // skip last trail bubble (= actual marker)
+                        const trailMarker = trail.get(createMarkerKey({ [prop]: i })); 
+                        const newKey = markerKey + '-' + prop + '-' + i;
                         const newData = Object.assign({}, trailMarker, {
                             [Symbol.for('key')]: newKey,
                             [Symbol.for('trailHeadKey')]: markerKey
                         });
-                        newFrame.set(newKey, newData);
+                        newFrame.setByKeyStr(newKey, newData);
                     }
                 }
                 // (head) marker
-                newFrame.set(markerKey, markerData);
+                newFrame.setByKeyStr(markerKey, markerData);
             }
             newFrameMap.set(id, newFrame);
         }

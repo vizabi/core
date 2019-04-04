@@ -1,4 +1,4 @@
-import { normalizeKey, mapToObj, arrayEquals } from "../core/utils";
+import { normalizeKey, mapToObj, arrayEquals, isNonNullObject } from "../core/utils";
 import { order } from "./transforms/order";
 import { fullJoin } from "./transforms/fulljoin";
 import { DataFrameStorageMap } from "./storage/map";
@@ -48,6 +48,7 @@ function attachMethods(df) {
     df.group = (groupBy, groupKey) => group(df, groupBy, groupKey);
     df.interpolate = () => interpolate(df);
     df.reindex = (stepFn) => reindex(df, stepFn);
+    df.fillNull = (fillValues) => fillNull(df, fillValues);
 
     // has/get/set/info
     df.has = df.data.has;
@@ -83,4 +84,34 @@ function extent(df, concept) {
         }
     }
     return [min, max];
+}
+
+function fillNull(df, fillValues) {
+    let concept, row;
+    if (isNonNullObject(fillValues)) {
+        for (concept in fillValues) {
+            const fillValue = fillValues[concept];
+            if (typeof fillValue == "function") {
+                for (row of df.values()) {
+                    if (row[concept] === null)
+                        row[concept] = fillValue(row);
+                }
+            }
+            else {
+                for (row of df.values()) {
+                    if (row[concept] === null)
+                        row[concept] = fillValue;
+                }
+            }
+        }
+    }
+    else {
+        for (row of df.values()) {
+            for (concept in row) {
+                if (row[concept] === null)
+                    row[concept] = fillValues;
+            }
+        }
+    }
+    return df;
 }

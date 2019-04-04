@@ -35,28 +35,70 @@ const escapechar = "\\";
 const joinchar = "-";
 const dblescape = escapechar + escapechar;
 const joinescape = escapechar + joinchar;
-var esc = str => isNumeric(str) ? str : replace(replace(str, escapechar, dblescape), joinchar, joinescape);
+export var esc = str => isNumeric(str) ? str : replace(replace(str, escapechar, dblescape), joinchar, joinescape);
 
 // jsperf of key-creation options. Simple concat hash + escaping wins: https://jsperf.com/shallow-hash-of-object
 // for loop is faster than keys.map().join('-');
 // but in Edge, json.stringify is faster
 // pre-escaped space would add extra performance
 const createDimKeyStr = (dim, dimVal) => {
-    if (dimVal instanceof Date) dimVal = dimVal.getTime();
+    if (dimVal instanceof Date) dimVal = dimVal.toISOString();
     return esc(dim) + joinchar + esc(dimVal);
 }
 export const createMarkerKey = (row, space = Object.keys(row).sort()) => {
     const l = space.length;
 
-    if (l===1)
-        return row[space[0]]+"";
-
+/*    if (l===1)
+        return createDimKeyStr(space[0],row[space[0]]+"";
+*/
     var res = (l > 0) ? createDimKeyStr(space[0], row[space[0]]) : '';
     for (var i = 1; i < l; i++) {
         res += joinchar + createDimKeyStr(space[i], row[space[i]]);
     }
     return res
 }
+
+export function parseMarkerKey(str) {
+    // "remove" escaping by splitting to be able to split on actual joins
+    // then, put it back together
+    var parts = str.split(dblescape).map(
+        s => s.split(joinescape).map(
+            s => s.split(joinchar)
+        )
+    )
+    var values = [];
+    var val = '';
+    for (let i = 0; i < parts.length; i++) {
+        for (let j = 0; j < parts[i].length; j++) {
+            for (let k = 0; k < parts[i][j].length; k++) {
+                // double escape found, glue again with escape char
+                if (j === 0 && k === 0) {
+                    if (i !== 0) val += escapechar;
+                    val += parts[i][j][k];
+                } 
+                // joinescape found, glue again with join char
+                else if (k === 0) {
+                    if (j !== 0) val += joinchar;
+                    val += parts[i][j][k]
+                }
+                // actual joinchar found, correct split
+                else {
+                    values.push(val);
+                    val = parts[i][j][k];    
+                }
+            }
+        }
+    }
+    values.push(val);
+
+    // create key, odd is dim, even is dimension value
+    const key = {};
+    for (let i = 0; i < values.length; i += 2) {
+        key[values[i]] = values[i+1];
+    }
+    return key;
+}
+
 
 export function normalizeKey(key) {
     return key.slice(0).sort();
@@ -291,6 +333,15 @@ export function equals(a,b) {
         return a.getTime() === b.getTime();
     }
     return a === b;
+}
+
+export function pick(object, keys) {
+    return keys.reduce((obj, key) => {
+        if (object[key]) {
+            obj[key] = object[key];
+        }
+        return obj;
+        }, {});
 }
 
 

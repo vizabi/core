@@ -74,7 +74,7 @@ let functions = {
 
         console.warn("No encoding found and marker data source has no default encodings");
     },
-    // TODO: encodings should know the property they encode to themselves; not sure how to pass genericly yet 
+    // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet 
     getPropForEncoding(encoding) {
         for (let [prop, enc] of this.encoding) {
             if (enc == encoding) return prop;
@@ -164,6 +164,8 @@ let functions = {
             dataMap = dataMap.addColumn(prop, row => row[concept]);
         });
 
+
+
         // TODO: this should only happen áfter interpolation
         this.checkImportantEncodings(dataMap);
 
@@ -180,18 +182,24 @@ let functions = {
     isImportant(prop) {
         return this.important.length == 0 || this.important.includes(prop)
     },
-    get dataMap() {
+    get filteredOrderedDataMap() {
         //trace();
 
+        const frameEnc = this.encoding.get("frame");
+        let df = frameEnc ? frameEnc.frameMap : this.dataMapCache;
+        
+        const orderEnc = this.encoding.get("order");
+        if (orderEnc) df = orderEnc.order(df);
+
+        const important = this.important;
+        df = df.filter(row => important.every(prop => row.hasOwnProperty(prop) && row[prop] !== null))
+
+        return df;
+    },
+    get dataMap() {
         const frameEnc = this.encoding.get("frame") || {};
         const frame = frameEnc.currentFrame;
-        if (frame) {
-            return frame;
-        } else {
-            const dataMap = this.dataMapCache;
-            const orderEnc = this.encoding.get("order");
-            return orderEnc ? orderEnc.order(dataMap) : dataMap;
-        }
+        return frame ? frame : this.filteredOrderedDataMap;
     },
     get dataArray() {
         //trace();
