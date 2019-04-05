@@ -1,18 +1,19 @@
 import { baseEncoding } from './baseEncoding';
 import { defaultDecorator, isString } from '../utils';
 
-const defaultConfig = {};
 const directions = {
     ascending: "ascending",
     descending: "descencding"
 }
+const defaults = {
+    direction: directions.ascending
+}
 
 export const order = defaultDecorator({
     base: baseEncoding,
-    defaultConfig,
     functions: {
         get direction() {
-            return this.data.config.direction || directions.ascending;
+            return this.data.config.direction || defaults.direction;
         },
         order(df) {
             const prop = this.marker.getPropForEncoding(this);

@@ -1,12 +1,16 @@
 
 import { DataFrame } from "./dataFrame";
-import { relativeComplement, arrayEquals, createMarkerKey } from "../core/utils";
+import { arrayEquals, createMarkerKey, pick, parseMarkerKey } from "../core/utils";
 import { interpolate } from "./transforms/interpolate";
 import { order } from "./transforms/order";
 import { reindex } from "./transforms/reindex";
+import { filter } from "./transforms/filter";
 
 
 export function DataFrameGroup(df, groupKey, rowKey = df.key) {
+
+    if (Array.isArray(df))
+        df = DataFrame(df, rowKey);
 
     if (!Array.isArray(groupKey)) 
         groupKey = [groupKey];
@@ -21,8 +25,7 @@ export function DataFrameGroup(df, groupKey, rowKey = df.key) {
     const emptyKey = rowKey.length == 0;
     const rowKeyFn = emptyKey ? rangeIndex(0) : createMarkerKey;
     for (let [rowKeyStr, row] of df) {
-        const groupKeyStr = createMarkerKey(row, groupKey);
-        const group = getOrCreateGroup(groupMap, groupKeyStr, groupCreate);
+        const group = getOrCreateGroup(groupMap, groupKey, row, groupCreate);
         if (diffKey) {
             rowKeyStr = rowKeyFn(row, rowKey)
             row[Symbol.for('key')] = rowKeyStr;
@@ -41,7 +44,9 @@ export function DataFrameGroup(df, groupKey, rowKey = df.key) {
 function createGroupingObj(groupMap, df) {
     const grouping = {}
     grouping.groupMap = groupMap;
+    grouping.each = (fn) => each(grouping, fn);
     grouping.interpolate = map(grouping, interpolate);
+    grouping.filter = map(grouping, filter);
     grouping.order = map(grouping, order);
     grouping.reindex = map(grouping, reindex);
     grouping.flatten = (key=df.key) => flatten(grouping, key);
@@ -51,6 +56,13 @@ function createGroupingObj(groupMap, df) {
     grouping.get = groupMap.get.bind(groupMap);
     grouping.keys = groupMap.keys.bind(groupMap);
     grouping.values = groupMap.values.bind(groupMap);
+    return grouping;
+}
+
+function each(grouping, fn) {
+    for (let [key, df] of grouping) {
+        fn(df, parseMarkerKey(key));
+    }
     return grouping;
 }
 
@@ -69,12 +81,14 @@ function map(grouping, fn) {
  * @param {*} groupByKey
  * @param {*} createGroup 
  */
-function getOrCreateGroup(groups, groupByKey, createGroup) {
-    if (groups.has(groupByKey)) {
-        return groups.get(groupByKey);
+function getOrCreateGroup(groups, groupKeyDims, row, createGroup) {
+    const groupKeyStr = createMarkerKey(row, groupKeyDims);
+    if (groups.has(groupKeyStr)) {
+        return groups.get(groupKeyStr);
     } else {
         const group = createGroup();
-        groups.set(groupByKey, group);
+        group.groupKey = pick(row, groupKeyDims);
+        groups.set(groupKeyStr, group);
         return group;
     }
 }

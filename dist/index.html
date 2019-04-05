@@ -444,7 +444,7 @@ function chart() {
                     if (frameConfig.trail.show) {
                         const trailStart = frameConfig.trail.starts[key];
                         // if this bubble is trail start bubble
-                        if (trailStart == d[frameConfig.data.concept])
+                        if (Vizabi.utils.equals(trailStart, d[frameConfig.data.concept]))
                             labelStr = labelAll(d);
                         else if (highlightFilter.has(d)) {
                             labelStr = labelOnlyFrame(d);

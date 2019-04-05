@@ -21,8 +21,8 @@ function interpolateField(df, field) {
             // fill gap if it exists and is inner
             if (prevVal != null && gapRows.length > 0) {
                 interpolateGap(gapRows, prevVal, row[field], field);
-                gapRows = [];
             }
+            gapRows = [];
             prevVal = row[field];
         }
     }
