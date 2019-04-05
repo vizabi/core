@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<div id="container"></div>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega@4"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@3"></script>
+<script src="Vizabi.js"></script>
+<script src="vizabi-ddfcsv-reader.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.js"></script>
+<script>
+var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
+Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
+
+  
+//* * * * * * *
+//hello world
+//* * * * * * *
+//var source = Vizabi.dataSource([{ foo: "Hello world"}]);
+//var marker = Vizabi.marker({
+//  data: { source: source },
+//  encoding: {
+//    text: { data: { concept: "foo" } }
+//  }
+//});
+//
+//marker.on('fulfilled', draw);
+//
+//function draw(data) {
+//  d3.select('#container').html(JSON.stringify(data));
+//}
+  
+  
+//* * * * * * *
+//using a constant
+//* * * * * * *
+//var source = Vizabi.dataSource([{ foo: "Hello world"}]);
+//var marker = Vizabi.marker({
+//  data: { source: source },
+//  encoding: {
+//    text: { data: { concept: "foo" } },
+//    color: { data: { constant: "#FF44AA" } }
+//  }
+//});
+//
+//marker.on('fulfilled', draw);
+//
+//function draw(data) {
+//  d3.select('#container')
+//    .style("color", data[0].color)
+//    .html(data[0].text);
+//}
+  
+//* * * * * * *
+//model updates
+//* * * * * * *
+//var source = Vizabi.dataSource([{ foo: "Hello world"}]);
+//var marker = Vizabi.marker({
+//  data: { source: source },
+//  encoding: {
+//    text: { data: { concept: "foo" } },
+//    color: { data: { constant: "#FF44AA" } }
+//  }
+//});
+//
+//marker.on('fulfilled', draw);
+//
+//function draw(data) {
+//  d3.select('#container')
+//    .style("color", data[0].color)
+//    .html(data[0].text);
+//}
+//  
+//setInterval(function(){
+//  marker.config.encoding.color.data.constant = getRandomColor();
+//},500);
+//
+//var getRandomColor = function(){return '#'+Math.random().toString(16).substr(-6)};
+//  
+  
+//* * * * * * *
+//animation
+//* * * * * * *
+//var source = Vizabi.dataSource(
+//  [
+//    {"weather": "🌧", "day": 1},
+//    {"weather": "☁️", "day": 2},
+//    {"weather": "🌦", "day": 3},
+//    {"weather": "🌥", "day": 4},
+//    {"weather": "⛅️", "day": 5},
+//    {"weather": "🌤", "day": 6},
+//    {"weather": "☀️", "day": 7}
+//  ]
+//);
+//  
+//var marker = Vizabi.marker({
+//  data: { source: source },
+//  encoding: {
+//    text: { data: { concept: "weather" } },
+//    frame: {
+//      modelType: "frame",
+//      value: 1,
+//      speed: 500,
+//      data: { concept: "day" }
+//    }
+//  }
+//});
+//
+//marker.on('fulfilled', draw);
+//
+//function draw(data) {
+//  d3.select('#container').select("button").text(data[0].text);
+//}
+//d3.select('#container').append("button").on("click", () => marker.encoding.get("frame").togglePlaying());
+  
+  
+  
+//* * * * * * *
+//line chart gets all data together but still plays over years
+//* * * * * * *
+//const N = 1000;
+//var source = Vizabi.dataSource(
+//  d3.range(N).map((m, i) => ({"weather": i/N * Math.random()*5 + Math.sin(2 * i/N*2*Math.PI)*7, "day": i}) )
+//);
+//  
+//var marker = Vizabi.marker({
+//  data: { source: source },
+//  encoding: {
+//    y: { data: { concept: "weather" } },
+//    x: { data: { concept: "day" } },
+//    frame: {
+//      modelType: "frame",
+//      value: 1,
+//      speed: 1,
+//      data: { concept: "day" }
+//    }
+//  }
+//});
+//
+//marker.on('fulfilled', draw);
+//
+//var xScale = d3.scaleLinear().domain([0, N]).range([0, 500]);
+//var yScale = d3.scaleLinear().domain([-10, 10]).range([0, 500]);
+//  
+//var path = d3.select('#container').append("svg")
+//  .attr("width", 500)
+//  .attr("height", 500)
+//  .style("fill", "none")
+//  .style("stroke", "pink")
+//  .append("path");
+//
+//var line = d3.line()
+//  .x(d => xScale(d.x)) 
+//  .y(d => yScale(d.y));
+//  
+//function draw() {
+//  const t = marker.encoding.get("frame").value;
+//  data = [...marker.dataMapCache.order(["x"]).values()].slice(0, t);
+//  
+//  path.datum(data) 
+//    .attr("d", line);  
+//}
+//d3.select('#container').append("button").text("Play").on("click", () => marker.encoding.get("frame").togglePlaying());
+  
+  
+
+
+  
+  
+//* * * * * * *
+// SIMPLE BAR CHART
+//* * * * * * *
+//var data = Vizabi.dataSource({
+//  modelType: "ddfcsv",
+//  path: "./ddf--jheeffer--mdtest/"
+//});
+//var marker = Vizabi.marker({
+//  data: {
+//    source: data,
+//    space: ["country"]
+//  },
+//  encoding: {
+//    "x": {
+//      data: {
+//        concept: "country"
+//      },
+//    },
+//    "y": {
+//      data: {
+//        concept: "life_expectancy",
+//        space: ["country", "time"],
+//        filter: {
+//          dimensions: {
+//            time: {
+//                "time": { "$eq": 2000 }
+//            }
+//          }
+//        }        
+//        
+//      }
+//    }
+//  }
+//});
+//  
+//
+//  
+//var margin = {top: 20, right: 20, bottom: 70, left: 40},
+//    width = 600 - margin.left - margin.right,
+//    height = 300 - margin.top - margin.bottom;
+//
+//
+//var x = d3.scaleBand().range([0, width], .05);
+//
+//var y = d3.scaleLinear().range([height, 0]);
+//
+//var xAxis = d3.axisBottom()
+//    .scale(x);
+//
+//var yAxis = d3.axisLeft()
+//    .scale(y);
+//
+//var svg = d3.select("body").append("svg")
+//    .attr("width", width + margin.left + margin.right)
+//    .attr("height", height + margin.top + margin.bottom)
+//  .append("g")
+//    .attr("transform", 
+//          "translate(" + margin.left + "," + margin.top + ")");
+//  
+//  
+//function draw(data) {
+//	
+//  x.domain(data.map(d => d.x));
+//  y.domain(d3.extent(data.map(d => d.y)));
+//  svg.selectAll("rect, g").remove();
+//                     
+//  svg.append("g")
+//      .attr("class", "x axis")
+//      .attr("transform", "translate(0," + height + ")")
+//      .call(xAxis)
+//    .selectAll("text")
+//      .style("text-anchor", "end")
+//      .attr("dx", "-.8em")
+//      .attr("dy", "-.55em")
+//      .attr("transform", "rotate(-90)" );
+//
+//  svg.append("g")
+//      .attr("class", "y axis")
+//      .call(yAxis)
+//    .append("text")
+//      .attr("transform", "rotate(-90)")
+//      .attr("y", 6)
+//      .attr("dy", ".71em")
+//      .style("text-anchor", "end")
+//      .text("Value ($)");
+//
+//  
+//  svg.selectAll("rect")
+//      .data(data)
+//    .enter().append("rect")
+//      .style("fill", "steelblue")
+//      .attr("x", d => x(d.x))
+//      .attr("width", x.bandwidth())
+//      .attr("y", d => y(d.y))
+//      .attr("height", d => (height - y(d.y)));
+//
+//}
+//
+//  
+//marker.on('fulfilled', draw);
+  
+
+  
+//* * * * * * *
+// VEGA BAR CHART  
+//* * * * * * *
+var data = Vizabi.dataSource({
+  modelType: "ddfcsv",
+  path: "./ddf--jheeffer--mdtest/"
+});
+
+
+const arrayUnique = function (array, map = data => data) {
+  const uniqueValues = {};
+
+  return array.filter(item => {
+    const value = map(item);
+
+    if (uniqueValues.hasOwnProperty(value)) {
+      return false;
+    }
+
+    uniqueValues[value] = 1;
+
+    return true;
+  });
+};
+
+function filterApplies(row, filter) {
+
+  // implicit $and in filter object handled by .every()
+  return Object.keys(filter).every(filterKey => {
+      if (operator = operators.get(filterKey)) {
+          // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
+          return operator(row, filter[filterKey]);
+      } else if(typeof filter[filterKey] != "object") { // assuming values are primitives not Number/Boolean/String objects
+          // { <field>: <value> } is shorthand for { <field>: { $eq: <value> }} 
+          return operators.get("$eq")(row[filterKey], filter[filterKey]);
+      } else {
+          // filter[filterKey] is an object and will thus contain a comparison operator
+          // { <field>: { $<operator>: <value> }}
+          // no deep objects (like in Mongo) supported:
+          // { <field>: { <subfield>: { ... } } }
+          return filterApplies(row[filterKey], filter[filterKey]);
+      }
+  });
+}
+
+const operators = new Map([
+/* logical operators */
+["$and", (row, predicates) => predicates.every(p => filterApplies(row,p))],
+["$or",  (row, predicates) => predicates.some(p => filterApplies(row,p))],
+["$not", (row, predicate) => !filterApplies(row, predicate)],
+["$nor", (row, predicates) => !predicates.some(p => filterApplies(row,p))],
+
+/* comparison operators */
+["$eq",  (rowValue, filterValue) => rowValue == filterValue],
+["$ne",  (rowValue, filterValue) => rowValue != filterValue],
+["$gt",  (rowValue, filterValue) => rowValue > filterValue],
+["$gte", (rowValue, filterValue) => rowValue >= filterValue],
+["$lt",  (rowValue, filterValue) => rowValue < filterValue],
+["$lte", (rowValue, filterValue) => rowValue <= filterValue],
+["$in",  (rowValue, filterValue) => filterValue.includes(rowValue)],
+["$nin", (rowValue, filterValue) => !filterValue.includes(rowValue)],
+]);
+
+var initialMarkerConfig = {
+  data: {
+    source: data,
+    space: {
+      autoconfig: {
+          concept: {
+            $nin: ["age"]
+          }
+      }
+    }
+  },
+  encoding: {
+    "x": {
+      data: {
+        concept: {
+          autoconfig: {
+            concept_type: {
+              $or: ["entity_domain", "entity_set"]
+            }
+          }
+        }
+      }
+    },
+    "y": {
+      data: {
+        concept: {
+          autoconfig: {
+            concept_type: "measure"
+          }
+        }
+      }
+    },
+    "color": {
+      data: {
+        concept: {
+          autoconfig: {
+            concept_type: "measure"
+          }
+        }
+      }
+    },
+    frame: {
+      modelType: "frame",
+      data: {
+        concept: {
+          autoconfig: {
+            concept_type: "time"
+          }
+        }
+      }
+    }
+  }
+};
+
+
+
+
+
+
+
+  /* make marker config out of av and concpets and  */
+  var marker = Vizabi.marker(initialMarkerConfig);
+
+
+
+
+
+
+//should autoconfig always step in when data: concept is not defined in encodings or if marker space is not defined
+//how to limit concepts choice by scale types
+//autoconfig scaletype of encoding from concept props
+
+//axes can allow time to show up, size should not
+//color should resolve nicely to constant
+//what to do with labels that have reduced dimensionality
+//label should resolve nicely to something... name?
+
+/*
+
+//axis but not size
+autoconfigResult = this._parent.getAvailableConcept(this.autoconfig) || this._parent.getAvailableConcept({ type: "time" });
+this._super(autoconfigResult);
+  
+//label
+autoconfigResult = this._parent.getAvailableConcept(this.autoconfig) || this._parent.getAvailableConcept({ type: "entity_domain" });
+this._super(autoconfigResult);
+
+//hook
+autoconfigureModel(autoconfigResult) {
+  if (!this.which && this.autoconfig) {
+    if (!autoconfigResult) autoconfigResult = this._parent.getAvailableConcept(this.autoconfig);
+
+    if (autoconfigResult) {
+      const concept = autoconfigResult.value;
+      const obj = {
+        //dataSource: autoconfigResult.dataSource,
+        which: concept.concept,
+        use: ((autoconfigResult.key.size || autoconfigResult.key.length) > 1 || this.autoconfig.type === "time") ? "indicator" : "property",
+        scaleType: concept.scales[0] || "linear"
+      };
+      this.set(obj);
+    } else {
+      const obj = {
+        which: "_default",
+        use: "constant",
+        scaleType: "ordinal"
+      };
+      this.set(obj);
+    }
+
+    utils.printAutoconfigResult(this);
+  }
+}
+
+*/
+
+
+
+
+  
+
+const spec = {
+  "$schema": "https://vega.github.io/schema/vega/v4.0.json",
+  "width": 800,
+  "height": 400,
+  "padding": 0,
+
+  "data": [
+    {
+      "name": "table",
+      "values": []
+    }
+  ],
+
+  "signals": [
+    {
+      "name": "tooltip",
+      "value": {},
+      "on": [
+        {"events": "rect:mouseover", "update": "datum"},
+        {"events": "rect:mouseout",  "update": "{}"}
+      ]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "cscale",
+      "domain": {"data": "table", "field": "color"},
+      "range": {"scheme": "magma"}
+    },
+    {
+      "name": "xscale",
+      "type": "band",
+      "domain": {"data": "table", "field": "x"},
+      "range": "width"
+    },
+    {
+      "name": "yscale",
+      "domain": {"data": "table", "field": "y"},
+      "nice": true,
+      "range": "height"
+    }
+  ],
+
+  "axes": [
+    { "orient": "bottom", "scale": "xscale" },
+    { "orient": "left", "scale": "yscale" }
+  ],
+
+  "marks": [
+    {
+      "type": "rect",
+      "from": {"data":"table"},
+      "encode": {
+        "enter": {
+          "x": {"scale": "xscale", "field": "x", "offset": 0},
+          "width": {"scale": "xscale", "band": 1, "offset": 0},
+          "y": {"scale": "yscale", "field": "y"},
+          "y2": {"scale": "yscale", "value": 0}
+        },
+        "update": {
+          "fill": {"signal": "datum.color ? scale('cscale', datum.color) : '#FF33AA' "}
+        },
+        "hover": {
+          "fill": {"value": "red"}
+        }
+      }
+    },
+    {
+      "type": "text",
+      "encode": {
+        "enter": {
+          "align": {"value": "center"},
+          "baseline": {"value": "bottom"},
+          "fill": {"value": "#333"}
+        },
+        "update": {
+          "x": {"scale": "xscale", "signal": "tooltip.x", "band": 0.5},
+          "y": {"scale": "yscale", "signal": "tooltip.y", "offset": -2},
+          "text": {"signal": "tooltip.y"},
+          "fillOpacity": [
+            {"test": "datum === tooltip", "value": 0},
+            {"value": 1}
+          ]
+        }
+      }
+    }
+  ]
+}
+
+var view = null;
+
+vegaEmbed('#container', spec)
+  // result.view provides access to the Vega View API
+  .then(result => view = result.view)
+  .catch(console.warn);
+  
+  
+var availability = [];
+var spaces = [];
+  
+
+
+  
+marker.on('fulfilled', draw);
+function draw(data) {
+  
+  data.forEach(d => d.x = d[Symbol.for("key")]);
+  
+  // Changeset needs to remove everything first, then insert new data
+  let changeset = vega.changeset().remove(() => true).insert(data);
+  // For some reason source_0 is the default dataset name
+  view.change('table', changeset).run()
+
+  
+  spaces = marker.spaceAvailability;
+  availability = marker.availability.filter(f=>f.value.concept_type=="measure")
+    .filter(f => Vizabi.utils.arrayEquals(f.key, marker.data.space));
+  
+  if(marker.config.encoding.frame) d3.select(".yearlabel").text(marker.config.encoding.frame.value);
+
+  const indicatorOptionsEl = d3.select(".indicatorpicker").select("select")
+    .selectAll("option").data(availability);  
+  
+  indicatorOptionsEl.exit().remove();
+  
+  indicatorOptionsEl.enter().append("option")
+    .merge(indicatorOptionsEl)
+    .attr("value", (d,i) => i)
+    .text(d => "[" + d.key.join(", ") + "] " + d.value.name)
+    .property("selected", d => d.value.concept == marker.config.encoding.y.data.concept);
+  
+  
+  const spaceOptionsEl = d3.select(".spacepicker").select("select")
+    .selectAll("option").data(spaces); 
+  
+  spaceOptionsEl.exit().remove();
+  
+  spaceOptionsEl.enter().append("option")
+    .merge(spaceOptionsEl)
+    .attr("value", (d,i) => i)
+    .text(d => "[" + d.join(", ") + "]")
+    .property("selected", d => Vizabi.utils.arrayEquals(d, marker.data.space));
+}
+
+
+
+var controls = d3.select("body").append("div").attr("class", "controls");
+  
+controls.append("div").append("input")
+  .attr("type", "range")
+  .style("width", spec.width + "px")
+  .attr("min", 1960)
+  .attr("max", 2010)
+  .attr("value", 2000)
+  .on("change", function(){
+    if (marker.config.encoding.frame) marker.config.encoding.frame.value = +this.value;
+  });
+  
+controls.append("div").attr("class", "yearlabel");
+controls.append("div").attr("class", "spacepicker").append("select")
+  .on("change", function(d){
+    marker.config.data.space = spaces[this.value];
+  });
+  
+controls.append("div").attr("class", "indicatorpicker").append("select")
+  .on("change", function(d){
+    marker.config.encoding.y.data.concept = availability[this.value].value.concept;
+  });
+  
+  
+  
+</script>

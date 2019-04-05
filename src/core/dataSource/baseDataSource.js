@@ -106,7 +106,7 @@ const functions = {
     get conceptsPromise() {
         
         const createConceptsPromise = () => {
-            const concepts = ["name", "domain", "concept_type"];
+            const concepts = ["name", "domain", "concept_type", "scales"];
             const conceptKeyString = createKeyStr(["concept"]);
             const avConcepts = concepts.filter(c => this.availability.keyValueLookup.get(conceptKeyString).has(c));
     
