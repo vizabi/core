@@ -277,61 +277,6 @@ var data = Vizabi.dataSource({
   path: "./ddf--jheeffer--mdtest/"
 });
 
-
-const arrayUnique = function (array, map = data => data) {
-  const uniqueValues = {};
-
-  return array.filter(item => {
-    const value = map(item);
-
-    if (uniqueValues.hasOwnProperty(value)) {
-      return false;
-    }
-
-    uniqueValues[value] = 1;
-
-    return true;
-  });
-};
-
-function filterApplies(row, filter) {
-
-  // implicit $and in filter object handled by .every()
-  return Object.keys(filter).every(filterKey => {
-      if (operator = operators.get(filterKey)) {
-          // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
-          return operator(row, filter[filterKey]);
-      } else if(typeof filter[filterKey] != "object") { // assuming values are primitives not Number/Boolean/String objects
-          // { <field>: <value> } is shorthand for { <field>: { $eq: <value> }} 
-          return operators.get("$eq")(row[filterKey], filter[filterKey]);
-      } else {
-          // filter[filterKey] is an object and will thus contain a comparison operator
-          // { <field>: { $<operator>: <value> }}
-          // no deep objects (like in Mongo) supported:
-          // { <field>: { <subfield>: { ... } } }
-          return filterApplies(row[filterKey], filter[filterKey]);
-      }
-  });
-}
-
-const operators = new Map([
-/* logical operators */
-["$and", (row, predicates) => predicates.every(p => filterApplies(row,p))],
-["$or",  (row, predicates) => predicates.some(p => filterApplies(row,p))],
-["$not", (row, predicate) => !filterApplies(row, predicate)],
-["$nor", (row, predicates) => !predicates.some(p => filterApplies(row,p))],
-
-/* comparison operators */
-["$eq",  (rowValue, filterValue) => rowValue == filterValue],
-["$ne",  (rowValue, filterValue) => rowValue != filterValue],
-["$gt",  (rowValue, filterValue) => rowValue > filterValue],
-["$gte", (rowValue, filterValue) => rowValue >= filterValue],
-["$lt",  (rowValue, filterValue) => rowValue < filterValue],
-["$lte", (rowValue, filterValue) => rowValue <= filterValue],
-["$in",  (rowValue, filterValue) => filterValue.includes(rowValue)],
-["$nin", (rowValue, filterValue) => !filterValue.includes(rowValue)],
-]);
-
 var initialMarkerConfig = {
   data: {
     source: data,
@@ -385,10 +330,6 @@ var initialMarkerConfig = {
     }
   }
 };
-
-
-
-
 
 
 
@@ -565,14 +506,17 @@ function draw(data) {
   // Changeset needs to remove everything first, then insert new data
   let changeset = vega.changeset().remove(() => true).insert(data);
   // For some reason source_0 is the default dataset name
-  view.change('table', changeset).run()
+  view.change('table', changeset).run();
 
-  
+  if(marker.config.encoding.frame) d3.select(".yearlabel").text(marker.config.encoding.frame.value);
+}
+
+
+mobx.reaction(() => data.metaDataState, (arg) => { 
   spaces = marker.spaceAvailability;
   availability = marker.availability.filter(f=>f.value.concept_type=="measure")
     .filter(f => Vizabi.utils.arrayEquals(f.key, marker.data.space));
   
-  if(marker.config.encoding.frame) d3.select(".yearlabel").text(marker.config.encoding.frame.value);
 
   const indicatorOptionsEl = d3.select(".indicatorpicker").select("select")
     .selectAll("option").data(availability);  
@@ -596,8 +540,8 @@ function draw(data) {
     .attr("value", (d,i) => i)
     .text(d => "[" + d.join(", ") + "]")
     .property("selected", d => Vizabi.utils.arrayEquals(d, marker.data.space));
-}
 
+});
 
 
 var controls = d3.select("body").append("div").attr("class", "controls");

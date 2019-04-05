@@ -32,6 +32,9 @@ const functions = {
         this.config.scale.domain = null;
         this.config.scale.type = null;
     }),
+    get prop() {
+        return this.marker.getPropForEncoding(this);
+    }
 }
 
 export function baseEncoding(config, parent) {

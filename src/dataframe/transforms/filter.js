@@ -35,10 +35,11 @@ function createFilterFn(filterSpec) {
     return (row) => applyFilterRow(row, filterSpec);
 }
 
-function applyFilterRow(row, filter) {
+export function applyFilterRow(row, filter) {
     // implicit $and in filter object handled by .every()
     return Object.keys(filter).every(filterKey => {
-        if (operator = operators.get(filterKey)) {
+        let operator = operators.get(filterKey);
+        if (operator) {
             // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
             return operator(row, filter[filterKey]);
         } else if(typeof filter[filterKey] != "object") { // assuming values are primitives not Number/Boolean/String objects

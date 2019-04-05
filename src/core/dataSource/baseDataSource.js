@@ -90,6 +90,7 @@ const functions = {
         };
     },
     get availabilityPromise() {
+        trace();
         const collections = ["concepts", "entities", "datapoints"];
         const getCollAvailPromise = (collection) => this.query({
             select: {

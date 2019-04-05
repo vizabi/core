@@ -4,6 +4,7 @@ import { trace, observable } from "mobx";
 import { applyDefaults, intersect, isNumeric } from "../utils";
 import { filter } from "../filter";
 import { DataFrame } from "../../dataframe/dataFrame";
+import { applyFilterRow } from "../../dataframe/transforms/filter";
 
 const defaultConfig = {
     source: null,
@@ -29,6 +30,7 @@ export function dataConfig(config = {}, parent) {
                 console.warn("One or more invariants not satisfied:",fails,this);
         },
         get source() {
+            trace();
             if (this.config.source)
                 return dataSourceStore.getByDefinition(this.config.source)
             else
@@ -49,13 +51,13 @@ export function dataConfig(config = {}, parent) {
             const markerConfig = this.parent.config;
             const availableSpaces = [...availability.keyLookup.values()].filter(f => !f.includes("concept"));
             const availableConcepts = [...concepts.values()];
-            const conceptsInAllSpaces = arrayUnique(availableSpaces.flat())
+            const conceptsInAllSpaces = [...new Set(availableSpaces.flat())]
               //get concepts resolved from IDs
               .map(c => concepts.get({concept: c}));
       
             //find concepts that are allowed by marker space autoconfig params
             const markerSpaceAutocfg = markerConfig.data.space.autoconfig;
-            const allowedConcepts = conceptsInAllSpaces.filter(c => filterApplies(c, markerSpaceAutocfg)).map(c => c.concept);
+            const allowedConcepts = conceptsInAllSpaces.filter(c => applyFilterRow(c, markerSpaceAutocfg)).map(c => c.concept);
       
             availableSpaces
               //only keep spaces that have all their keys among the allowed concepts
@@ -102,7 +104,7 @@ export function dataConfig(config = {}, parent) {
                 .map(c => concepts.get({concept: c}));      
       
             //find the first concept satisfying encoding's autoconfig criteria and not used for another encoding already
-            return conceptsInThisSpace.find(c => filterApplies(c, encAutocfg) && !d3.values(solution).map(c => c.concept).includes(c.concept));
+            return conceptsInThisSpace.find(c => applyFilterRow(c, encAutocfg) && !d3.values(solution).map(c => c.concept).includes(c.concept));
         },
         get constant() {
             return resolveRef(this.config.constant);
@@ -119,7 +121,7 @@ export function dataConfig(config = {}, parent) {
         },
         get concept() { 
             if(this.config.concept && this.config.concept.autoconfig) 
-                return this.parent.marker.data.solveAutoconfig.encodings[this.parent.prop];
+                return this.parent.marker.data.solveAutoconfig.encodings[this.parent.prop].concept;
             return this.config.concept ? resolveRef(this.config.concept) : null 
         },
         get conceptProps() { return this.source.getConcept(this.concept) },
