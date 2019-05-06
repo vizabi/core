@@ -11,7 +11,8 @@ const defaultConfig = {
     concept: null,
     space: null,
     value: null,
-    filter: null
+    filter: null,
+    locale: null
 }
 
 export function dataConfig(config = {}, parent) {
@@ -119,6 +120,12 @@ export function dataConfig(config = {}, parent) {
             const config = this.config.filter || ((this.parent.marker) ? this.parent.marker.data.config.filter : {})
             return observable(filter(config, this));
         },
+        get locale() {
+            if (this.config.locale)
+                return this.config.locale
+            else
+                return (this.parent.marker) ? this.parent.marker.data.locale : null;          
+        },
         get concept() { 
             if(this.config.concept && this.config.concept.autoconfig) 
                 return this.parent.marker.data.solveAutoconfig.encodings[this.parent.prop].concept;
@@ -183,6 +190,11 @@ export function dataConfig(config = {}, parent) {
             if (this.filter) {
                 query.where = this.filter.whereClause;
             }
+          
+            if (this.locale) {
+                query.language = this.locale; 
+            }
+          
             return query;
         },
     };
