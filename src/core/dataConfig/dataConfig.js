@@ -122,7 +122,7 @@ export function dataConfig(config = {}, parent) {
         },
         get locale() {
             if (this.config.locale)
-                return this.config.locale
+                return typeof this.config.locale == "string" ? this.config.locale : this.config.locale.id;
             else
                 return (this.parent.marker) ? this.parent.marker.data.locale : null;          
         },
