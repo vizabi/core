@@ -3,6 +3,7 @@ import { encodingStore } from './encoding/encodingStore'
 import { dataSourceStore } from './dataSource/dataSourceStore'
 import * as utils from './utils'
 import { observable } from 'mobx';
+import * as mobx from 'mobx';
 
 export const stores = {
     markers: markerStore,
@@ -21,6 +22,7 @@ const vizabi = function(cfg) {
 
     return { stores, config };
 }
+vizabi.mobx = mobx;
 vizabi.utils = utils;
 vizabi.stores = stores;
 vizabi.dataSource = (cfg, id) =>{

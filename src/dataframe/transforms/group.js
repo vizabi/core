@@ -1,10 +1,8 @@
-import { DataFrame } from "../dataFrame";
-import { relativeComplement, arrayEquals, createMarkerKey } from "../../core/utils";
-import { DataFrameGroup } from "../dataFrameGroup";
+import { DataFrameGroupMap } from "../dataFrameGroup";
 
-export function group(df, groupBy, groupKey = df.key) {
+export function groupBy(df, groupKey, memberKey = df.key) {
 
-    return DataFrameGroup(df, groupBy, groupKey);
+    return DataFrameGroupMap(df, groupKey, memberKey);
     
 }
 

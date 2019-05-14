@@ -10,22 +10,22 @@ export function entityPropertyDataConfig(cfg, parent) {
     return compose(base, {
 
         get promise() {
-            return fromPromise(this.source.conceptsPromise.then(() => {
-                const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));
-                const labelPromises = entityDims.map(dim =>
-                    this.source.query({
-                        select: {
-                            key: [dim],
-                            value: [this.concept]
-                        },
-                        from: "entities"
-                    }).then(data => ({
-                        dim,
-                        data
-                    }))
-                );
-                return fromPromise(Promise.all(labelPromises));
-            }))
+            trace();
+            if (this.source.conceptsState !== "fulfilled") return fromPromise.resolve([]);
+            const labelPromises = this.queries.map(query => this.source.query(query)
+                .then(data => ({ dim: query.select.key[0], data }))
+            );
+            return fromPromise(Promise.all(labelPromises));
+        },
+        get queries() {
+            const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));
+            return entityDims.map(dim => ({
+                select: {
+                    key: [dim],
+                    value: [this.concept]
+                },
+                from: "entities"
+            }));
         },
         get lookups() {
             const concept = this.concept;

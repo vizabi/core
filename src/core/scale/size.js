@@ -1,5 +1,5 @@
 import { applyDefaults, assign } from "../utils";
-import { base } from "./base";
+import { baseScale } from "./baseScale";
 
 const defaultConfig = {
     type: "sqrt",
@@ -9,7 +9,7 @@ const defaultConfig = {
 export function size(config, parent) {
 
     applyDefaults(config, defaultConfig);
-    const s = base(config, parent);
+    const s = baseScale(config, parent);
 
     return assign(s, {
         ordinalScale: "point",

@@ -1,113 +1,6 @@
 import { autorun } from "mobx";
 import { fromPromise } from "mobx-utils";
 
-export const createKey2 = (space, row) => space.map(dim => row[dim]).join('-');
-// micro-optimizations below as this is code that runs for each row in data to create key to the row
-
-// TODO: probably use different replace function, long version in jsperf
-// string replace functions jsperf: https://jsperf.com/string-replace-methods
-// regexp not here, not fast in any browser
-/**
- * Verbose string replace using progressive indexOf. Fastest in Chrome.
- * Does not manipulate input string.
- * @param {*} str Input string
- * @param {*} ndl Needle to find in input string
- * @param {*} repl Replacement string to replace needle with
- */
-function replace(str, ndl, repl) {
-    var outstr = '',
-        start = 0,
-        end = 0,
-        l = ndl.length;
-    while ((end = str.indexOf(ndl, start)) > -1) {
-        outstr += str.slice(start, end) + repl;
-        start = end + l;
-    }
-    return outstr + str.slice(start);
-}
-// fastest in firefox
-function replace_sj(str, ndl, repl) {
-    return str.split(ndl).join(repl);
-}
-
-// precalc strings for optimization
-const escapechar = "\\";
-const joinchar = "-";
-const dblescape = escapechar + escapechar;
-const joinescape = escapechar + joinchar;
-export var esc = str => isNumeric(str) ? str : replace(replace(str, escapechar, dblescape), joinchar, joinescape);
-
-// jsperf of key-creation options. Simple concat hash + escaping wins: https://jsperf.com/shallow-hash-of-object
-// for loop is faster than keys.map().join('-');
-// but in Edge, json.stringify is faster
-// pre-escaped space would add extra performance
-const createDimKeyStr = (dim, dimVal) => {
-    if (dimVal instanceof Date) dimVal = dimVal.toISOString();
-    return esc(dim) + joinchar + esc(dimVal);
-}
-export const createMarkerKey = (row, space = Object.keys(row).sort()) => {
-    const l = space.length;
-
-/*    if (l===1)
-        return createDimKeyStr(space[0],row[space[0]]+"";
-*/
-    var res = (l > 0) ? createDimKeyStr(space[0], row[space[0]]) : '';
-    for (var i = 1; i < l; i++) {
-        res += joinchar + createDimKeyStr(space[i], row[space[i]]);
-    }
-    return res
-}
-
-export function parseMarkerKey(str) {
-    // "remove" escaping by splitting to be able to split on actual joins
-    // then, put it back together
-    var parts = str.split(dblescape).map(
-        s => s.split(joinescape).map(
-            s => s.split(joinchar)
-        )
-    )
-    var values = [];
-    var val = '';
-    for (let i = 0; i < parts.length; i++) {
-        for (let j = 0; j < parts[i].length; j++) {
-            for (let k = 0; k < parts[i][j].length; k++) {
-                // double escape found, glue again with escape char
-                if (j === 0 && k === 0) {
-                    if (i !== 0) val += escapechar;
-                    val += parts[i][j][k];
-                } 
-                // joinescape found, glue again with join char
-                else if (k === 0) {
-                    if (j !== 0) val += joinchar;
-                    val += parts[i][j][k]
-                }
-                // actual joinchar found, correct split
-                else {
-                    values.push(val);
-                    val = parts[i][j][k];    
-                }
-            }
-        }
-    }
-    values.push(val);
-
-    // create key, odd is dim, even is dimension value
-    const key = {};
-    for (let i = 0; i < values.length; i += 2) {
-        key[values[i]] = values[i+1];
-    }
-    return key;
-}
-
-
-export function normalizeKey(key) {
-    return key.slice(0).sort();
-}
-
-// end micro-optimizations
-
-export const createKeyStr = (key) => key.map(esc).join('-');
-
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
 export function isString(value) {
@@ -196,17 +89,6 @@ export function fromPromiseAll(promiseArray) {
         return fromPromise.reject(promiseArray);
 }
 
-export function processConfig(config, props) {
-    const obj = {};
-    props.forEach(p => {
-        const prop = (p.fn) ? p.prop : p;
-        if (config[prop]) {
-            obj[prop] = (p.fn) ? p.fn(config[prop]) : config[prop];
-        }
-    });
-    return obj;
-}
-
 export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
     if (Array.isArray(functions)) functions = assign({}, ...functions);
     return function decorate(config, parent) {
@@ -215,6 +97,12 @@ export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
         base = (base == null) ? (config, parent) => ({ config, parent }) : base;
         return assign(base(config, parent), functions);
     }
+}
+
+export function combineStates(states) {
+    if (states.some(state => state === "rejected")) return "rejected";
+    if (states.every(state => state === "fulfilled")) return "fulfilled";
+    return "pending";
 }
 
 // code from https://github.com/TehShrike/is-mergeable-object
@@ -326,6 +214,7 @@ export function applyDefaults(config, defaults) {
             else
                 config[prop] = deepclone(defaults[prop]);
     })
+    return config;
 }
 
 export function equals(a,b) {
@@ -335,19 +224,31 @@ export function equals(a,b) {
     return a === b;
 }
 
-export function pick(object, keys) {
-    return keys.reduce((obj, key) => {
-        if (object[key]) {
-            obj[key] = object[key];
-        }
-        return obj;
-        }, {});
-}
-
-
-export function getTimeInterval(unit) {
+function getTimeInterval(unit) {
     let interval;
     if (interval = d3['utc' + ucFirst(unit)]) return interval;
+}
+
+export function stepIterator(stepUnit, stepSize, domain) {
+    let interval;
+    if (interval = getTimeInterval(stepUnit)) {
+        return function* (min = domain[0], max = domain[1]) { 
+            for (let i = min; i <= max; i = interval.offset(i, stepSize) )
+                yield i;
+        };
+    } else if (stepUnit === "number") {
+        return function* (min = domain[0], max = domain[1]) { 
+            for (let i = min; i <= max; i += stepSize)
+                yield i;
+        };
+    } else if (stepUnit === "index") {
+        return function* (min, max = domain.length) {
+            min = (min === undefined) ? 0 : domain.indexOf(min);
+            for (let i = min; i < max; i += stepSize)
+                yield domain[i];
+        }
+    }
+    console.warn("No valid step iterator found.", { stepUnit, stepSize, domain });
 }
 
 export function configValue(value, concept) {
@@ -392,18 +293,6 @@ export function parseConfigValue(valueStr, concept) {
 
     return ""+valueStr;
 }
-
-function pad(value, width) {
-    var s = value + "", length = s.length;
-    return length < width ? new Array(width - length + 1).join(0) + s : s;
-}
-  
-function formatYear(year) {
-    return year < 0 ? "-" + pad(-year, 6)
-        : year > 9999 ? "+" + pad(year, 6)
-        : pad(year, 4);
-}
-  
 function formatDate(date) {
     var month = date.getUTCMonth(),
         day = date.getUTCDate(),
@@ -418,8 +307,20 @@ function formatDate(date) {
         : day !== 1 ? formatFullDate(date)
         : month ? formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2)
         : formatYear(date.getUTCFullYear(), 4);
-  }
+}
 
-  function formatFullDate(date) {
-      return formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2);
-  }
+function formatFullDate(date) {
+    return formatYear(date.getUTCFullYear(), 4) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2);
+}
+
+function formatYear(year) {
+    return year < 0 ? "-" + pad(-year, 6)
+        : year > 9999 ? "+" + pad(year, 6)
+        : pad(year, 4);
+}
+
+function pad(value, width) {
+    var s = value + "", length = s.length;
+    return length < width ? new Array(width - length + 1).join(0) + s : s;
+}
+    

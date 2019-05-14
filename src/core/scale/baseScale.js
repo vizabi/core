@@ -1,4 +1,5 @@
 import { applyDefaults, parseConfigValue } from "../utils";
+import { trace } from "mobx";
 
 const scales = {
     "linear": d3.scaleLinear,
@@ -16,7 +17,11 @@ const defaultConfig = {
     type: null
 }
 
-export function base(config = {}, parent) {
+const defaults = {
+    domain: [0,1]
+}
+
+export function baseScale(config = {}, parent) {
 
     applyDefaults(config, defaultConfig);
 
@@ -58,9 +63,10 @@ export function base(config = {}, parent) {
             this.config.range = range;
         },
         get domain() {
-            return this.config.domain 
-                ? this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps))
-                : this.data.domain;
+            trace();
+            return this.config.domain ? this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps))
+                : this.data.domain ? this.data.domain
+                : defaults.domain;
         },
         clampToDomain(val) {
             const domain = this.domain;

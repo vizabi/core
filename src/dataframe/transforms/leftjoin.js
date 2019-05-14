@@ -1,5 +1,5 @@
 import { copyColumn } from "./copycolumn";
-import { arrayEquals } from "../../core/utils";
+import { arrayEquals } from "../utils";
 import { DataFrame } from "../dataFrame";
 
         // TODO: add check for non-marker space dimensions to contain only one value
@@ -39,7 +39,7 @@ export function leftJoin(left, rights) {
         }
         
         // set row
-        result.setByKeyStr(keyStr, leftRow);
+        result.set(leftRow, keyStr);
     }
     for (let right of rightCopies) {
         // weird chrome bug: using for(let col in right.projection) in combination with 

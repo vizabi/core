@@ -107,6 +107,7 @@
         <script src="https://d3js.org/d3.v5.js"></script>
         <script src="vizabi-ddfcsv-reader.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.min.js"></script>
+        <script src="https://unpkg.com/mobx-utils/mobx-utils.umd.js"></script>
         <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/preview/master/assets/vendor/js/vizabi-ws-reader/vizabi-ws-reader.js"></script>
         <script src="Vizabi.js"></script>
         <script src="config.js"></script>
@@ -198,7 +199,7 @@ function chart() {
 
 
     let playtoggle, timeslider, speedslider;
-
+    
     function setupTimecontrol() {
 
         const frameCfg = marker.encoding.get("frame");
@@ -216,7 +217,10 @@ function chart() {
     }
 
     function start(marker, caseImpl) {
-        marker.dataPromise.case(caseImpl);
+        autorun(() => {
+            const state = marker.state;
+            caseImpl[state]();
+        })
     }
     /*
         if (!Array.isArray(markers)) markers = [markers];
@@ -319,6 +323,12 @@ function chart() {
     }
 
     function drawBubbles() {
+
+        mobx.reaction(
+            () => marker.encoding.get('frame').value, 
+            (value) => marker.encoding.get('trail').updateTrailStart(value)
+        );
+
         start(marker, {
             pending: showLoading,
             rejected: showError,
@@ -342,6 +352,8 @@ function chart() {
             const xConfig = marker.encoding.get("x");
             const yConfig = marker.encoding.get("y");
             const frameConfig = marker.encoding.get("frame");
+            const trailMdl = marker.encoding.get("trail");
+            const trailConcept = trailMdl.groupDim;
             const selectedConfig = marker.encoding.get("selected");
             const selectedFilter = selectedConfig.data.filter
             const highlightConfig = marker.encoding.get("highlighted");
@@ -434,17 +446,17 @@ function chart() {
             function drawLabel(d) {
                 let labelStr;
 
-                const labelWithoutFrame = (d) => marker.data.space.filter(dim => frameConfig.data.concept != dim).map(dim => d.label[dim]).join(', ')
+                const labelWithoutFrame = (d) => marker.data.space.filter(dim => trailConcept !== dim).map(dim => d.label[dim]).join(', ')
                 const labelAll = (d) => marker.data.space.map(dim => d.label[dim]).join(', ');
-                const labelOnlyFrame = (d) => d[frameConfig.data.concept];
+                const labelOnlyFrame = (d) => d[trailConcept];
 
                 // if trail, put label at trail start
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
-                if (frameConfig.trail.data.filter.has(key)) {
-                    if (frameConfig.trail.show) {
-                        const trailStart = frameConfig.trail.starts[key];
+                if (trailMdl.data.filter.has(key)) {
+                    if (trailMdl.show) {
+                        const trailStart = trailMdl.starts[key];
                         // if this bubble is trail start bubble
-                        if (Vizabi.utils.equals(trailStart, d[frameConfig.data.concept]))
+                        if (Vizabi.utils.equals(trailStart, d[trailConcept]))
                             labelStr = labelAll(d);
                         else if (highlightFilter.has(d)) {
                             labelStr = labelOnlyFrame(d);
@@ -492,11 +504,8 @@ function chart() {
 
     function drawLegend() {
 
-        start(marker, {
-            pending: showLoading,
-            rejected: showError,
-            fulfilled: draw
-        });
+        marker.on('state')
+        legendmarker.on('state')
 
         function showLoading() {
             console.log("loading");
@@ -614,7 +623,7 @@ function chart() {
 
     function drawEncoding() {
 
-        viz.stores.dataSources.get('gap').metaDataPromise.case({
+        mobxUtils.fromPromise(viz.stores.dataSources.get('gap').metaDataPromise).case({
             pending: showLoading,
             rejected: showError,
             fulfilled: draw

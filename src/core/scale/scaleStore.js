@@ -1,9 +1,9 @@
 import { createStore } from '../genericStore'
-import { base } from './base'
+import { baseScale } from './baseScale'
 import { color } from './color'
 import { size } from './size'
 
-export const scaleStore = createStore(base, {
+export const scaleStore = createStore(baseScale, {
     color,
     size,
 });

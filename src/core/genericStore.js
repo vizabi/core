@@ -33,7 +33,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
             let model = observable(
                 modelType(config, parent), 
                 modelType.decorate || null, 
-                { name: config.modelType || 'base' }
+                { name: modelType.name || config.modelType || 'base' }
             );
             if (model.setUpReactions) model.setUpReactions();
             return model;

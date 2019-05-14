@@ -29,7 +29,12 @@ var marker = Vizabi.marker({
   }
 });
 
-marker.on('fulfilled', draw);
+//marker.on('fulfilled', draw);
+Vizabi.mobx.autorun(() => {
+  if (marker.state === "fulfilled")
+    draw(marker.dataArray);
+})
+
 
 var width = 1400, height = 1100;
 var canvas = d3.select('#container')
