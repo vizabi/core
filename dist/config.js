@@ -124,7 +124,7 @@ const config = {
             encoding: {
                 "selected": {
                     modelType: "selection",
-                    data: { ref: "markers.bubble.encoding.frame.trail.data" }
+                    data: { ref: "markers.bubble.encoding.trail.data" }
                 },
                 "x": {
                     data: {
@@ -188,16 +188,11 @@ const config = {
                     },
                     value: 2018,
                     interpolate: true,
-                    speed: 100,
-                    trail: {
-                        show: true,
-                        starts: {},
-                        data: {
-                            filter: {
-                                markers: {}
-                            }
-                        }
-                    }
+                    speed: 100
+                },
+                "trail": {
+                    modelType: "trail",
+                    groupDim: "time"
                 }
             }
         }

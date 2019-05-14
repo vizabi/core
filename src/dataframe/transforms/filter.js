@@ -16,7 +16,7 @@ export function filter(df, filter) {
     const result = DataFrame([], df.key);
     for(let [key, row] of df) {
         if (filterFn(row))
-            result.setByKeyStr(key, row);
+            result.set(row, key);
     }
 
     return result;
@@ -38,6 +38,7 @@ function createFilterFn(filterSpec) {
 function applyFilterRow(row, filter) {
     // implicit $and in filter object handled by .every()
     return Object.keys(filter).every(filterKey => {
+        let operator;
         if (operator = operators.get(filterKey)) {
             // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
             return operator(row, filter[filterKey]);
@@ -62,8 +63,8 @@ const operators = new Map([
     ["$nor", (row, predicates) => !predicates.some(p => applyFilterRow(row,p))],
 
     /* comparison operators */
-    ["$eq",  (rowValue, filterValue) => rowValue == filterValue],
-    ["$ne",  (rowValue, filterValue) => rowValue != filterValue],
+    ["$eq",  (rowValue, filterValue) => rowValue === filterValue],
+    ["$ne",  (rowValue, filterValue) => rowValue !== filterValue],
     ["$gt",  (rowValue, filterValue) => rowValue > filterValue],
     ["$gte", (rowValue, filterValue) => rowValue >= filterValue],
     ["$lt",  (rowValue, filterValue) => rowValue < filterValue],

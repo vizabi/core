@@ -1,11 +1,12 @@
 import { fromPromise, FULFILLED } from 'mobx-utils'
-import { assign, createKeyStr, applyDefaults } from "../utils";
+import { assign, applyDefaults } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline';
 import { csvReader } from '../../reader/csv';
+import { createKeyStr } from '../../dataframe/utils';
 
 const defaultConfig = {
     path: null,
@@ -30,12 +31,13 @@ const functions = {
     get availability() {
         let empty = this.buildAvailability();
         return this.availabilityPromise.case({
-            fulfilled: v => this.buildAvailability(v),
+            fulfilled: v => v,
             pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },
             error: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); return empty }
         })
     },
     get concepts() {
+        trace();
         const empty = new Map();
         return this.conceptsPromise.case({
             fulfilled: v => DataFrame(v, ["concept"]),
@@ -45,12 +47,17 @@ const functions = {
     },
     get defaultEncodingPromise() {
         if ("getDefaultEncoding" in this.reader)
-        return fromPromise(this.reader.getDefaultEncoding());
+            return this.reader.getDefaultEncoding();
+        else    
+            return Promise.resolve({});
     },
     get defaultEncoding() {
         const empty = {};
         return this.defaultEncodingPromise.case({
-            fulfilled: v => v,
+            fulfilled: v => {
+                Object.values(v).forEach(enc => enc.source = this)
+                return v;
+            },
             pending: () => { console.warn('Requesting default encoding before loaded. Will return empty. Recommended to await promise.'); return empty },
             error: (e) => { console.warn('Requesting default encoding when loading errored. Will return empty. Recommended to check promise.'); return empty }
         });
@@ -99,16 +106,15 @@ const functions = {
             from: collection + ".schema"
         });
 
-        return fromPromise(
-            Promise.all(collections.map(getCollAvailPromise))
-        );
+        return fromPromise(Promise.all(collections.map(getCollAvailPromise))
+            .then(this.buildAvailability));
     },
     get conceptsPromise() {
-        
-        const createConceptsPromise = () => {
+        trace();
+        return fromPromise(this.availabilityPromise.then(av => {
             const concepts = ["name", "domain", "concept_type"];
             const conceptKeyString = createKeyStr(["concept"]);
-            const avConcepts = concepts.filter(c => this.availability.keyValueLookup.get(conceptKeyString).has(c));
+            const avConcepts = concepts.filter(c => av.keyValueLookup.get(conceptKeyString).has(c));
     
             const query = {
                 select: {
@@ -116,22 +122,13 @@ const functions = {
                     value: avConcepts
                 },
                 from: "concepts"
-            };
-    
-            return this.query(query);
-        }
+            };           
 
-        const p = this.availabilityPromise.case({
-            pending: () => new Promise(() => undefined),
-            fulfilled: (d) => createConceptsPromise(),
-            rejected: (e) => Promise.reject(e)
-        });
-        return fromPromise(p);
+            return this.query(query);
+        }));
     },
     get metaDataPromise() {
-        return fromPromise(
-            Promise.all([this.availabilityPromise, this.conceptsPromise, this.defaultEncodingPromise])
-        );
+        return fromPromise(Promise.all([this.availabilityPromise, this.conceptsPromise, this.defaultEncodingPromise]));
     },
     /* 
     *  separate state computed which don't become stale with new promise in same state 
@@ -143,7 +140,7 @@ const functions = {
     get conceptsState() {
         return this.conceptsPromise.state;
     },
-    get metaDataState() {
+    get state() {
         return this.metaDataPromise.state;
     },
     getConcept(concept) {
@@ -151,7 +148,7 @@ const functions = {
             return { concept, name: concept }
         if (!this.concepts.has({ concept }))
             console.warn("Could not find concept " + concept + " in data source ", this);
-        return this.concepts.get({ concept });
+        return this.concepts.get({ concept }) || {};
     },
     isEntityConcept(conceptId) {
         return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
@@ -186,4 +183,10 @@ const parse = (val) => (val == '') ? null : +val || val;
 export function baseDataSource(config) {
     applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
+}
+
+baseDataSource.decorate = {
+    // to prevent config.values from becoming observable
+    // possibly paints with too broad a brush, other config might need to be deep later
+    config: observable.shallow
 }

@@ -27,8 +27,13 @@ var marker = Vizabi.marker({
   }
 });
 
-marker.on('fulfilled', draw);
-marker.on('rejected', console.warn);
+//marker.on('fulfilled', draw);
+//marker.on('rejected', console.warn);
+
+Vizabi.mobx.autorun(() => {
+  if (marker.state === "fulfilled")
+    draw(marker.dataArray)
+});
 
 function draw(data) {
 

@@ -24,10 +24,14 @@ export function inlineReader({ values = [], keyConcepts = [], dtypes }) {
         },
         async getDefaultEncoding() {
             const data = await dataPromise;
-            return data.fields.map(concept => ({
-                concept,
-                space: keyConcepts
-            }));
+            const encConfig = {};
+            data.fields.forEach(concept => {
+                encConfig[concept] = {
+                    concept, 
+                    space: keyConcepts
+                }
+            });
+            return encConfig;
         }
     }
 }
@@ -42,7 +46,7 @@ function isSchemaQuery(query) {
 
 function getConcepts(data) {
     const types = getTypes(data);
-    return data.fields.map(concept => ({
+    return [...data.fields].map(concept => ({
         concept,
         concept_type: types.get(concept)
     }));
@@ -50,7 +54,7 @@ function getConcepts(data) {
 
 function getSchema(data, { from }, keyConcepts) {
     if (from == "datapoints.schema") {
-        const indicatorConcepts = relativeComplement(keyConcepts, data.fields);
+        const indicatorConcepts = relativeComplement(keyConcepts, [...data.fields]);
         return indicatorConcepts.map(concept => ({
             key: [...keyConcepts],
             value: concept

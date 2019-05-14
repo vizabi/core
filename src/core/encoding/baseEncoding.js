@@ -18,6 +18,9 @@ const functions = {
         if (marker == null) console.warn("Couldn't find marker model for encoding.", { encoding: this });
         return marker;
     },
+    get name() {
+        return this.marker.getEncodingName(this);
+    },
     get data() {
         return dataConfigStore.getByDefinition(this.config.data, this);
     },

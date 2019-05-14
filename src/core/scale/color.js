@@ -1,5 +1,5 @@
 import { applyDefaults, assign } from "../utils";
-import { base } from "./base";
+import { baseScale } from "./baseScale";
 
 const defaultConfig = {}
 
@@ -10,7 +10,7 @@ const colors = {
 export function color(config, parent) {
 
     applyDefaults(config, defaultConfig);
-    const s = base(config, parent);
+    const s = baseScale(config, parent);
 
     return assign(s, {
         get range() {

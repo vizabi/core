@@ -1,11 +1,13 @@
+import { normalizeKey } from "../utils";
 
 /**
  * Virtual data frame storage based on lookups. A row is constructed on request from lookups for each dimension of requested key.
  * @param {*} concepts Map of concepts. Each concept is a map of dimensions. Each dimension is a map of values on that dimension. E.g. name=>geo=>swe=>Sweden
  */
-export function DataFrameStorageLookups(concepts, keyArr) {
+export function LookupStorage(concepts, keyArr) {
     const storage = {};
-    storage.fields = [...keyArr, ...concepts.keys()];
+    storage.key = keyArr = normalizeKey(keyArr);
+    storage.fields = new Set([...keyArr, ...concepts.keys()]);
     storage.data = concepts;
     storage.has = (keyObj) => {
         // true if there is at least one concept which has a lookup for every dimension in key
@@ -31,7 +33,6 @@ export function DataFrameStorageLookups(concepts, keyArr) {
     storage.set = (keyObj, value) => { 
         console.warn("Invalid operation. Generated dataframe does not support .set().")
     }
-    storage.setByKeyStr = () => console.warn("Invalid operation. Can't set generated dataframe by key string.");
     storage.values = () => { console.warn("Generated dataframe .values() not implemented yet")};
     storage.delete = () => { console.warn("Invalid operation. Generated dataframe does not support .delete()")};
     storage[Symbol.iterator] = function* generate() {

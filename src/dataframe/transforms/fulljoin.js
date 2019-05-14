@@ -60,7 +60,7 @@ function getOrCreateRow(df, keyArr, row, keyStr) {
     // if (keyStr == undefined) keyStr = createMarkerKey(row, keyArr);
     if (!df.hasByObjOrStr(row, keyStr)) {
         obj = createObj(keyArr, row, keyStr);
-        df.setByKeyStr(keyStr, obj);
+        df.set(obj, keyStr);
     } else {
         obj = df.getByObjOrStr(row, keyStr);
     }

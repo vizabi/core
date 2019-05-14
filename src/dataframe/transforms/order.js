@@ -8,22 +8,22 @@ const directions = {
 export function order(df, order_by = []) {
     if (order_by.length == 0) return df;
 
-    const data = Array.from(df);
+    const data = Array.from(df.values());
     const orderNormalized = normalizeOrder(order_by);
     const n = orderNormalized.length;
 
     data.sort((a,b) => {
         for (var i = 0; i < n; i++) {
             const order = orderNormalized[i];
-            if (a[1][order.concept] < b[1][order.concept])
+            if (a[order.concept] < b[order.concept])
                 return -1 * order.direction;
-            else if (a[1][order.concept] > b[1][order.concept])
+            else if (a[order.concept] > b[order.concept])
                 return order.direction;
         } 
         return 0;
     });
 
-    return DataFrame(new Map(data), df.key);
+    return DataFrame(data, df.key);
 }
 
 /**    

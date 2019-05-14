@@ -1,117 +1,63 @@
-import { normalizeKey, mapToObj, arrayEquals, isNonNullObject } from "../core/utils";
 import { order } from "./transforms/order";
 import { fullJoin } from "./transforms/fulljoin";
-import { DataFrameStorageMap } from "./storage/map";
-import { DataFrameStorageLookups } from "./storage/lookups";
+import { MapStorage } from "./storage/map";
+import { LookupStorage } from "./storage/lookups";
 import { copyColumn } from "./transforms/copycolumn";
 import { leftJoin } from "./transforms/leftjoin";
 import { filter } from "./transforms/filter";
 import { project } from "./transforms/project";
 import { addColumn } from "./transforms/addColumn";
-import { group } from "./transforms/group";
+import { groupBy } from "./transforms/group";
 import { interpolate } from "./transforms/interpolate";
 import { reindex } from "./transforms/reindex";
+import { fillNull } from "./transforms/fillnull";
+import { extent } from "./info/extent";
+import { unique } from "./info/unique";
+import { copy } from "./transforms/copy";
 
 //df.get(["swe","2015"]).population
+const fromLookups = (concepts, key) => constructDataFrame(LookupStorage(concepts, key));
+const fromArray = (data = [], key = data.key || []) => constructDataFrame(MapStorage(data, key));
 
-export const DataFrame = (data = [], key = []) => constructDataFrame(data, key, DataFrameStorageMap);
-DataFrame.fromLookups = (concepts, key) => constructDataFrame(concepts, key, DataFrameStorageLookups);
-DataFrame.fromArray = DataFrame;
+export const DataFrame = fromArray;
+DataFrame.fromLookups = fromLookups;
+DataFrame.fromArray = fromArray;
 
-
-export default DataFrame;
-
-function constructDataFrame(data, key, storageBuilderFn) {
-    if (data.hasByObjOrStr && arrayEquals(data.key, key)) // duck-typing DataFrame
-        return data;
-
-    const df = {}
-    df.key = normalizeKey(key);
-    df.data = storageBuilderFn(data, df.key);
-    df.fields = df.data.fields;
-
-    // methods
-    attachMethods(df);
-
-    return df;
-}
-
-function attachMethods(df) {
-    // transforms
-    df.order = (direction) => order(df, direction); 
-    df.leftJoin = (rightJoinParams) => leftJoin({ dataFrame: df }, rightJoinParams);
-    df.fullJoin = (joinParams, key) => fullJoin([{ dataFrame: df }, ...joinParams], key);
-    df.copyColumn = (src, dest) => copyColumn(df, src, dest);
-    df.filter = (filterObj) => filter(df, filterObj);
-    df.project = (projection) => project(df, projection);
-    df.addColumn = (name, value) => addColumn(df, name, value);
-    df.group = (groupBy, groupKey) => group(df, groupBy, groupKey);
-    df.interpolate = () => interpolate(df);
-    df.reindex = (stepFn) => reindex(df, stepFn);
-    df.fillNull = (fillValues) => fillNull(df, fillValues);
-
-    // has/get/set/info
-    df.has = df.data.has;
-    df.get = df.data.get;
-    df.hasByObjOrStr = df.data.hasByObjOrStr;
-    df.getByObjOrStr = df.data.getByObjOrStr;
-    df.set = df.data.set;
-    df.setByKeyStr = df.data.setByKeyStr;
-    df.keys = df.data.keys;
-    df.values = df.data.values;
-    df.extent = (concept) => extent(df, concept);
-    df.delete = df.data.delete;
-
-    df[Symbol.iterator] = df.data[Symbol.iterator];
-}
-
-// in the style of d3.extent
-function extent(df, concept) {
-    let min, max, value, row;
-    const iter = df.values();
-    // find first comparable values
-    for (row of iter) {
-        if ((value = row[concept]) != null && value >= value) {
-            min = max = value;
-            break;
+function constructDataFrame(storage) {
+    // https://medium.com/javascript-scene/the-hidden-treasures-of-object-composition-60cd89480381
+    // compose storage and DF methods by concatenation 
+    // concatenation instead of aggregation/delegation as there is no overlap in keys and 
+    // we want the full storage API to be available on the DataFrame
+    const df = Object.assign(storage,
+        {        
+            // transforms
+            order: (direction) => order(df, direction), 
+            leftJoin: (rightJoinParams) => leftJoin({ dataFrame: df }, rightJoinParams),
+            fullJoin: (joinParams, key) => fullJoin([{ dataFrame: df }, ...joinParams], key),
+            copyColumn: (src, dest) => copyColumn(df, src, dest),
+            filter: (filterObj) => filter(df, filterObj),
+            project: (projection) => project(df, projection),
+            addColumn: (name, value) => addColumn(df, name, value),
+            groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
+            interpolate: () => interpolate(df),
+            reindex: (stepFn) => reindex(df, stepFn),
+            fillNull: (fillValues) => fillNull(df, fillValues),
+            copy: () => copy(df),
+    
+            // info
+            extent: (concept) => extent(df, concept),
+            unique: (concept) => unique(df, concept),
+        
+            // export
+            toJSON: () => [...df.values()]
+        },
+        {
+            filterGroups: filterFn => {
+                return df.copy();
+            },
+            setRow: row => df.set(row)
         }
-    }
-    // compare remaining values 
-    for (row of iter) {
-        if ((value = row[concept]) != null) {
-            if (min > value) min = value;
-            if (max < value) max = value;
-        }
-    }
-    return [min, max];
-}
+    );
 
-function fillNull(df, fillValues) {
-    let concept, row;
-    if (isNonNullObject(fillValues)) {
-        for (concept in fillValues) {
-            const fillValue = fillValues[concept];
-            if (typeof fillValue == "function") {
-                for (row of df.values()) {
-                    if (row[concept] === null)
-                        row[concept] = fillValue(row);
-                }
-            }
-            else {
-                for (row of df.values()) {
-                    if (row[concept] === null)
-                        row[concept] = fillValue;
-                }
-            }
-        }
-    }
-    else {
-        for (row of df.values()) {
-            for (concept in row) {
-                if (row[concept] === null)
-                    row[concept] = fillValues;
-            }
-        }
-    }
     return df;
 }
