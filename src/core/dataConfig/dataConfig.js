@@ -4,10 +4,11 @@ import { trace, observable } from "mobx";
 import { applyDefaults, intersect, isNumeric } from "../utils";
 import { filter } from "../filter";
 import { DataFrame } from "../../dataframe/dataFrame";
-import { applyFilterRow } from "../../dataframe/transforms/filter";
-import { fromPromise } from "mobx-utils";
+import { createFilterFn } from "../../dataframe/transforms/filter";
+import { fromPromise, FULFILLED } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
+import { createKeyStr } from "../../dataframe/utils";
 
 const defaultConfig = {
 }
@@ -15,7 +16,7 @@ const defaultConfig = {
 const defaults = {
     filter: null,
     constant: null,
-    concept: null,
+    concept: undefined,
     space: null,
     value: null,
     filter: null,
@@ -49,74 +50,9 @@ export function dataConfig(config = {}, parent) {
         },
         get space() {
             //trace();
-            if(this.config.space && !this.parent.marker && this.config.space.autoconfig) 
-                return this.solveAutoconfig.space;
+            if(!this.parent.marker) // only markers do space autoconfig
+                return this.configSolution.space;
             return this.config.space || (this.parent.marker ? this.parent.marker.data.space : defaults.space)
-        },
-
-
-        get solveAutoconfig() {
-            const solutions = new Map();
-      
-            const availability = this.source.availability;
-            const concepts = this.source.concepts;
-            const markerConfig = this.parent.config;
-            const availableSpaces = [...availability.keyLookup.values()].filter(f => !f.includes("concept"));
-            const availableConcepts = [...concepts.values()];
-            const conceptsInAllSpaces = [...new Set(availableSpaces.flat())]
-              //get concepts resolved from IDs
-              .map(c => concepts.get({concept: c}));
-      
-            //find concepts that are allowed by marker space autoconfig params
-            const markerSpaceAutocfg = markerConfig.data.space.autoconfig;
-            const allowedConcepts = conceptsInAllSpaces.filter(c => applyFilterRow(c, markerSpaceAutocfg)).map(c => c.concept);
-      
-            availableSpaces
-              //only keep spaces that have all their keys among the allowed concepts
-              .filter(s => s.every(c => allowedConcepts.includes(c)))
-              //check if the space fits encoding autoconfig. for example: encodings want 2 measures for X and Y and time for FRAME
-              //also find solutions to encoding autoconfigs along the way
-              .forEach(space => {
-      
-                const encodings = Object.keys(markerConfig.encoding);
-                const autoCfgEncs = encodings.filter(enc => typeof markerConfig.encoding[enc].data.concept.autoconfig !== "undefined");
-      
-                const solution = {}
-                for (let enc of autoCfgEncs) {
-                  let encSolution = this.parent.encoding.get(enc).data.solveEncAutoconfig(solution, space);
-                  if (!encSolution) break;
-                  solution[enc] = encSolution;
-                }
-      
-                if(Object.keys(solution).length === autoCfgEncs.length) solutions.set(space, solution);
-              })
-      
-
-            const [solutionWithShortestSpace, solutionForEncodings] = [...solutions].reduce((a,b) => a[0].length <= b[0].length ? a : b);
-            return {space: solutionWithShortestSpace, encodings: solutionForEncodings};
-        },
-
-        solveEncAutoconfig(solution = {}, space){
-            const availability = this.source.availability;
-            const concepts = this.source.concepts;
-            space = this.config.space || space;
-            
-            const encAutocfg = this.config.concept.autoconfig;
-            const spaceKeyString = Vizabi.utils.createKeyStr(space);
-      
-            //encoding solution is done if there is no autoconfig pending
-            if (!encAutocfg) return true;
-      
-            const conceptsInThisSpace = [...availability.keyValueLookup.get(spaceKeyString).keys()]
-                //exclude the ones such as "is--country", they won't get resolved
-                .filter(f => f.substr(0,4) !== "is--")
-                //the concepts holding the space can participate in autoconfig of encodings too
-                .concat(space)
-                //get concepts resolved from IDs
-                .map(c => concepts.get({concept: c}));      
-      
-            //find the first concept satisfying encoding's autoconfig criteria and not used for another encoding already
-            return conceptsInThisSpace.find(c => applyFilterRow(c, encAutocfg) && !d3.values(solution).map(c => c.concept).includes(c.concept));
         },
         get constant() {
             return resolveRef(this.config.constant) || defaults.constant;
@@ -138,9 +74,8 @@ export function dataConfig(config = {}, parent) {
                 return (this.parent.marker) ? this.parent.marker.data.locale : null;          
         },
         get concept() { 
-            if(this.config.concept && this.config.concept.autoconfig) 
-                return this.parent.marker.data.solveAutoconfig.encodings[this.parent.prop].concept;
-            return this.config.concept ? resolveRef(this.config.concept) : defaults.concept; 
+            return this.parent.marker.data.configSolution.encodings[this.parent.name];
+            // return this.config.concept ? resolveRef(this.config.concept) : defaults.concept; 
         },
         get conceptProps() { return this.source.getConcept(this.concept) },
         get availability() { return this.source.availability.data.map(kv => this.source.getConcept(kv.value)) },
@@ -176,18 +111,107 @@ export function dataConfig(config = {}, parent) {
             else // ordinal (entity_set, entity_domain, string)
                 return unique(data.rows(), concept); 
         },
+
+
+        /**
+         * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
+         */
+        get configSolution() {
+            let encodings;
+            let space = resolveRef(this.config.space);
+        
+            if (space && space.autoconfig) {
+                const availableSpaces = [...this.source.availability.keyLookup.values()];
+                const satisfiesSpaceAutoCfg = createFilterFn(this.config.space.autoconfig);
+
+                space = availableSpaces
+                    .sort((a, b) => a.length - b.length) // smallest spaces first
+                    .filter(space => !space.includes("concept") && space
+                            .map(c => this.source.getConcept(c))
+                            .every(satisfiesSpaceAutoCfg)
+                    )
+                    .find(space => this.resolveEncodingConcepts(space, this.parent.encoding));
+            } 
+
+            space = space || defaults.space;
+            encodings = this.resolveEncodingConcepts(space, this.parent.encoding); 
+
+            if (!space || !encodings)
+                console.warn("Could not resolve space or encoding concepts for marker.", this.parent, { space, encodings });
+
+            return { space, encodings };
+        },
+
+        /**
+         * Tries to find encoding concepts for a given space and encodings Map. Returns solution if it succeeds. Returns `undefined` if it fails.
+         * @param {String[]} space 
+         * @param {Map} encodings Map where keys are encoding names, values are encoding models
+         * @returns {Solution|undefined} solution
+         */
+        resolveEncodingConcepts(space, encodings) {
+            const concepts = {};
+            const success = [...encodings].every(([name, enc]) => {
+                // only resolve concepts for encodings which use concept property
+                if (!enc.config.data.concept) {
+                    concepts[name] = undefined;
+                    return true;
+                }
+                const encConcept = enc.data.resolveEncodingConcept(concepts, space);
+                if (encConcept !== undefined) {
+                    concepts[name] = encConcept;
+                    return true;
+                }
+                return false;
+            });
+            return success ? concepts : undefined;
+        },
+
+        /**
+         * Tries to find encoding concept for a given space, encoding and partial solution.  
+         * Should be called with encoding.data as `this`. 
+         * Returns concept id which satisfies encoding definition (incl autoconfig) and does not overlap with partial solution.
+         * @param {*} solution object whose keys are encoding names and values concept ids, assigned to those encodings. 
+         * @param {*} space 
+         * @returns {string} concept id
+         */
+        resolveEncodingConcept(solution, space) {
+            let concept = resolveRef(this.config.concept);
+
+            if (concept && concept.autoconfig) {
+                const satisfiesAutoCfg = createFilterFn(this.config.concept.autoconfig);
+                const usedConcepts = d3.values(solution);
+                const spaceConcepts = space.map(c => this.source.getConcept(c));
+                const availability = this.source.availability;
+    
+                const conceptsInThisSpace = [...availability.keyValueLookup.get(createKeyStr(space)).values()]
+                    .map(kv => this.source.getConcept(kv.value))
+                    // exclude the ones such as "is--country", they won't get resolved
+                    .filter(c => c.concept.substr(0,4) !== "is--")
+                    .concat(spaceConcepts);
+          
+                concept = conceptsInThisSpace
+                    .find(c => satisfiesAutoCfg(c) && !usedConcepts.includes(c.concept)) || {};
+                concept = concept.concept;
+            }
+            return concept || defaults.concept;    
+        },
+        get hasOwnData() {
+            return this.source && this.concept && !this.conceptInSpace;
+        },
         get promise() {
-            //trace();
-            return fromPromise(Promise.all([
-                this.source.metaDataPromise,
-                this.source.query(this.ddfQuery)
-            ]));
+            trace();
+            // can't use .then on source because its execution won't be tracked by mobx
+            if (this.source.state === FULFILLED) {
+                if (this.hasOwnData)
+                    return this.source.query(this.ddfQuery)
+                else   
+                    return fromPromise(Promise.resolve());
+            }
+            // indefinite pending until source is fulfilled
+            return fromPromise(new Promise(() => {}));
         },
         get state() {
-            if (this.source && this.concept && !this.conceptInSpace)
-                return this.promise.state;
-            else   
-                return "fulfilled"
+            return this.promise.state;
         },
         get response() {
             trace();
@@ -205,7 +229,7 @@ export function dataConfig(config = {}, parent) {
         },
         get responseMap() {
             trace();
-            return DataFrame(this.response[1], this.commonSpace);
+            return DataFrame(this.response, this.commonSpace);
         },
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);

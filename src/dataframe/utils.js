@@ -92,6 +92,8 @@ export const createMarkerKey = (row, space = Object.keys(row).sort()) => {
 /*    if (l===1)
         return createDimKeyStr(space[0],row[space[0]]+"";
 */
+
+    // space.map(c => createDimKeyStr(row[c]))).join(joinchar);
     var res = (l > 0) ? createDimKeyStr(space[0], row[space[0]]) : '';
     for (var i = 1; i < l; i++) {
         res += joinchar + createDimKeyStr(space[i], row[space[i]]);

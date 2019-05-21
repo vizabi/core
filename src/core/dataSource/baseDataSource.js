@@ -145,7 +145,7 @@ const functions = {
         return this.metaDataPromise.state;
     },
     getConcept(concept) {
-        if (concept == "concept_type" || concept.indexOf('is--') === 0)
+        if (concept == "concept_type" || concept.indexOf('is--') === 0 || concept === "concept")
             return { concept, name: concept }
         if (!this.concepts.has({ concept }))
             console.warn("Could not find concept " + concept + " in data source ", this);

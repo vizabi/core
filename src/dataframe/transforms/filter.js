@@ -29,9 +29,9 @@ function validFilterArg(filter) {
 /**
  * Partially apply applyFilterRow, giving only the filter spec
  * @param {Object} filterSpec Filter specification according to DDFQL WHERE spec
- * @returns {Function} Filter function, returning boolean
+ * @returns {Function} Filter function, which takes an object and returns a boolean representing if the object satifies the filterSpec
  */
-function createFilterFn(filterSpec) {
+export function createFilterFn(filterSpec) {
     return (row) => applyFilterRow(row, filterSpec);
 }
 

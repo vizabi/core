@@ -282,9 +282,9 @@ var initialMarkerConfig = {
     source: data,
     space: {
       autoconfig: {
-          concept: {
-            $nin: ["age"]
-          }
+        concept: {
+          $nin: ["age"]
+        }
       }
     }
   },
@@ -294,7 +294,7 @@ var initialMarkerConfig = {
         concept: {
           autoconfig: {
             concept_type: {
-              $or: ["entity_domain", "entity_set"]
+              $in: ["entity_domain", "entity_set"]
             }
           }
         }
@@ -497,8 +497,11 @@ var spaces = [];
   
 
 
-  
-marker.on('fulfilled', draw);
+Vizabi.mobx.autorun(() => {
+  if (marker.state === "fulfilled")
+    draw(marker.dataArray)
+})
+// marker.on('fulfilled', draw);
 function draw(data) {
   
   data.forEach(d => d.x = d[Symbol.for("key")]);
@@ -512,7 +515,7 @@ function draw(data) {
 }
 
 
-mobx.reaction(() => data.metaDataState, (arg) => { 
+mobx.reaction(() => data.state, (arg) => { 
   spaces = marker.spaceAvailability;
   availability = marker.availability.filter(f=>f.value.concept_type=="measure")
     .filter(f => Vizabi.utils.arrayEquals(f.key, marker.data.space));
