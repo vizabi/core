@@ -1,11 +1,22 @@
 import { DataFrame } from "../dataFrame";
 
 export function fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {
-
-    return joinParams.reduce(
-        _fullJoin, 
-        DataFrame([], joinKey)
-    );
+    
+    return joinParams
+        .reduce((params, param) => {
+            const baseParam = params.find(baseParam => baseParam.dataFrame === param.dataFrame);
+            if (baseParam)
+                Object.keys(param.projection).forEach(key => {
+                    baseParam.projection[key] = param.projection[key];
+                });
+            else
+                params.push(param);
+            return params;
+        }, [])
+        .reduce(
+            _fullJoin, 
+            DataFrame([], joinKey)
+        );
 
 }
 

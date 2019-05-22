@@ -8,7 +8,7 @@ import { createFilterFn } from "../../dataframe/transforms/filter";
 import { fromPromise, FULFILLED } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
-import { createKeyStr } from "../../dataframe/utils";
+import { createKeyStr, isDataFrame } from "../../dataframe/utils";
 
 const defaultConfig = {
 }
@@ -200,14 +200,14 @@ export function dataConfig(config = {}, parent) {
         },
         get promise() {
             trace();
-            // can't use .then on source because its execution won't be tracked by mobx
+            // can't use .then on source because its execution won't be tracked by mobx (b/c async)
             if (this.source.state === FULFILLED) {
                 if (this.hasOwnData)
                     return this.source.query(this.ddfQuery)
                 else   
                     return fromPromise(Promise.resolve());
             }
-            // indefinite pending until source is fulfilled
+            // infinite pending, replaced when source is fulfilled
             return fromPromise(new Promise(() => {}));
         },
         get state() {
@@ -229,7 +229,10 @@ export function dataConfig(config = {}, parent) {
         },
         get responseMap() {
             trace();
-            return DataFrame(this.response, this.commonSpace);
+            if (isDataFrame(this.response))
+                return this.response;
+            else
+                return DataFrame(this.response, this.commonSpace);
         },
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
