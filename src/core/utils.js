@@ -61,7 +61,7 @@ export function assign(target, ...sources) {
     });
     return target;
 }
-export function compose(...parts) {
+export function composeObj(...parts) {
     return assign({}, ...parts);
 }
 
@@ -324,3 +324,14 @@ function pad(value, width) {
     return length < width ? new Array(width - length + 1).join(0) + s : s;
 }
     
+export const defer = setTimeout;
+
+function compose2(f, g) {
+    return (...args) => f(g(...args));
+}
+export function compose(...fns) {
+    return fns.reduce(compose2);
+}
+export function pipe(...fns) {
+    return fns.reduceRight(compose2);
+}

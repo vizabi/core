@@ -1,5 +1,5 @@
 import { fromPromise, FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults } from "../utils";
+import { assign, applyDefaults, defer, deepclone, pipe } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
@@ -158,9 +158,59 @@ const functions = {
         //return [];
         query = dotToJoin(query);
         query = addExplicitAnd(query);
-        console.log('Querying', query);
-        const readPromise = this.reader.read(query);
-        return fromPromise(readPromise);
+        console.log('Adding to queue', query);
+        const queryPromise = this.enqueue(query);
+        return fromPromise(queryPromise);
+    },
+    queue: [],
+    enqueue(query) {
+        return new Promise((resolve, reject) => {
+            this.queue.push({ query, resolve, reject });
+            // defer so queue can fill up before queue is processed
+            // only first of deferred functions will find a filled queue
+            defer(() => this.processQueue(this.queue));
+        })
+    },
+    processQueue(queue) {
+        return pipe(
+            this.combineQueries.bind(this), 
+            this.sendQueries.bind(this),
+            this.clearQueue.bind(this)
+        )(queue);
+    },
+    combineQueries(queue) {
+        return queue.reduce((baseQueries, { query, resolve, reject }) => {
+            const queryCombineId = this.calcCombineId(query);
+            if (baseQueries.has(queryCombineId)) {
+                const { baseQuery, resolves, rejects } = baseQueries.get(queryCombineId);
+                baseQuery.select.value = baseQuery.select.value.concat(query.select.value);
+                resolves.push(resolve);
+                rejects.push(reject);
+            } else {
+                baseQueries.set(queryCombineId, {
+                    baseQuery: deepclone(query),
+                    resolves: [resolve],
+                    rejects: [reject]
+                });
+            }
+            return baseQueries;
+        }, new Map());
+    },
+    sendQueries(queries) {
+        for (let { baseQuery, resolves, rejects } of queries.values()) {
+            console.log('Querying', baseQuery);
+            const p = this.reader.read(baseQuery);
+            resolves.forEach(p.then.bind(p));
+            rejects.forEach(p.catch.bind(p));
+        }
+    },
+    clearQueue() {
+        this.queue.length = 0; // reset without changing ref
+    },
+    calcCombineId(query) {
+        const clone = deepclone(query);
+        delete clone.select.value;
+        return JSON.stringify(clone);
     }
 }
 
@@ -189,5 +239,9 @@ export function baseDataSource(config) {
 baseDataSource.decorate = {
     // to prevent config.values from becoming observable
     // possibly paints with too broad a brush, other config might need to be deep later
-    config: observable.shallow
+    config: observable.shallow,
+    // queue should be mutable by computed methods
+    // this is introducing state manipulation and makes these computed methods impure
+    // other solutions are welcome : )
+    queue: observable.shallow
 }

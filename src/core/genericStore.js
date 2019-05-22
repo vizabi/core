@@ -32,7 +32,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
             let modelType = this.modelTypes.all[config.modelType] || this.modelTypes.base;
             let model = observable(
                 modelType(config, parent), 
-                modelType.decorate || null, 
+                modelType.decorate || undefined, 
                 { name: modelType.name || config.modelType || 'base' }
             );
             if (model.setUpReactions) model.setUpReactions();

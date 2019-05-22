@@ -1,13 +1,13 @@
 import { dataConfig } from './dataConfig';
-import { compose, renameProperty } from '../utils';
-import { observable, trace, toJS } from 'mobx';
+import { composeObj, renameProperty } from '../utils';
+import { trace, toJS } from 'mobx';
 import { fromPromise } from 'mobx-utils';
 import { DataFrame } from '../../dataframe/dataFrame';
 
 export function entityPropertyDataConfig(cfg, parent) {
     const base = dataConfig(cfg, parent);
 
-    return compose(base, {
+    return composeObj(base, {
 
         get promise() {
             trace();
