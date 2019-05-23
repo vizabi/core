@@ -91,12 +91,14 @@ export function fromPromiseAll(promiseArray) {
 
 export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
     if (Array.isArray(functions)) functions = assign({}, ...functions);
-    return function decorate(config, parent) {
+    const newType = function decorate(config, parent) {
         applyDefaults(config, defaultConfig);
         delete functions.config;
         base = (base == null) ? (config, parent) => ({ config, parent }) : base;
         return assign(base(config, parent), functions);
     }
+    newType.decorate = base.decorate;
+    return newType;
 }
 
 export function combineStates(states) {
@@ -334,4 +336,33 @@ export function compose(...fns) {
 }
 export function pipe(...fns) {
     return fns.reduceRight(compose2);
+}
+
+
+export function stableStringifyObject(obj) { 
+    return JSON.stringify(canonicalObject(obj));
+}
+
+function canonicalObject(where) {
+    if (!isNonNullObject(where)) 
+        return where;
+    const keys = Object.keys(where).sort();
+    return keys.map(key => ({ [key]: canonicalObject(where[key]) }));
+}
+
+/**
+ * Returns value for `key` in `map`. If `key` not in map, first create new value using `create` getter function and set it to `key`.
+ * @param {Map} map Map to get from
+ * @param {Any} key Key to map
+ * @param {Function} create Function which returns new value for new keys
+ */
+export function getOrCreate(map, key, create) {
+    let value;
+    if (map.has(key))
+        value = map.get(key);
+    else {
+        value = create();
+        map.set(key, value);
+    }
+    return value;
 }

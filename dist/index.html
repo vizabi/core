@@ -723,7 +723,6 @@ function chart() {
                         .text(d => d.name);
                     dimUpdate.exit().remove().each(function(d) {
                         const dim = d3.select(this).datum().dim;
-                        encoding.data.filter.config.dimensions[dim] = {};
                     });
                 });
             });

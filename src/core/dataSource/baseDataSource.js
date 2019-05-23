@@ -1,5 +1,5 @@
 import { fromPromise, FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, defer, deepclone, pipe } from "../utils";
+import { assign, applyDefaults, defer, deepclone, pipe, stableStringifyObject } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
@@ -7,6 +7,7 @@ import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline';
 import { csvReader } from '../../reader/csv';
 import { createKeyStr } from '../../dataframe/utils';
+import { makeCache } from '../dataConfig/cache';
 
 const defaultConfig = {
     path: null,
@@ -165,44 +166,79 @@ const functions = {
     queue: [],
     enqueue(query) {
         return new Promise((resolve, reject) => {
-            this.queue.push({ query, resolve, reject });
+            this.queue.push({ query, resolves: [resolve], rejects: [reject] });
             // defer so queue can fill up before queue is processed
-            // only first of deferred functions will find a filled queue
+            // only first of deferred process calls will find a filled queue
             defer(() => this.processQueue(this.queue));
         })
     },
     processQueue(queue) {
         return pipe(
+            this.resolveCached.bind(this),
             this.combineQueries.bind(this), 
             this.sendQueries.bind(this),
+            this.setQueueHandlers.bind(this),
+            this.addToCache.bind(this),
             this.clearQueue.bind(this)
         )(queue);
     },
     combineQueries(queue) {
-        return queue.reduce((baseQueries, { query, resolve, reject }) => {
+        const queries = queue.reduce((queries, { query, resolves, rejects }) => {
             const queryCombineId = this.calcCombineId(query);
-            if (baseQueries.has(queryCombineId)) {
-                const { baseQuery, resolves, rejects } = baseQueries.get(queryCombineId);
-                baseQuery.select.value = baseQuery.select.value.concat(query.select.value);
-                resolves.push(resolve);
-                rejects.push(reject);
+            if (queries.has(queryCombineId)) {
+                const { 
+                    query: combinedQuery, 
+                    resolves: combinedResolves, 
+                    rejects: combinedRejects 
+                } = queries.get(queryCombineId);
+                combinedQuery.select.value.push(...query.select.value);
+                combinedResolves.push(...resolves);
+                combinedRejects.push(...rejects);
             } else {
-                baseQueries.set(queryCombineId, {
-                    baseQuery: deepclone(query),
-                    resolves: [resolve],
-                    rejects: [reject]
+                queries.set(queryCombineId, {
+                    query: deepclone(query),
+                    resolves,
+                    rejects
                 });
             }
-            return baseQueries;
+            return queries;
         }, new Map());
+        return [...queries.values()];
+    },
+    cache: makeCache(),
+    resolveCached(queries) {
+        return queries.filter(query => !this.tryCache(query));
+    },
+    tryCache({ query, resolves }) {
+        let response;
+        if (response = this.cache.get(query)) {
+            console.warn('Resolving query from cache.', query);
+            resolves.forEach(resolve => resolve(response));
+            return true;
+        }
+        return false;
     },
     sendQueries(queries) {
-        for (let { baseQuery, resolves, rejects } of queries.values()) {
-            console.log('Querying', baseQuery);
-            const p = this.reader.read(baseQuery);
-            resolves.forEach(p.then.bind(p));
-            rejects.forEach(p.catch.bind(p));
-        }
+        return queries.map(({ query, resolves, rejects }) => {
+            console.log('Sending query to reader', query);
+            const promise = this.reader.read(query);
+            return {
+                query, resolves, rejects, promise
+            };
+        });
+    },
+    setQueueHandlers(queries) {
+        queries.forEach(({ promise, resolves, rejects }) => {
+            resolves.forEach(res => promise.then(res));
+            rejects.forEach(rej => promise.catch(rej));
+        })
+        return queries;
+    },
+    addToCache(queries) {
+        queries.forEach(({ query, promise }) => {
+            this.cache.setFromPromise(query, promise);
+        });
+        return queries;
     },
     clearQueue() {
         this.queue.length = 0; // reset without changing ref
@@ -210,7 +246,7 @@ const functions = {
     calcCombineId(query) {
         const clone = deepclone(query);
         delete clone.select.value;
-        return JSON.stringify(clone);
+        return stableStringifyObject(clone);
     }
 }
 
@@ -243,5 +279,6 @@ baseDataSource.decorate = {
     // queue should be mutable by computed methods
     // this is introducing state manipulation and makes these computed methods impure
     // other solutions are welcome : )
-    queue: observable.shallow
+    queue: observable.ref,
+    cache: observable.ref
 }

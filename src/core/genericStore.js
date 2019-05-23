@@ -101,5 +101,8 @@ export const createStore = function(baseType, extendedTypes = {}) {
             return map;
         }
 
+    }, {
+        named: observable.shallow,
+        configRef: observable.shallow
     });
 }
