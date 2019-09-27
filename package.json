@@ -9,13 +9,15 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
     "mobx": "^5.9.0",
     "mobx-utils": "^5.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
+    "install-peers": "^1.0.3",
     "jest": "^24.7.1",
     "mobx-formatters": "^1.0.2",
     "webpack": "^4.29.4",
