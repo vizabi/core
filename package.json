@@ -1,14 +1,27 @@
 {
   "name": "vizabi-reactive",
-  "private": true,
-  "version": "0.0.1",
-  "description": "Vizabi with mobx state",
+  "version": "1.0.1",
+  "description": "Vizabi core for interactive animated charts. This version uses mobx for state and event mgmt",
+  "main": "dist/Vizabi.js",
+  "files": [
+    "dist/Vizabi.js",
+    "src"
+  ],
   "scripts": {
+    "prepublish": "npx webpack",
     "start": "webpack-dev-server -d --open",
     "test": "jest"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Jasper Heeffer and others at Gapminder Foundation",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vizabi/vizabi-reactive"
+  },
+  "bugs": {
+    "url": "https://github.com/vizabi/vizabi-reactive/issues"
+  },
+  "homepage": "http://vizabi.org",
   "dependencies": {},
   "peerDependencies": {
     "mobx": "^5.9.0",
