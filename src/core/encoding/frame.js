@@ -3,6 +3,7 @@ import { action, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, equals, getTimeInterval, mapToObj, stepIterator } from '../utils';
 import { createMarkerKey } from '../../dataframe/utils';
+import { DataFrame } from '../../dataframe/dataFrame';
 //import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
@@ -21,14 +22,21 @@ const defaults = {
 const functions = {
     get value() {
         trace();
+        const configValue = this.config.value;
+        const configAnimationValue = this.config.animationValue;
         let value;
-        if (this.config.value != null) {
-            value = parseConfigValue(this.config.value, this.data.conceptProps);
-            value = this.scale.clampToDomain(value);
+
+        if (configAnimationValue) {
+            value = configAnimationValue
         } else {
-            value = this.scale.domain[0];
+            if (configValue != null) {
+                value = parseConfigValue(configValue, this.data.conceptProps);
+                value = this.scale.clampToDomain(value);
+            } else {
+                value = this.scale.domain[0];
+            }
         }
-        return value; 
+        return value;
     },
     get index() {
         const value = this.value;
@@ -86,16 +94,24 @@ const functions = {
     }),
     setSpeed: action('setSpeed', function(speed) {
         speed = Math.max(0, speed);
-        this.config.speed = speed;
+            this.config.speed = speed;
     }),
-    setValue: action('setValue', function(value) {
+    setValue: action('setValue', function(value, animationFlag) {
         const concept = this.data.conceptProps;
         let date = value instanceof Date ? value : parseConfigValue(value, concept);
-        const string = typeof value === "string" ? value : configValue(value, concept);
         if (date != null) {
             date = this.scale.clampToDomain(date);
         }
-        this.config.value = string;
+        if (animationFlag) {
+            this.config.animationValue = date;
+        } else { 
+            if (this.config.animationValue) {
+                this.config.animationValue = null
+                value = this.snap(value);
+            }
+            const string = typeof value === "string" ? value : configValue(value, concept);
+            this.config.value = string;
+        }
     }),
     setIndex: action('setIndex', function(idx) {
         this.setValue(this.stepArray[idx]);
@@ -115,6 +131,7 @@ const functions = {
                 if (this.loop) {
                     this.setValue(this.scale.domain[0]);
                     this.nextValGen = this.stepFn();
+                    this.nextValGen.next();
                 } else {
                     this.stopPlaying();
                 }
@@ -132,10 +149,31 @@ const functions = {
     currentFrame(data) {
         if (data.has(this.frameKey)) {
             return data.get(this.frameKey);
-        } else {
-            console.warn("Frame value not found in frame map", this)
-            return new Map();
+        } 
+        // else {
+        //     console.warn("Frame value not found in frame map", this)
+        //     return new Map();
+        // }
+        const steps = this.stepsAround(this.value);
+        const stepsDf = steps.map(s => {
+            const key = createMarkerKey({ [this.name]: s }, [this.name]);
+            return data.get(key);
+        });
+        const fields = [...stepsDf[0].fields]
+            .filter(f => !(f == this.data.concept || data.key.includes(f) || data.descendantKeys.flat().includes(f)));
+
+        const name = this.name;
+        const keyFields = {
+            [name]: this.value,
+            [this.data.concept]: row => row[name]
         }
+        
+        return this.interpolateBetweenDf(
+            ...stepsDf,
+            keyFields,
+            fields,
+            this.fraction(this.value, steps))
+        
     },
     get frameKey() {
         return createMarkerKey({ [this.name]: this.value }, [this.name]);
@@ -188,13 +226,48 @@ const functions = {
                 clearInterval(this.playInterval);
                 if (playing) {
                     this.nextValGen = this.stepFn(this.value);
+                    this.nextValGen.next();
                     this.update();
                     this.playInterval = setInterval(this.update.bind(this), speed);
                 }
             }, 
             { name: "frame playback timer" }
         );
-    }
+    },
+    stepsAround(value) {
+        const stepArray = this.stepArray;
+        const index = d3.bisectLeft(stepArray, value);
+        const indexStep = stepArray[index];
+        return equals(value, indexStep) ?
+            [indexStep]
+            :
+            [stepArray[index - 1] || indexStep, indexStep];
+    },
+    fraction(value, steps) {
+        return (value - steps[0]) / (steps[1] - steps[0]);
+    },
+    snap(value) {
+        const steps = this.stepsAround(value);
+        return steps.length == 1 ? steps[0] : steps[Math.round(this.fraction(value, steps))];
+    },
+    interpolateBetweenDf(df1, df2, keyFieldsFillFns, fields, fraction) {
+        const df = DataFrame([], df1.key);
+        const df2Rows = df2.values();
+        let newRow, row2;
+        for(let row1 of df1.values()) {
+            row2 = df2Rows.next().value;
+            newRow = Object.assign({}, row1);
+            for (let field of fields) {
+                newRow[field] = d3.interpolate(row1[field], row2[field])(fraction);
+            }
+            for (let concept in keyFieldsFillFns) {
+                const fillValue = keyFieldsFillFns[concept];
+                newRow[concept] = typeof fillValue == "function" ? fillValue(newRow) : fillValue;
+            }
+            df.setRow(newRow);
+        }
+        return df;
+    },
 }
 
 export function frame(config) {
