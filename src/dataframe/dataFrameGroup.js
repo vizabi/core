@@ -43,7 +43,7 @@ function createGroupMap(key, descendantKeys) {
     groupMap.reindex = mapCall(groupMap, "reindex");
     groupMap.flatten = (key) => flatten(groupMap, key);
     groupMap.groupBy = (key) => {
-        for (group of groupMap.values()) {
+        for (let group of groupMap.values()) {
             const newGroup = group.groupBy(key);
 
             // groups change from DataFrame to GroupMap
