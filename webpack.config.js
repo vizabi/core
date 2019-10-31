@@ -16,7 +16,7 @@ module.exports = {
         libraryTarget: 'umd',
         libraryExport: 'default'
     },
-
+    devtool: "inline-source-map",
     devServer: {
         contentBase: path.join(__dirname, 'dist'),
         compress: false,
