@@ -19,7 +19,7 @@ const plugins = () => [
 ];
 
 module.exports = dir => [{
-    input: {"Vizabi": path.resolve(__dirname, 'src', 'core', 'vizabi.js')},
+    input: {"Vizabi": path.resolve(__dirname, 'src', 'core', 'vizabi_entry.js')},
     output: output("Vizabi", dir), 
     external,
     plugins: plugins()
