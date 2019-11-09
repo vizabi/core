@@ -11,7 +11,10 @@ const output = (name, output) => ({
     entryFileNames: '[name].js',
     format: "umd",
     banner: copyright,
-    sourcemap: true
+    sourcemap: true,
+    globals: {
+        "mobx": "mobx"
+    }
 });
 const external = ["mobx"];
 const plugins = () => [
