@@ -9,12 +9,9 @@ dataSourceStore.createAndAddType = function(type, readerObject) {
         base: baseDataSource,
         functions: {
             get reader() {
-                // copy reader object (using original will only allow one datasource of this type)
+                // copy reader object (using original would only allow one datasource of this type)
                 const reader = Object.assign({}, readerObject);
-                reader.init({
-                    path: this.path,
-                    assetsPath: this.config.assetsPath
-                })
+                reader.init(this.config.dataset || {})
                 return reader;
             }
         }
