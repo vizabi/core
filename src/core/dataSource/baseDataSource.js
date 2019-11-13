@@ -191,7 +191,8 @@ const functions = {
                     resolves: combinedResolves, 
                     rejects: combinedRejects 
                 } = queries.get(queryCombineId);
-                combinedQuery.select.value.push(...query.select.value);
+                const additionalValues = query.select.value.filter(v => combinedQuery.select.value.includes(v) === false)
+                combinedQuery.select.value.push(...additionalValues);
                 combinedResolves.push(...resolves);
                 combinedRejects.push(...rejects);
             } else {
