@@ -45,12 +45,12 @@ export function filter(config = {}, parent) {
             this.config.markers = mapToObj(this.markers);
             return success;
         }),
-        toggle(d) {
+        toggle: action("toggleFilter", function(d) {
             const key = this.getKey(d);
             const del = this.delete(key);
             if (!del) this.set(key);
             return !del;
-        },
+        }),
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];
         },
