@@ -3,6 +3,7 @@ import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, isProperSubset, combineStates } from "../utils";
+import { createMarkerKey } from '../../dataframe/utils';
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -246,6 +247,17 @@ let functions = {
     },
     get dataArray() {
         return this.dataMap.toJSON();
+    },
+    getDataMapByFrameValue(value) {
+        const frame = this.encoding.get("frame");
+        if (!frame) return this.dataMap;
+
+        const frameKey = createMarkerKey({ [frame.name]: value }, [frame.name]);
+        const data = this.transformedDataMaps.get('filterRequired').get();
+        return data.has(frameKey) ? 
+            data.get(frameKey)
+            :
+            frame.getInterpolatedFrame(data, value);
     }
 }
 

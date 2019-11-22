@@ -147,33 +147,15 @@ const functions = {
         }
     },
     currentFrame(data) {
-        if (data.has(this.frameKey)) {
-            return data.get(this.frameKey);
-        } 
+        return data.has(this.frameKey) ? 
+            data.get(this.frameKey)
+            :
+            this.getInterpolatedFrame(data, this.value);
         // else {
         //     console.warn("Frame value not found in frame map", this)
         //     return new Map();
         // }
-        const steps = this.stepsAround(this.value);
-        const stepsDf = steps.map(s => {
-            const key = createMarkerKey({ [this.name]: s }, [this.name]);
-            return data.get(key);
-        });
-        const fields = [...stepsDf[0].fields]
-            .filter(f => !(f == this.data.concept || data.key.includes(f) || data.descendantKeys.flat().includes(f)));
 
-        const name = this.name;
-        const keyFields = {
-            [name]: this.value,
-            [this.data.concept]: row => row[name]
-        }
-        
-        return this.interpolateBetweenDf(
-            ...stepsDf,
-            keyFields,
-            fields,
-            this.fraction(this.value, steps))
-        
     },
     get frameKey() {
         return createMarkerKey({ [this.name]: this.value }, [this.name]);
@@ -234,6 +216,27 @@ const functions = {
             { name: "frame playback timer" }
         );
     },
+    getInterpolatedFrame(data, value) {
+        const steps = this.stepsAround(value);
+        const stepsDf = steps.map(s => {
+            const key = createMarkerKey({ [this.name]: s }, [this.name]);
+            return data.get(key);
+        });
+        const fields = [...stepsDf[0].fields]
+            .filter(f => !(f == this.data.concept || data.key.includes(f) || data.descendantKeys.flat().includes(f)));
+
+        const name = this.name;
+        const keyFields = {
+            [name]: value,
+            [this.data.concept]: row => row[name]
+        }
+        
+        return this.interpolateBetweenDf(
+            ...stepsDf,
+            keyFields,
+            fields,
+            this.fraction(value, steps))
+    },
     stepsAround(value) {
         const stepArray = this.stepArray;
         const index = d3.bisectLeft(stepArray, value);
@@ -252,10 +255,10 @@ const functions = {
     },
     interpolateBetweenDf(df1, df2, keyFieldsFillFns, fields, fraction) {
         const df = DataFrame([], df1.key);
-        const df2Rows = df2.values();
         let newRow, row2;
-        for(let row1 of df1.values()) {
-            row2 = df2Rows.next().value;
+        for(const [key, row1] of df1) {
+            row2 = df2.getByObjOrStr(undefined, key);
+            if (!row2) return;
             newRow = Object.assign({}, row1);
             for (let field of fields) {
                 newRow[field] = d3.interpolate(row1[field], row2[field])(fraction);
