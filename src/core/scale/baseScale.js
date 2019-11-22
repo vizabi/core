@@ -7,7 +7,8 @@ const scales = {
     "sqrt": d3.scaleSqrt,
     "ordinal": d3.scaleOrdinal,
     "point": d3.scalePoint,
-    "band": d3.scaleBand
+    "band": d3.scaleBand,
+    "time": d3.scaleUtc
 }
 
 
@@ -43,6 +44,8 @@ export function baseScale(config = {}, parent) {
                 scaleType = scale;
             else if (concept && ["entity_domain", "entity_set", "string"].includes(concept.concept_type))
                 scaleType = this.ordinalScale;
+            else if (concept && ["time"].includes(concept.concept_type))
+                scaleType = "time";
             else
                 scaleType = "linear";
             return scaleType;
