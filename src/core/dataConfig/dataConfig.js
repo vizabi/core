@@ -190,7 +190,7 @@ export function dataConfig(config = {}, parent) {
                     .concat(spaceConcepts);
           
                 concept = conceptsInThisSpace
-                    .find(c => satisfiesAutoCfg(c) && !usedConcepts.includes(c.concept)) || {};
+                    .find(c => satisfiesAutoCfg(c) && (c.concept_type == "time" || !usedConcepts.includes(c.concept))) || {};
                 concept = concept.concept;
             }
             return concept || defaults.concept;    
