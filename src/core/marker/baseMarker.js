@@ -253,7 +253,7 @@ let functions = {
         if (!frame) return this.dataMap;
 
         const frameKey = createMarkerKey({ [frame.name]: value }, [frame.name]);
-        const data = this.transformedDataMaps.get('filterRequired').get();
+        const data = this.getTransformedDataMap('filterRequired');
         return data.has(frameKey) ? 
             data.get(frameKey)
             :

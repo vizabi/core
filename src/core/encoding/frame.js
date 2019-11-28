@@ -258,7 +258,7 @@ const functions = {
         let newRow, row2;
         for(const [key, row1] of df1) {
             row2 = df2.getByObjOrStr(undefined, key);
-            if (!row2) return;
+            if (!row2) continue;
             newRow = Object.assign({}, row1);
             for (let field of fields) {
                 newRow[field] = d3.interpolate(row1[field], row2[field])(fraction);
