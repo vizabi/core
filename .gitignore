@@ -1,3 +1,7 @@
 node_modules/
 .vscode/launch.json
 package-lock.json
+dist/Dataframe.js
+dist/Dataframe.js.map
+dist/Vizabi.js
+dist/Vizabi.js.map

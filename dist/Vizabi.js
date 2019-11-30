@@ -1,698 +1,3620 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["Vizabi"] = factory();
-	else
-		root["Vizabi"] = factory();
-})(window, function() {
-return /******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
-/******/
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId]) {
-/******/ 			return installedModules[moduleId].exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
-/******/
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
-/******/
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/
-/******/
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
-/******/
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
-/******/
-/******/ 	// define getter function for harmony exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		if(!__webpack_require__.o(exports, name)) {
-/******/ 			Object.defineProperty(exports, name, { enumerable: true, get: getter });
-/******/ 		}
-/******/ 	};
-/******/
-/******/ 	// define __esModule on exports
-/******/ 	__webpack_require__.r = function(exports) {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/
-/******/ 	// create a fake namespace object
-/******/ 	// mode & 1: value is a module id, require it
-/******/ 	// mode & 2: merge all properties of value into the ns
-/******/ 	// mode & 4: return value when already ns object
-/******/ 	// mode & 8|1: behave like require
-/******/ 	__webpack_require__.t = function(value, mode) {
-/******/ 		if(mode & 1) value = __webpack_require__(value);
-/******/ 		if(mode & 8) return value;
-/******/ 		if((mode & 4) && typeof value === 'object' && value && value.__esModule) return value;
-/******/ 		var ns = Object.create(null);
-/******/ 		__webpack_require__.r(ns);
-/******/ 		Object.defineProperty(ns, 'default', { enumerable: true, value: value });
-/******/ 		if(mode & 2 && typeof value != 'string') for(var key in value) __webpack_require__.d(ns, key, function(key) { return value[key]; }.bind(null, key));
-/******/ 		return ns;
-/******/ 	};
-/******/
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
-/******/
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-/******/
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "";
-/******/
-/******/
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = "./src/core/vizabi.js");
-/******/ })
-/************************************************************************/
-/******/ ({
-
-/***/ "./node_modules/mobx-utils/mobx-utils.module.js":
-/*!******************************************************!*\
-  !*** ./node_modules/mobx-utils/mobx-utils.module.js ***!
-  \******************************************************/
-/*! exports provided: computedFn, PENDING, FULFILLED, REJECTED, fromPromise, isPromiseBasedObservable, moveItem, lazyObservable, fromResource, toStream, fromStream, ViewModel, createViewModel, whenWithTimeout, keepAlive, queueProcessor, chunkProcessor, now, NOOP, IDENTITY, invariant, deprecated, addHiddenProp, getAllMethodsAndProperties, asyncAction, whenAsync, expr, createTransformer, deepObserve */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"computedFn\", function() { return computedFn; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"PENDING\", function() { return PENDING; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"FULFILLED\", function() { return FULFILLED; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"REJECTED\", function() { return REJECTED; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"fromPromise\", function() { return fromPromise; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isPromiseBasedObservable\", function() { return isPromiseBasedObservable; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"moveItem\", function() { return moveItem; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"lazyObservable\", function() { return lazyObservable; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"fromResource\", function() { return fromResource; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"toStream\", function() { return toStream; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"fromStream\", function() { return fromStream; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ViewModel\", function() { return ViewModel; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createViewModel\", function() { return createViewModel; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"whenWithTimeout\", function() { return whenWithTimeout; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"keepAlive\", function() { return keepAlive; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"queueProcessor\", function() { return queueProcessor; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"chunkProcessor\", function() { return chunkProcessor; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"now\", function() { return now; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"NOOP\", function() { return NOOP; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"IDENTITY\", function() { return IDENTITY; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"invariant\", function() { return invariant; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"deprecated\", function() { return deprecated; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"addHiddenProp\", function() { return addHiddenProp; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getAllMethodsAndProperties\", function() { return getAllMethodsAndProperties; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"asyncAction\", function() { return asyncAction; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"whenAsync\", function() { return whenAsync; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"expr\", function() { return expr; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createTransformer\", function() { return createTransformer; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"deepObserve\", function() { return deepObserve; });\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n\n\nvar NOOP = function () { };\nvar IDENTITY = function (_) { return _; };\nfunction invariant(cond, message) {\n    if (message === void 0) { message = \"Illegal state\"; }\n    if (!cond)\n        throw new Error(\"[mobx-utils] \" + message);\n}\nvar deprecatedMessages = [];\nfunction deprecated(msg) {\n    if (deprecatedMessages.indexOf(msg) !== -1)\n        return;\n    deprecatedMessages.push(msg);\n    console.error(\"[mobx-utils] Deprecated: \" + msg);\n}\nfunction addHiddenProp(object, propName, value) {\n    Object.defineProperty(object, propName, {\n        enumerable: false,\n        writable: true,\n        configurable: true,\n        value: value\n    });\n}\nvar isGetter = function (x, name) { return (Object.getOwnPropertyDescriptor(x, name) || {}).get; };\nvar isFunction = function (x, name) { return typeof x[name] === \"function\"; };\nvar deepFunctions = function (x) {\n    return x && x !== Object.prototype &&\n        Object.getOwnPropertyNames(x)\n            .filter(function (name) { return isGetter(x, name) || isFunction(x, name); })\n            .concat(deepFunctions(Object.getPrototypeOf(x)) || []);\n};\nvar distinctDeepFunctions = function (x) { return Array.from(new Set(deepFunctions(x))); };\nvar getAllMethodsAndProperties = function (x) { return distinctDeepFunctions(x).filter(function (name) { return name !== \"constructor\" && !~name.indexOf(\"__\"); }); };\n\nvar PENDING = \"pending\";\nvar FULFILLED = \"fulfilled\";\nvar REJECTED = \"rejected\";\nfunction caseImpl(handlers) {\n    switch (this.state) {\n        case PENDING:\n            return handlers.pending && handlers.pending(this.value);\n        case REJECTED:\n            return handlers.rejected && handlers.rejected(this.value);\n        case FULFILLED:\n            return handlers.fulfilled ? handlers.fulfilled(this.value) : this.value;\n    }\n}\nfunction createObservablePromise(origPromise, oldPromise) {\n    invariant(arguments.length <= 2, \"fromPromise expects up to two arguments\");\n    invariant(typeof origPromise === \"function\" ||\n        (typeof origPromise === \"object\" &&\n            origPromise &&\n            typeof origPromise.then === \"function\"), \"Please pass a promise or function to fromPromise\");\n    if (origPromise.isPromiseBasedObservable === true)\n        return origPromise;\n    if (typeof origPromise === \"function\") {\n        // If it is a (reject, resolve function, wrap it)\n        origPromise = new Promise(origPromise);\n    }\n    var promise = origPromise;\n    origPromise.then(Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"observableFromPromise-resolve\", function (value) {\n        promise.value = value;\n        promise.state = FULFILLED;\n    }), Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"observableFromPromise-reject\", function (reason) {\n        promise.value = reason;\n        promise.state = REJECTED;\n    }));\n    promise.isPromiseBasedObservable = true;\n    promise.case = caseImpl;\n    var oldData = oldPromise && oldPromise.state === FULFILLED ? oldPromise.value : undefined;\n    Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"extendObservable\"])(promise, {\n        value: oldData,\n        state: PENDING\n    }, {}, { deep: false });\n    return promise;\n}\n/**\n * `fromPromise` takes a Promise, extends it with 2 observable properties that track\n * the status of the promise and returns it. The returned object has the following observable properties:\n *  - `value`: either the initial value, the value the Promise resolved to, or the value the Promise was rejected with. use `.state` if you need to be able to tell the difference.\n *  - `state`: one of `\"pending\"`, `\"fulfilled\"` or `\"rejected\"`\n *\n * And the following methods:\n * - `case({fulfilled, rejected, pending})`: maps over the result using the provided handlers, or returns `undefined` if a handler isn't available for the current promise state.\n * - `then((value: TValue) => TResult1 | PromiseLike<TResult1>, [(rejectReason: any) => any])`: chains additional handlers to the provided promise.\n *\n * The returned object implements `PromiseLike<TValue>`, so you can chain additional `Promise` handlers using `then`. You may also use it with `await` in `async` functions.\n *\n * Note that the status strings are available as constants:\n * `mobxUtils.PENDING`, `mobxUtils.REJECTED`, `mobxUtil.FULFILLED`\n *\n * fromPromise takes an optional second argument, a previously created `fromPromise` based observable.\n * This is useful to replace one promise based observable with another, without going back to an intermediate\n * \"pending\" promise state while fetching data. For example:\n *\n * @example\n * \\@observer\n * class SearchResults extends React.Component {\n *   \\@observable searchResults\n *\n *   componentDidUpdate(nextProps) {\n *     if (nextProps.query !== this.props.query)\n *       this.comments = fromPromse(\n *         window.fetch(\"/search?q=\" + nextProps.query),\n *         // by passing, we won't render a pending state if we had a successful search query before\n *         // rather, we will keep showing the previous search results, until the new promise resolves (or rejects)\n *         this.searchResults\n *       )\n *   }\n *\n *   render() {\n *     return this.searchResults.case({\n *        pending: (staleValue) => {\n *          return staleValue || \"searching\" // <- value might set to previous results while the promise is still pending\n *        },\n *        fullfilled: (value) => {\n *          return value // the fresh results\n *        },\n *        rejected: (error) => {\n *          return \"Oops: \" + error\n *        }\n *     })\n *   }\n * }\n *\n * Observable promises can be created immediately in a certain state using\n * `fromPromise.reject(reason)` or `fromPromise.resolve(value?)`.\n * The main advantage of `fromPromise.resolve(value)` over `fromPromise(Promise.resolve(value))` is that the first _synchronously_ starts in the desired state.\n *\n * It is possible to directly create a promise using a resolve, reject function:\n * `fromPromise((resolve, reject) => setTimeout(() => resolve(true), 1000))`\n *\n * @example\n * const fetchResult = fromPromise(fetch(\"http://someurl\"))\n *\n * // combine with when..\n * when(\n *   () => fetchResult.state !== \"pending\",\n *   () => {\n *     console.log(\"Got \", fetchResult.value)\n *   }\n * )\n *\n * // or a mobx-react component..\n * const myComponent = observer(({ fetchResult }) => {\n *   switch(fetchResult.state) {\n *      case \"pending\": return <div>Loading...</div>\n *      case \"rejected\": return <div>Ooops... {fetchResult.value}</div>\n *      case \"fulfilled\": return <div>Gotcha: {fetchResult.value}</div>\n *   }\n * })\n *\n * // or using the case method instead of switch:\n *\n * const myComponent = observer(({ fetchResult }) =>\n *   fetchResult.case({\n *     pending:   () => <div>Loading...</div>,\n *     rejected:  error => <div>Ooops.. {error}</div>,\n *     fulfilled: value => <div>Gotcha: {value}</div>,\n *   }))\n *\n * // chain additional handler(s) to the resolve/reject:\n *\n * fetchResult.then(\n *   (result) =>  doSomeTransformation(result),\n *   (rejectReason) => console.error('fetchResult was rejected, reason: ' + rejectReason)\n * ).then(\n *   (transformedResult) => console.log('transformed fetchResult: ' + transformedResult)\n * )\n *\n * @param {IThenable<T>} promise The promise which will be observed\n * @param {IThenable<T>} oldPromise? The promise which will be observed\n * @returns {IPromiseBasedObservable<T>}\n */\nvar fromPromise = createObservablePromise;\nfromPromise.reject = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"fromPromise.reject\", function (reason) {\n    var p = fromPromise(Promise.reject(reason));\n    p.state = REJECTED;\n    p.value = reason;\n    return p;\n});\nfromPromise.resolve = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"fromPromise.resolve\", function (value) {\n    if (value === void 0) { value = undefined; }\n    var p = fromPromise(Promise.resolve(value));\n    p.state = FULFILLED;\n    p.value = value;\n    return p;\n});\n/**\n * Returns true if the provided value is a promise-based observable.\n * @param value any\n * @returns {boolean}\n */\nfunction isPromiseBasedObservable(value) {\n    return value && value.isPromiseBasedObservable === true;\n}\n\n/**\n * Moves an item from one position to another, checking that the indexes given are within bounds.\n *\n * @example\n * const source = observable([1, 2, 3])\n * moveItem(source, 0, 1)\n * console.log(source.map(x => x)) // [2, 1, 3]\n *\n * @export\n * @param {ObservableArray<T>} target\n * @param {number} fromIndex\n * @param {number} toIndex\n * @returns {ObservableArray<T>}\n */\nfunction moveItem(target, fromIndex, toIndex) {\n    checkIndex(target, fromIndex);\n    checkIndex(target, toIndex);\n    if (fromIndex === toIndex) {\n        return;\n    }\n    var oldItems = target[mobx__WEBPACK_IMPORTED_MODULE_0__[\"$mobx\"]].values;\n    var newItems;\n    if (fromIndex < toIndex) {\n        newItems = oldItems.slice(0, fromIndex).concat(oldItems.slice(fromIndex + 1, toIndex + 1), [\n            oldItems[fromIndex]\n        ], oldItems.slice(toIndex + 1));\n    }\n    else {\n        // toIndex < fromIndex\n        newItems = oldItems.slice(0, toIndex).concat([\n            oldItems[fromIndex]\n        ], oldItems.slice(toIndex, fromIndex), oldItems.slice(fromIndex + 1));\n    }\n    target.replace(newItems);\n    return target;\n}\n/**\n * Checks whether the specified index is within bounds. Throws if not.\n *\n * @private\n * @param {ObservableArray<any>} target\n * @param {number }index\n */\nfunction checkIndex(target, index) {\n    if (index < 0) {\n        throw new Error(\"[mobx.array] Index out of bounds: \" + index + \" is negative\");\n    }\n    var length = target[mobx__WEBPACK_IMPORTED_MODULE_0__[\"$mobx\"]].values.length;\n    if (index >= length) {\n        throw new Error(\"[mobx.array] Index out of bounds: \" + index + \" is not smaller than \" + length);\n    }\n}\n\n/**\n * `lazyObservable` creates an observable around a `fetch` method that will not be invoked\n * until the observable is needed the first time.\n * The fetch method receives a `sink` callback which can be used to replace the\n * current value of the lazyObservable. It is allowed to call `sink` multiple times\n * to keep the lazyObservable up to date with some external resource.\n *\n * Note that it is the `current()` call itself which is being tracked by MobX,\n * so make sure that you don't dereference to early.\n *\n * @example\n * const userProfile = lazyObservable(\n *   sink => fetch(\"/myprofile\").then(profile => sink(profile))\n * )\n *\n * // use the userProfile in a React component:\n * const Profile = observer(({ userProfile }) =>\n *   userProfile.current() === undefined\n *   ? <div>Loading user profile...</div>\n *   : <div>{userProfile.current().displayName}</div>\n * )\n *\n * // triggers refresh the userProfile\n * userProfile.refresh()\n *\n * @param {(sink: (newValue: T) => void) => void} fetch method that will be called the first time the value of this observable is accessed. The provided sink can be used to produce a new value, synchronously or asynchronously\n * @param {T} [initialValue=undefined] optional initialValue that will be returned from `current` as long as the `sink` has not been called at least once\n * @returns {{\n *     current(): T,\n *     refresh(): T,\n *     reset(): T\n *     pendind: boolean\n * }}\n */\nfunction lazyObservable(fetch, initialValue) {\n    if (initialValue === void 0) { initialValue = undefined; }\n    var started = false;\n    var value = mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].box(initialValue, { deep: false });\n    var pending = mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].box(false);\n    var currentFnc = function () {\n        if (!started) {\n            started = true;\n            pending.set(true);\n            fetch(function (newValue) {\n                Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"_allowStateChanges\"])(true, function () {\n                    value.set(newValue);\n                    pending.set(false);\n                });\n            });\n        }\n        return value.get();\n    };\n    var resetFnc = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"lazyObservable-reset\", function () {\n        started = false;\n        value.set(initialValue);\n        return value.get();\n    });\n    return {\n        current: currentFnc,\n        refresh: function () {\n            if (started) {\n                started = false;\n                return currentFnc();\n            }\n            else {\n                return value.get();\n            }\n        },\n        reset: function () {\n            return resetFnc();\n        },\n        get pending() {\n            return pending.get();\n        }\n    };\n}\n\n/**\n * `fromResource` creates an observable whose current state can be inspected using `.current()`,\n * and which can be kept in sync with some external datasource that can be subscribed to.\n *\n * The created observable will only subscribe to the datasource if it is in use somewhere,\n * (un)subscribing when needed. To enable `fromResource` to do that two callbacks need to be provided,\n * one to subscribe, and one to unsubscribe. The subscribe callback itself will receive a `sink` callback, which can be used\n * to update the current state of the observable, allowing observes to react.\n *\n * Whatever is passed to `sink` will be returned by `current()`. The values passed to the sink will not be converted to\n * observables automatically, but feel free to do so.\n * It is the `current()` call itself which is being tracked,\n * so make sure that you don't dereference to early.\n *\n * For inspiration, an example integration with the apollo-client on [github](https://github.com/apollostack/apollo-client/issues/503#issuecomment-241101379),\n * or the [implementation](https://github.com/mobxjs/mobx-utils/blob/1d17cf7f7f5200937f68cc0b5e7ec7f3f71dccba/src/now.ts#L43-L57) of `mobxUtils.now`\n *\n * The following example code creates an observable that connects to a `dbUserRecord`,\n * which comes from an imaginary database and notifies when it has changed.\n *\n * @example\n * function createObservableUser(dbUserRecord) {\n *   let currentSubscription;\n *   return fromResource(\n *     (sink) => {\n *       // sink the current state\n *       sink(dbUserRecord.fields)\n *       // subscribe to the record, invoke the sink callback whenever new data arrives\n *       currentSubscription = dbUserRecord.onUpdated(() => {\n *         sink(dbUserRecord.fields)\n *       })\n *     },\n *     () => {\n *       // the user observable is not in use at the moment, unsubscribe (for now)\n *       dbUserRecord.unsubscribe(currentSubscription)\n *     }\n *   )\n * }\n *\n * // usage:\n * const myUserObservable = createObservableUser(myDatabaseConnector.query(\"name = 'Michel'\"))\n *\n * // use the observable in autorun\n * autorun(() => {\n *   // printed everytime the database updates its records\n *   console.log(myUserObservable.current().displayName)\n * })\n *\n * // ... or a component\n * const userComponent = observer(({ user }) =>\n *   <div>{user.current().displayName}</div>\n * )\n *\n * @export\n * @template T\n * @param {(sink: (newValue: T) => void) => void} subscriber\n * @param {IDisposer} [unsubscriber=NOOP]\n * @param {T} [initialValue=undefined] the data that will be returned by `get()` until the `sink` has emitted its first data\n * @returns {{\n *     current(): T;\n *     dispose(): void;\n *     isAlive(): boolean;\n * }}\n */\nfunction fromResource(subscriber, unsubscriber, initialValue) {\n    if (unsubscriber === void 0) { unsubscriber = NOOP; }\n    if (initialValue === void 0) { initialValue = undefined; }\n    var isActive = false;\n    var isDisposed = false;\n    var value = initialValue;\n    var suspender = function () {\n        if (isActive) {\n            isActive = false;\n            unsubscriber();\n        }\n    };\n    var atom = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"createAtom\"])(\"ResourceBasedObservable\", function () {\n        invariant(!isActive && !isDisposed);\n        isActive = true;\n        subscriber(function (newValue) {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"_allowStateChanges\"])(true, function () {\n                value = newValue;\n                atom.reportChanged();\n            });\n        });\n    }, suspender);\n    return {\n        current: function () {\n            invariant(!isDisposed, \"subscribingObservable has already been disposed\");\n            var isBeingTracked = atom.reportObserved();\n            if (!isBeingTracked && !isActive)\n                console.warn(\"Called `get` of a subscribingObservable outside a reaction. Current value will be returned but no new subscription has started\");\n            return value;\n        },\n        dispose: function () {\n            isDisposed = true;\n            suspender();\n        },\n        isAlive: function () { return isActive; }\n    };\n}\n\nvar __decorate = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nfunction observableSymbol() {\n    return (typeof Symbol === \"function\" && Symbol.observable) || \"@@observable\";\n}\nfunction self() {\n    return this;\n}\n/**\n * Converts an expression to an observable stream (a.k.a. TC 39 Observable / RxJS observable).\n * The provided expression is tracked by mobx as long as there are subscribers, automatically\n * emitting when new values become available. The expressions respect (trans)actions.\n *\n * @example\n *\n * const user = observable({\n *   firstName: \"C.S\",\n *   lastName: \"Lewis\"\n * })\n *\n * Rx.Observable\n *   .from(mobxUtils.toStream(() => user.firstname + user.lastName))\n *   .scan(nameChanges => nameChanges + 1, 0)\n *   .subscribe(nameChanges => console.log(\"Changed name \", nameChanges, \"times\"))\n *\n * @export\n * @template T\n * @param {() => T} expression\n * @param {boolean} fireImmediately (by default false)\n * @returns {IObservableStream<T>}\n */\nfunction toStream(expression, fireImmediately) {\n    if (fireImmediately === void 0) { fireImmediately = false; }\n    var _a;\n    var computedValue = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"])(expression);\n    return _a = {\n            subscribe: function (observer) {\n                return {\n                    unsubscribe: computedValue.observe(typeof observer === \"function\"\n                        ? function (_a) {\n                            var newValue = _a.newValue;\n                            return observer(newValue);\n                        }\n                        : function (_a) {\n                            var newValue = _a.newValue;\n                            return observer.next(newValue);\n                        }, fireImmediately)\n                };\n            }\n        }, _a[observableSymbol()] = self, _a;\n}\nvar StreamListener = /** @class */ (function () {\n    function StreamListener(observable$$1, initialValue) {\n        var _this = this;\n        this.current = undefined;\n        Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"runInAction\"])(function () {\n            _this.current = initialValue;\n            _this.subscription = observable$$1.subscribe(_this);\n        });\n    }\n    StreamListener.prototype.dispose = function () {\n        if (this.subscription) {\n            this.subscription.unsubscribe();\n        }\n    };\n    StreamListener.prototype.next = function (value) {\n        this.current = value;\n    };\n    StreamListener.prototype.complete = function () {\n        this.dispose();\n    };\n    StreamListener.prototype.error = function (value) {\n        this.current = value;\n        this.dispose();\n    };\n    __decorate([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].ref\n    ], StreamListener.prototype, \"current\", void 0);\n    __decorate([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"].bound\n    ], StreamListener.prototype, \"next\", null);\n    __decorate([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"].bound\n    ], StreamListener.prototype, \"complete\", null);\n    __decorate([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"].bound\n    ], StreamListener.prototype, \"error\", null);\n    return StreamListener;\n}());\n/**\n *\n * Converts a subscribable, observable stream (TC 39 observable / RxJS stream)\n * into an object which stores the current value (as `current`). The subscription can be cancelled through the `dispose` method.\n * Takes an initial value as second optional argument\n *\n * @example\n * const debouncedClickDelta = MobxUtils.fromStream(Rx.Observable.fromEvent(button, 'click')\n *     .throttleTime(1000)\n *     .map(event => event.clientX)\n *     .scan((count, clientX) => count + clientX, 0)\n * )\n *\n * autorun(() => {\n *     console.log(\"distance moved\", debouncedClickDelta.current)\n * })\n *\n * @export\n * @template T\n * @param {IObservableStream<T>} observable\n * @returns {{\n *     current: T;\n *     dispose(): void;\n * }}\n */\nfunction fromStream(observable$$1, initialValue) {\n    if (initialValue === void 0) { initialValue = undefined; }\n    return new StreamListener(observable$$1, initialValue);\n}\n\nvar __assign = (undefined && undefined.__assign) || function () {\n    __assign = Object.assign || function(t) {\n        for (var s, i = 1, n = arguments.length; i < n; i++) {\n            s = arguments[i];\n            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))\n                t[p] = s[p];\n        }\n        return t;\n    };\n    return __assign.apply(this, arguments);\n};\nvar __decorate$1 = (undefined && undefined.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nvar RESERVED_NAMES = [\"model\", \"reset\", \"submit\", \"isDirty\", \"isPropertyDirty\", \"resetProperty\"];\nvar ViewModel = /** @class */ (function () {\n    function ViewModel(model) {\n        var _this = this;\n        this.model = model;\n        this.localValues = mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].map({});\n        this.localComputedValues = mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].map({});\n        this.isPropertyDirty = function (key) {\n            return _this.localValues.has(key);\n        };\n        invariant(Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableObject\"])(model), \"createViewModel expects an observable object\");\n        // use this helper as Object.getOwnPropertyNames doesn't return getters\n        getAllMethodsAndProperties(model).forEach(function (key) {\n            if (key === mobx__WEBPACK_IMPORTED_MODULE_0__[\"$mobx\"] || key === \"__mobxDidRunLazyInitializers\") {\n                return;\n            }\n            invariant(RESERVED_NAMES.indexOf(key) === -1, \"The propertyname \" + key + \" is reserved and cannot be used with viewModels\");\n            if (Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isComputedProp\"])(model, key)) {\n                var derivation = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"_getAdministration\"])(model, key).derivation; // Fixme: there is no clear api to get the derivation\n                _this.localComputedValues.set(key, Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"])(derivation.bind(_this)));\n            }\n            var descriptor = Object.getOwnPropertyDescriptor(model, key);\n            var additionalDescriptor = descriptor ? { enumerable: descriptor.enumerable } : {};\n            Object.defineProperty(_this, key, __assign({}, additionalDescriptor, { configurable: true, get: function () {\n                    if (Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isComputedProp\"])(model, key))\n                        return _this.localComputedValues.get(key).get();\n                    if (_this.isPropertyDirty(key))\n                        return _this.localValues.get(key);\n                    else\n                        return _this.model[key];\n                }, set: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(function (value) {\n                    if (value !== _this.model[key]) {\n                        _this.localValues.set(key, value);\n                    }\n                    else {\n                        _this.localValues.delete(key);\n                    }\n                }) }));\n        });\n    }\n    Object.defineProperty(ViewModel.prototype, \"isDirty\", {\n        get: function () {\n            return this.localValues.size > 0;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    Object.defineProperty(ViewModel.prototype, \"changedValues\", {\n        get: function () {\n            return this.localValues.toJS();\n        },\n        enumerable: true,\n        configurable: true\n    });\n    ViewModel.prototype.submit = function () {\n        var _this = this;\n        Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"keys\"])(this.localValues).forEach(function (key) {\n            var source = _this.localValues.get(key);\n            var destination = _this.model[key];\n            if (Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableArray\"])(destination)) {\n                destination.replace(source);\n            }\n            else if (Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableMap\"])(destination)) {\n                destination.clear();\n                destination.merge(source);\n            }\n            else if (!Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isComputed\"])(source)) {\n                _this.model[key] = source;\n            }\n        });\n        this.localValues.clear();\n    };\n    ViewModel.prototype.reset = function () {\n        this.localValues.clear();\n    };\n    ViewModel.prototype.resetProperty = function (key) {\n        this.localValues.delete(key);\n    };\n    __decorate$1([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"]\n    ], ViewModel.prototype, \"isDirty\", null);\n    __decorate$1([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"]\n    ], ViewModel.prototype, \"changedValues\", null);\n    __decorate$1([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"].bound\n    ], ViewModel.prototype, \"submit\", null);\n    __decorate$1([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"].bound\n    ], ViewModel.prototype, \"reset\", null);\n    __decorate$1([\n        mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"].bound\n    ], ViewModel.prototype, \"resetProperty\", null);\n    return ViewModel;\n}());\n/**\n * `createViewModel` takes an object with observable properties (model)\n * and wraps a viewmodel around it. The viewmodel proxies all enumerable properties of the original model with the following behavior:\n *  - as long as no new value has been assigned to the viewmodel property, the original property will be returned.\n *  - any future change in the model will be visible in the viewmodel as well unless the viewmodel property was dirty at the time of the attempted change.\n *  - once a new value has been assigned to a property of the viewmodel, that value will be returned during a read of that property in the future. However, the original model remain untouched until `submit()` is called.\n *\n * The viewmodel exposes the following additional methods, besides all the enumerable properties of the model:\n * - `submit()`: copies all the values of the viewmodel to the model and resets the state\n * - `reset()`: resets the state of the viewmodel, abandoning all local modifications\n * - `resetProperty(propName)`: resets the specified property of the viewmodel\n * - `isDirty`: observable property indicating if the viewModel contains any modifications\n * - `isPropertyDirty(propName)`: returns true if the specified property is dirty\n * - `changedValues`: returns a key / value map with the properties that have been changed in the model so far\n * - `model`: The original model object for which this viewModel was created\n *\n * You may use observable arrays, maps and objects with `createViewModel` but keep in mind to assign fresh instances of those to the viewmodel's properties, otherwise you would end up modifying the properties of the original model.\n * Note that if you read a non-dirty property, viewmodel only proxies the read to the model. You therefore need to assign a fresh instance not only the first time you make the assignment but also after calling `reset()` or `submit()`.\n *\n * @example\n * class Todo {\n *   \\@observable title = \"Test\"\n * }\n *\n * const model = new Todo()\n * const viewModel = createViewModel(model);\n *\n * autorun(() => console.log(viewModel.model.title, \",\", viewModel.title))\n * // prints \"Test, Test\"\n * model.title = \"Get coffee\"\n * // prints \"Get coffee, Get coffee\", viewModel just proxies to model\n * viewModel.title = \"Get tea\"\n * // prints \"Get coffee, Get tea\", viewModel's title is now dirty, and the local value will be printed\n * viewModel.submit()\n * // prints \"Get tea, Get tea\", changes submitted from the viewModel to the model, viewModel is proxying again\n * viewModel.title = \"Get cookie\"\n * // prints \"Get tea, Get cookie\" // viewModel has diverged again\n * viewModel.reset()\n * // prints \"Get tea, Get tea\", changes of the viewModel have been abandoned\n *\n * @param {T} model\n * @returns {(T & IViewModel<T>)}\n * ```\n */\nfunction createViewModel(model) {\n    return new ViewModel(model);\n}\n\n/**\n * Like normal `when`, except that this `when` will automatically dispose if the condition isn't met within a certain amount of time.\n *\n * @example\n * test(\"expect store to load\", t => {\n *   const store = {\n *     items: [],\n *     loaded: false\n *   }\n *   fetchDataForStore((data) => {\n *     store.items = data;\n *     store.loaded = true;\n *   })\n *   whenWithTimeout(\n *     () => store.loaded\n *     () => t.end()\n *     2000,\n *     () => t.fail(\"store didn't load with 2 secs\")\n *   )\n * })\n *\n *\n * @export\n * @param {() => boolean} expr see when, the expression to await\n * @param {() => void} action see when, the action to execut when expr returns truthy\n * @param {number} [timeout=10000] maximum amount when spends waiting before giving up\n * @param {any} [onTimeout=() => {}] the ontimeout handler will be called if the condition wasn't met within the given time\n * @returns {IDisposer} disposer function that can be used to cancel the when prematurely. Neither action or onTimeout will be fired if disposed\n */\nfunction whenWithTimeout(expr, action$$1, timeout, onTimeout) {\n    if (timeout === void 0) { timeout = 10000; }\n    if (onTimeout === void 0) { onTimeout = function () { }; }\n    deprecated(\"whenWithTimeout is deprecated, use mobx.when with timeout option instead\");\n    return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"when\"])(expr, action$$1, {\n        timeout: timeout,\n        onError: onTimeout\n    });\n}\n\n/**\n * MobX normally suspends any computed value that is not in use by any reaction,\n * and lazily re-evaluates the expression if needed outside a reaction while not in use.\n * `keepAlive` marks a computed value as always in use, meaning that it will always fresh, but never disposed automatically.\n *\n * @example\n * const obj = observable({\n *   number: 3,\n *   doubler: function() { return this.number * 2 }\n * })\n * const stop = keepAlive(obj, \"doubler\")\n *\n * @param {Object} target an object that has a computed property, created by `@computed` or `extendObservable`\n * @param {string} property the name of the property to keep alive\n * @returns {IDisposer} stops this keep alive so that the computed value goes back to normal behavior\n */\n/**\n * @example\n * const number = observable(3)\n * const doubler = computed(() => number.get() * 2)\n * const stop = keepAlive(doubler)\n * // doubler will now stay in sync reactively even when there are no further observers\n * stop()\n * // normal behavior, doubler results will be recomputed if not observed but needed, but lazily\n *\n * @param {IComputedValue<any>} computedValue created using the `computed` function\n * @returns {IDisposer} stops this keep alive so that the computed value goes back to normal behavior\n */\nfunction keepAlive(_1, _2) {\n    var computed$$1 = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"getAtom\"])(_1, _2);\n    if (!computed$$1)\n        throw new Error(\"No computed provided, please provide an object created with `computed(() => expr)` or an object + property name\");\n    return computed$$1.observe(function () { });\n}\n\n/**\n * `queueProcessor` takes an observable array, observes it and calls `processor`\n * once for each item added to the observable array, optionally deboucing the action\n *\n * @example\n * const pendingNotifications = observable([])\n * const stop = queueProcessor(pendingNotifications, msg => {\n *   // show Desktop notification\n *   new Notification(msg);\n * })\n *\n * // usage:\n * pendingNotifications.push(\"test!\")\n *\n * @param {T[]} observableArray observable array instance to track\n * @param {(item: T) => void} processor action to call per item\n * @param {number} [debounce=0] optional debounce time in ms. With debounce 0 the processor will run synchronously\n * @returns {IDisposer} stops the processor\n */\nfunction queueProcessor(observableArray, processor, debounce) {\n    if (debounce === void 0) { debounce = 0; }\n    if (!Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableArray\"])(observableArray))\n        throw new Error(\"Expected observable array as first argument\");\n    if (!Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isAction\"])(processor))\n        processor = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"queueProcessor\", processor);\n    var runner = function () {\n        // construct a final set\n        var items = observableArray.slice(0);\n        // clear the queue for next iteration\n        Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"runInAction\"])(function () { return observableArray.splice(0); });\n        // fire processor\n        items.forEach(processor);\n    };\n    if (debounce > 0)\n        return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"autorun\"])(runner, { delay: debounce });\n    else\n        return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"autorun\"])(runner);\n}\n\n/**\n * `chunkProcessor` takes an observable array, observes it and calls `processor`\n * once for a chunk of items added to the observable array, optionally deboucing the action.\n * The maximum chunk size can be limited by number.\n * This allows both, splitting larger into smaller chunks or (when debounced) combining smaller\n * chunks and/or single items into reasonable chunks of work.\n *\n * @example\n * const trackedActions = observable([])\n * const stop = chunkProcessor(trackedActions, chunkOfMax10Items => {\n *   sendTrackedActionsToServer(chunkOfMax10Items);\n * }, 100, 10)\n *\n * // usage:\n * trackedActions.push(\"scrolled\")\n * trackedActions.push(\"hoveredButton\")\n * // when both pushes happen within 100ms, there will be only one call to server\n *\n * @param {T[]} observableArray observable array instance to track\n * @param {(item: T[]) => void} processor action to call per item\n * @param {number} [debounce=0] optional debounce time in ms. With debounce 0 the processor will run synchronously\n * @param {number} [maxChunkSize=0] optionally do not call on full array but smaller chunks. With 0 it will process the full array.\n * @returns {IDisposer} stops the processor\n */\nfunction chunkProcessor(observableArray, processor, debounce, maxChunkSize) {\n    if (debounce === void 0) { debounce = 0; }\n    if (maxChunkSize === void 0) { maxChunkSize = 0; }\n    if (!Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableArray\"])(observableArray))\n        throw new Error(\"Expected observable array as first argument\");\n    if (!Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isAction\"])(processor))\n        processor = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"chunkProcessor\", processor);\n    var runner = function () {\n        var _loop_1 = function () {\n            var chunkSize = maxChunkSize === 0\n                ? observableArray.length\n                : Math.min(observableArray.length, maxChunkSize);\n            // construct a final set\n            var items = observableArray.slice(0, chunkSize);\n            // clear the slice for next iteration\n            Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"runInAction\"])(function () { return observableArray.splice(0, chunkSize); });\n            // fire processor\n            processor(items);\n        };\n        while (observableArray.length > 0) {\n            _loop_1();\n        }\n    };\n    if (debounce > 0)\n        return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"autorun\"])(runner, { delay: debounce });\n    else\n        return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"autorun\"])(runner);\n}\n\nvar tickers = {};\n/**\n * Returns the current date time as epoch number.\n * The date time is read from an observable which is updated automatically after the given interval.\n * So basically it treats time as an observable.\n *\n * The function takes an interval as parameter, which indicates how often `now()` will return a new value.\n * If no interval is given, it will update each second. If \"frame\" is specified, it will update each time a\n * `requestAnimationFrame` is available.\n *\n * Multiple clocks with the same interval will automatically be synchronized.\n *\n * Countdown example: https://jsfiddle.net/mweststrate/na0qdmkw/\n *\n * @example\n *\n * const start = Date.now()\n *\n * autorun(() => {\n *   console.log(\"Seconds elapsed: \", (mobxUtils.now() - start) / 1000)\n * })\n *\n *\n * @export\n * @param {(number | \"frame\")} [interval=1000] interval in milliseconds about how often the interval should update\n * @returns\n */\nfunction now(interval) {\n    if (interval === void 0) { interval = 1000; }\n    if (!Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"_isComputingDerivation\"])()) {\n        // See #40\n        return Date.now();\n    }\n    if (!tickers[interval]) {\n        if (typeof interval === \"number\")\n            tickers[interval] = createIntervalTicker(interval);\n        else\n            tickers[interval] = createAnimationFrameTicker();\n    }\n    return tickers[interval].current();\n}\nfunction createIntervalTicker(interval) {\n    var subscriptionHandle;\n    return fromResource(function (sink) {\n        subscriptionHandle = setInterval(function () { return sink(Date.now()); }, interval);\n    }, function () {\n        clearInterval(subscriptionHandle);\n    }, Date.now());\n}\nfunction createAnimationFrameTicker() {\n    var frameBasedTicker = fromResource(function (sink) {\n        function scheduleTick() {\n            window.requestAnimationFrame(function () {\n                sink(Date.now());\n                if (frameBasedTicker.isAlive())\n                    scheduleTick();\n            });\n        }\n        scheduleTick();\n    }, function () { }, Date.now());\n    return frameBasedTicker;\n}\n\nvar __assign$1 = (undefined && undefined.__assign) || function () {\n    __assign$1 = Object.assign || function(t) {\n        for (var s, i = 1, n = arguments.length; i < n; i++) {\n            s = arguments[i];\n            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))\n                t[p] = s[p];\n        }\n        return t;\n    };\n    return __assign$1.apply(this, arguments);\n};\n/**\n * _deprecated_ this functionality can now be found as `flow` in the mobx package. However, `flow` is not applicable as decorator, where `asyncAction` still is.\n *\n *\n *\n * `asyncAction` takes a generator function and automatically wraps all parts of the process in actions. See the examples below.\n * `asyncAction` can be used both as decorator or to wrap functions.\n *\n * - It is important that `asyncAction should always be used with a generator function (recognizable as `function*` or `*name` syntax)\n * - Each yield statement should return a Promise. The generator function will continue as soon as the promise settles, with the settled value\n * - When the generator function finishes, you can return a normal value. The `asyncAction` wrapped function will always produce a promise delivering that value.\n *\n * When using the mobx devTools, an asyncAction will emit `action` events with names like:\n * * `\"fetchUsers - runid: 6 - init\"`\n * * `\"fetchUsers - runid: 6 - yield 0\"`\n * * `\"fetchUsers - runid: 6 - yield 1\"`\n *\n * The `runId` represents the generator instance. In other words, if `fetchUsers` is invoked multiple times concurrently, the events with the same `runid` belong toghether.\n * The `yield` number indicates the progress of the generator. `init` indicates spawning (it won't do anything, but you can find the original arguments of the `asyncAction` here).\n * `yield 0` ... `yield n` indicates the code block that is now being executed. `yield 0` is before the first `yield`, `yield 1` after the first one etc. Note that yield numbers are not determined lexically but by the runtime flow.\n *\n * `asyncActions` requires `Promise` and `generators` to be available on the target environment. Polyfill `Promise` if needed. Both TypeScript and Babel can compile generator functions down to ES5.\n *\n *  N.B. due to a [babel limitation](https://github.com/loganfsmyth/babel-plugin-transform-decorators-legacy/issues/26), in Babel generatos cannot be combined with decorators. See also [#70](https://github.com/mobxjs/mobx-utils/issues/70)\n *\n *\n * @example\n * import {asyncAction} from \"mobx-utils\"\n *\n * let users = []\n *\n * const fetchUsers = asyncAction(\"fetchUsers\", function* (url) {\n *   const start = Date.now()\n *   const data = yield window.fetch(url)\n *   users = yield data.json()\n *   return start - Date.now()\n * })\n *\n * fetchUsers(\"http://users.com\").then(time => {\n *   console.dir(\"Got users\", users, \"in \", time, \"ms\")\n * })\n *\n * @example\n * import {asyncAction} from \"mobx-utils\"\n *\n * mobx.configure({ enforceActions: \"observed\" }) // don't allow state modifications outside actions\n *\n * class Store {\n * \t\\@observable githubProjects = []\n * \t\\@state = \"pending\" // \"pending\" / \"done\" / \"error\"\n *\n * \t\\@asyncAction\n * \t*fetchProjects() { // <- note the star, this a generator function!\n * \t\tthis.githubProjects = []\n * \t\tthis.state = \"pending\"\n * \t\ttry {\n * \t\t\tconst projects = yield fetchGithubProjectsSomehow() // yield instead of await\n * \t\t\tconst filteredProjects = somePreprocessing(projects)\n * \t\t\t// the asynchronous blocks will automatically be wrapped actions\n * \t\t\tthis.state = \"done\"\n * \t\t\tthis.githubProjects = filteredProjects\n * \t\t} catch (error) {\n * \t\t\tthis.state = \"error\"\n * \t\t}\n * \t}\n * }\n *\n * @export\n * @returns {Promise}\n */\nfunction asyncAction(arg1, arg2) {\n    // decorator\n    if (typeof arguments[1] === \"string\") {\n        var name_1 = arguments[1];\n        var descriptor_1 = arguments[2];\n        if (descriptor_1 && descriptor_1.value) {\n            return Object.assign({}, descriptor_1, {\n                value: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"flow\"])(descriptor_1.value)\n            });\n        }\n        else {\n            return Object.assign({}, descriptor_1, {\n                set: function (v) {\n                    Object.defineProperty(this, name_1, __assign$1({}, descriptor_1, { value: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"flow\"])(v) }));\n                }\n            });\n        }\n    }\n    // direct invocation\n    var generator = typeof arg1 === \"string\" ? arg2 : arg1;\n    deprecated(\"asyncAction is deprecated. use mobx.flow instead\");\n    return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"flow\"])(generator); // name get's dropped..\n}\n\n/**\n * _deprecated_ whenAsync is deprecated, use mobx.when without effect instead.\n *\n * Like normal `when`, except that this `when` will return a promise that resolves when the expression becomes truthy\n *\n * @example\n * await whenAsync(() => !state.someBoolean)\n *\n * @export\n * @param {() => boolean} fn see when, the expression to await\n * @param {number} timeout maximum amount of time to wait, before the promise rejects\n * @returns Promise for when an observable eventually matches some condition. Rejects if timeout is provided and has expired\n */\nfunction whenAsync(fn, timeout) {\n    if (timeout === void 0) { timeout = 0; }\n    deprecated(\"whenAsync is deprecated, use mobx.when without effect instead\");\n    return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"when\"])(fn, {\n        timeout: timeout\n    });\n}\n\n/**\n * expr can be used to create temporarily views inside views.\n * This can be improved to improve performance if a value changes often, but usually doesn't affect the outcome of an expression.\n *\n * In the following example the expression prevents that a component is rerender _each time_ the selection changes;\n * instead it will only rerenders when the current todo is (de)selected.\n *\n * @example\n * const Todo = observer((props) => {\n *     const todo = props.todo;\n *     const isSelected = mobxUtils.expr(() => props.viewState.selection === todo);\n *     return <div className={isSelected ? \"todo todo-selected\" : \"todo\"}>{todo.title}</div>\n * });\n *\n */\nfunction expr(expr) {\n    if (!Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"_isComputingDerivation\"])())\n        console.warn(\"'expr' should only be used inside other reactive functions.\");\n    // optimization: would be more efficient if the expr itself wouldn't be evaluated first on the next change, but just a 'changed' signal would be fired\n    return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"])(expr).get();\n}\n\nvar memoizationId = 0;\nfunction createTransformer(transformer, arg2) {\n    invariant(typeof transformer === \"function\" && transformer.length < 2, \"createTransformer expects a function that accepts one argument\");\n    // Memoizes: object id -> reactive view that applies transformer to the object\n    var views = {};\n    var onCleanup = undefined;\n    var debugNameGenerator = undefined;\n    function createView(sourceIdentifier, sourceObject) {\n        var latestValue;\n        if (typeof arg2 === \"object\") {\n            onCleanup = arg2.onCleanup;\n            debugNameGenerator = arg2.debugNameGenerator;\n        }\n        else if (typeof arg2 === \"function\") {\n            onCleanup = arg2;\n        }\n        else {\n            onCleanup = undefined;\n            debugNameGenerator = undefined;\n        }\n        var prettifiedName = debugNameGenerator ?\n            debugNameGenerator(sourceObject) :\n            \"Transformer-\" + transformer.name + \"-\" + sourceIdentifier;\n        var expr = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"])(function () {\n            return (latestValue = transformer(sourceObject));\n        }, {\n            name: prettifiedName\n        });\n        var disposer = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"onBecomeUnobserved\"])(expr, function () {\n            delete views[sourceIdentifier];\n            disposer();\n            if (onCleanup)\n                onCleanup(latestValue, sourceObject);\n        });\n        return expr;\n    }\n    return function (object) {\n        var identifier = getMemoizationId(object);\n        var reactiveView = views[identifier];\n        if (reactiveView)\n            return reactiveView.get();\n        // Not in cache; create a reactive view\n        reactiveView = views[identifier] = createView(identifier, object);\n        return reactiveView.get();\n    };\n}\nfunction getMemoizationId(object) {\n    var objectType = typeof object;\n    if (objectType === \"string\")\n        return \"string:\" + object;\n    if (objectType === \"number\")\n        return \"number:\" + object;\n    if (object === null || (objectType !== \"object\" && objectType !== \"function\"))\n        throw new Error(\"[mobx-utils] transform expected an object, function, string or number, got: \" + String(object));\n    var tid = object.$transformId;\n    if (tid === undefined) {\n        tid = \"memoizationId:\" + ++memoizationId;\n        addHiddenProp(object, \"$transformId\", tid);\n    }\n    return tid;\n}\n\nfunction buildPath(entry) {\n    var res = [];\n    while (entry.parent) {\n        res.push(entry.path);\n        entry = entry.parent;\n    }\n    return res.reverse().join(\"/\");\n}\nfunction isRecursivelyObservable(thing) {\n    return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableObject\"])(thing) || Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableArray\"])(thing) || Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableMap\"])(thing);\n}\n/**\n * Given an object, deeply observes the given object.\n * It is like `observe` from mobx, but applied recursively, including all future children.\n *\n * Note that the given object cannot ever contain cycles and should be a tree.\n *\n * As benefit: path and root will be provided in the callback, so the signature of the listener is\n * (change, path, root) => void\n *\n * The returned disposer can be invoked to clean up the listener\n *\n * deepObserve cannot be used on computed values.\n *\n * @example\n * const disposer = deepObserve(target, (change, path) => {\n *    console.dir(change)\n * })\n */\nfunction deepObserve(target, listener) {\n    var entrySet = new WeakMap();\n    function genericListener(change) {\n        var entry = entrySet.get(change.object);\n        processChange(change, entry);\n        listener(change, buildPath(entry), target);\n    }\n    function processChange(change, parent) {\n        switch (change.type) {\n            // Object changes\n            case \"add\": // also for map\n                observeRecursively(change.newValue, parent, change.name);\n                break;\n            case \"update\": // also for array and map\n                unobserveRecursively(change.oldValue);\n                observeRecursively(change.newValue, parent, change.name || \"\" + change.index);\n                break;\n            case \"remove\": // object\n            case \"delete\": // map\n                unobserveRecursively(change.oldValue);\n                break;\n            // Array changes\n            case \"splice\":\n                change.removed.map(unobserveRecursively);\n                change.added.forEach(function (value, idx) {\n                    return observeRecursively(value, parent, \"\" + (change.index + idx));\n                });\n                // update paths\n                for (var i = change.index + change.addedCount; i < change.object.length; i++) {\n                    if (isRecursivelyObservable(change.object[i])) {\n                        var entry = entrySet.get(change.object[i]);\n                        if (entry)\n                            entry.path = \"\" + i;\n                    }\n                }\n                break;\n        }\n    }\n    function observeRecursively(thing, parent, path) {\n        if (isRecursivelyObservable(thing)) {\n            if (entrySet.has(thing)) {\n                var entry = entrySet.get(thing);\n                if (entry.parent !== parent || entry.path !== path)\n                    // MWE: this constraint is artificial, and this tool could be made to work with cycles,\n                    // but it increases administration complexity, has tricky edge cases and the meaning of 'path'\n                    // would become less clear. So doesn't seem to be needed for now\n                    throw new Error(\"The same observable object cannot appear twice in the same tree, trying to assign it to '\" + buildPath(parent) + \"/\" + path + \"', but it already exists at '\" + buildPath(entry.parent) + \"/\" + entry.path + \"'\");\n            }\n            else {\n                var entry_1 = {\n                    parent: parent,\n                    path: path,\n                    dispose: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"observe\"])(thing, genericListener)\n                };\n                entrySet.set(thing, entry_1);\n                Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"entries\"])(thing).forEach(function (_a) {\n                    var key = _a[0], value = _a[1];\n                    return observeRecursively(value, entry_1, key);\n                });\n            }\n        }\n    }\n    function unobserveRecursively(thing) {\n        if (isRecursivelyObservable(thing)) {\n            var entry = entrySet.get(thing);\n            if (!entry)\n                return;\n            entrySet.delete(thing);\n            entry.dispose();\n            Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"values\"])(thing).forEach(unobserveRecursively);\n        }\n    }\n    observeRecursively(target, undefined, \"\");\n    return function () {\n        unobserveRecursively(target);\n    };\n}\n\n/**\n * @private\n */\nvar DeepMapEntry = /** @class */ (function () {\n    function DeepMapEntry(base, args) {\n        this.base = base;\n        this.args = args;\n        this.closestIdx = 0;\n        this.isDisposed = false;\n        var current = this.closest = this.root = base;\n        var i = 0;\n        for (; i < this.args.length - 1; i++) {\n            current = current.get(args[i]);\n            if (current)\n                this.closest = current;\n            else\n                break;\n        }\n        this.closestIdx = i;\n    }\n    DeepMapEntry.prototype.exists = function () {\n        this.assertNotDisposed();\n        var l = this.args.length;\n        return this.closestIdx >= l - 1 && this.closest.has(this.args[l - 1]);\n    };\n    DeepMapEntry.prototype.get = function () {\n        this.assertNotDisposed();\n        if (!this.exists())\n            throw new Error(\"Entry doesn't exist\");\n        return this.closest.get(this.args[this.args.length - 1]);\n    };\n    DeepMapEntry.prototype.set = function (value) {\n        this.assertNotDisposed();\n        var l = this.args.length;\n        var current = this.closest;\n        // create remaining maps\n        for (var i = this.closestIdx; i < l - 1; i++) {\n            var m = new Map();\n            current.set(this.args[i], m);\n            current = m;\n        }\n        this.closestIdx = l - 1;\n        this.closest = current;\n        current.set(this.args[l - 1], value);\n    };\n    DeepMapEntry.prototype.delete = function () {\n        this.assertNotDisposed();\n        if (!this.exists())\n            throw new Error(\"Entry doesn't exist\");\n        var l = this.args.length;\n        this.closest.delete(this.args[l - 1]);\n        // clean up remaining maps if needed (reconstruct stack first)\n        var c = this.root;\n        var maps = [c];\n        for (var i = 0; i < l - 1; i++) {\n            c = c.get(this.args[i]);\n            maps.push(c);\n        }\n        for (var i = maps.length - 1; i > 0; i--) {\n            if (maps[i].size === 0)\n                maps[i - 1].delete(this.args[i - 1]);\n        }\n        this.isDisposed = true;\n    };\n    DeepMapEntry.prototype.assertNotDisposed = function () {\n        // TODO: once this becomes annoying, we should introduce a reset method to re-run the constructor logic\n        if (this.isDisposed)\n            throw new Error(\"Concurrent modification exception\");\n    };\n    return DeepMapEntry;\n}());\n/**\n * @private\n */\nvar DeepMap = /** @class */ (function () {\n    function DeepMap() {\n        this.store = new Map();\n        this.argsLength = -1;\n    }\n    DeepMap.prototype.entry = function (args) {\n        if (this.argsLength === -1)\n            this.argsLength = args.length;\n        else if (this.argsLength !== args.length)\n            throw new Error(\"DeepMap should be used with functions with a consistent length, expected: \" + this.argsLength + \", got: \" + args.length);\n        if (this.last)\n            this.last.isDisposed = true;\n        return this.last = new DeepMapEntry(this.store, args);\n    };\n    return DeepMap;\n}());\n\n/**\n * computedFn takes a function with an arbitrarily amount of arguments,\n * and memoized the output of the function based on the arguments passed in.\n *\n * computedFn(fn) returns a function with the very same signature. There is no limit on the amount of arguments\n * that is accepted. However, the amount of arguments must be consistent and default arguments are not supported.\n *\n * By default the output of a function call will only be memoized as long as the\n * output is being observed.\n *\n * The function passes into `computedFn` should be pure, not be an action and only be relying on\n * observables.\n *\n * Setting `keepAlive` to `true` will cause the output to be forcefully cached forever.\n * Note that this might introduce memory leaks!\n *\n * @example\n * const store = observable({\n    a: 1,\n    b: 2,\n    c: 3,\n    m: computedFn(function(x) {\n      return this.a * this.b * x\n    })\n  })\n\n  const d = autorun(() => {\n    // store.m(3) will be cached as long as this autorun is running\n    console.log((store.m(3) * store.c))\n  })\n *\n * @param fn\n * @param keepAlive\n */\nfunction computedFn(fn, keepAlive) {\n    if (keepAlive === void 0) { keepAlive = false; }\n    if (Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isAction\"])(fn))\n        throw new Error(\"computedFn shouldn't be used on actions\");\n    var memoWarned = false;\n    var i = 0;\n    var d = new DeepMap();\n    return function () {\n        var args = [];\n        for (var _i = 0; _i < arguments.length; _i++) {\n            args[_i] = arguments[_i];\n        }\n        var self = this;\n        var entry = d.entry(args);\n        // cache hit, return\n        if (entry.exists())\n            return entry.get().get();\n        // if function is invoked, and its a cache miss without reactive, there is no point in caching...\n        if (!keepAlive && !Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"_isComputingDerivation\"])()) {\n            if (!memoWarned) {\n                console.warn(\"invoking a computedFn from outside an reactive context won't be memoized, unless keepAlive is set\");\n                memoWarned = true;\n            }\n            return fn.apply(self, args);\n        }\n        // create new entry\n        var c = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"])(function () {\n            return fn.apply(self, args);\n        }, {\n            name: \"computedFn(\" + fn.name + \"#\" + (++i) + \")\",\n            keepAlive: keepAlive\n        });\n        entry.set(c);\n        // clean up if no longer observed\n        if (!keepAlive)\n            Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"onBecomeUnobserved\"])(c, function () {\n                d.entry(args).delete();\n            });\n        // return current val\n        return c.get();\n    };\n}\n\n\n\n\n//# sourceURL=webpack://%5Bname%5D/./node_modules/mobx-utils/mobx-utils.module.js?");
-
-/***/ }),
-
-/***/ "./node_modules/mobx/lib/mobx.module.js":
-/*!**********************************************!*\
-  !*** ./node_modules/mobx/lib/mobx.module.js ***!
-  \**********************************************/
-/*! exports provided: $mobx, IDerivationState, ObservableMap, ObservableSet, Reaction, _allowStateChanges, _allowStateChangesInsideComputed, _getAdministration, _getGlobalState, _interceptReads, _isComputingDerivation, _resetGlobalState, action, autorun, comparer, computed, configure, createAtom, decorate, entries, extendObservable, flow, get, getAtom, getDebugName, getDependencyTree, getObserverTree, has, intercept, isAction, isArrayLike, isBoxedObservable, isComputed, isComputedProp, isObservable, isObservableArray, isObservableMap, isObservableObject, isObservableProp, isObservableSet, keys, observable, observe, onBecomeObserved, onBecomeUnobserved, onReactionError, reaction, remove, runInAction, set, spy, toJS, trace, transaction, untracked, values, when */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* WEBPACK VAR INJECTION */(function(process, global) {/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"$mobx\", function() { return $mobx; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"IDerivationState\", function() { return IDerivationState; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ObservableMap\", function() { return ObservableMap; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ObservableSet\", function() { return ObservableSet; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"Reaction\", function() { return Reaction; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_allowStateChanges\", function() { return allowStateChanges; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_allowStateChangesInsideComputed\", function() { return allowStateChangesInsideComputed; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_getAdministration\", function() { return getAdministration; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_getGlobalState\", function() { return getGlobalState; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_interceptReads\", function() { return interceptReads; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_isComputingDerivation\", function() { return isComputingDerivation; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"_resetGlobalState\", function() { return resetGlobalState; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"action\", function() { return action; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"autorun\", function() { return autorun; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"comparer\", function() { return comparer; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"computed\", function() { return computed; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"configure\", function() { return configure; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createAtom\", function() { return createAtom; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"decorate\", function() { return decorate; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"entries\", function() { return entries; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"extendObservable\", function() { return extendObservable; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"flow\", function() { return flow; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"get\", function() { return get; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getAtom\", function() { return getAtom; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getDebugName\", function() { return getDebugName; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getDependencyTree\", function() { return getDependencyTree; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getObserverTree\", function() { return getObserverTree; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"has\", function() { return has; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"intercept\", function() { return intercept; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isAction\", function() { return isAction; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isArrayLike\", function() { return isArrayLike; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isBoxedObservable\", function() { return isObservableValue; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isComputed\", function() { return isComputed; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isComputedProp\", function() { return isComputedProp; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isObservable\", function() { return isObservable; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isObservableArray\", function() { return isObservableArray; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isObservableMap\", function() { return isObservableMap; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isObservableObject\", function() { return isObservableObject; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isObservableProp\", function() { return isObservableProp; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isObservableSet\", function() { return isObservableSet; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"keys\", function() { return keys; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"observable\", function() { return observable; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"observe\", function() { return observe; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"onBecomeObserved\", function() { return onBecomeObserved; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"onBecomeUnobserved\", function() { return onBecomeUnobserved; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"onReactionError\", function() { return onReactionError; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"reaction\", function() { return reaction; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"remove\", function() { return remove; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"runInAction\", function() { return runInAction; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"set\", function() { return set; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"spy\", function() { return spy; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"toJS\", function() { return toJS; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"trace\", function() { return trace; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"transaction\", function() { return transaction; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"untracked\", function() { return untracked; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"values\", function() { return values; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"when\", function() { return when; });\n/** MobX - (c) Michel Weststrate 2015 - 2019 - MIT Licensed */\n/*! *****************************************************************************\r\nCopyright (c) Microsoft Corporation. All rights reserved.\r\nLicensed under the Apache License, Version 2.0 (the \"License\"); you may not use\r\nthis file except in compliance with the License. You may obtain a copy of the\r\nLicense at http://www.apache.org/licenses/LICENSE-2.0\r\n\r\nTHIS CODE IS PROVIDED ON AN *AS IS* BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY\r\nKIND, EITHER EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION ANY IMPLIED\r\nWARRANTIES OR CONDITIONS OF TITLE, FITNESS FOR A PARTICULAR PURPOSE,\r\nMERCHANTABLITY OR NON-INFRINGEMENT.\r\n\r\nSee the Apache Version 2.0 License for specific language governing permissions\r\nand limitations under the License.\r\n***************************************************************************** */\r\n/* global Reflect, Promise */\r\n\r\nvar extendStatics = function(d, b) {\r\n    extendStatics = Object.setPrototypeOf ||\r\n        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\r\n        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };\r\n    return extendStatics(d, b);\r\n};\r\n\r\nfunction __extends(d, b) {\r\n    extendStatics(d, b);\r\n    function __() { this.constructor = d; }\r\n    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\r\n}\r\n\r\nvar __assign = function() {\r\n    __assign = Object.assign || function __assign(t) {\r\n        for (var s, i = 1, n = arguments.length; i < n; i++) {\r\n            s = arguments[i];\r\n            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];\r\n        }\r\n        return t;\r\n    };\r\n    return __assign.apply(this, arguments);\r\n};\r\n\r\nfunction __values(o) {\r\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator], i = 0;\r\n    if (m) return m.call(o);\r\n    return {\r\n        next: function () {\r\n            if (o && i >= o.length) o = void 0;\r\n            return { value: o && o[i++], done: !o };\r\n        }\r\n    };\r\n}\r\n\r\nfunction __read(o, n) {\r\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator];\r\n    if (!m) return o;\r\n    var i = m.call(o), r, ar = [], e;\r\n    try {\r\n        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);\r\n    }\r\n    catch (error) { e = { error: error }; }\r\n    finally {\r\n        try {\r\n            if (r && !r.done && (m = i[\"return\"])) m.call(i);\r\n        }\r\n        finally { if (e) throw e.error; }\r\n    }\r\n    return ar;\r\n}\r\n\r\nfunction __spread() {\r\n    for (var ar = [], i = 0; i < arguments.length; i++)\r\n        ar = ar.concat(__read(arguments[i]));\r\n    return ar;\r\n}\n\nvar OBFUSCATED_ERROR = \"An invariant failed, however the error is obfuscated because this is an production build.\";\nvar EMPTY_ARRAY = [];\nObject.freeze(EMPTY_ARRAY);\nvar EMPTY_OBJECT = {};\nObject.freeze(EMPTY_OBJECT);\nfunction getNextId() {\n    return ++globalState.mobxGuid;\n}\nfunction fail(message) {\n    invariant(false, message);\n    throw \"X\"; // unreachable\n}\nfunction invariant(check, message) {\n    if (!check)\n        throw new Error(\"[mobx] \" + (message || OBFUSCATED_ERROR));\n}\n/**\n * Prints a deprecation message, but only one time.\n * Returns false if the deprecated message was already printed before\n */\nvar deprecatedMessages = [];\nfunction deprecated(msg, thing) {\n    if (false)\n        {}\n    if (thing) {\n        return deprecated(\"'\" + msg + \"', use '\" + thing + \"' instead.\");\n    }\n    if (deprecatedMessages.indexOf(msg) !== -1)\n        return false;\n    deprecatedMessages.push(msg);\n    console.error(\"[mobx] Deprecated: \" + msg);\n    return true;\n}\n/**\n * Makes sure that the provided function is invoked at most once.\n */\nfunction once(func) {\n    var invoked = false;\n    return function () {\n        if (invoked)\n            return;\n        invoked = true;\n        return func.apply(this, arguments);\n    };\n}\nvar noop = function () { };\nfunction unique(list) {\n    var res = [];\n    list.forEach(function (item) {\n        if (res.indexOf(item) === -1)\n            res.push(item);\n    });\n    return res;\n}\nfunction isObject(value) {\n    return value !== null && typeof value === \"object\";\n}\nfunction isPlainObject(value) {\n    if (value === null || typeof value !== \"object\")\n        return false;\n    var proto = Object.getPrototypeOf(value);\n    return proto === Object.prototype || proto === null;\n}\nfunction addHiddenProp(object, propName, value) {\n    Object.defineProperty(object, propName, {\n        enumerable: false,\n        writable: true,\n        configurable: true,\n        value: value\n    });\n}\nfunction addHiddenFinalProp(object, propName, value) {\n    Object.defineProperty(object, propName, {\n        enumerable: false,\n        writable: false,\n        configurable: true,\n        value: value\n    });\n}\nfunction isPropertyConfigurable(object, prop) {\n    var descriptor = Object.getOwnPropertyDescriptor(object, prop);\n    return !descriptor || (descriptor.configurable !== false && descriptor.writable !== false);\n}\nfunction assertPropertyConfigurable(object, prop) {\n    if ( true && !isPropertyConfigurable(object, prop))\n        fail(\"Cannot make property '\" + prop.toString() + \"' observable, it is not configurable and writable in the target object\");\n}\nfunction createInstanceofPredicate(name, clazz) {\n    var propName = \"isMobX\" + name;\n    clazz.prototype[propName] = true;\n    return function (x) {\n        return isObject(x) && x[propName] === true;\n    };\n}\n/**\n * Returns whether the argument is an array, disregarding observability.\n */\nfunction isArrayLike(x) {\n    return Array.isArray(x) || isObservableArray(x);\n}\nfunction isES6Map(thing) {\n    return thing instanceof Map;\n}\nfunction isES6Set(thing) {\n    return thing instanceof Set;\n}\n/**\n * Returns the following: own keys, prototype keys & own symbol keys, if they are enumerable.\n */\nfunction getPlainObjectKeys(object) {\n    var enumerables = new Set();\n    for (var key in object)\n        enumerables.add(key); // *all* enumerables\n    Object.getOwnPropertySymbols(object).forEach(function (k) {\n        if (Object.getOwnPropertyDescriptor(object, k).enumerable)\n            enumerables.add(k);\n    }); // *own* symbols\n    // Note: this implementation is missing enumerable, inherited, symbolic property names! That would however pretty expensive to add,\n    // as there is no efficient iterator that returns *all* properties\n    return Array.from(enumerables);\n}\nfunction stringifyKey(key) {\n    if (key && key.toString)\n        return key.toString();\n    else\n        return new String(key).toString();\n}\nfunction getMapLikeKeys(map) {\n    if (isPlainObject(map))\n        return Object.keys(map);\n    if (Array.isArray(map))\n        return map.map(function (_a) {\n            var _b = __read(_a, 1), key = _b[0];\n            return key;\n        });\n    if (isES6Map(map) || isObservableMap(map))\n        return Array.from(map.keys());\n    return fail(\"Cannot get keys from '\" + map + \"'\");\n}\nfunction toPrimitive(value) {\n    return value === null ? null : typeof value === \"object\" ? \"\" + value : value;\n}\n\nvar $mobx = Symbol(\"mobx administration\");\nvar Atom = /** @class */ (function () {\n    /**\n     * Create a new atom. For debugging purposes it is recommended to give it a name.\n     * The onBecomeObserved and onBecomeUnobserved callbacks can be used for resource management.\n     */\n    function Atom(name) {\n        if (name === void 0) { name = \"Atom@\" + getNextId(); }\n        this.name = name;\n        this.isPendingUnobservation = false; // for effective unobserving. BaseAtom has true, for extra optimization, so its onBecomeUnobserved never gets called, because it's not needed\n        this.isBeingObserved = false;\n        this.observers = new Set();\n        this.diffValue = 0;\n        this.lastAccessedBy = 0;\n        this.lowestObserverState = IDerivationState.NOT_TRACKING;\n    }\n    Atom.prototype.onBecomeObserved = function () {\n        if (this.onBecomeObservedListeners) {\n            this.onBecomeObservedListeners.forEach(function (listener) { return listener(); });\n        }\n    };\n    Atom.prototype.onBecomeUnobserved = function () {\n        if (this.onBecomeUnobservedListeners) {\n            this.onBecomeUnobservedListeners.forEach(function (listener) { return listener(); });\n        }\n    };\n    /**\n     * Invoke this method to notify mobx that your atom has been used somehow.\n     * Returns true if there is currently a reactive context.\n     */\n    Atom.prototype.reportObserved = function () {\n        return reportObserved(this);\n    };\n    /**\n     * Invoke this method _after_ this method has changed to signal mobx that all its observers should invalidate.\n     */\n    Atom.prototype.reportChanged = function () {\n        startBatch();\n        propagateChanged(this);\n        endBatch();\n    };\n    Atom.prototype.toString = function () {\n        return this.name;\n    };\n    return Atom;\n}());\nvar isAtom = createInstanceofPredicate(\"Atom\", Atom);\nfunction createAtom(name, onBecomeObservedHandler, onBecomeUnobservedHandler) {\n    if (onBecomeObservedHandler === void 0) { onBecomeObservedHandler = noop; }\n    if (onBecomeUnobservedHandler === void 0) { onBecomeUnobservedHandler = noop; }\n    var atom = new Atom(name);\n    // default `noop` listener will not initialize the hook Set\n    if (onBecomeObservedHandler !== noop) {\n        onBecomeObserved(atom, onBecomeObservedHandler);\n    }\n    if (onBecomeUnobservedHandler !== noop) {\n        onBecomeUnobserved(atom, onBecomeUnobservedHandler);\n    }\n    return atom;\n}\n\nfunction identityComparer(a, b) {\n    return a === b;\n}\nfunction structuralComparer(a, b) {\n    return deepEqual(a, b);\n}\nfunction defaultComparer(a, b) {\n    return Object.is(a, b);\n}\nvar comparer = {\n    identity: identityComparer,\n    structural: structuralComparer,\n    default: defaultComparer\n};\n\nvar mobxDidRunLazyInitializersSymbol = Symbol(\"mobx did run lazy initializers\");\nvar mobxPendingDecorators = Symbol(\"mobx pending decorators\");\nvar enumerableDescriptorCache = {};\nvar nonEnumerableDescriptorCache = {};\nfunction createPropertyInitializerDescriptor(prop, enumerable) {\n    var cache = enumerable ? enumerableDescriptorCache : nonEnumerableDescriptorCache;\n    return (cache[prop] ||\n        (cache[prop] = {\n            configurable: true,\n            enumerable: enumerable,\n            get: function () {\n                initializeInstance(this);\n                return this[prop];\n            },\n            set: function (value) {\n                initializeInstance(this);\n                this[prop] = value;\n            }\n        }));\n}\nfunction initializeInstance(target) {\n    if (target[mobxDidRunLazyInitializersSymbol] === true)\n        return;\n    var decorators = target[mobxPendingDecorators];\n    if (decorators) {\n        addHiddenProp(target, mobxDidRunLazyInitializersSymbol, true);\n        for (var key in decorators) {\n            var d = decorators[key];\n            d.propertyCreator(target, d.prop, d.descriptor, d.decoratorTarget, d.decoratorArguments);\n        }\n    }\n}\nfunction createPropDecorator(propertyInitiallyEnumerable, propertyCreator) {\n    return function decoratorFactory() {\n        var decoratorArguments;\n        var decorator = function decorate(target, prop, descriptor, applyImmediately\n        // This is a special parameter to signal the direct application of a decorator, allow extendObservable to skip the entire type decoration part,\n        // as the instance to apply the decorator to equals the target\n        ) {\n            if (applyImmediately === true) {\n                propertyCreator(target, prop, descriptor, target, decoratorArguments);\n                return null;\n            }\n            if ( true && !quacksLikeADecorator(arguments))\n                fail(\"This function is a decorator, but it wasn't invoked like a decorator\");\n            if (!Object.prototype.hasOwnProperty.call(target, mobxPendingDecorators)) {\n                var inheritedDecorators = target[mobxPendingDecorators];\n                addHiddenProp(target, mobxPendingDecorators, __assign({}, inheritedDecorators));\n            }\n            target[mobxPendingDecorators][prop] = {\n                prop: prop,\n                propertyCreator: propertyCreator,\n                descriptor: descriptor,\n                decoratorTarget: target,\n                decoratorArguments: decoratorArguments\n            };\n            return createPropertyInitializerDescriptor(prop, propertyInitiallyEnumerable);\n        };\n        if (quacksLikeADecorator(arguments)) {\n            // @decorator\n            decoratorArguments = EMPTY_ARRAY;\n            return decorator.apply(null, arguments);\n        }\n        else {\n            // @decorator(args)\n            decoratorArguments = Array.prototype.slice.call(arguments);\n            return decorator;\n        }\n    };\n}\nfunction quacksLikeADecorator(args) {\n    return (((args.length === 2 || args.length === 3) && typeof args[1] === \"string\") ||\n        (args.length === 4 && args[3] === true));\n}\n\nfunction deepEnhancer(v, _, name) {\n    // it is an observable already, done\n    if (isObservable(v))\n        return v;\n    // something that can be converted and mutated?\n    if (Array.isArray(v))\n        return observable.array(v, { name: name });\n    if (isPlainObject(v))\n        return observable.object(v, undefined, { name: name });\n    if (isES6Map(v))\n        return observable.map(v, { name: name });\n    if (isES6Set(v))\n        return observable.set(v, { name: name });\n    return v;\n}\nfunction shallowEnhancer(v, _, name) {\n    if (v === undefined || v === null)\n        return v;\n    if (isObservableObject(v) || isObservableArray(v) || isObservableMap(v) || isObservableSet(v))\n        return v;\n    if (Array.isArray(v))\n        return observable.array(v, { name: name, deep: false });\n    if (isPlainObject(v))\n        return observable.object(v, undefined, { name: name, deep: false });\n    if (isES6Map(v))\n        return observable.map(v, { name: name, deep: false });\n    if (isES6Set(v))\n        return observable.set(v, { name: name, deep: false });\n    return fail( true &&\n        \"The shallow modifier / decorator can only used in combination with arrays, objects, maps and sets\");\n}\nfunction referenceEnhancer(newValue) {\n    // never turn into an observable\n    return newValue;\n}\nfunction refStructEnhancer(v, oldValue, name) {\n    if ( true && isObservable(v))\n        throw \"observable.struct should not be used with observable values\";\n    if (deepEqual(v, oldValue))\n        return oldValue;\n    return v;\n}\n\nfunction createDecoratorForEnhancer(enhancer) {\n    invariant(enhancer);\n    var decorator = createPropDecorator(true, function (target, propertyName, descriptor, _decoratorTarget, decoratorArgs) {\n        if (true) {\n            invariant(!descriptor || !descriptor.get, \"@observable cannot be used on getter (property \\\"\" + stringifyKey(propertyName) + \"\\\"), use @computed instead.\");\n        }\n        var initialValue = descriptor\n            ? descriptor.initializer\n                ? descriptor.initializer.call(target)\n                : descriptor.value\n            : undefined;\n        asObservableObject(target).addObservableProp(propertyName, initialValue, enhancer);\n    });\n    var res = \n    // Extra process checks, as this happens during module initialization\n    typeof process !== \"undefined\" && process.env && \"development\" !== \"production\"\n        ? function observableDecorator() {\n            // This wrapper function is just to detect illegal decorator invocations, deprecate in a next version\n            // and simply return the created prop decorator\n            if (arguments.length < 2)\n                return fail(\"Incorrect decorator invocation. @observable decorator doesn't expect any arguments\");\n            return decorator.apply(null, arguments);\n        }\n        : decorator;\n    res.enhancer = enhancer;\n    return res;\n}\n\n// Predefined bags of create observable options, to avoid allocating temporarily option objects\n// in the majority of cases\nvar defaultCreateObservableOptions = {\n    deep: true,\n    name: undefined,\n    defaultDecorator: undefined,\n    proxy: true\n};\nObject.freeze(defaultCreateObservableOptions);\nfunction assertValidOption(key) {\n    if (!/^(deep|name|equals|defaultDecorator|proxy)$/.test(key))\n        fail(\"invalid option for (extend)observable: \" + key);\n}\nfunction asCreateObservableOptions(thing) {\n    if (thing === null || thing === undefined)\n        return defaultCreateObservableOptions;\n    if (typeof thing === \"string\")\n        return { name: thing, deep: true, proxy: true };\n    if (true) {\n        if (typeof thing !== \"object\")\n            return fail(\"expected options object\");\n        Object.keys(thing).forEach(assertValidOption);\n    }\n    return thing;\n}\nvar deepDecorator = createDecoratorForEnhancer(deepEnhancer);\nvar shallowDecorator = createDecoratorForEnhancer(shallowEnhancer);\nvar refDecorator = createDecoratorForEnhancer(referenceEnhancer);\nvar refStructDecorator = createDecoratorForEnhancer(refStructEnhancer);\nfunction getEnhancerFromOptions(options) {\n    return options.defaultDecorator\n        ? options.defaultDecorator.enhancer\n        : options.deep === false\n            ? referenceEnhancer\n            : deepEnhancer;\n}\n/**\n * Turns an object, array or function into a reactive structure.\n * @param v the value which should become observable.\n */\nfunction createObservable(v, arg2, arg3) {\n    // @observable someProp;\n    if (typeof arguments[1] === \"string\") {\n        return deepDecorator.apply(null, arguments);\n    }\n    // it is an observable already, done\n    if (isObservable(v))\n        return v;\n    // something that can be converted and mutated?\n    var res = isPlainObject(v)\n        ? observable.object(v, arg2, arg3)\n        : Array.isArray(v)\n            ? observable.array(v, arg2)\n            : isES6Map(v)\n                ? observable.map(v, arg2)\n                : isES6Set(v)\n                    ? observable.set(v, arg2)\n                    : v;\n    // this value could be converted to a new observable data structure, return it\n    if (res !== v)\n        return res;\n    // otherwise, just box it\n    fail( true &&\n        \"The provided value could not be converted into an observable. If you want just create an observable reference to the object use 'observable.box(value)'\");\n}\nvar observableFactories = {\n    box: function (value, options) {\n        if (arguments.length > 2)\n            incorrectlyUsedAsDecorator(\"box\");\n        var o = asCreateObservableOptions(options);\n        return new ObservableValue(value, getEnhancerFromOptions(o), o.name, true, o.equals);\n    },\n    array: function (initialValues, options) {\n        if (arguments.length > 2)\n            incorrectlyUsedAsDecorator(\"array\");\n        var o = asCreateObservableOptions(options);\n        return createObservableArray(initialValues, getEnhancerFromOptions(o), o.name);\n    },\n    map: function (initialValues, options) {\n        if (arguments.length > 2)\n            incorrectlyUsedAsDecorator(\"map\");\n        var o = asCreateObservableOptions(options);\n        return new ObservableMap(initialValues, getEnhancerFromOptions(o), o.name);\n    },\n    set: function (initialValues, options) {\n        if (arguments.length > 2)\n            incorrectlyUsedAsDecorator(\"set\");\n        var o = asCreateObservableOptions(options);\n        return new ObservableSet(initialValues, getEnhancerFromOptions(o), o.name);\n    },\n    object: function (props, decorators, options) {\n        if (typeof arguments[1] === \"string\")\n            incorrectlyUsedAsDecorator(\"object\");\n        var o = asCreateObservableOptions(options);\n        if (o.proxy === false) {\n            return extendObservable({}, props, decorators, o);\n        }\n        else {\n            var defaultDecorator = getDefaultDecoratorFromObjectOptions(o);\n            var base = extendObservable({}, undefined, undefined, o);\n            var proxy = createDynamicObservableObject(base);\n            extendObservableObjectWithProperties(proxy, props, decorators, defaultDecorator);\n            return proxy;\n        }\n    },\n    ref: refDecorator,\n    shallow: shallowDecorator,\n    deep: deepDecorator,\n    struct: refStructDecorator\n};\nvar observable = createObservable;\n// weird trick to keep our typings nicely with our funcs, and still extend the observable function\nObject.keys(observableFactories).forEach(function (name) { return (observable[name] = observableFactories[name]); });\nfunction incorrectlyUsedAsDecorator(methodName) {\n    fail(\n    // process.env.NODE_ENV !== \"production\" &&\n    \"Expected one or two arguments to observable.\" + methodName + \". Did you accidentally try to use observable.\" + methodName + \" as decorator?\");\n}\n\nvar computedDecorator = createPropDecorator(false, function (instance, propertyName, descriptor, decoratorTarget, decoratorArgs) {\n    var get = descriptor.get, set = descriptor.set; // initialValue is the descriptor for get / set props\n    // Optimization: faster on decorator target or instance? Assuming target\n    // Optimization: find out if declaring on instance isn't just faster. (also makes the property descriptor simpler). But, more memory usage..\n    // Forcing instance now, fixes hot reloadig issues on React Native:\n    var options = decoratorArgs[0] || {};\n    asObservableObject(instance).addComputedProp(instance, propertyName, __assign({ get: get,\n        set: set, context: instance }, options));\n});\nvar computedStructDecorator = computedDecorator({ equals: comparer.structural });\n/**\n * Decorator for class properties: @computed get value() { return expr; }.\n * For legacy purposes also invokable as ES5 observable created: `computed(() => expr)`;\n */\nvar computed = function computed(arg1, arg2, arg3) {\n    if (typeof arg2 === \"string\") {\n        // @computed\n        return computedDecorator.apply(null, arguments);\n    }\n    if (arg1 !== null && typeof arg1 === \"object\" && arguments.length === 1) {\n        // @computed({ options })\n        return computedDecorator.apply(null, arguments);\n    }\n    // computed(expr, options?)\n    if (true) {\n        invariant(typeof arg1 === \"function\", \"First argument to `computed` should be an expression.\");\n        invariant(arguments.length < 3, \"Computed takes one or two arguments if used as function\");\n    }\n    var opts = typeof arg2 === \"object\" ? arg2 : {};\n    opts.get = arg1;\n    opts.set = typeof arg2 === \"function\" ? arg2 : opts.set;\n    opts.name = opts.name || arg1.name || \"\"; /* for generated name */\n    return new ComputedValue(opts);\n};\ncomputed.struct = computedStructDecorator;\n\nfunction createAction(actionName, fn, ref) {\n    if (true) {\n        invariant(typeof fn === \"function\", \"`action` can only be invoked on functions\");\n        if (typeof actionName !== \"string\" || !actionName)\n            fail(\"actions should have valid names, got: '\" + actionName + \"'\");\n    }\n    var res = function () {\n        return executeAction(actionName, fn, ref || this, arguments);\n    };\n    res.isMobxAction = true;\n    return res;\n}\nfunction executeAction(actionName, fn, scope, args) {\n    var runInfo = startAction(actionName, fn, scope, args);\n    var shouldSupressReactionError = true;\n    try {\n        var res = fn.apply(scope, args);\n        shouldSupressReactionError = false;\n        return res;\n    }\n    finally {\n        if (shouldSupressReactionError) {\n            globalState.suppressReactionErrors = shouldSupressReactionError;\n            endAction(runInfo);\n            globalState.suppressReactionErrors = false;\n        }\n        else {\n            endAction(runInfo);\n        }\n    }\n}\nfunction startAction(actionName, fn, scope, args) {\n    var notifySpy = isSpyEnabled() && !!actionName;\n    var startTime = 0;\n    if (notifySpy && \"development\" !== \"production\") {\n        startTime = Date.now();\n        var l = (args && args.length) || 0;\n        var flattendArgs = new Array(l);\n        if (l > 0)\n            for (var i = 0; i < l; i++)\n                flattendArgs[i] = args[i];\n        spyReportStart({\n            type: \"action\",\n            name: actionName,\n            object: scope,\n            arguments: flattendArgs\n        });\n    }\n    var prevDerivation = untrackedStart();\n    startBatch();\n    var prevAllowStateChanges = allowStateChangesStart(true);\n    return {\n        prevDerivation: prevDerivation,\n        prevAllowStateChanges: prevAllowStateChanges,\n        notifySpy: notifySpy,\n        startTime: startTime\n    };\n}\nfunction endAction(runInfo) {\n    allowStateChangesEnd(runInfo.prevAllowStateChanges);\n    endBatch();\n    untrackedEnd(runInfo.prevDerivation);\n    if (runInfo.notifySpy && \"development\" !== \"production\")\n        spyReportEnd({ time: Date.now() - runInfo.startTime });\n}\nfunction allowStateChanges(allowStateChanges, func) {\n    var prev = allowStateChangesStart(allowStateChanges);\n    var res;\n    try {\n        res = func();\n    }\n    finally {\n        allowStateChangesEnd(prev);\n    }\n    return res;\n}\nfunction allowStateChangesStart(allowStateChanges) {\n    var prev = globalState.allowStateChanges;\n    globalState.allowStateChanges = allowStateChanges;\n    return prev;\n}\nfunction allowStateChangesEnd(prev) {\n    globalState.allowStateChanges = prev;\n}\nfunction allowStateChangesInsideComputed(func) {\n    var prev = globalState.computationDepth;\n    globalState.computationDepth = 0;\n    var res;\n    try {\n        res = func();\n    }\n    finally {\n        globalState.computationDepth = prev;\n    }\n    return res;\n}\n\nvar ObservableValue = /** @class */ (function (_super) {\n    __extends(ObservableValue, _super);\n    function ObservableValue(value, enhancer, name, notifySpy, equals) {\n        if (name === void 0) { name = \"ObservableValue@\" + getNextId(); }\n        if (notifySpy === void 0) { notifySpy = true; }\n        if (equals === void 0) { equals = comparer.default; }\n        var _this = _super.call(this, name) || this;\n        _this.enhancer = enhancer;\n        _this.name = name;\n        _this.equals = equals;\n        _this.hasUnreportedChange = false;\n        _this.value = enhancer(value, undefined, name);\n        if (notifySpy && isSpyEnabled() && \"development\" !== \"production\") {\n            // only notify spy if this is a stand-alone observable\n            spyReport({ type: \"create\", name: _this.name, newValue: \"\" + _this.value });\n        }\n        return _this;\n    }\n    ObservableValue.prototype.dehanceValue = function (value) {\n        if (this.dehancer !== undefined)\n            return this.dehancer(value);\n        return value;\n    };\n    ObservableValue.prototype.set = function (newValue) {\n        var oldValue = this.value;\n        newValue = this.prepareNewValue(newValue);\n        if (newValue !== globalState.UNCHANGED) {\n            var notifySpy = isSpyEnabled();\n            if (notifySpy && \"development\" !== \"production\") {\n                spyReportStart({\n                    type: \"update\",\n                    name: this.name,\n                    newValue: newValue,\n                    oldValue: oldValue\n                });\n            }\n            this.setNewValue(newValue);\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportEnd();\n        }\n    };\n    ObservableValue.prototype.prepareNewValue = function (newValue) {\n        checkIfStateModificationsAreAllowed(this);\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                object: this,\n                type: \"update\",\n                newValue: newValue\n            });\n            if (!change)\n                return globalState.UNCHANGED;\n            newValue = change.newValue;\n        }\n        // apply modifier\n        newValue = this.enhancer(newValue, this.value, this.name);\n        return this.equals(this.value, newValue) ? globalState.UNCHANGED : newValue;\n    };\n    ObservableValue.prototype.setNewValue = function (newValue) {\n        var oldValue = this.value;\n        this.value = newValue;\n        this.reportChanged();\n        if (hasListeners(this)) {\n            notifyListeners(this, {\n                type: \"update\",\n                object: this,\n                newValue: newValue,\n                oldValue: oldValue\n            });\n        }\n    };\n    ObservableValue.prototype.get = function () {\n        this.reportObserved();\n        return this.dehanceValue(this.value);\n    };\n    ObservableValue.prototype.intercept = function (handler) {\n        return registerInterceptor(this, handler);\n    };\n    ObservableValue.prototype.observe = function (listener, fireImmediately) {\n        if (fireImmediately)\n            listener({\n                object: this,\n                type: \"update\",\n                newValue: this.value,\n                oldValue: undefined\n            });\n        return registerListener(this, listener);\n    };\n    ObservableValue.prototype.toJSON = function () {\n        return this.get();\n    };\n    ObservableValue.prototype.toString = function () {\n        return this.name + \"[\" + this.value + \"]\";\n    };\n    ObservableValue.prototype.valueOf = function () {\n        return toPrimitive(this.get());\n    };\n    ObservableValue.prototype[Symbol.toPrimitive] = function () {\n        return this.valueOf();\n    };\n    return ObservableValue;\n}(Atom));\nvar isObservableValue = createInstanceofPredicate(\"ObservableValue\", ObservableValue);\n\n/**\n * A node in the state dependency root that observes other nodes, and can be observed itself.\n *\n * ComputedValue will remember the result of the computation for the duration of the batch, or\n * while being observed.\n *\n * During this time it will recompute only when one of its direct dependencies changed,\n * but only when it is being accessed with `ComputedValue.get()`.\n *\n * Implementation description:\n * 1. First time it's being accessed it will compute and remember result\n *    give back remembered result until 2. happens\n * 2. First time any deep dependency change, propagate POSSIBLY_STALE to all observers, wait for 3.\n * 3. When it's being accessed, recompute if any shallow dependency changed.\n *    if result changed: propagate STALE to all observers, that were POSSIBLY_STALE from the last step.\n *    go to step 2. either way\n *\n * If at any point it's outside batch and it isn't observed: reset everything and go to 1.\n */\nvar ComputedValue = /** @class */ (function () {\n    /**\n     * Create a new computed value based on a function expression.\n     *\n     * The `name` property is for debug purposes only.\n     *\n     * The `equals` property specifies the comparer function to use to determine if a newly produced\n     * value differs from the previous value. Two comparers are provided in the library; `defaultComparer`\n     * compares based on identity comparison (===), and `structualComparer` deeply compares the structure.\n     * Structural comparison can be convenient if you always produce a new aggregated object and\n     * don't want to notify observers if it is structurally the same.\n     * This is useful for working with vectors, mouse coordinates etc.\n     */\n    function ComputedValue(options) {\n        this.dependenciesState = IDerivationState.NOT_TRACKING;\n        this.observing = []; // nodes we are looking at. Our value depends on these nodes\n        this.newObserving = null; // during tracking it's an array with new observed observers\n        this.isBeingObserved = false;\n        this.isPendingUnobservation = false;\n        this.observers = new Set();\n        this.diffValue = 0;\n        this.runId = 0;\n        this.lastAccessedBy = 0;\n        this.lowestObserverState = IDerivationState.UP_TO_DATE;\n        this.unboundDepsCount = 0;\n        this.__mapid = \"#\" + getNextId();\n        this.value = new CaughtException(null);\n        this.isComputing = false; // to check for cycles\n        this.isRunningSetter = false;\n        this.isTracing = TraceMode.NONE;\n        if ( true && !options.get)\n            throw \"[mobx] missing option for computed: get\";\n        this.derivation = options.get;\n        this.name = options.name || \"ComputedValue@\" + getNextId();\n        if (options.set)\n            this.setter = createAction(this.name + \"-setter\", options.set);\n        this.equals =\n            options.equals ||\n                (options.compareStructural || options.struct\n                    ? comparer.structural\n                    : comparer.default);\n        this.scope = options.context;\n        this.requiresReaction = !!options.requiresReaction;\n        this.keepAlive = !!options.keepAlive;\n    }\n    ComputedValue.prototype.onBecomeStale = function () {\n        propagateMaybeChanged(this);\n    };\n    ComputedValue.prototype.onBecomeObserved = function () {\n        if (this.onBecomeObservedListeners) {\n            this.onBecomeObservedListeners.forEach(function (listener) { return listener(); });\n        }\n    };\n    ComputedValue.prototype.onBecomeUnobserved = function () {\n        if (this.onBecomeUnobservedListeners) {\n            this.onBecomeUnobservedListeners.forEach(function (listener) { return listener(); });\n        }\n    };\n    /**\n     * Returns the current value of this computed value.\n     * Will evaluate its computation first if needed.\n     */\n    ComputedValue.prototype.get = function () {\n        if (this.isComputing)\n            fail(\"Cycle detected in computation \" + this.name + \": \" + this.derivation);\n        if (globalState.inBatch === 0 && this.observers.size === 0 && !this.keepAlive) {\n            if (shouldCompute(this)) {\n                this.warnAboutUntrackedRead();\n                startBatch(); // See perf test 'computed memoization'\n                this.value = this.computeValue(false);\n                endBatch();\n            }\n        }\n        else {\n            reportObserved(this);\n            if (shouldCompute(this))\n                if (this.trackAndCompute())\n                    propagateChangeConfirmed(this);\n        }\n        var result = this.value;\n        if (isCaughtException(result))\n            throw result.cause;\n        return result;\n    };\n    ComputedValue.prototype.peek = function () {\n        var res = this.computeValue(false);\n        if (isCaughtException(res))\n            throw res.cause;\n        return res;\n    };\n    ComputedValue.prototype.set = function (value) {\n        if (this.setter) {\n            invariant(!this.isRunningSetter, \"The setter of computed value '\" + this.name + \"' is trying to update itself. Did you intend to update an _observable_ value, instead of the computed property?\");\n            this.isRunningSetter = true;\n            try {\n                this.setter.call(this.scope, value);\n            }\n            finally {\n                this.isRunningSetter = false;\n            }\n        }\n        else\n            invariant(false,  true &&\n                \"[ComputedValue '\" + this.name + \"'] It is not possible to assign a new value to a computed value.\");\n    };\n    ComputedValue.prototype.trackAndCompute = function () {\n        if (isSpyEnabled() && \"development\" !== \"production\") {\n            spyReport({\n                object: this.scope,\n                type: \"compute\",\n                name: this.name\n            });\n        }\n        var oldValue = this.value;\n        var wasSuspended = \n        /* see #1208 */ this.dependenciesState === IDerivationState.NOT_TRACKING;\n        var newValue = this.computeValue(true);\n        var changed = wasSuspended ||\n            isCaughtException(oldValue) ||\n            isCaughtException(newValue) ||\n            !this.equals(oldValue, newValue);\n        if (changed) {\n            this.value = newValue;\n        }\n        return changed;\n    };\n    ComputedValue.prototype.computeValue = function (track) {\n        this.isComputing = true;\n        globalState.computationDepth++;\n        var res;\n        if (track) {\n            res = trackDerivedFunction(this, this.derivation, this.scope);\n        }\n        else {\n            if (globalState.disableErrorBoundaries === true) {\n                res = this.derivation.call(this.scope);\n            }\n            else {\n                try {\n                    res = this.derivation.call(this.scope);\n                }\n                catch (e) {\n                    res = new CaughtException(e);\n                }\n            }\n        }\n        globalState.computationDepth--;\n        this.isComputing = false;\n        return res;\n    };\n    ComputedValue.prototype.suspend = function () {\n        if (!this.keepAlive) {\n            clearObserving(this);\n            this.value = undefined; // don't hold on to computed value!\n        }\n    };\n    ComputedValue.prototype.observe = function (listener, fireImmediately) {\n        var _this = this;\n        var firstTime = true;\n        var prevValue = undefined;\n        return autorun(function () {\n            var newValue = _this.get();\n            if (!firstTime || fireImmediately) {\n                var prevU = untrackedStart();\n                listener({\n                    type: \"update\",\n                    object: _this,\n                    newValue: newValue,\n                    oldValue: prevValue\n                });\n                untrackedEnd(prevU);\n            }\n            firstTime = false;\n            prevValue = newValue;\n        });\n    };\n    ComputedValue.prototype.warnAboutUntrackedRead = function () {\n        if (false)\n            {}\n        if (this.requiresReaction === true) {\n            fail(\"[mobx] Computed value \" + this.name + \" is read outside a reactive context\");\n        }\n        if (this.isTracing !== TraceMode.NONE) {\n            console.log(\"[mobx.trace] '\" + this.name + \"' is being read outside a reactive context. Doing a full recompute\");\n        }\n        if (globalState.computedRequiresReaction) {\n            console.warn(\"[mobx] Computed value \" + this.name + \" is being read outside a reactive context. Doing a full recompute\");\n        }\n    };\n    ComputedValue.prototype.toJSON = function () {\n        return this.get();\n    };\n    ComputedValue.prototype.toString = function () {\n        return this.name + \"[\" + this.derivation.toString() + \"]\";\n    };\n    ComputedValue.prototype.valueOf = function () {\n        return toPrimitive(this.get());\n    };\n    ComputedValue.prototype[Symbol.toPrimitive] = function () {\n        return this.valueOf();\n    };\n    return ComputedValue;\n}());\nvar isComputedValue = createInstanceofPredicate(\"ComputedValue\", ComputedValue);\n\nvar IDerivationState;\n(function (IDerivationState) {\n    // before being run or (outside batch and not being observed)\n    // at this point derivation is not holding any data about dependency tree\n    IDerivationState[IDerivationState[\"NOT_TRACKING\"] = -1] = \"NOT_TRACKING\";\n    // no shallow dependency changed since last computation\n    // won't recalculate derivation\n    // this is what makes mobx fast\n    IDerivationState[IDerivationState[\"UP_TO_DATE\"] = 0] = \"UP_TO_DATE\";\n    // some deep dependency changed, but don't know if shallow dependency changed\n    // will require to check first if UP_TO_DATE or POSSIBLY_STALE\n    // currently only ComputedValue will propagate POSSIBLY_STALE\n    //\n    // having this state is second big optimization:\n    // don't have to recompute on every dependency change, but only when it's needed\n    IDerivationState[IDerivationState[\"POSSIBLY_STALE\"] = 1] = \"POSSIBLY_STALE\";\n    // A shallow dependency has changed since last computation and the derivation\n    // will need to recompute when it's needed next.\n    IDerivationState[IDerivationState[\"STALE\"] = 2] = \"STALE\";\n})(IDerivationState || (IDerivationState = {}));\nvar TraceMode;\n(function (TraceMode) {\n    TraceMode[TraceMode[\"NONE\"] = 0] = \"NONE\";\n    TraceMode[TraceMode[\"LOG\"] = 1] = \"LOG\";\n    TraceMode[TraceMode[\"BREAK\"] = 2] = \"BREAK\";\n})(TraceMode || (TraceMode = {}));\nvar CaughtException = /** @class */ (function () {\n    function CaughtException(cause) {\n        this.cause = cause;\n        // Empty\n    }\n    return CaughtException;\n}());\nfunction isCaughtException(e) {\n    return e instanceof CaughtException;\n}\n/**\n * Finds out whether any dependency of the derivation has actually changed.\n * If dependenciesState is 1 then it will recalculate dependencies,\n * if any dependency changed it will propagate it by changing dependenciesState to 2.\n *\n * By iterating over the dependencies in the same order that they were reported and\n * stopping on the first change, all the recalculations are only called for ComputedValues\n * that will be tracked by derivation. That is because we assume that if the first x\n * dependencies of the derivation doesn't change then the derivation should run the same way\n * up until accessing x-th dependency.\n */\nfunction shouldCompute(derivation) {\n    switch (derivation.dependenciesState) {\n        case IDerivationState.UP_TO_DATE:\n            return false;\n        case IDerivationState.NOT_TRACKING:\n        case IDerivationState.STALE:\n            return true;\n        case IDerivationState.POSSIBLY_STALE: {\n            var prevUntracked = untrackedStart(); // no need for those computeds to be reported, they will be picked up in trackDerivedFunction.\n            var obs = derivation.observing, l = obs.length;\n            for (var i = 0; i < l; i++) {\n                var obj = obs[i];\n                if (isComputedValue(obj)) {\n                    if (globalState.disableErrorBoundaries) {\n                        obj.get();\n                    }\n                    else {\n                        try {\n                            obj.get();\n                        }\n                        catch (e) {\n                            // we are not interested in the value *or* exception at this moment, but if there is one, notify all\n                            untrackedEnd(prevUntracked);\n                            return true;\n                        }\n                    }\n                    // if ComputedValue `obj` actually changed it will be computed and propagated to its observers.\n                    // and `derivation` is an observer of `obj`\n                    // invariantShouldCompute(derivation)\n                    if (derivation.dependenciesState === IDerivationState.STALE) {\n                        untrackedEnd(prevUntracked);\n                        return true;\n                    }\n                }\n            }\n            changeDependenciesStateTo0(derivation);\n            untrackedEnd(prevUntracked);\n            return false;\n        }\n    }\n}\n// function invariantShouldCompute(derivation: IDerivation) {\n//     const newDepState = (derivation as any).dependenciesState\n//     if (\n//         process.env.NODE_ENV === \"production\" &&\n//         (newDepState === IDerivationState.POSSIBLY_STALE ||\n//             newDepState === IDerivationState.NOT_TRACKING)\n//     )\n//         fail(\"Illegal dependency state\")\n// }\nfunction isComputingDerivation() {\n    return globalState.trackingDerivation !== null; // filter out actions inside computations\n}\nfunction checkIfStateModificationsAreAllowed(atom) {\n    var hasObservers = atom.observers.size > 0;\n    // Should never be possible to change an observed observable from inside computed, see #798\n    if (globalState.computationDepth > 0 && hasObservers)\n        fail( true &&\n            \"Computed values are not allowed to cause side effects by changing observables that are already being observed. Tried to modify: \" + atom.name);\n    // Should not be possible to change observed state outside strict mode, except during initialization, see #563\n    if (!globalState.allowStateChanges && (hasObservers || globalState.enforceActions === \"strict\"))\n        fail( true &&\n            (globalState.enforceActions\n                ? \"Since strict-mode is enabled, changing observed observable values outside actions is not allowed. Please wrap the code in an `action` if this change is intended. Tried to modify: \"\n                : \"Side effects like changing state are not allowed at this point. Are you trying to modify state from, for example, the render function of a React component? Tried to modify: \") +\n                atom.name);\n}\n/**\n * Executes the provided function `f` and tracks which observables are being accessed.\n * The tracking information is stored on the `derivation` object and the derivation is registered\n * as observer of any of the accessed observables.\n */\nfunction trackDerivedFunction(derivation, f, context) {\n    // pre allocate array allocation + room for variation in deps\n    // array will be trimmed by bindDependencies\n    changeDependenciesStateTo0(derivation);\n    derivation.newObserving = new Array(derivation.observing.length + 100);\n    derivation.unboundDepsCount = 0;\n    derivation.runId = ++globalState.runId;\n    var prevTracking = globalState.trackingDerivation;\n    globalState.trackingDerivation = derivation;\n    var result;\n    if (globalState.disableErrorBoundaries === true) {\n        result = f.call(context);\n    }\n    else {\n        try {\n            result = f.call(context);\n        }\n        catch (e) {\n            result = new CaughtException(e);\n        }\n    }\n    globalState.trackingDerivation = prevTracking;\n    bindDependencies(derivation);\n    return result;\n}\n/**\n * diffs newObserving with observing.\n * update observing to be newObserving with unique observables\n * notify observers that become observed/unobserved\n */\nfunction bindDependencies(derivation) {\n    // invariant(derivation.dependenciesState !== IDerivationState.NOT_TRACKING, \"INTERNAL ERROR bindDependencies expects derivation.dependenciesState !== -1\");\n    var prevObserving = derivation.observing;\n    var observing = (derivation.observing = derivation.newObserving);\n    var lowestNewObservingDerivationState = IDerivationState.UP_TO_DATE;\n    // Go through all new observables and check diffValue: (this list can contain duplicates):\n    //   0: first occurrence, change to 1 and keep it\n    //   1: extra occurrence, drop it\n    var i0 = 0, l = derivation.unboundDepsCount;\n    for (var i = 0; i < l; i++) {\n        var dep = observing[i];\n        if (dep.diffValue === 0) {\n            dep.diffValue = 1;\n            if (i0 !== i)\n                observing[i0] = dep;\n            i0++;\n        }\n        // Upcast is 'safe' here, because if dep is IObservable, `dependenciesState` will be undefined,\n        // not hitting the condition\n        if (dep.dependenciesState > lowestNewObservingDerivationState) {\n            lowestNewObservingDerivationState = dep.dependenciesState;\n        }\n    }\n    observing.length = i0;\n    derivation.newObserving = null; // newObserving shouldn't be needed outside tracking (statement moved down to work around FF bug, see #614)\n    // Go through all old observables and check diffValue: (it is unique after last bindDependencies)\n    //   0: it's not in new observables, unobserve it\n    //   1: it keeps being observed, don't want to notify it. change to 0\n    l = prevObserving.length;\n    while (l--) {\n        var dep = prevObserving[l];\n        if (dep.diffValue === 0) {\n            removeObserver(dep, derivation);\n        }\n        dep.diffValue = 0;\n    }\n    // Go through all new observables and check diffValue: (now it should be unique)\n    //   0: it was set to 0 in last loop. don't need to do anything.\n    //   1: it wasn't observed, let's observe it. set back to 0\n    while (i0--) {\n        var dep = observing[i0];\n        if (dep.diffValue === 1) {\n            dep.diffValue = 0;\n            addObserver(dep, derivation);\n        }\n    }\n    // Some new observed derivations may become stale during this derivation computation\n    // so they have had no chance to propagate staleness (#916)\n    if (lowestNewObservingDerivationState !== IDerivationState.UP_TO_DATE) {\n        derivation.dependenciesState = lowestNewObservingDerivationState;\n        derivation.onBecomeStale();\n    }\n}\nfunction clearObserving(derivation) {\n    // invariant(globalState.inBatch > 0, \"INTERNAL ERROR clearObserving should be called only inside batch\");\n    var obs = derivation.observing;\n    derivation.observing = [];\n    var i = obs.length;\n    while (i--)\n        removeObserver(obs[i], derivation);\n    derivation.dependenciesState = IDerivationState.NOT_TRACKING;\n}\nfunction untracked(action) {\n    var prev = untrackedStart();\n    try {\n        return action();\n    }\n    finally {\n        untrackedEnd(prev);\n    }\n}\nfunction untrackedStart() {\n    var prev = globalState.trackingDerivation;\n    globalState.trackingDerivation = null;\n    return prev;\n}\nfunction untrackedEnd(prev) {\n    globalState.trackingDerivation = prev;\n}\n/**\n * needed to keep `lowestObserverState` correct. when changing from (2 or 1) to 0\n *\n */\nfunction changeDependenciesStateTo0(derivation) {\n    if (derivation.dependenciesState === IDerivationState.UP_TO_DATE)\n        return;\n    derivation.dependenciesState = IDerivationState.UP_TO_DATE;\n    var obs = derivation.observing;\n    var i = obs.length;\n    while (i--)\n        obs[i].lowestObserverState = IDerivationState.UP_TO_DATE;\n}\n\n/**\n * These values will persist if global state is reset\n */\nvar persistentKeys = [\n    \"mobxGuid\",\n    \"spyListeners\",\n    \"enforceActions\",\n    \"computedRequiresReaction\",\n    \"disableErrorBoundaries\",\n    \"runId\",\n    \"UNCHANGED\"\n];\nvar MobXGlobals = /** @class */ (function () {\n    function MobXGlobals() {\n        /**\n         * MobXGlobals version.\n         * MobX compatiblity with other versions loaded in memory as long as this version matches.\n         * It indicates that the global state still stores similar information\n         *\n         * N.B: this version is unrelated to the package version of MobX, and is only the version of the\n         * internal state storage of MobX, and can be the same across many different package versions\n         */\n        this.version = 5;\n        /**\n         * globally unique token to signal unchanged\n         */\n        this.UNCHANGED = {};\n        /**\n         * Currently running derivation\n         */\n        this.trackingDerivation = null;\n        /**\n         * Are we running a computation currently? (not a reaction)\n         */\n        this.computationDepth = 0;\n        /**\n         * Each time a derivation is tracked, it is assigned a unique run-id\n         */\n        this.runId = 0;\n        /**\n         * 'guid' for general purpose. Will be persisted amongst resets.\n         */\n        this.mobxGuid = 0;\n        /**\n         * Are we in a batch block? (and how many of them)\n         */\n        this.inBatch = 0;\n        /**\n         * Observables that don't have observers anymore, and are about to be\n         * suspended, unless somebody else accesses it in the same batch\n         *\n         * @type {IObservable[]}\n         */\n        this.pendingUnobservations = [];\n        /**\n         * List of scheduled, not yet executed, reactions.\n         */\n        this.pendingReactions = [];\n        /**\n         * Are we currently processing reactions?\n         */\n        this.isRunningReactions = false;\n        /**\n         * Is it allowed to change observables at this point?\n         * In general, MobX doesn't allow that when running computations and React.render.\n         * To ensure that those functions stay pure.\n         */\n        this.allowStateChanges = true;\n        /**\n         * If strict mode is enabled, state changes are by default not allowed\n         */\n        this.enforceActions = false;\n        /**\n         * Spy callbacks\n         */\n        this.spyListeners = [];\n        /**\n         * Globally attached error handlers that react specifically to errors in reactions\n         */\n        this.globalReactionErrorHandlers = [];\n        /**\n         * Warn if computed values are accessed outside a reactive context\n         */\n        this.computedRequiresReaction = false;\n        /**\n         * Allows overwriting of computed properties, useful in tests but not prod as it can cause\n         * memory leaks. See https://github.com/mobxjs/mobx/issues/1867\n         */\n        this.computedConfigurable = false;\n        /*\n         * Don't catch and rethrow exceptions. This is useful for inspecting the state of\n         * the stack when an exception occurs while debugging.\n         */\n        this.disableErrorBoundaries = false;\n        /*\n         * If true, we are already handling an exception in an action. Any errors in reactions should be supressed, as\n         * they are not the cause, see: https://github.com/mobxjs/mobx/issues/1836\n         */\n        this.suppressReactionErrors = false;\n    }\n    return MobXGlobals;\n}());\nvar canMergeGlobalState = true;\nvar isolateCalled = false;\nvar globalState = (function () {\n    var global = getGlobal();\n    if (global.__mobxInstanceCount > 0 && !global.__mobxGlobals)\n        canMergeGlobalState = false;\n    if (global.__mobxGlobals && global.__mobxGlobals.version !== new MobXGlobals().version)\n        canMergeGlobalState = false;\n    if (!canMergeGlobalState) {\n        setTimeout(function () {\n            if (!isolateCalled) {\n                fail(\"There are multiple, different versions of MobX active. Make sure MobX is loaded only once or use `configure({ isolateGlobalState: true })`\");\n            }\n        }, 1);\n        return new MobXGlobals();\n    }\n    else if (global.__mobxGlobals) {\n        global.__mobxInstanceCount += 1;\n        if (!global.__mobxGlobals.UNCHANGED)\n            global.__mobxGlobals.UNCHANGED = {}; // make merge backward compatible\n        return global.__mobxGlobals;\n    }\n    else {\n        global.__mobxInstanceCount = 1;\n        return (global.__mobxGlobals = new MobXGlobals());\n    }\n})();\nfunction isolateGlobalState() {\n    if (globalState.pendingReactions.length ||\n        globalState.inBatch ||\n        globalState.isRunningReactions)\n        fail(\"isolateGlobalState should be called before MobX is running any reactions\");\n    isolateCalled = true;\n    if (canMergeGlobalState) {\n        if (--getGlobal().__mobxInstanceCount === 0)\n            getGlobal().__mobxGlobals = undefined;\n        globalState = new MobXGlobals();\n    }\n}\nfunction getGlobalState() {\n    return globalState;\n}\n/**\n * For testing purposes only; this will break the internal state of existing observables,\n * but can be used to get back at a stable state after throwing errors\n */\nfunction resetGlobalState() {\n    var defaultGlobals = new MobXGlobals();\n    for (var key in defaultGlobals)\n        if (persistentKeys.indexOf(key) === -1)\n            globalState[key] = defaultGlobals[key];\n    globalState.allowStateChanges = !globalState.enforceActions;\n}\nfunction getGlobal() {\n    return typeof window !== \"undefined\" ? window : global;\n}\n\nfunction hasObservers(observable) {\n    return observable.observers && observable.observers.size > 0;\n}\nfunction getObservers(observable) {\n    return observable.observers;\n}\n// function invariantObservers(observable: IObservable) {\n//     const list = observable.observers\n//     const map = observable.observersIndexes\n//     const l = list.length\n//     for (let i = 0; i < l; i++) {\n//         const id = list[i].__mapid\n//         if (i) {\n//             invariant(map[id] === i, \"INTERNAL ERROR maps derivation.__mapid to index in list\") // for performance\n//         } else {\n//             invariant(!(id in map), \"INTERNAL ERROR observer on index 0 shouldn't be held in map.\") // for performance\n//         }\n//     }\n//     invariant(\n//         list.length === 0 || Object.keys(map).length === list.length - 1,\n//         \"INTERNAL ERROR there is no junk in map\"\n//     )\n// }\nfunction addObserver(observable, node) {\n    // invariant(node.dependenciesState !== -1, \"INTERNAL ERROR, can add only dependenciesState !== -1\");\n    // invariant(observable._observers.indexOf(node) === -1, \"INTERNAL ERROR add already added node\");\n    // invariantObservers(observable);\n    observable.observers.add(node);\n    if (observable.lowestObserverState > node.dependenciesState)\n        observable.lowestObserverState = node.dependenciesState;\n    // invariantObservers(observable);\n    // invariant(observable._observers.indexOf(node) !== -1, \"INTERNAL ERROR didn't add node\");\n}\nfunction removeObserver(observable, node) {\n    // invariant(globalState.inBatch > 0, \"INTERNAL ERROR, remove should be called only inside batch\");\n    // invariant(observable._observers.indexOf(node) !== -1, \"INTERNAL ERROR remove already removed node\");\n    // invariantObservers(observable);\n    observable.observers.delete(node);\n    if (observable.observers.size === 0) {\n        // deleting last observer\n        queueForUnobservation(observable);\n    }\n    // invariantObservers(observable);\n    // invariant(observable._observers.indexOf(node) === -1, \"INTERNAL ERROR remove already removed node2\");\n}\nfunction queueForUnobservation(observable) {\n    if (observable.isPendingUnobservation === false) {\n        // invariant(observable._observers.length === 0, \"INTERNAL ERROR, should only queue for unobservation unobserved observables\");\n        observable.isPendingUnobservation = true;\n        globalState.pendingUnobservations.push(observable);\n    }\n}\n/**\n * Batch starts a transaction, at least for purposes of memoizing ComputedValues when nothing else does.\n * During a batch `onBecomeUnobserved` will be called at most once per observable.\n * Avoids unnecessary recalculations.\n */\nfunction startBatch() {\n    globalState.inBatch++;\n}\nfunction endBatch() {\n    if (--globalState.inBatch === 0) {\n        runReactions();\n        // the batch is actually about to finish, all unobserving should happen here.\n        var list = globalState.pendingUnobservations;\n        for (var i = 0; i < list.length; i++) {\n            var observable = list[i];\n            observable.isPendingUnobservation = false;\n            if (observable.observers.size === 0) {\n                if (observable.isBeingObserved) {\n                    // if this observable had reactive observers, trigger the hooks\n                    observable.isBeingObserved = false;\n                    observable.onBecomeUnobserved();\n                }\n                if (observable instanceof ComputedValue) {\n                    // computed values are automatically teared down when the last observer leaves\n                    // this process happens recursively, this computed might be the last observabe of another, etc..\n                    observable.suspend();\n                }\n            }\n        }\n        globalState.pendingUnobservations = [];\n    }\n}\nfunction reportObserved(observable) {\n    var derivation = globalState.trackingDerivation;\n    if (derivation !== null) {\n        /**\n         * Simple optimization, give each derivation run an unique id (runId)\n         * Check if last time this observable was accessed the same runId is used\n         * if this is the case, the relation is already known\n         */\n        if (derivation.runId !== observable.lastAccessedBy) {\n            observable.lastAccessedBy = derivation.runId;\n            // Tried storing newObserving, or observing, or both as Set, but performance didn't come close...\n            derivation.newObserving[derivation.unboundDepsCount++] = observable;\n            if (!observable.isBeingObserved) {\n                observable.isBeingObserved = true;\n                observable.onBecomeObserved();\n            }\n        }\n        return true;\n    }\n    else if (observable.observers.size === 0 && globalState.inBatch > 0) {\n        queueForUnobservation(observable);\n    }\n    return false;\n}\n// function invariantLOS(observable: IObservable, msg: string) {\n//     // it's expensive so better not run it in produciton. but temporarily helpful for testing\n//     const min = getObservers(observable).reduce((a, b) => Math.min(a, b.dependenciesState), 2)\n//     if (min >= observable.lowestObserverState) return // <- the only assumption about `lowestObserverState`\n//     throw new Error(\n//         \"lowestObserverState is wrong for \" +\n//             msg +\n//             \" because \" +\n//             min +\n//             \" < \" +\n//             observable.lowestObserverState\n//     )\n// }\n/**\n * NOTE: current propagation mechanism will in case of self reruning autoruns behave unexpectedly\n * It will propagate changes to observers from previous run\n * It's hard or maybe impossible (with reasonable perf) to get it right with current approach\n * Hopefully self reruning autoruns aren't a feature people should depend on\n * Also most basic use cases should be ok\n */\n// Called by Atom when its value changes\nfunction propagateChanged(observable) {\n    // invariantLOS(observable, \"changed start\");\n    if (observable.lowestObserverState === IDerivationState.STALE)\n        return;\n    observable.lowestObserverState = IDerivationState.STALE;\n    // Ideally we use for..of here, but the downcompiled version is really slow...\n    observable.observers.forEach(function (d) {\n        if (d.dependenciesState === IDerivationState.UP_TO_DATE) {\n            if (d.isTracing !== TraceMode.NONE) {\n                logTraceInfo(d, observable);\n            }\n            d.onBecomeStale();\n        }\n        d.dependenciesState = IDerivationState.STALE;\n    });\n    // invariantLOS(observable, \"changed end\");\n}\n// Called by ComputedValue when it recalculate and its value changed\nfunction propagateChangeConfirmed(observable) {\n    // invariantLOS(observable, \"confirmed start\");\n    if (observable.lowestObserverState === IDerivationState.STALE)\n        return;\n    observable.lowestObserverState = IDerivationState.STALE;\n    observable.observers.forEach(function (d) {\n        if (d.dependenciesState === IDerivationState.POSSIBLY_STALE)\n            d.dependenciesState = IDerivationState.STALE;\n        else if (d.dependenciesState === IDerivationState.UP_TO_DATE // this happens during computing of `d`, just keep lowestObserverState up to date.\n        )\n            observable.lowestObserverState = IDerivationState.UP_TO_DATE;\n    });\n    // invariantLOS(observable, \"confirmed end\");\n}\n// Used by computed when its dependency changed, but we don't wan't to immediately recompute.\nfunction propagateMaybeChanged(observable) {\n    // invariantLOS(observable, \"maybe start\");\n    if (observable.lowestObserverState !== IDerivationState.UP_TO_DATE)\n        return;\n    observable.lowestObserverState = IDerivationState.POSSIBLY_STALE;\n    observable.observers.forEach(function (d) {\n        if (d.dependenciesState === IDerivationState.UP_TO_DATE) {\n            d.dependenciesState = IDerivationState.POSSIBLY_STALE;\n            if (d.isTracing !== TraceMode.NONE) {\n                logTraceInfo(d, observable);\n            }\n            d.onBecomeStale();\n        }\n    });\n    // invariantLOS(observable, \"maybe end\");\n}\nfunction logTraceInfo(derivation, observable) {\n    console.log(\"[mobx.trace] '\" + derivation.name + \"' is invalidated due to a change in: '\" + observable.name + \"'\");\n    if (derivation.isTracing === TraceMode.BREAK) {\n        var lines = [];\n        printDepTree(getDependencyTree(derivation), lines, 1);\n        // prettier-ignore\n        new Function(\"debugger;\\n/*\\nTracing '\" + derivation.name + \"'\\n\\nYou are entering this break point because derivation '\" + derivation.name + \"' is being traced and '\" + observable.name + \"' is now forcing it to update.\\nJust follow the stacktrace you should now see in the devtools to see precisely what piece of your code is causing this update\\nThe stackframe you are looking for is at least ~6-8 stack-frames up.\\n\\n\" + (derivation instanceof ComputedValue ? derivation.derivation.toString().replace(/[*]\\//g, \"/\") : \"\") + \"\\n\\nThe dependencies for this derivation are:\\n\\n\" + lines.join(\"\\n\") + \"\\n*/\\n    \")();\n    }\n}\nfunction printDepTree(tree, lines, depth) {\n    if (lines.length >= 1000) {\n        lines.push(\"(and many more)\");\n        return;\n    }\n    lines.push(\"\" + new Array(depth).join(\"\\t\") + tree.name); // MWE: not the fastest, but the easiest way :)\n    if (tree.dependencies)\n        tree.dependencies.forEach(function (child) { return printDepTree(child, lines, depth + 1); });\n}\n\nvar Reaction = /** @class */ (function () {\n    function Reaction(name, onInvalidate, errorHandler) {\n        if (name === void 0) { name = \"Reaction@\" + getNextId(); }\n        this.name = name;\n        this.onInvalidate = onInvalidate;\n        this.errorHandler = errorHandler;\n        this.observing = []; // nodes we are looking at. Our value depends on these nodes\n        this.newObserving = [];\n        this.dependenciesState = IDerivationState.NOT_TRACKING;\n        this.diffValue = 0;\n        this.runId = 0;\n        this.unboundDepsCount = 0;\n        this.__mapid = \"#\" + getNextId();\n        this.isDisposed = false;\n        this._isScheduled = false;\n        this._isTrackPending = false;\n        this._isRunning = false;\n        this.isTracing = TraceMode.NONE;\n    }\n    Reaction.prototype.onBecomeStale = function () {\n        this.schedule();\n    };\n    Reaction.prototype.schedule = function () {\n        if (!this._isScheduled) {\n            this._isScheduled = true;\n            globalState.pendingReactions.push(this);\n            runReactions();\n        }\n    };\n    Reaction.prototype.isScheduled = function () {\n        return this._isScheduled;\n    };\n    /**\n     * internal, use schedule() if you intend to kick off a reaction\n     */\n    Reaction.prototype.runReaction = function () {\n        if (!this.isDisposed) {\n            startBatch();\n            this._isScheduled = false;\n            if (shouldCompute(this)) {\n                this._isTrackPending = true;\n                try {\n                    this.onInvalidate();\n                    if (this._isTrackPending &&\n                        isSpyEnabled() &&\n                        \"development\" !== \"production\") {\n                        // onInvalidate didn't trigger track right away..\n                        spyReport({\n                            name: this.name,\n                            type: \"scheduled-reaction\"\n                        });\n                    }\n                }\n                catch (e) {\n                    this.reportExceptionInDerivation(e);\n                }\n            }\n            endBatch();\n        }\n    };\n    Reaction.prototype.track = function (fn) {\n        if (this.isDisposed) {\n            return;\n            // console.warn(\"Reaction already disposed\") // Note: Not a warning / error in mobx 4 either\n        }\n        startBatch();\n        var notify = isSpyEnabled();\n        var startTime;\n        if (notify && \"development\" !== \"production\") {\n            startTime = Date.now();\n            spyReportStart({\n                name: this.name,\n                type: \"reaction\"\n            });\n        }\n        this._isRunning = true;\n        var result = trackDerivedFunction(this, fn, undefined);\n        this._isRunning = false;\n        this._isTrackPending = false;\n        if (this.isDisposed) {\n            // disposed during last run. Clean up everything that was bound after the dispose call.\n            clearObserving(this);\n        }\n        if (isCaughtException(result))\n            this.reportExceptionInDerivation(result.cause);\n        if (notify && \"development\" !== \"production\") {\n            spyReportEnd({\n                time: Date.now() - startTime\n            });\n        }\n        endBatch();\n    };\n    Reaction.prototype.reportExceptionInDerivation = function (error) {\n        var _this = this;\n        if (this.errorHandler) {\n            this.errorHandler(error, this);\n            return;\n        }\n        if (globalState.disableErrorBoundaries)\n            throw error;\n        var message = \"[mobx] Encountered an uncaught exception that was thrown by a reaction or observer component, in: '\" + this + \"'\";\n        if (globalState.suppressReactionErrors) {\n            console.warn(\"[mobx] (error in reaction '\" + this.name + \"' suppressed, fix error of causing action below)\"); // prettier-ignore\n        }\n        else {\n            console.error(message, error);\n            /** If debugging brought you here, please, read the above message :-). Tnx! */\n        }\n        if (isSpyEnabled()) {\n            spyReport({\n                type: \"error\",\n                name: this.name,\n                message: message,\n                error: \"\" + error\n            });\n        }\n        globalState.globalReactionErrorHandlers.forEach(function (f) { return f(error, _this); });\n    };\n    Reaction.prototype.dispose = function () {\n        if (!this.isDisposed) {\n            this.isDisposed = true;\n            if (!this._isRunning) {\n                // if disposed while running, clean up later. Maybe not optimal, but rare case\n                startBatch();\n                clearObserving(this);\n                endBatch();\n            }\n        }\n    };\n    Reaction.prototype.getDisposer = function () {\n        var r = this.dispose.bind(this);\n        r[$mobx] = this;\n        return r;\n    };\n    Reaction.prototype.toString = function () {\n        return \"Reaction[\" + this.name + \"]\";\n    };\n    Reaction.prototype.trace = function (enterBreakPoint) {\n        if (enterBreakPoint === void 0) { enterBreakPoint = false; }\n        trace(this, enterBreakPoint);\n    };\n    return Reaction;\n}());\nfunction onReactionError(handler) {\n    globalState.globalReactionErrorHandlers.push(handler);\n    return function () {\n        var idx = globalState.globalReactionErrorHandlers.indexOf(handler);\n        if (idx >= 0)\n            globalState.globalReactionErrorHandlers.splice(idx, 1);\n    };\n}\n/**\n * Magic number alert!\n * Defines within how many times a reaction is allowed to re-trigger itself\n * until it is assumed that this is gonna be a never ending loop...\n */\nvar MAX_REACTION_ITERATIONS = 100;\nvar reactionScheduler = function (f) { return f(); };\nfunction runReactions() {\n    // Trampolining, if runReactions are already running, new reactions will be picked up\n    if (globalState.inBatch > 0 || globalState.isRunningReactions)\n        return;\n    reactionScheduler(runReactionsHelper);\n}\nfunction runReactionsHelper() {\n    globalState.isRunningReactions = true;\n    var allReactions = globalState.pendingReactions;\n    var iterations = 0;\n    // While running reactions, new reactions might be triggered.\n    // Hence we work with two variables and check whether\n    // we converge to no remaining reactions after a while.\n    while (allReactions.length > 0) {\n        if (++iterations === MAX_REACTION_ITERATIONS) {\n            console.error(\"Reaction doesn't converge to a stable state after \" + MAX_REACTION_ITERATIONS + \" iterations.\" +\n                (\" Probably there is a cycle in the reactive function: \" + allReactions[0]));\n            allReactions.splice(0); // clear reactions\n        }\n        var remainingReactions = allReactions.splice(0);\n        for (var i = 0, l = remainingReactions.length; i < l; i++)\n            remainingReactions[i].runReaction();\n    }\n    globalState.isRunningReactions = false;\n}\nvar isReaction = createInstanceofPredicate(\"Reaction\", Reaction);\nfunction setReactionScheduler(fn) {\n    var baseScheduler = reactionScheduler;\n    reactionScheduler = function (f) { return fn(function () { return baseScheduler(f); }); };\n}\n\nfunction isSpyEnabled() {\n    return  true && !!globalState.spyListeners.length;\n}\nfunction spyReport(event) {\n    if (false)\n        {} // dead code elimination can do the rest\n    if (!globalState.spyListeners.length)\n        return;\n    var listeners = globalState.spyListeners;\n    for (var i = 0, l = listeners.length; i < l; i++)\n        listeners[i](event);\n}\nfunction spyReportStart(event) {\n    if (false)\n        {}\n    var change = __assign({}, event, { spyReportStart: true });\n    spyReport(change);\n}\nvar END_EVENT = { spyReportEnd: true };\nfunction spyReportEnd(change) {\n    if (false)\n        {}\n    if (change)\n        spyReport(__assign({}, change, { spyReportEnd: true }));\n    else\n        spyReport(END_EVENT);\n}\nfunction spy(listener) {\n    if (false) {}\n    else {\n        globalState.spyListeners.push(listener);\n        return once(function () {\n            globalState.spyListeners = globalState.spyListeners.filter(function (l) { return l !== listener; });\n        });\n    }\n}\n\nfunction dontReassignFields() {\n    fail( true && \"@action fields are not reassignable\");\n}\nfunction namedActionDecorator(name) {\n    return function (target, prop, descriptor) {\n        if (descriptor) {\n            if ( true && descriptor.get !== undefined) {\n                return fail(\"@action cannot be used with getters\");\n            }\n            // babel / typescript\n            // @action method() { }\n            if (descriptor.value) {\n                // typescript\n                return {\n                    value: createAction(name, descriptor.value),\n                    enumerable: false,\n                    configurable: true,\n                    writable: true // for typescript, this must be writable, otherwise it cannot inherit :/ (see inheritable actions test)\n                };\n            }\n            // babel only: @action method = () => {}\n            var initializer_1 = descriptor.initializer;\n            return {\n                enumerable: false,\n                configurable: true,\n                writable: true,\n                initializer: function () {\n                    // N.B: we can't immediately invoke initializer; this would be wrong\n                    return createAction(name, initializer_1.call(this));\n                }\n            };\n        }\n        // bound instance methods\n        return actionFieldDecorator(name).apply(this, arguments);\n    };\n}\nfunction actionFieldDecorator(name) {\n    // Simple property that writes on first invocation to the current instance\n    return function (target, prop, descriptor) {\n        Object.defineProperty(target, prop, {\n            configurable: true,\n            enumerable: false,\n            get: function () {\n                return undefined;\n            },\n            set: function (value) {\n                addHiddenProp(this, prop, action(name, value));\n            }\n        });\n    };\n}\nfunction boundActionDecorator(target, propertyName, descriptor, applyToInstance) {\n    if (applyToInstance === true) {\n        defineBoundAction(target, propertyName, descriptor.value);\n        return null;\n    }\n    if (descriptor) {\n        // if (descriptor.value)\n        // Typescript / Babel: @action.bound method() { }\n        // also: babel @action.bound method = () => {}\n        return {\n            configurable: true,\n            enumerable: false,\n            get: function () {\n                defineBoundAction(this, propertyName, descriptor.value || descriptor.initializer.call(this));\n                return this[propertyName];\n            },\n            set: dontReassignFields\n        };\n    }\n    // field decorator Typescript @action.bound method = () => {}\n    return {\n        enumerable: false,\n        configurable: true,\n        set: function (v) {\n            defineBoundAction(this, propertyName, v);\n        },\n        get: function () {\n            return undefined;\n        }\n    };\n}\n\nvar action = function action(arg1, arg2, arg3, arg4) {\n    // action(fn() {})\n    if (arguments.length === 1 && typeof arg1 === \"function\")\n        return createAction(arg1.name || \"<unnamed action>\", arg1);\n    // action(\"name\", fn() {})\n    if (arguments.length === 2 && typeof arg2 === \"function\")\n        return createAction(arg1, arg2);\n    // @action(\"name\") fn() {}\n    if (arguments.length === 1 && typeof arg1 === \"string\")\n        return namedActionDecorator(arg1);\n    // @action fn() {}\n    if (arg4 === true) {\n        // apply to instance immediately\n        addHiddenProp(arg1, arg2, createAction(arg1.name || arg2, arg3.value, this));\n    }\n    else {\n        return namedActionDecorator(arg2).apply(null, arguments);\n    }\n};\naction.bound = boundActionDecorator;\nfunction runInAction(arg1, arg2) {\n    var actionName = typeof arg1 === \"string\" ? arg1 : arg1.name || \"<unnamed action>\";\n    var fn = typeof arg1 === \"function\" ? arg1 : arg2;\n    if (true) {\n        invariant(typeof fn === \"function\" && fn.length === 0, \"`runInAction` expects a function without arguments\");\n        if (typeof actionName !== \"string\" || !actionName)\n            fail(\"actions should have valid names, got: '\" + actionName + \"'\");\n    }\n    return executeAction(actionName, fn, this, undefined);\n}\nfunction isAction(thing) {\n    return typeof thing === \"function\" && thing.isMobxAction === true;\n}\nfunction defineBoundAction(target, propertyName, fn) {\n    addHiddenProp(target, propertyName, createAction(propertyName, fn.bind(target)));\n}\n\n/**\n * Creates a named reactive view and keeps it alive, so that the view is always\n * updated if one of the dependencies changes, even when the view is not further used by something else.\n * @param view The reactive view\n * @returns disposer function, which can be used to stop the view from being updated in the future.\n */\nfunction autorun(view, opts) {\n    if (opts === void 0) { opts = EMPTY_OBJECT; }\n    if (true) {\n        invariant(typeof view === \"function\", \"Autorun expects a function as first argument\");\n        invariant(isAction(view) === false, \"Autorun does not accept actions since actions are untrackable\");\n    }\n    var name = (opts && opts.name) || view.name || \"Autorun@\" + getNextId();\n    var runSync = !opts.scheduler && !opts.delay;\n    var reaction;\n    if (runSync) {\n        // normal autorun\n        reaction = new Reaction(name, function () {\n            this.track(reactionRunner);\n        }, opts.onError);\n    }\n    else {\n        var scheduler_1 = createSchedulerFromOptions(opts);\n        // debounced autorun\n        var isScheduled_1 = false;\n        reaction = new Reaction(name, function () {\n            if (!isScheduled_1) {\n                isScheduled_1 = true;\n                scheduler_1(function () {\n                    isScheduled_1 = false;\n                    if (!reaction.isDisposed)\n                        reaction.track(reactionRunner);\n                });\n            }\n        }, opts.onError);\n    }\n    function reactionRunner() {\n        view(reaction);\n    }\n    reaction.schedule();\n    return reaction.getDisposer();\n}\nvar run = function (f) { return f(); };\nfunction createSchedulerFromOptions(opts) {\n    return opts.scheduler\n        ? opts.scheduler\n        : opts.delay\n            ? function (f) { return setTimeout(f, opts.delay); }\n            : run;\n}\nfunction reaction(expression, effect, opts) {\n    if (opts === void 0) { opts = EMPTY_OBJECT; }\n    if (true) {\n        invariant(typeof expression === \"function\", \"First argument to reaction should be a function\");\n        invariant(typeof opts === \"object\", \"Third argument of reactions should be an object\");\n    }\n    var name = opts.name || \"Reaction@\" + getNextId();\n    var effectAction = action(name, opts.onError ? wrapErrorHandler(opts.onError, effect) : effect);\n    var runSync = !opts.scheduler && !opts.delay;\n    var scheduler = createSchedulerFromOptions(opts);\n    var firstTime = true;\n    var isScheduled = false;\n    var value;\n    var equals = opts.compareStructural\n        ? comparer.structural\n        : opts.equals || comparer.default;\n    var r = new Reaction(name, function () {\n        if (firstTime || runSync) {\n            reactionRunner();\n        }\n        else if (!isScheduled) {\n            isScheduled = true;\n            scheduler(reactionRunner);\n        }\n    }, opts.onError);\n    function reactionRunner() {\n        isScheduled = false; // Q: move into reaction runner?\n        if (r.isDisposed)\n            return;\n        var changed = false;\n        r.track(function () {\n            var nextValue = expression(r);\n            changed = firstTime || !equals(value, nextValue);\n            value = nextValue;\n        });\n        if (firstTime && opts.fireImmediately)\n            effectAction(value, r);\n        if (!firstTime && changed === true)\n            effectAction(value, r);\n        if (firstTime)\n            firstTime = false;\n    }\n    r.schedule();\n    return r.getDisposer();\n}\nfunction wrapErrorHandler(errorHandler, baseFn) {\n    return function () {\n        try {\n            return baseFn.apply(this, arguments);\n        }\n        catch (e) {\n            errorHandler.call(this, e);\n        }\n    };\n}\n\nfunction onBecomeObserved(thing, arg2, arg3) {\n    return interceptHook(\"onBecomeObserved\", thing, arg2, arg3);\n}\nfunction onBecomeUnobserved(thing, arg2, arg3) {\n    return interceptHook(\"onBecomeUnobserved\", thing, arg2, arg3);\n}\nfunction interceptHook(hook, thing, arg2, arg3) {\n    var atom = typeof arg2 === \"string\" ? getAtom(thing, arg2) : getAtom(thing);\n    var cb = typeof arg2 === \"string\" ? arg3 : arg2;\n    var listenersKey = hook + \"Listeners\";\n    if (atom[listenersKey]) {\n        atom[listenersKey].add(cb);\n    }\n    else {\n        atom[listenersKey] = new Set([cb]);\n    }\n    var orig = atom[hook];\n    if (typeof orig !== \"function\")\n        return fail( true && \"Not an atom that can be (un)observed\");\n    return function () {\n        var hookListeners = atom[listenersKey];\n        if (hookListeners) {\n            hookListeners.delete(cb);\n            if (hookListeners.size === 0) {\n                delete atom[listenersKey];\n            }\n        }\n    };\n}\n\nfunction configure(options) {\n    var enforceActions = options.enforceActions, computedRequiresReaction = options.computedRequiresReaction, computedConfigurable = options.computedConfigurable, disableErrorBoundaries = options.disableErrorBoundaries, reactionScheduler = options.reactionScheduler;\n    if (options.isolateGlobalState === true) {\n        isolateGlobalState();\n    }\n    if (enforceActions !== undefined) {\n        if (typeof enforceActions === \"boolean\" || enforceActions === \"strict\")\n            deprecated(\"Deprecated value for 'enforceActions', use 'false' => '\\\"never\\\"', 'true' => '\\\"observed\\\"', '\\\"strict\\\"' => \\\"'always'\\\" instead\");\n        var ea = void 0;\n        switch (enforceActions) {\n            case true:\n            case \"observed\":\n                ea = true;\n                break;\n            case false:\n            case \"never\":\n                ea = false;\n                break;\n            case \"strict\":\n            case \"always\":\n                ea = \"strict\";\n                break;\n            default:\n                fail(\"Invalid value for 'enforceActions': '\" + enforceActions + \"', expected 'never', 'always' or 'observed'\");\n        }\n        globalState.enforceActions = ea;\n        globalState.allowStateChanges = ea === true || ea === \"strict\" ? false : true;\n    }\n    if (computedRequiresReaction !== undefined) {\n        globalState.computedRequiresReaction = !!computedRequiresReaction;\n    }\n    if (computedConfigurable !== undefined) {\n        globalState.computedConfigurable = !!computedConfigurable;\n    }\n    if (disableErrorBoundaries !== undefined) {\n        if (disableErrorBoundaries === true)\n            console.warn(\"WARNING: Debug feature only. MobX will NOT recover from errors when `disableErrorBoundaries` is enabled.\");\n        globalState.disableErrorBoundaries = !!disableErrorBoundaries;\n    }\n    if (reactionScheduler) {\n        setReactionScheduler(reactionScheduler);\n    }\n}\n\nfunction decorate(thing, decorators) {\n     true &&\n        invariant(isPlainObject(decorators), \"Decorators should be a key value map\");\n    var target = typeof thing === \"function\" ? thing.prototype : thing;\n    var _loop_1 = function (prop) {\n        var propertyDecorators = decorators[prop];\n        if (!Array.isArray(propertyDecorators)) {\n            propertyDecorators = [propertyDecorators];\n        }\n         true &&\n            invariant(propertyDecorators.every(function (decorator) { return typeof decorator === \"function\"; }), \"Decorate: expected a decorator function or array of decorator functions for '\" + prop + \"'\");\n        var descriptor = Object.getOwnPropertyDescriptor(target, prop);\n        var newDescriptor = propertyDecorators.reduce(function (accDescriptor, decorator) { return decorator(target, prop, accDescriptor); }, descriptor);\n        if (newDescriptor)\n            Object.defineProperty(target, prop, newDescriptor);\n    };\n    for (var prop in decorators) {\n        _loop_1(prop);\n    }\n    return thing;\n}\n\nfunction extendObservable(target, properties, decorators, options) {\n    if (true) {\n        invariant(arguments.length >= 2 && arguments.length <= 4, \"'extendObservable' expected 2-4 arguments\");\n        invariant(typeof target === \"object\", \"'extendObservable' expects an object as first argument\");\n        invariant(!isObservableMap(target), \"'extendObservable' should not be used on maps, use map.merge instead\");\n    }\n    options = asCreateObservableOptions(options);\n    var defaultDecorator = getDefaultDecoratorFromObjectOptions(options);\n    initializeInstance(target); // Fixes #1740\n    asObservableObject(target, options.name, defaultDecorator.enhancer); // make sure object is observable, even without initial props\n    if (properties)\n        extendObservableObjectWithProperties(target, properties, decorators, defaultDecorator);\n    return target;\n}\nfunction getDefaultDecoratorFromObjectOptions(options) {\n    return options.defaultDecorator || (options.deep === false ? refDecorator : deepDecorator);\n}\nfunction extendObservableObjectWithProperties(target, properties, decorators, defaultDecorator) {\n    var e_1, _a, e_2, _b;\n    if (true) {\n        invariant(!isObservable(properties), \"Extending an object with another observable (object) is not supported. Please construct an explicit propertymap, using `toJS` if need. See issue #540\");\n        if (decorators) {\n            var keys = getPlainObjectKeys(decorators);\n            try {\n                for (var keys_1 = __values(keys), keys_1_1 = keys_1.next(); !keys_1_1.done; keys_1_1 = keys_1.next()) {\n                    var key = keys_1_1.value;\n                    if (!(key in properties))\n                        fail(\"Trying to declare a decorator for unspecified property '\" + stringifyKey(key) + \"'\");\n                }\n            }\n            catch (e_1_1) { e_1 = { error: e_1_1 }; }\n            finally {\n                try {\n                    if (keys_1_1 && !keys_1_1.done && (_a = keys_1.return)) _a.call(keys_1);\n                }\n                finally { if (e_1) throw e_1.error; }\n            }\n        }\n    }\n    startBatch();\n    try {\n        var keys = getPlainObjectKeys(properties);\n        try {\n            for (var keys_2 = __values(keys), keys_2_1 = keys_2.next(); !keys_2_1.done; keys_2_1 = keys_2.next()) {\n                var key = keys_2_1.value;\n                var descriptor = Object.getOwnPropertyDescriptor(properties, key);\n                if (true) {\n                    if (Object.getOwnPropertyDescriptor(target, key))\n                        fail(\"'extendObservable' can only be used to introduce new properties. Use 'set' or 'decorate' instead. The property '\" + stringifyKey(key) + \"' already exists on '\" + target + \"'\");\n                    if (isComputed(descriptor.value))\n                        fail(\"Passing a 'computed' as initial property value is no longer supported by extendObservable. Use a getter or decorator instead\");\n                }\n                var decorator = decorators && key in decorators\n                    ? decorators[key]\n                    : descriptor.get\n                        ? computedDecorator\n                        : defaultDecorator;\n                if ( true && typeof decorator !== \"function\")\n                    fail(\"Not a valid decorator for '\" + stringifyKey(key) + \"', got: \" + decorator);\n                var resultDescriptor = decorator(target, key, descriptor, true);\n                if (resultDescriptor // otherwise, assume already applied, due to `applyToInstance`\n                )\n                    Object.defineProperty(target, key, resultDescriptor);\n            }\n        }\n        catch (e_2_1) { e_2 = { error: e_2_1 }; }\n        finally {\n            try {\n                if (keys_2_1 && !keys_2_1.done && (_b = keys_2.return)) _b.call(keys_2);\n            }\n            finally { if (e_2) throw e_2.error; }\n        }\n    }\n    finally {\n        endBatch();\n    }\n}\n\nfunction getDependencyTree(thing, property) {\n    return nodeToDependencyTree(getAtom(thing, property));\n}\nfunction nodeToDependencyTree(node) {\n    var result = {\n        name: node.name\n    };\n    if (node.observing && node.observing.length > 0)\n        result.dependencies = unique(node.observing).map(nodeToDependencyTree);\n    return result;\n}\nfunction getObserverTree(thing, property) {\n    return nodeToObserverTree(getAtom(thing, property));\n}\nfunction nodeToObserverTree(node) {\n    var result = {\n        name: node.name\n    };\n    if (hasObservers(node))\n        result.observers = Array.from(getObservers(node)).map(nodeToObserverTree);\n    return result;\n}\n\nvar generatorId = 0;\nfunction flow(generator) {\n    if (arguments.length !== 1)\n        fail( true && \"Flow expects one 1 argument and cannot be used as decorator\");\n    var name = generator.name || \"<unnamed flow>\";\n    // Implementation based on https://github.com/tj/co/blob/master/index.js\n    return function () {\n        var ctx = this;\n        var args = arguments;\n        var runId = ++generatorId;\n        var gen = action(name + \" - runid: \" + runId + \" - init\", generator).apply(ctx, args);\n        var rejector;\n        var pendingPromise = undefined;\n        var promise = new Promise(function (resolve, reject) {\n            var stepId = 0;\n            rejector = reject;\n            function onFulfilled(res) {\n                pendingPromise = undefined;\n                var ret;\n                try {\n                    ret = action(name + \" - runid: \" + runId + \" - yield \" + stepId++, gen.next).call(gen, res);\n                }\n                catch (e) {\n                    return reject(e);\n                }\n                next(ret);\n            }\n            function onRejected(err) {\n                pendingPromise = undefined;\n                var ret;\n                try {\n                    ret = action(name + \" - runid: \" + runId + \" - yield \" + stepId++, gen.throw).call(gen, err);\n                }\n                catch (e) {\n                    return reject(e);\n                }\n                next(ret);\n            }\n            function next(ret) {\n                if (ret && typeof ret.then === \"function\") {\n                    // an async iterator\n                    ret.then(next, reject);\n                    return;\n                }\n                if (ret.done)\n                    return resolve(ret.value);\n                pendingPromise = Promise.resolve(ret.value);\n                return pendingPromise.then(onFulfilled, onRejected);\n            }\n            onFulfilled(undefined); // kick off the process\n        });\n        promise.cancel = action(name + \" - runid: \" + runId + \" - cancel\", function () {\n            try {\n                if (pendingPromise)\n                    cancelPromise(pendingPromise);\n                // Finally block can return (or yield) stuff..\n                var res = gen.return();\n                // eat anything that promise would do, it's cancelled!\n                var yieldedPromise = Promise.resolve(res.value);\n                yieldedPromise.then(noop, noop);\n                cancelPromise(yieldedPromise); // maybe it can be cancelled :)\n                // reject our original promise\n                rejector(new Error(\"FLOW_CANCELLED\"));\n            }\n            catch (e) {\n                rejector(e); // there could be a throwing finally block\n            }\n        });\n        return promise;\n    };\n}\nfunction cancelPromise(promise) {\n    if (typeof promise.cancel === \"function\")\n        promise.cancel();\n}\n\nfunction interceptReads(thing, propOrHandler, handler) {\n    var target;\n    if (isObservableMap(thing) || isObservableArray(thing) || isObservableValue(thing)) {\n        target = getAdministration(thing);\n    }\n    else if (isObservableObject(thing)) {\n        if (typeof propOrHandler !== \"string\")\n            return fail( true &&\n                \"InterceptReads can only be used with a specific property, not with an object in general\");\n        target = getAdministration(thing, propOrHandler);\n    }\n    else {\n        return fail( true &&\n            \"Expected observable map, object or array as first array\");\n    }\n    if (target.dehancer !== undefined)\n        return fail( true && \"An intercept reader was already established\");\n    target.dehancer = typeof propOrHandler === \"function\" ? propOrHandler : handler;\n    return function () {\n        target.dehancer = undefined;\n    };\n}\n\nfunction intercept(thing, propOrHandler, handler) {\n    if (typeof handler === \"function\")\n        return interceptProperty(thing, propOrHandler, handler);\n    else\n        return interceptInterceptable(thing, propOrHandler);\n}\nfunction interceptInterceptable(thing, handler) {\n    return getAdministration(thing).intercept(handler);\n}\nfunction interceptProperty(thing, property, handler) {\n    return getAdministration(thing, property).intercept(handler);\n}\n\nfunction _isComputed(value, property) {\n    if (value === null || value === undefined)\n        return false;\n    if (property !== undefined) {\n        if (isObservableObject(value) === false)\n            return false;\n        if (!value[$mobx].values.has(property))\n            return false;\n        var atom = getAtom(value, property);\n        return isComputedValue(atom);\n    }\n    return isComputedValue(value);\n}\nfunction isComputed(value) {\n    if (arguments.length > 1)\n        return fail( true &&\n            \"isComputed expects only 1 argument. Use isObservableProp to inspect the observability of a property\");\n    return _isComputed(value);\n}\nfunction isComputedProp(value, propName) {\n    if (typeof propName !== \"string\")\n        return fail( true &&\n            \"isComputed expected a property name as second argument\");\n    return _isComputed(value, propName);\n}\n\nfunction _isObservable(value, property) {\n    if (value === null || value === undefined)\n        return false;\n    if (property !== undefined) {\n        if ( true &&\n            (isObservableMap(value) || isObservableArray(value)))\n            return fail(\"isObservable(object, propertyName) is not supported for arrays and maps. Use map.has or array.length instead.\");\n        if (isObservableObject(value)) {\n            return value[$mobx].values.has(property);\n        }\n        return false;\n    }\n    // For first check, see #701\n    return (isObservableObject(value) ||\n        !!value[$mobx] ||\n        isAtom(value) ||\n        isReaction(value) ||\n        isComputedValue(value));\n}\nfunction isObservable(value) {\n    if (arguments.length !== 1)\n        fail( true &&\n            \"isObservable expects only 1 argument. Use isObservableProp to inspect the observability of a property\");\n    return _isObservable(value);\n}\nfunction isObservableProp(value, propName) {\n    if (typeof propName !== \"string\")\n        return fail( true && \"expected a property name as second argument\");\n    return _isObservable(value, propName);\n}\n\nfunction keys(obj) {\n    if (isObservableObject(obj)) {\n        return obj[$mobx].getKeys();\n    }\n    if (isObservableMap(obj)) {\n        return Array.from(obj.keys());\n    }\n    if (isObservableSet(obj)) {\n        return Array.from(obj.keys());\n    }\n    if (isObservableArray(obj)) {\n        return obj.map(function (_, index) { return index; });\n    }\n    return fail( true &&\n        \"'keys()' can only be used on observable objects, arrays, sets and maps\");\n}\nfunction values(obj) {\n    if (isObservableObject(obj)) {\n        return keys(obj).map(function (key) { return obj[key]; });\n    }\n    if (isObservableMap(obj)) {\n        return keys(obj).map(function (key) { return obj.get(key); });\n    }\n    if (isObservableSet(obj)) {\n        return Array.from(obj.values());\n    }\n    if (isObservableArray(obj)) {\n        return obj.slice();\n    }\n    return fail( true &&\n        \"'values()' can only be used on observable objects, arrays, sets and maps\");\n}\nfunction entries(obj) {\n    if (isObservableObject(obj)) {\n        return keys(obj).map(function (key) { return [key, obj[key]]; });\n    }\n    if (isObservableMap(obj)) {\n        return keys(obj).map(function (key) { return [key, obj.get(key)]; });\n    }\n    if (isObservableSet(obj)) {\n        return Array.from(obj.entries());\n    }\n    if (isObservableArray(obj)) {\n        return obj.map(function (key, index) { return [index, key]; });\n    }\n    return fail( true &&\n        \"'entries()' can only be used on observable objects, arrays and maps\");\n}\nfunction set(obj, key, value) {\n    if (arguments.length === 2 && !isObservableSet(obj)) {\n        startBatch();\n        var values_1 = key;\n        try {\n            for (var key_1 in values_1)\n                set(obj, key_1, values_1[key_1]);\n        }\n        finally {\n            endBatch();\n        }\n        return;\n    }\n    if (isObservableObject(obj)) {\n        var adm = obj[$mobx];\n        var existingObservable = adm.values.get(key);\n        if (existingObservable) {\n            adm.write(key, value);\n        }\n        else {\n            adm.addObservableProp(key, value, adm.defaultEnhancer);\n        }\n    }\n    else if (isObservableMap(obj)) {\n        obj.set(key, value);\n    }\n    else if (isObservableSet(obj)) {\n        obj.add(key);\n    }\n    else if (isObservableArray(obj)) {\n        if (typeof key !== \"number\")\n            key = parseInt(key, 10);\n        invariant(key >= 0, \"Not a valid index: '\" + key + \"'\");\n        startBatch();\n        if (key >= obj.length)\n            obj.length = key + 1;\n        obj[key] = value;\n        endBatch();\n    }\n    else {\n        return fail( true &&\n            \"'set()' can only be used on observable objects, arrays and maps\");\n    }\n}\nfunction remove(obj, key) {\n    if (isObservableObject(obj)) {\n        obj[$mobx].remove(key);\n    }\n    else if (isObservableMap(obj)) {\n        obj.delete(key);\n    }\n    else if (isObservableSet(obj)) {\n        obj.delete(key);\n    }\n    else if (isObservableArray(obj)) {\n        if (typeof key !== \"number\")\n            key = parseInt(key, 10);\n        invariant(key >= 0, \"Not a valid index: '\" + key + \"'\");\n        obj.splice(key, 1);\n    }\n    else {\n        return fail( true &&\n            \"'remove()' can only be used on observable objects, arrays and maps\");\n    }\n}\nfunction has(obj, key) {\n    if (isObservableObject(obj)) {\n        // return keys(obj).indexOf(key) >= 0\n        var adm = getAdministration(obj);\n        return adm.has(key);\n    }\n    else if (isObservableMap(obj)) {\n        return obj.has(key);\n    }\n    else if (isObservableSet(obj)) {\n        return obj.has(key);\n    }\n    else if (isObservableArray(obj)) {\n        return key >= 0 && key < obj.length;\n    }\n    else {\n        return fail( true &&\n            \"'has()' can only be used on observable objects, arrays and maps\");\n    }\n}\nfunction get(obj, key) {\n    if (!has(obj, key))\n        return undefined;\n    if (isObservableObject(obj)) {\n        return obj[key];\n    }\n    else if (isObservableMap(obj)) {\n        return obj.get(key);\n    }\n    else if (isObservableArray(obj)) {\n        return obj[key];\n    }\n    else {\n        return fail( true &&\n            \"'get()' can only be used on observable objects, arrays and maps\");\n    }\n}\n\nfunction observe(thing, propOrCb, cbOrFire, fireImmediately) {\n    if (typeof cbOrFire === \"function\")\n        return observeObservableProperty(thing, propOrCb, cbOrFire, fireImmediately);\n    else\n        return observeObservable(thing, propOrCb, cbOrFire);\n}\nfunction observeObservable(thing, listener, fireImmediately) {\n    return getAdministration(thing).observe(listener, fireImmediately);\n}\nfunction observeObservableProperty(thing, property, listener, fireImmediately) {\n    return getAdministration(thing, property).observe(listener, fireImmediately);\n}\n\nvar defaultOptions = {\n    detectCycles: true,\n    exportMapsAsObjects: true,\n    recurseEverything: false\n};\nfunction cache(map, key, value, options) {\n    if (options.detectCycles)\n        map.set(key, value);\n    return value;\n}\nfunction toJSHelper(source, options, __alreadySeen) {\n    if (!options.recurseEverything && !isObservable(source))\n        return source;\n    if (typeof source !== \"object\")\n        return source;\n    // Directly return null if source is null\n    if (source === null)\n        return null;\n    // Directly return the Date object itself if contained in the observable\n    if (source instanceof Date)\n        return source;\n    if (isObservableValue(source))\n        return toJSHelper(source.get(), options, __alreadySeen);\n    // make sure we track the keys of the object\n    if (isObservable(source))\n        keys(source);\n    var detectCycles = options.detectCycles === true;\n    if (detectCycles && source !== null && __alreadySeen.has(source)) {\n        return __alreadySeen.get(source);\n    }\n    if (isObservableArray(source) || Array.isArray(source)) {\n        var res_1 = cache(__alreadySeen, source, [], options);\n        var toAdd = source.map(function (value) { return toJSHelper(value, options, __alreadySeen); });\n        res_1.length = toAdd.length;\n        for (var i = 0, l = toAdd.length; i < l; i++)\n            res_1[i] = toAdd[i];\n        return res_1;\n    }\n    if (isObservableSet(source) || Object.getPrototypeOf(source) === Set.prototype) {\n        if (options.exportMapsAsObjects === false) {\n            var res_2 = cache(__alreadySeen, source, new Set(), options);\n            source.forEach(function (value) {\n                res_2.add(toJSHelper(value, options, __alreadySeen));\n            });\n            return res_2;\n        }\n        else {\n            var res_3 = cache(__alreadySeen, source, [], options);\n            source.forEach(function (value) {\n                res_3.push(toJSHelper(value, options, __alreadySeen));\n            });\n            return res_3;\n        }\n    }\n    if (isObservableMap(source) || Object.getPrototypeOf(source) === Map.prototype) {\n        if (options.exportMapsAsObjects === false) {\n            var res_4 = cache(__alreadySeen, source, new Map(), options);\n            source.forEach(function (value, key) {\n                res_4.set(key, toJSHelper(value, options, __alreadySeen));\n            });\n            return res_4;\n        }\n        else {\n            var res_5 = cache(__alreadySeen, source, {}, options);\n            source.forEach(function (value, key) {\n                res_5[key] = toJSHelper(value, options, __alreadySeen);\n            });\n            return res_5;\n        }\n    }\n    // Fallback to the situation that source is an ObservableObject or a plain object\n    var res = cache(__alreadySeen, source, {}, options);\n    getPlainObjectKeys(source).forEach(function (key) {\n        res[key] = toJSHelper(source[key], options, __alreadySeen);\n    });\n    return res;\n}\nfunction toJS(source, options) {\n    // backward compatibility\n    if (typeof options === \"boolean\")\n        options = { detectCycles: options };\n    if (!options)\n        options = defaultOptions;\n    options.detectCycles =\n        options.detectCycles === undefined\n            ? options.recurseEverything === true\n            : options.detectCycles === true;\n    var __alreadySeen;\n    if (options.detectCycles)\n        __alreadySeen = new Map();\n    return toJSHelper(source, options, __alreadySeen);\n}\n\nfunction trace() {\n    var args = [];\n    for (var _i = 0; _i < arguments.length; _i++) {\n        args[_i] = arguments[_i];\n    }\n    var enterBreakPoint = false;\n    if (typeof args[args.length - 1] === \"boolean\")\n        enterBreakPoint = args.pop();\n    var derivation = getAtomFromArgs(args);\n    if (!derivation) {\n        return fail( true &&\n            \"'trace(break?)' can only be used inside a tracked computed value or a Reaction. Consider passing in the computed value or reaction explicitly\");\n    }\n    if (derivation.isTracing === TraceMode.NONE) {\n        console.log(\"[mobx.trace] '\" + derivation.name + \"' tracing enabled\");\n    }\n    derivation.isTracing = enterBreakPoint ? TraceMode.BREAK : TraceMode.LOG;\n}\nfunction getAtomFromArgs(args) {\n    switch (args.length) {\n        case 0:\n            return globalState.trackingDerivation;\n        case 1:\n            return getAtom(args[0]);\n        case 2:\n            return getAtom(args[0], args[1]);\n    }\n}\n\n/**\n * During a transaction no views are updated until the end of the transaction.\n * The transaction will be run synchronously nonetheless.\n *\n * @param action a function that updates some reactive state\n * @returns any value that was returned by the 'action' parameter.\n */\nfunction transaction(action, thisArg) {\n    if (thisArg === void 0) { thisArg = undefined; }\n    startBatch();\n    try {\n        return action.apply(thisArg);\n    }\n    finally {\n        endBatch();\n    }\n}\n\nfunction when(predicate, arg1, arg2) {\n    if (arguments.length === 1 || (arg1 && typeof arg1 === \"object\"))\n        return whenPromise(predicate, arg1);\n    return _when(predicate, arg1, arg2 || {});\n}\nfunction _when(predicate, effect, opts) {\n    var timeoutHandle;\n    if (typeof opts.timeout === \"number\") {\n        timeoutHandle = setTimeout(function () {\n            if (!disposer[$mobx].isDisposed) {\n                disposer();\n                var error = new Error(\"WHEN_TIMEOUT\");\n                if (opts.onError)\n                    opts.onError(error);\n                else\n                    throw error;\n            }\n        }, opts.timeout);\n    }\n    opts.name = opts.name || \"When@\" + getNextId();\n    var effectAction = createAction(opts.name + \"-effect\", effect);\n    var disposer = autorun(function (r) {\n        if (predicate()) {\n            r.dispose();\n            if (timeoutHandle)\n                clearTimeout(timeoutHandle);\n            effectAction();\n        }\n    }, opts);\n    return disposer;\n}\nfunction whenPromise(predicate, opts) {\n    if ( true && opts && opts.onError)\n        return fail(\"the options 'onError' and 'promise' cannot be combined\");\n    var cancel;\n    var res = new Promise(function (resolve, reject) {\n        var disposer = _when(predicate, resolve, __assign({}, opts, { onError: reject }));\n        cancel = function () {\n            disposer();\n            reject(\"WHEN_CANCELLED\");\n        };\n    });\n    res.cancel = cancel;\n    return res;\n}\n\nfunction getAdm(target) {\n    return target[$mobx];\n}\nfunction isPropertyKey(val) {\n    return typeof val === \"string\" || typeof val === \"number\" || typeof val === \"symbol\";\n}\n// Optimization: we don't need the intermediate objects and could have a completely custom administration for DynamicObjects,\n// and skip either the internal values map, or the base object with its property descriptors!\nvar objectProxyTraps = {\n    has: function (target, name) {\n        if (name === $mobx || name === \"constructor\" || name === mobxDidRunLazyInitializersSymbol)\n            return true;\n        var adm = getAdm(target);\n        // MWE: should `in` operator be reactive? If not, below code path will be faster / more memory efficient\n        // TODO: check performance stats!\n        // if (adm.values.get(name as string)) return true\n        if (isPropertyKey(name))\n            return adm.has(name);\n        return name in target;\n    },\n    get: function (target, name) {\n        if (name === $mobx || name === \"constructor\" || name === mobxDidRunLazyInitializersSymbol)\n            return target[name];\n        var adm = getAdm(target);\n        var observable = adm.values.get(name);\n        if (observable instanceof Atom) {\n            var result = observable.get();\n            if (result === undefined) {\n                // This fixes #1796, because deleting a prop that has an\n                // undefined value won't retrigger a observer (no visible effect),\n                // the autorun wouldn't subscribe to future key changes (see also next comment)\n                adm.has(name);\n            }\n            return result;\n        }\n        // make sure we start listening to future keys\n        // note that we only do this here for optimization\n        if (isPropertyKey(name))\n            adm.has(name);\n        return target[name];\n    },\n    set: function (target, name, value) {\n        if (!isPropertyKey(name))\n            return false;\n        set(target, name, value);\n        return true;\n    },\n    deleteProperty: function (target, name) {\n        if (!isPropertyKey(name))\n            return false;\n        var adm = getAdm(target);\n        adm.remove(name);\n        return true;\n    },\n    ownKeys: function (target) {\n        var adm = getAdm(target);\n        adm.keysAtom.reportObserved();\n        return Reflect.ownKeys(target);\n    },\n    preventExtensions: function (target) {\n        fail(\"Dynamic observable objects cannot be frozen\");\n        return false;\n    }\n};\nfunction createDynamicObservableObject(base) {\n    var proxy = new Proxy(base, objectProxyTraps);\n    base[$mobx].proxy = proxy;\n    return proxy;\n}\n\nfunction hasInterceptors(interceptable) {\n    return interceptable.interceptors !== undefined && interceptable.interceptors.length > 0;\n}\nfunction registerInterceptor(interceptable, handler) {\n    var interceptors = interceptable.interceptors || (interceptable.interceptors = []);\n    interceptors.push(handler);\n    return once(function () {\n        var idx = interceptors.indexOf(handler);\n        if (idx !== -1)\n            interceptors.splice(idx, 1);\n    });\n}\nfunction interceptChange(interceptable, change) {\n    var prevU = untrackedStart();\n    try {\n        var interceptors = interceptable.interceptors;\n        if (interceptors)\n            for (var i = 0, l = interceptors.length; i < l; i++) {\n                change = interceptors[i](change);\n                invariant(!change || change.type, \"Intercept handlers should return nothing or a change object\");\n                if (!change)\n                    break;\n            }\n        return change;\n    }\n    finally {\n        untrackedEnd(prevU);\n    }\n}\n\nfunction hasListeners(listenable) {\n    return listenable.changeListeners !== undefined && listenable.changeListeners.length > 0;\n}\nfunction registerListener(listenable, handler) {\n    var listeners = listenable.changeListeners || (listenable.changeListeners = []);\n    listeners.push(handler);\n    return once(function () {\n        var idx = listeners.indexOf(handler);\n        if (idx !== -1)\n            listeners.splice(idx, 1);\n    });\n}\nfunction notifyListeners(listenable, change) {\n    var prevU = untrackedStart();\n    var listeners = listenable.changeListeners;\n    if (!listeners)\n        return;\n    listeners = listeners.slice();\n    for (var i = 0, l = listeners.length; i < l; i++) {\n        listeners[i](change);\n    }\n    untrackedEnd(prevU);\n}\n\nvar MAX_SPLICE_SIZE = 10000; // See e.g. https://github.com/mobxjs/mobx/issues/859\nvar arrayTraps = {\n    get: function (target, name) {\n        if (name === $mobx)\n            return target[$mobx];\n        if (name === \"length\")\n            return target[$mobx].getArrayLength();\n        if (typeof name === \"number\") {\n            return arrayExtensions.get.call(target, name);\n        }\n        if (typeof name === \"string\" && !isNaN(name)) {\n            return arrayExtensions.get.call(target, parseInt(name));\n        }\n        if (arrayExtensions.hasOwnProperty(name)) {\n            return arrayExtensions[name];\n        }\n        return target[name];\n    },\n    set: function (target, name, value) {\n        if (name === \"length\") {\n            target[$mobx].setArrayLength(value);\n        }\n        if (typeof name === \"number\") {\n            arrayExtensions.set.call(target, name, value);\n        }\n        if (typeof name === \"symbol\" || isNaN(name)) {\n            target[name] = value;\n        }\n        else {\n            // numeric string\n            arrayExtensions.set.call(target, parseInt(name), value);\n        }\n        return true;\n    },\n    preventExtensions: function (target) {\n        fail(\"Observable arrays cannot be frozen\");\n        return false;\n    }\n};\nfunction createObservableArray(initialValues, enhancer, name, owned) {\n    if (name === void 0) { name = \"ObservableArray@\" + getNextId(); }\n    if (owned === void 0) { owned = false; }\n    var adm = new ObservableArrayAdministration(name, enhancer, owned);\n    addHiddenFinalProp(adm.values, $mobx, adm);\n    var proxy = new Proxy(adm.values, arrayTraps);\n    adm.proxy = proxy;\n    if (initialValues && initialValues.length) {\n        var prev = allowStateChangesStart(true);\n        adm.spliceWithArray(0, 0, initialValues);\n        allowStateChangesEnd(prev);\n    }\n    return proxy;\n}\nvar ObservableArrayAdministration = /** @class */ (function () {\n    function ObservableArrayAdministration(name, enhancer, owned) {\n        this.owned = owned;\n        this.values = [];\n        this.proxy = undefined;\n        this.lastKnownLength = 0;\n        this.atom = new Atom(name || \"ObservableArray@\" + getNextId());\n        this.enhancer = function (newV, oldV) { return enhancer(newV, oldV, name + \"[..]\"); };\n    }\n    ObservableArrayAdministration.prototype.dehanceValue = function (value) {\n        if (this.dehancer !== undefined)\n            return this.dehancer(value);\n        return value;\n    };\n    ObservableArrayAdministration.prototype.dehanceValues = function (values) {\n        if (this.dehancer !== undefined && values.length > 0)\n            return values.map(this.dehancer);\n        return values;\n    };\n    ObservableArrayAdministration.prototype.intercept = function (handler) {\n        return registerInterceptor(this, handler);\n    };\n    ObservableArrayAdministration.prototype.observe = function (listener, fireImmediately) {\n        if (fireImmediately === void 0) { fireImmediately = false; }\n        if (fireImmediately) {\n            listener({\n                object: this.proxy,\n                type: \"splice\",\n                index: 0,\n                added: this.values.slice(),\n                addedCount: this.values.length,\n                removed: [],\n                removedCount: 0\n            });\n        }\n        return registerListener(this, listener);\n    };\n    ObservableArrayAdministration.prototype.getArrayLength = function () {\n        this.atom.reportObserved();\n        return this.values.length;\n    };\n    ObservableArrayAdministration.prototype.setArrayLength = function (newLength) {\n        if (typeof newLength !== \"number\" || newLength < 0)\n            throw new Error(\"[mobx.array] Out of range: \" + newLength);\n        var currentLength = this.values.length;\n        if (newLength === currentLength)\n            return;\n        else if (newLength > currentLength) {\n            var newItems = new Array(newLength - currentLength);\n            for (var i = 0; i < newLength - currentLength; i++)\n                newItems[i] = undefined; // No Array.fill everywhere...\n            this.spliceWithArray(currentLength, 0, newItems);\n        }\n        else\n            this.spliceWithArray(newLength, currentLength - newLength);\n    };\n    ObservableArrayAdministration.prototype.updateArrayLength = function (oldLength, delta) {\n        if (oldLength !== this.lastKnownLength)\n            throw new Error(\"[mobx] Modification exception: the internal structure of an observable array was changed.\");\n        this.lastKnownLength += delta;\n    };\n    ObservableArrayAdministration.prototype.spliceWithArray = function (index, deleteCount, newItems) {\n        var _this = this;\n        checkIfStateModificationsAreAllowed(this.atom);\n        var length = this.values.length;\n        if (index === undefined)\n            index = 0;\n        else if (index > length)\n            index = length;\n        else if (index < 0)\n            index = Math.max(0, length + index);\n        if (arguments.length === 1)\n            deleteCount = length - index;\n        else if (deleteCount === undefined || deleteCount === null)\n            deleteCount = 0;\n        else\n            deleteCount = Math.max(0, Math.min(deleteCount, length - index));\n        if (newItems === undefined)\n            newItems = EMPTY_ARRAY;\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                object: this.proxy,\n                type: \"splice\",\n                index: index,\n                removedCount: deleteCount,\n                added: newItems\n            });\n            if (!change)\n                return EMPTY_ARRAY;\n            deleteCount = change.removedCount;\n            newItems = change.added;\n        }\n        newItems = newItems.length === 0 ? newItems : newItems.map(function (v) { return _this.enhancer(v, undefined); });\n        if (true) {\n            var lengthDelta = newItems.length - deleteCount;\n            this.updateArrayLength(length, lengthDelta); // checks if internal array wasn't modified\n        }\n        var res = this.spliceItemsIntoValues(index, deleteCount, newItems);\n        if (deleteCount !== 0 || newItems.length !== 0)\n            this.notifyArraySplice(index, newItems, res);\n        return this.dehanceValues(res);\n    };\n    ObservableArrayAdministration.prototype.spliceItemsIntoValues = function (index, deleteCount, newItems) {\n        var _a;\n        if (newItems.length < MAX_SPLICE_SIZE) {\n            return (_a = this.values).splice.apply(_a, __spread([index, deleteCount], newItems));\n        }\n        else {\n            var res = this.values.slice(index, index + deleteCount);\n            this.values = this.values\n                .slice(0, index)\n                .concat(newItems, this.values.slice(index + deleteCount));\n            return res;\n        }\n    };\n    ObservableArrayAdministration.prototype.notifyArrayChildUpdate = function (index, newValue, oldValue) {\n        var notifySpy = !this.owned && isSpyEnabled();\n        var notify = hasListeners(this);\n        var change = notify || notifySpy\n            ? {\n                object: this.proxy,\n                type: \"update\",\n                index: index,\n                newValue: newValue,\n                oldValue: oldValue\n            }\n            : null;\n        // The reason why this is on right hand side here (and not above), is this way the uglifier will drop it, but it won't\n        // cause any runtime overhead in development mode without NODE_ENV set, unless spying is enabled\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportStart(__assign({}, change, { name: this.atom.name }));\n        this.atom.reportChanged();\n        if (notify)\n            notifyListeners(this, change);\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportEnd();\n    };\n    ObservableArrayAdministration.prototype.notifyArraySplice = function (index, added, removed) {\n        var notifySpy = !this.owned && isSpyEnabled();\n        var notify = hasListeners(this);\n        var change = notify || notifySpy\n            ? {\n                object: this.proxy,\n                type: \"splice\",\n                index: index,\n                removed: removed,\n                added: added,\n                removedCount: removed.length,\n                addedCount: added.length\n            }\n            : null;\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportStart(__assign({}, change, { name: this.atom.name }));\n        this.atom.reportChanged();\n        // conform: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/observe\n        if (notify)\n            notifyListeners(this, change);\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportEnd();\n    };\n    return ObservableArrayAdministration;\n}());\nvar arrayExtensions = {\n    intercept: function (handler) {\n        return this[$mobx].intercept(handler);\n    },\n    observe: function (listener, fireImmediately) {\n        if (fireImmediately === void 0) { fireImmediately = false; }\n        var adm = this[$mobx];\n        return adm.observe(listener, fireImmediately);\n    },\n    clear: function () {\n        return this.splice(0);\n    },\n    replace: function (newItems) {\n        var adm = this[$mobx];\n        return adm.spliceWithArray(0, adm.values.length, newItems);\n    },\n    /**\n     * Converts this array back to a (shallow) javascript structure.\n     * For a deep clone use mobx.toJS\n     */\n    toJS: function () {\n        return this.slice();\n    },\n    toJSON: function () {\n        // Used by JSON.stringify\n        return this.toJS();\n    },\n    /*\n     * functions that do alter the internal structure of the array, (based on lib.es6.d.ts)\n     * since these functions alter the inner structure of the array, the have side effects.\n     * Because the have side effects, they should not be used in computed function,\n     * and for that reason the do not call dependencyState.notifyObserved\n     */\n    splice: function (index, deleteCount) {\n        var newItems = [];\n        for (var _i = 2; _i < arguments.length; _i++) {\n            newItems[_i - 2] = arguments[_i];\n        }\n        var adm = this[$mobx];\n        switch (arguments.length) {\n            case 0:\n                return [];\n            case 1:\n                return adm.spliceWithArray(index);\n            case 2:\n                return adm.spliceWithArray(index, deleteCount);\n        }\n        return adm.spliceWithArray(index, deleteCount, newItems);\n    },\n    spliceWithArray: function (index, deleteCount, newItems) {\n        var adm = this[$mobx];\n        return adm.spliceWithArray(index, deleteCount, newItems);\n    },\n    push: function () {\n        var items = [];\n        for (var _i = 0; _i < arguments.length; _i++) {\n            items[_i] = arguments[_i];\n        }\n        var adm = this[$mobx];\n        adm.spliceWithArray(adm.values.length, 0, items);\n        return adm.values.length;\n    },\n    pop: function () {\n        return this.splice(Math.max(this[$mobx].values.length - 1, 0), 1)[0];\n    },\n    shift: function () {\n        return this.splice(0, 1)[0];\n    },\n    unshift: function () {\n        var items = [];\n        for (var _i = 0; _i < arguments.length; _i++) {\n            items[_i] = arguments[_i];\n        }\n        var adm = this[$mobx];\n        adm.spliceWithArray(0, 0, items);\n        return adm.values.length;\n    },\n    reverse: function () {\n        // reverse by default mutates in place before returning the result\n        // which makes it both a 'derivation' and a 'mutation'.\n        // so we deviate from the default and just make it an dervitation\n        if (true) {\n            console.warn(\"[mobx] `observableArray.reverse()` will not update the array in place. Use `observableArray.slice().reverse()` to supress this warning and perform the operation on a copy, or `observableArray.replace(observableArray.slice().reverse())` to reverse & update in place\");\n        }\n        var clone = this.slice();\n        return clone.reverse.apply(clone, arguments);\n    },\n    sort: function (compareFn) {\n        // sort by default mutates in place before returning the result\n        // which goes against all good practices. Let's not change the array in place!\n        if (true) {\n            console.warn(\"[mobx] `observableArray.sort()` will not update the array in place. Use `observableArray.slice().sort()` to supress this warning and perform the operation on a copy, or `observableArray.replace(observableArray.slice().sort())` to sort & update in place\");\n        }\n        var clone = this.slice();\n        return clone.sort.apply(clone, arguments);\n    },\n    remove: function (value) {\n        var adm = this[$mobx];\n        var idx = adm.dehanceValues(adm.values).indexOf(value);\n        if (idx > -1) {\n            this.splice(idx, 1);\n            return true;\n        }\n        return false;\n    },\n    get: function (index) {\n        var adm = this[$mobx];\n        if (adm) {\n            if (index < adm.values.length) {\n                adm.atom.reportObserved();\n                return adm.dehanceValue(adm.values[index]);\n            }\n            console.warn(\"[mobx.array] Attempt to read an array index (\" + index + \") that is out of bounds (\" + adm.values.length + \"). Please check length first. Out of bound indices will not be tracked by MobX\");\n        }\n        return undefined;\n    },\n    set: function (index, newValue) {\n        var adm = this[$mobx];\n        var values = adm.values;\n        if (index < values.length) {\n            // update at index in range\n            checkIfStateModificationsAreAllowed(adm.atom);\n            var oldValue = values[index];\n            if (hasInterceptors(adm)) {\n                var change = interceptChange(adm, {\n                    type: \"update\",\n                    object: adm.proxy,\n                    index: index,\n                    newValue: newValue\n                });\n                if (!change)\n                    return;\n                newValue = change.newValue;\n            }\n            newValue = adm.enhancer(newValue, oldValue);\n            var changed = newValue !== oldValue;\n            if (changed) {\n                values[index] = newValue;\n                adm.notifyArrayChildUpdate(index, newValue, oldValue);\n            }\n        }\n        else if (index === values.length) {\n            // add a new item\n            adm.spliceWithArray(index, 0, [newValue]);\n        }\n        else {\n            // out of bounds\n            throw new Error(\"[mobx.array] Index out of bounds, \" + index + \" is larger than \" + values.length);\n        }\n    }\n};\n[\n    \"concat\",\n    \"every\",\n    \"filter\",\n    \"forEach\",\n    \"indexOf\",\n    \"join\",\n    \"lastIndexOf\",\n    \"map\",\n    \"reduce\",\n    \"reduceRight\",\n    \"slice\",\n    \"some\",\n    \"toString\",\n    \"toLocaleString\"\n].forEach(function (funcName) {\n    arrayExtensions[funcName] = function () {\n        var adm = this[$mobx];\n        adm.atom.reportObserved();\n        var res = adm.dehanceValues(adm.values);\n        return res[funcName].apply(res, arguments);\n    };\n});\nvar isObservableArrayAdministration = createInstanceofPredicate(\"ObservableArrayAdministration\", ObservableArrayAdministration);\nfunction isObservableArray(thing) {\n    return isObject(thing) && isObservableArrayAdministration(thing[$mobx]);\n}\n\nvar _a;\nvar ObservableMapMarker = {};\n// just extend Map? See also https://gist.github.com/nestharus/13b4d74f2ef4a2f4357dbd3fc23c1e54\n// But: https://github.com/mobxjs/mobx/issues/1556\nvar ObservableMap = /** @class */ (function () {\n    function ObservableMap(initialData, enhancer, name) {\n        if (enhancer === void 0) { enhancer = deepEnhancer; }\n        if (name === void 0) { name = \"ObservableMap@\" + getNextId(); }\n        this.enhancer = enhancer;\n        this.name = name;\n        this[_a] = ObservableMapMarker;\n        this._keysAtom = createAtom(this.name + \".keys()\");\n        this[Symbol.toStringTag] = \"Map\";\n        if (typeof Map !== \"function\") {\n            throw new Error(\"mobx.map requires Map polyfill for the current browser. Check babel-polyfill or core-js/es6/map.js\");\n        }\n        this._data = new Map();\n        this._hasMap = new Map();\n        this.merge(initialData);\n    }\n    ObservableMap.prototype._has = function (key) {\n        return this._data.has(key);\n    };\n    ObservableMap.prototype.has = function (key) {\n        var _this = this;\n        if (!globalState.trackingDerivation)\n            return this._has(key);\n        var entry = this._hasMap.get(key);\n        if (!entry) {\n            // todo: replace with atom (breaking change)\n            var newEntry = (entry = new ObservableValue(this._has(key), referenceEnhancer, this.name + \".\" + stringifyKey(key) + \"?\", false));\n            this._hasMap.set(key, newEntry);\n            onBecomeUnobserved(newEntry, function () { return _this._hasMap.delete(key); });\n        }\n        return entry.get();\n    };\n    ObservableMap.prototype.set = function (key, value) {\n        var hasKey = this._has(key);\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                type: hasKey ? \"update\" : \"add\",\n                object: this,\n                newValue: value,\n                name: key\n            });\n            if (!change)\n                return this;\n            value = change.newValue;\n        }\n        if (hasKey) {\n            this._updateValue(key, value);\n        }\n        else {\n            this._addValue(key, value);\n        }\n        return this;\n    };\n    ObservableMap.prototype.delete = function (key) {\n        var _this = this;\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                type: \"delete\",\n                object: this,\n                name: key\n            });\n            if (!change)\n                return false;\n        }\n        if (this._has(key)) {\n            var notifySpy = isSpyEnabled();\n            var notify = hasListeners(this);\n            var change = notify || notifySpy\n                ? {\n                    type: \"delete\",\n                    object: this,\n                    oldValue: this._data.get(key).value,\n                    name: key\n                }\n                : null;\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportStart(__assign({}, change, { name: this.name, key: key }));\n            transaction(function () {\n                _this._keysAtom.reportChanged();\n                _this._updateHasMapEntry(key, false);\n                var observable = _this._data.get(key);\n                observable.setNewValue(undefined);\n                _this._data.delete(key);\n            });\n            if (notify)\n                notifyListeners(this, change);\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportEnd();\n            return true;\n        }\n        return false;\n    };\n    ObservableMap.prototype._updateHasMapEntry = function (key, value) {\n        var entry = this._hasMap.get(key);\n        if (entry) {\n            entry.setNewValue(value);\n        }\n    };\n    ObservableMap.prototype._updateValue = function (key, newValue) {\n        var observable = this._data.get(key);\n        newValue = observable.prepareNewValue(newValue);\n        if (newValue !== globalState.UNCHANGED) {\n            var notifySpy = isSpyEnabled();\n            var notify = hasListeners(this);\n            var change = notify || notifySpy\n                ? {\n                    type: \"update\",\n                    object: this,\n                    oldValue: observable.value,\n                    name: key,\n                    newValue: newValue\n                }\n                : null;\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportStart(__assign({}, change, { name: this.name, key: key }));\n            observable.setNewValue(newValue);\n            if (notify)\n                notifyListeners(this, change);\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportEnd();\n        }\n    };\n    ObservableMap.prototype._addValue = function (key, newValue) {\n        var _this = this;\n        checkIfStateModificationsAreAllowed(this._keysAtom);\n        transaction(function () {\n            var observable = new ObservableValue(newValue, _this.enhancer, _this.name + \".\" + stringifyKey(key), false);\n            _this._data.set(key, observable);\n            newValue = observable.value; // value might have been changed\n            _this._updateHasMapEntry(key, true);\n            _this._keysAtom.reportChanged();\n        });\n        var notifySpy = isSpyEnabled();\n        var notify = hasListeners(this);\n        var change = notify || notifySpy\n            ? {\n                type: \"add\",\n                object: this,\n                name: key,\n                newValue: newValue\n            }\n            : null;\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportStart(__assign({}, change, { name: this.name, key: key }));\n        if (notify)\n            notifyListeners(this, change);\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportEnd();\n    };\n    ObservableMap.prototype.get = function (key) {\n        if (this.has(key))\n            return this.dehanceValue(this._data.get(key).get());\n        return this.dehanceValue(undefined);\n    };\n    ObservableMap.prototype.dehanceValue = function (value) {\n        if (this.dehancer !== undefined) {\n            return this.dehancer(value);\n        }\n        return value;\n    };\n    ObservableMap.prototype.keys = function () {\n        this._keysAtom.reportObserved();\n        return this._data.keys();\n    };\n    ObservableMap.prototype.values = function () {\n        var self = this;\n        var nextIndex = 0;\n        var keys = Array.from(this.keys());\n        return makeIterable({\n            next: function () {\n                return nextIndex < keys.length\n                    ? { value: self.get(keys[nextIndex++]), done: false }\n                    : { done: true };\n            }\n        });\n    };\n    ObservableMap.prototype.entries = function () {\n        var self = this;\n        var nextIndex = 0;\n        var keys = Array.from(this.keys());\n        return makeIterable({\n            next: function () {\n                if (nextIndex < keys.length) {\n                    var key = keys[nextIndex++];\n                    return {\n                        value: [key, self.get(key)],\n                        done: false\n                    };\n                }\n                return { done: true };\n            }\n        });\n    };\n    ObservableMap.prototype[(_a = $mobx, Symbol.iterator)] = function () {\n        return this.entries();\n    };\n    ObservableMap.prototype.forEach = function (callback, thisArg) {\n        var e_1, _a;\n        try {\n            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var _d = __read(_c.value, 2), key = _d[0], value = _d[1];\n                callback.call(thisArg, value, key, this);\n            }\n        }\n        catch (e_1_1) { e_1 = { error: e_1_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_1) throw e_1.error; }\n        }\n    };\n    /** Merge another object into this object, returns this. */\n    ObservableMap.prototype.merge = function (other) {\n        var _this = this;\n        if (isObservableMap(other)) {\n            other = other.toJS();\n        }\n        transaction(function () {\n            if (isPlainObject(other))\n                getPlainObjectKeys(other).forEach(function (key) { return _this.set(key, other[key]); });\n            else if (Array.isArray(other))\n                other.forEach(function (_a) {\n                    var _b = __read(_a, 2), key = _b[0], value = _b[1];\n                    return _this.set(key, value);\n                });\n            else if (isES6Map(other)) {\n                if (other.constructor !== Map)\n                    fail(\"Cannot initialize from classes that inherit from Map: \" + other.constructor.name); // prettier-ignore\n                other.forEach(function (value, key) { return _this.set(key, value); });\n            }\n            else if (other !== null && other !== undefined)\n                fail(\"Cannot initialize map from \" + other);\n        });\n        return this;\n    };\n    ObservableMap.prototype.clear = function () {\n        var _this = this;\n        transaction(function () {\n            untracked(function () {\n                var e_2, _a;\n                try {\n                    for (var _b = __values(_this.keys()), _c = _b.next(); !_c.done; _c = _b.next()) {\n                        var key = _c.value;\n                        _this.delete(key);\n                    }\n                }\n                catch (e_2_1) { e_2 = { error: e_2_1 }; }\n                finally {\n                    try {\n                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n                    }\n                    finally { if (e_2) throw e_2.error; }\n                }\n            });\n        });\n    };\n    ObservableMap.prototype.replace = function (values) {\n        var _this = this;\n        transaction(function () {\n            // grab all the keys that are present in the new map but not present in the current map\n            // and delete them from the map, then merge the new map\n            // this will cause reactions only on changed values\n            var newKeys = getMapLikeKeys(values);\n            var oldKeys = Array.from(_this.keys());\n            var missingKeys = oldKeys.filter(function (k) { return newKeys.indexOf(k) === -1; });\n            missingKeys.forEach(function (k) { return _this.delete(k); });\n            _this.merge(values);\n        });\n        return this;\n    };\n    Object.defineProperty(ObservableMap.prototype, \"size\", {\n        get: function () {\n            this._keysAtom.reportObserved();\n            return this._data.size;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    /**\n     * Returns a plain object that represents this map.\n     * Note that all the keys being stringified.\n     * If there are duplicating keys after converting them to strings, behaviour is undetermined.\n     */\n    ObservableMap.prototype.toPOJO = function () {\n        var e_3, _a;\n        var res = {};\n        try {\n            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var _d = __read(_c.value, 2), key = _d[0], value = _d[1];\n                // We lie about symbol key types due to https://github.com/Microsoft/TypeScript/issues/1863\n                res[typeof key === \"symbol\" ? key : stringifyKey(key)] = value;\n            }\n        }\n        catch (e_3_1) { e_3 = { error: e_3_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_3) throw e_3.error; }\n        }\n        return res;\n    };\n    /**\n     * Returns a shallow non observable object clone of this map.\n     * Note that the values migth still be observable. For a deep clone use mobx.toJS.\n     */\n    ObservableMap.prototype.toJS = function () {\n        return new Map(this);\n    };\n    ObservableMap.prototype.toJSON = function () {\n        // Used by JSON.stringify\n        return this.toPOJO();\n    };\n    ObservableMap.prototype.toString = function () {\n        var _this = this;\n        return (this.name +\n            \"[{ \" +\n            Array.from(this.keys())\n                .map(function (key) { return stringifyKey(key) + \": \" + (\"\" + _this.get(key)); })\n                .join(\", \") +\n            \" }]\");\n    };\n    /**\n     * Observes this object. Triggers for the events 'add', 'update' and 'delete'.\n     * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/observe\n     * for callback details\n     */\n    ObservableMap.prototype.observe = function (listener, fireImmediately) {\n         true &&\n            invariant(fireImmediately !== true, \"`observe` doesn't support fireImmediately=true in combination with maps.\");\n        return registerListener(this, listener);\n    };\n    ObservableMap.prototype.intercept = function (handler) {\n        return registerInterceptor(this, handler);\n    };\n    return ObservableMap;\n}());\n/* 'var' fixes small-build issue */\nvar isObservableMap = createInstanceofPredicate(\"ObservableMap\", ObservableMap);\n\nvar _a$1;\nvar ObservableSetMarker = {};\nvar ObservableSet = /** @class */ (function () {\n    function ObservableSet(initialData, enhancer, name) {\n        if (enhancer === void 0) { enhancer = deepEnhancer; }\n        if (name === void 0) { name = \"ObservableSet@\" + getNextId(); }\n        this.name = name;\n        this[_a$1] = ObservableSetMarker;\n        this._data = new Set();\n        this._atom = createAtom(this.name);\n        this[Symbol.toStringTag] = \"Set\";\n        if (typeof Set !== \"function\") {\n            throw new Error(\"mobx.set requires Set polyfill for the current browser. Check babel-polyfill or core-js/es6/set.js\");\n        }\n        this.enhancer = function (newV, oldV) { return enhancer(newV, oldV, name); };\n        if (initialData) {\n            this.replace(initialData);\n        }\n    }\n    ObservableSet.prototype.dehanceValue = function (value) {\n        if (this.dehancer !== undefined) {\n            return this.dehancer(value);\n        }\n        return value;\n    };\n    ObservableSet.prototype.clear = function () {\n        var _this = this;\n        transaction(function () {\n            untracked(function () {\n                var e_1, _a;\n                try {\n                    for (var _b = __values(_this._data.values()), _c = _b.next(); !_c.done; _c = _b.next()) {\n                        var value = _c.value;\n                        _this.delete(value);\n                    }\n                }\n                catch (e_1_1) { e_1 = { error: e_1_1 }; }\n                finally {\n                    try {\n                        if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n                    }\n                    finally { if (e_1) throw e_1.error; }\n                }\n            });\n        });\n    };\n    ObservableSet.prototype.forEach = function (callbackFn, thisArg) {\n        var e_2, _a;\n        try {\n            for (var _b = __values(this), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var value = _c.value;\n                callbackFn.call(thisArg, value, value, this);\n            }\n        }\n        catch (e_2_1) { e_2 = { error: e_2_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_2) throw e_2.error; }\n        }\n    };\n    Object.defineProperty(ObservableSet.prototype, \"size\", {\n        get: function () {\n            this._atom.reportObserved();\n            return this._data.size;\n        },\n        enumerable: true,\n        configurable: true\n    });\n    ObservableSet.prototype.add = function (value) {\n        var _this = this;\n        checkIfStateModificationsAreAllowed(this._atom);\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                type: \"add\",\n                object: this,\n                newValue: value\n            });\n            if (!change)\n                return this;\n            // TODO: ideally, value = change.value would be done here, so that values can be\n            // changed by interceptor. Same applies for other Set and Map api's.\n        }\n        if (!this.has(value)) {\n            transaction(function () {\n                _this._data.add(_this.enhancer(value, undefined));\n                _this._atom.reportChanged();\n            });\n            var notifySpy = isSpyEnabled();\n            var notify = hasListeners(this);\n            var change = notify || notifySpy\n                ? {\n                    type: \"add\",\n                    object: this,\n                    newValue: value\n                }\n                : null;\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportStart(change);\n            if (notify)\n                notifyListeners(this, change);\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportEnd();\n        }\n        return this;\n    };\n    ObservableSet.prototype.delete = function (value) {\n        var _this = this;\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                type: \"delete\",\n                object: this,\n                oldValue: value\n            });\n            if (!change)\n                return false;\n        }\n        if (this.has(value)) {\n            var notifySpy = isSpyEnabled();\n            var notify = hasListeners(this);\n            var change = notify || notifySpy\n                ? {\n                    type: \"delete\",\n                    object: this,\n                    oldValue: value\n                }\n                : null;\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportStart(__assign({}, change, { name: this.name }));\n            transaction(function () {\n                _this._atom.reportChanged();\n                _this._data.delete(value);\n            });\n            if (notify)\n                notifyListeners(this, change);\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportEnd();\n            return true;\n        }\n        return false;\n    };\n    ObservableSet.prototype.has = function (value) {\n        this._atom.reportObserved();\n        return this._data.has(this.dehanceValue(value));\n    };\n    ObservableSet.prototype.entries = function () {\n        var nextIndex = 0;\n        var keys = Array.from(this.keys());\n        var values = Array.from(this.values());\n        return makeIterable({\n            next: function () {\n                var index = nextIndex;\n                nextIndex += 1;\n                return index < values.length\n                    ? { value: [keys[index], values[index]], done: false }\n                    : { done: true };\n            }\n        });\n    };\n    ObservableSet.prototype.keys = function () {\n        return this.values();\n    };\n    ObservableSet.prototype.values = function () {\n        this._atom.reportObserved();\n        var self = this;\n        var nextIndex = 0;\n        var observableValues = Array.from(this._data.values());\n        return makeIterable({\n            next: function () {\n                return nextIndex < observableValues.length\n                    ? { value: self.dehanceValue(observableValues[nextIndex++]), done: false }\n                    : { done: true };\n            }\n        });\n    };\n    ObservableSet.prototype.replace = function (other) {\n        var _this = this;\n        if (isObservableSet(other)) {\n            other = other.toJS();\n        }\n        transaction(function () {\n            if (Array.isArray(other)) {\n                _this.clear();\n                other.forEach(function (value) { return _this.add(value); });\n            }\n            else if (isES6Set(other)) {\n                _this.clear();\n                other.forEach(function (value) { return _this.add(value); });\n            }\n            else if (other !== null && other !== undefined) {\n                fail(\"Cannot initialize set from \" + other);\n            }\n        });\n        return this;\n    };\n    ObservableSet.prototype.observe = function (listener, fireImmediately) {\n        // TODO 'fireImmediately' can be true?\n         true &&\n            invariant(fireImmediately !== true, \"`observe` doesn't support fireImmediately=true in combination with sets.\");\n        return registerListener(this, listener);\n    };\n    ObservableSet.prototype.intercept = function (handler) {\n        return registerInterceptor(this, handler);\n    };\n    ObservableSet.prototype.toJS = function () {\n        return new Set(this);\n    };\n    ObservableSet.prototype.toString = function () {\n        return this.name + \"[ \" + Array.from(this).join(\", \") + \" ]\";\n    };\n    ObservableSet.prototype[(_a$1 = $mobx, Symbol.iterator)] = function () {\n        return this.values();\n    };\n    return ObservableSet;\n}());\nvar isObservableSet = createInstanceofPredicate(\"ObservableSet\", ObservableSet);\n\nvar ObservableObjectAdministration = /** @class */ (function () {\n    function ObservableObjectAdministration(target, values, name, defaultEnhancer) {\n        if (values === void 0) { values = new Map(); }\n        this.target = target;\n        this.values = values;\n        this.name = name;\n        this.defaultEnhancer = defaultEnhancer;\n        this.keysAtom = new Atom(name + \".keys\");\n    }\n    ObservableObjectAdministration.prototype.read = function (key) {\n        return this.values.get(key).get();\n    };\n    ObservableObjectAdministration.prototype.write = function (key, newValue) {\n        var instance = this.target;\n        var observable = this.values.get(key);\n        if (observable instanceof ComputedValue) {\n            observable.set(newValue);\n            return;\n        }\n        // intercept\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                type: \"update\",\n                object: this.proxy || instance,\n                name: key,\n                newValue: newValue\n            });\n            if (!change)\n                return;\n            newValue = change.newValue;\n        }\n        newValue = observable.prepareNewValue(newValue);\n        // notify spy & observers\n        if (newValue !== globalState.UNCHANGED) {\n            var notify = hasListeners(this);\n            var notifySpy = isSpyEnabled();\n            var change = notify || notifySpy\n                ? {\n                    type: \"update\",\n                    object: this.proxy || instance,\n                    oldValue: observable.value,\n                    name: key,\n                    newValue: newValue\n                }\n                : null;\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportStart(__assign({}, change, { name: this.name, key: key }));\n            observable.setNewValue(newValue);\n            if (notify)\n                notifyListeners(this, change);\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportEnd();\n        }\n    };\n    ObservableObjectAdministration.prototype.has = function (key) {\n        var map = this.pendingKeys || (this.pendingKeys = new Map());\n        var entry = map.get(key);\n        if (entry)\n            return entry.get();\n        else {\n            var exists = !!this.values.get(key);\n            // Possible optimization: Don't have a separate map for non existing keys,\n            // but store them in the values map instead, using a special symbol to denote \"not existing\"\n            entry = new ObservableValue(exists, referenceEnhancer, this.name + \".\" + stringifyKey(key) + \"?\", false);\n            map.set(key, entry);\n            return entry.get(); // read to subscribe\n        }\n    };\n    ObservableObjectAdministration.prototype.addObservableProp = function (propName, newValue, enhancer) {\n        if (enhancer === void 0) { enhancer = this.defaultEnhancer; }\n        var target = this.target;\n        assertPropertyConfigurable(target, propName);\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                object: this.proxy || target,\n                name: propName,\n                type: \"add\",\n                newValue: newValue\n            });\n            if (!change)\n                return;\n            newValue = change.newValue;\n        }\n        var observable = new ObservableValue(newValue, enhancer, this.name + \".\" + stringifyKey(propName), false);\n        this.values.set(propName, observable);\n        newValue = observable.value; // observableValue might have changed it\n        Object.defineProperty(target, propName, generateObservablePropConfig(propName));\n        this.notifyPropertyAddition(propName, newValue);\n    };\n    ObservableObjectAdministration.prototype.addComputedProp = function (propertyOwner, // where is the property declared?\n    propName, options) {\n        var target = this.target;\n        options.name = options.name || this.name + \".\" + stringifyKey(propName);\n        this.values.set(propName, new ComputedValue(options));\n        if (propertyOwner === target || isPropertyConfigurable(propertyOwner, propName))\n            Object.defineProperty(propertyOwner, propName, generateComputedPropConfig(propName));\n    };\n    ObservableObjectAdministration.prototype.remove = function (key) {\n        if (!this.values.has(key))\n            return;\n        var target = this.target;\n        if (hasInterceptors(this)) {\n            var change = interceptChange(this, {\n                object: this.proxy || target,\n                name: key,\n                type: \"remove\"\n            });\n            if (!change)\n                return;\n        }\n        try {\n            startBatch();\n            var notify = hasListeners(this);\n            var notifySpy = isSpyEnabled();\n            var oldObservable = this.values.get(key);\n            var oldValue = oldObservable && oldObservable.get();\n            oldObservable && oldObservable.set(undefined);\n            // notify key and keyset listeners\n            this.keysAtom.reportChanged();\n            this.values.delete(key);\n            if (this.pendingKeys) {\n                var entry = this.pendingKeys.get(key);\n                if (entry)\n                    entry.set(false);\n            }\n            // delete the prop\n            delete this.target[key];\n            var change = notify || notifySpy\n                ? {\n                    type: \"remove\",\n                    object: this.proxy || target,\n                    oldValue: oldValue,\n                    name: key\n                }\n                : null;\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportStart(__assign({}, change, { name: this.name, key: key }));\n            if (notify)\n                notifyListeners(this, change);\n            if (notifySpy && \"development\" !== \"production\")\n                spyReportEnd();\n        }\n        finally {\n            endBatch();\n        }\n    };\n    ObservableObjectAdministration.prototype.illegalAccess = function (owner, propName) {\n        /**\n         * This happens if a property is accessed through the prototype chain, but the property was\n         * declared directly as own property on the prototype.\n         *\n         * E.g.:\n         * class A {\n         * }\n         * extendObservable(A.prototype, { x: 1 })\n         *\n         * classB extens A {\n         * }\n         * console.log(new B().x)\n         *\n         * It is unclear whether the property should be considered 'static' or inherited.\n         * Either use `console.log(A.x)`\n         * or: decorate(A, { x: observable })\n         *\n         * When using decorate, the property will always be redeclared as own property on the actual instance\n         */\n        console.warn(\"Property '\" + propName + \"' of '\" + owner + \"' was accessed through the prototype chain. Use 'decorate' instead to declare the prop or access it statically through it's owner\");\n    };\n    /**\n     * Observes this object. Triggers for the events 'add', 'update' and 'delete'.\n     * See: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/observe\n     * for callback details\n     */\n    ObservableObjectAdministration.prototype.observe = function (callback, fireImmediately) {\n         true &&\n            invariant(fireImmediately !== true, \"`observe` doesn't support the fire immediately property for observable objects.\");\n        return registerListener(this, callback);\n    };\n    ObservableObjectAdministration.prototype.intercept = function (handler) {\n        return registerInterceptor(this, handler);\n    };\n    ObservableObjectAdministration.prototype.notifyPropertyAddition = function (key, newValue) {\n        var notify = hasListeners(this);\n        var notifySpy = isSpyEnabled();\n        var change = notify || notifySpy\n            ? {\n                type: \"add\",\n                object: this.proxy || this.target,\n                name: key,\n                newValue: newValue\n            }\n            : null;\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportStart(__assign({}, change, { name: this.name, key: key }));\n        if (notify)\n            notifyListeners(this, change);\n        if (notifySpy && \"development\" !== \"production\")\n            spyReportEnd();\n        if (this.pendingKeys) {\n            var entry = this.pendingKeys.get(key);\n            if (entry)\n                entry.set(true);\n        }\n        this.keysAtom.reportChanged();\n    };\n    ObservableObjectAdministration.prototype.getKeys = function () {\n        var e_1, _a;\n        this.keysAtom.reportObserved();\n        // return Reflect.ownKeys(this.values) as any\n        var res = [];\n        try {\n            for (var _b = __values(this.values), _c = _b.next(); !_c.done; _c = _b.next()) {\n                var _d = __read(_c.value, 2), key = _d[0], value = _d[1];\n                if (value instanceof ObservableValue)\n                    res.push(key);\n            }\n        }\n        catch (e_1_1) { e_1 = { error: e_1_1 }; }\n        finally {\n            try {\n                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);\n            }\n            finally { if (e_1) throw e_1.error; }\n        }\n        return res;\n    };\n    return ObservableObjectAdministration;\n}());\nfunction asObservableObject(target, name, defaultEnhancer) {\n    if (name === void 0) { name = \"\"; }\n    if (defaultEnhancer === void 0) { defaultEnhancer = deepEnhancer; }\n    if (Object.prototype.hasOwnProperty.call(target, $mobx))\n        return target[$mobx];\n     true &&\n        invariant(Object.isExtensible(target), \"Cannot make the designated object observable; it is not extensible\");\n    if (!isPlainObject(target))\n        name = (target.constructor.name || \"ObservableObject\") + \"@\" + getNextId();\n    if (!name)\n        name = \"ObservableObject@\" + getNextId();\n    var adm = new ObservableObjectAdministration(target, new Map(), stringifyKey(name), defaultEnhancer);\n    addHiddenProp(target, $mobx, adm);\n    return adm;\n}\nvar observablePropertyConfigs = Object.create(null);\nvar computedPropertyConfigs = Object.create(null);\nfunction generateObservablePropConfig(propName) {\n    return (observablePropertyConfigs[propName] ||\n        (observablePropertyConfigs[propName] = {\n            configurable: true,\n            enumerable: true,\n            get: function () {\n                return this[$mobx].read(propName);\n            },\n            set: function (v) {\n                this[$mobx].write(propName, v);\n            }\n        }));\n}\nfunction getAdministrationForComputedPropOwner(owner) {\n    var adm = owner[$mobx];\n    if (!adm) {\n        // because computed props are declared on proty,\n        // the current instance might not have been initialized yet\n        initializeInstance(owner);\n        return owner[$mobx];\n    }\n    return adm;\n}\nfunction generateComputedPropConfig(propName) {\n    return (computedPropertyConfigs[propName] ||\n        (computedPropertyConfigs[propName] = {\n            configurable: globalState.computedConfigurable,\n            enumerable: false,\n            get: function () {\n                return getAdministrationForComputedPropOwner(this).read(propName);\n            },\n            set: function (v) {\n                getAdministrationForComputedPropOwner(this).write(propName, v);\n            }\n        }));\n}\nvar isObservableObjectAdministration = createInstanceofPredicate(\"ObservableObjectAdministration\", ObservableObjectAdministration);\nfunction isObservableObject(thing) {\n    if (isObject(thing)) {\n        // Initializers run lazily when transpiling to babel, so make sure they are run...\n        initializeInstance(thing);\n        return isObservableObjectAdministration(thing[$mobx]);\n    }\n    return false;\n}\n\nfunction getAtom(thing, property) {\n    if (typeof thing === \"object\" && thing !== null) {\n        if (isObservableArray(thing)) {\n            if (property !== undefined)\n                fail( true &&\n                    \"It is not possible to get index atoms from arrays\");\n            return thing[$mobx].atom;\n        }\n        if (isObservableSet(thing)) {\n            return thing[$mobx];\n        }\n        if (isObservableMap(thing)) {\n            var anyThing = thing;\n            if (property === undefined)\n                return anyThing._keysAtom;\n            var observable = anyThing._data.get(property) || anyThing._hasMap.get(property);\n            if (!observable)\n                fail( true &&\n                    \"the entry '\" + property + \"' does not exist in the observable map '\" + getDebugName(thing) + \"'\");\n            return observable;\n        }\n        // Initializers run lazily when transpiling to babel, so make sure they are run...\n        initializeInstance(thing);\n        if (property && !thing[$mobx])\n            thing[property]; // See #1072\n        if (isObservableObject(thing)) {\n            if (!property)\n                return fail( true && \"please specify a property\");\n            var observable = thing[$mobx].values.get(property);\n            if (!observable)\n                fail( true &&\n                    \"no observable property '\" + property + \"' found on the observable object '\" + getDebugName(thing) + \"'\");\n            return observable;\n        }\n        if (isAtom(thing) || isComputedValue(thing) || isReaction(thing)) {\n            return thing;\n        }\n    }\n    else if (typeof thing === \"function\") {\n        if (isReaction(thing[$mobx])) {\n            // disposer function\n            return thing[$mobx];\n        }\n    }\n    return fail( true && \"Cannot obtain atom from \" + thing);\n}\nfunction getAdministration(thing, property) {\n    if (!thing)\n        fail(\"Expecting some object\");\n    if (property !== undefined)\n        return getAdministration(getAtom(thing, property));\n    if (isAtom(thing) || isComputedValue(thing) || isReaction(thing))\n        return thing;\n    if (isObservableMap(thing) || isObservableSet(thing))\n        return thing;\n    // Initializers run lazily when transpiling to babel, so make sure they are run...\n    initializeInstance(thing);\n    if (thing[$mobx])\n        return thing[$mobx];\n    fail( true && \"Cannot obtain administration from \" + thing);\n}\nfunction getDebugName(thing, property) {\n    var named;\n    if (property !== undefined)\n        named = getAtom(thing, property);\n    else if (isObservableObject(thing) || isObservableMap(thing) || isObservableSet(thing))\n        named = getAdministration(thing);\n    else\n        named = getAtom(thing); // valid for arrays as well\n    return named.name;\n}\n\nvar toString = Object.prototype.toString;\nfunction deepEqual(a, b) {\n    return eq(a, b);\n}\n// Copied from https://github.com/jashkenas/underscore/blob/5c237a7c682fb68fd5378203f0bf22dce1624854/underscore.js#L1186-L1289\n// Internal recursive comparison function for `isEqual`.\nfunction eq(a, b, aStack, bStack) {\n    // Identical objects are equal. `0 === -0`, but they aren't identical.\n    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).\n    if (a === b)\n        return a !== 0 || 1 / a === 1 / b;\n    // `null` or `undefined` only equal to itself (strict comparison).\n    if (a == null || b == null)\n        return false;\n    // `NaN`s are equivalent, but non-reflexive.\n    if (a !== a)\n        return b !== b;\n    // Exhaust primitive checks\n    var type = typeof a;\n    if (type !== \"function\" && type !== \"object\" && typeof b != \"object\")\n        return false;\n    return deepEq(a, b, aStack, bStack);\n}\n// Internal recursive comparison function for `isEqual`.\nfunction deepEq(a, b, aStack, bStack) {\n    // Unwrap any wrapped objects.\n    a = unwrap(a);\n    b = unwrap(b);\n    // Compare `[[Class]]` names.\n    var className = toString.call(a);\n    if (className !== toString.call(b))\n        return false;\n    switch (className) {\n        // Strings, numbers, regular expressions, dates, and booleans are compared by value.\n        case \"[object RegExp]\":\n        // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')\n        case \"[object String]\":\n            // Primitives and their corresponding object wrappers are equivalent; thus, `\"5\"` is\n            // equivalent to `new String(\"5\")`.\n            return \"\" + a === \"\" + b;\n        case \"[object Number]\":\n            // `NaN`s are equivalent, but non-reflexive.\n            // Object(NaN) is equivalent to NaN.\n            if (+a !== +a)\n                return +b !== +b;\n            // An `egal` comparison is performed for other numeric values.\n            return +a === 0 ? 1 / +a === 1 / b : +a === +b;\n        case \"[object Date]\":\n        case \"[object Boolean]\":\n            // Coerce dates and booleans to numeric primitive values. Dates are compared by their\n            // millisecond representations. Note that invalid dates with millisecond representations\n            // of `NaN` are not equivalent.\n            return +a === +b;\n        case \"[object Symbol]\":\n            return (typeof Symbol !== \"undefined\" && Symbol.valueOf.call(a) === Symbol.valueOf.call(b));\n    }\n    var areArrays = className === \"[object Array]\";\n    if (!areArrays) {\n        if (typeof a != \"object\" || typeof b != \"object\")\n            return false;\n        // Objects with different constructors are not equivalent, but `Object`s or `Array`s\n        // from different frames are.\n        var aCtor = a.constructor, bCtor = b.constructor;\n        if (aCtor !== bCtor &&\n            !(typeof aCtor === \"function\" &&\n                aCtor instanceof aCtor &&\n                typeof bCtor === \"function\" &&\n                bCtor instanceof bCtor) &&\n            (\"constructor\" in a && \"constructor\" in b)) {\n            return false;\n        }\n    }\n    // Assume equality for cyclic structures. The algorithm for detecting cyclic\n    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.\n    // Initializing stack of traversed objects.\n    // It's done here since we only need them for objects and arrays comparison.\n    aStack = aStack || [];\n    bStack = bStack || [];\n    var length = aStack.length;\n    while (length--) {\n        // Linear search. Performance is inversely proportional to the number of\n        // unique nested structures.\n        if (aStack[length] === a)\n            return bStack[length] === b;\n    }\n    // Add the first object to the stack of traversed objects.\n    aStack.push(a);\n    bStack.push(b);\n    // Recursively compare objects and arrays.\n    if (areArrays) {\n        // Compare array lengths to determine if a deep comparison is necessary.\n        length = a.length;\n        if (length !== b.length)\n            return false;\n        // Deep compare the contents, ignoring non-numeric properties.\n        while (length--) {\n            if (!eq(a[length], b[length], aStack, bStack))\n                return false;\n        }\n    }\n    else {\n        // Deep compare objects.\n        var keys = Object.keys(a);\n        var key = void 0;\n        length = keys.length;\n        // Ensure that both objects contain the same number of properties before comparing deep equality.\n        if (Object.keys(b).length !== length)\n            return false;\n        while (length--) {\n            // Deep compare each member\n            key = keys[length];\n            if (!(has$1(b, key) && eq(a[key], b[key], aStack, bStack)))\n                return false;\n        }\n    }\n    // Remove the first object from the stack of traversed objects.\n    aStack.pop();\n    bStack.pop();\n    return true;\n}\nfunction unwrap(a) {\n    if (isObservableArray(a))\n        return a.slice();\n    if (isES6Map(a) || isObservableMap(a))\n        return Array.from(a.entries());\n    if (isES6Set(a) || isObservableSet(a))\n        return Array.from(a.entries());\n    return a;\n}\nfunction has$1(a, key) {\n    return Object.prototype.hasOwnProperty.call(a, key);\n}\n\nfunction makeIterable(iterator) {\n    iterator[Symbol.iterator] = self;\n    return iterator;\n}\nfunction self() {\n    return this;\n}\n\n/*\nThe only reason for this file to exist is pure horror:\nWithout it rollup can make the bundling fail at any point in time; when it rolls up the files in the wrong order\nit will cause undefined errors (for example because super classes or local variables not being hosted).\nWith this file that will still happen,\nbut at least in this file we can magically reorder the imports with trial and error until the build succeeds again.\n*/\n\n/**\n * (c) Michel Weststrate 2015 - 2018\n * MIT Licensed\n *\n * Welcome to the mobx sources! To get an global overview of how MobX internally works,\n * this is a good place to start:\n * https://medium.com/@mweststrate/becoming-fully-reactive-an-in-depth-explanation-of-mobservable-55995262a254#.xvbh6qd74\n *\n * Source folders:\n * ===============\n *\n * - api/     Most of the public static methods exposed by the module can be found here.\n * - core/    Implementation of the MobX algorithm; atoms, derivations, reactions, dependency trees, optimizations. Cool stuff can be found here.\n * - types/   All the magic that is need to have observable objects, arrays and values is in this folder. Including the modifiers like `asFlat`.\n * - utils/   Utility stuff.\n *\n */\nif (typeof Proxy === \"undefined\" || typeof Symbol === \"undefined\") {\n    throw new Error(\"[mobx] MobX 5+ requires Proxy and Symbol objects. If your environment doesn't support Symbol or Proxy objects, please downgrade to MobX 4. For React Native Android, consider upgrading JSCore.\");\n}\ntry {\n    // define process.env if needed\n    // if this is not a production build in the first place\n    // (in which case the expression below would be substituted with 'production')\n    \"development\";\n}\ncatch (e) {\n    var g = typeof window !== \"undefined\" ? window : global;\n    if (typeof process === \"undefined\")\n        g.process = {};\n    g.process.env = {};\n}\n(function () {\n    function testCodeMinification() { }\n    if (testCodeMinification.name !== \"testCodeMinification\" &&\n        \"development\" !== \"production\" &&\n        process.env.IGNORE_MOBX_MINIFY_WARNING !== \"true\") {\n        // trick so it doesn't get replaced\n        var varName = [\"process\", \"env\", \"NODE_ENV\"].join(\".\");\n        console.warn(\"[mobx] you are running a minified build, but '\" + varName + \"' was not set to 'production' in your bundler. This results in an unnecessarily large and slow bundle\");\n    }\n})();\nif (typeof __MOBX_DEVTOOLS_GLOBAL_HOOK__ === \"object\") {\n    // See: https://github.com/andykog/mobx-devtools/\n    __MOBX_DEVTOOLS_GLOBAL_HOOK__.injectMobx({\n        spy: spy,\n        extras: {\n            getDebugName: getDebugName\n        },\n        $mobx: $mobx\n    });\n}\n\n\n\n/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../process/browser.js */ \"./node_modules/process/browser.js\"), __webpack_require__(/*! ./../../webpack/buildin/global.js */ \"./node_modules/webpack/buildin/global.js\")))\n\n//# sourceURL=webpack://%5Bname%5D/./node_modules/mobx/lib/mobx.module.js?");
-
-/***/ }),
-
-/***/ "./node_modules/process/browser.js":
-/*!*****************************************!*\
-  !*** ./node_modules/process/browser.js ***!
-  \*****************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-eval("// shim for using process in browser\nvar process = module.exports = {};\n\n// cached from whatever global is present so that test runners that stub it\n// don't break things.  But we need to wrap it in a try catch in case it is\n// wrapped in strict mode code which doesn't define any globals.  It's inside a\n// function because try/catches deoptimize in certain engines.\n\nvar cachedSetTimeout;\nvar cachedClearTimeout;\n\nfunction defaultSetTimout() {\n    throw new Error('setTimeout has not been defined');\n}\nfunction defaultClearTimeout () {\n    throw new Error('clearTimeout has not been defined');\n}\n(function () {\n    try {\n        if (typeof setTimeout === 'function') {\n            cachedSetTimeout = setTimeout;\n        } else {\n            cachedSetTimeout = defaultSetTimout;\n        }\n    } catch (e) {\n        cachedSetTimeout = defaultSetTimout;\n    }\n    try {\n        if (typeof clearTimeout === 'function') {\n            cachedClearTimeout = clearTimeout;\n        } else {\n            cachedClearTimeout = defaultClearTimeout;\n        }\n    } catch (e) {\n        cachedClearTimeout = defaultClearTimeout;\n    }\n} ())\nfunction runTimeout(fun) {\n    if (cachedSetTimeout === setTimeout) {\n        //normal enviroments in sane situations\n        return setTimeout(fun, 0);\n    }\n    // if setTimeout wasn't available but was latter defined\n    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {\n        cachedSetTimeout = setTimeout;\n        return setTimeout(fun, 0);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedSetTimeout(fun, 0);\n    } catch(e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally\n            return cachedSetTimeout.call(null, fun, 0);\n        } catch(e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error\n            return cachedSetTimeout.call(this, fun, 0);\n        }\n    }\n\n\n}\nfunction runClearTimeout(marker) {\n    if (cachedClearTimeout === clearTimeout) {\n        //normal enviroments in sane situations\n        return clearTimeout(marker);\n    }\n    // if clearTimeout wasn't available but was latter defined\n    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {\n        cachedClearTimeout = clearTimeout;\n        return clearTimeout(marker);\n    }\n    try {\n        // when when somebody has screwed with setTimeout but no I.E. maddness\n        return cachedClearTimeout(marker);\n    } catch (e){\n        try {\n            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally\n            return cachedClearTimeout.call(null, marker);\n        } catch (e){\n            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.\n            // Some versions of I.E. have different rules for clearTimeout vs setTimeout\n            return cachedClearTimeout.call(this, marker);\n        }\n    }\n\n\n\n}\nvar queue = [];\nvar draining = false;\nvar currentQueue;\nvar queueIndex = -1;\n\nfunction cleanUpNextTick() {\n    if (!draining || !currentQueue) {\n        return;\n    }\n    draining = false;\n    if (currentQueue.length) {\n        queue = currentQueue.concat(queue);\n    } else {\n        queueIndex = -1;\n    }\n    if (queue.length) {\n        drainQueue();\n    }\n}\n\nfunction drainQueue() {\n    if (draining) {\n        return;\n    }\n    var timeout = runTimeout(cleanUpNextTick);\n    draining = true;\n\n    var len = queue.length;\n    while(len) {\n        currentQueue = queue;\n        queue = [];\n        while (++queueIndex < len) {\n            if (currentQueue) {\n                currentQueue[queueIndex].run();\n            }\n        }\n        queueIndex = -1;\n        len = queue.length;\n    }\n    currentQueue = null;\n    draining = false;\n    runClearTimeout(timeout);\n}\n\nprocess.nextTick = function (fun) {\n    var args = new Array(arguments.length - 1);\n    if (arguments.length > 1) {\n        for (var i = 1; i < arguments.length; i++) {\n            args[i - 1] = arguments[i];\n        }\n    }\n    queue.push(new Item(fun, args));\n    if (queue.length === 1 && !draining) {\n        runTimeout(drainQueue);\n    }\n};\n\n// v8 likes predictible objects\nfunction Item(fun, array) {\n    this.fun = fun;\n    this.array = array;\n}\nItem.prototype.run = function () {\n    this.fun.apply(null, this.array);\n};\nprocess.title = 'browser';\nprocess.browser = true;\nprocess.env = {};\nprocess.argv = [];\nprocess.version = ''; // empty string to avoid regexp issues\nprocess.versions = {};\n\nfunction noop() {}\n\nprocess.on = noop;\nprocess.addListener = noop;\nprocess.once = noop;\nprocess.off = noop;\nprocess.removeListener = noop;\nprocess.removeAllListeners = noop;\nprocess.emit = noop;\nprocess.prependListener = noop;\nprocess.prependOnceListener = noop;\n\nprocess.listeners = function (name) { return [] }\n\nprocess.binding = function (name) {\n    throw new Error('process.binding is not supported');\n};\n\nprocess.cwd = function () { return '/' };\nprocess.chdir = function (dir) {\n    throw new Error('process.chdir is not supported');\n};\nprocess.umask = function() { return 0; };\n\n\n//# sourceURL=webpack://%5Bname%5D/./node_modules/process/browser.js?");
-
-/***/ }),
-
-/***/ "./node_modules/webpack/buildin/global.js":
-/*!***********************************!*\
-  !*** (webpack)/buildin/global.js ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-eval("var g;\n\n// This works in non-strict mode\ng = (function() {\n\treturn this;\n})();\n\ntry {\n\t// This works if eval is allowed (see CSP)\n\tg = g || new Function(\"return this\")();\n} catch (e) {\n\t// This works if the window reference is available\n\tif (typeof window === \"object\") g = window;\n}\n\n// g can still be undefined, but nothing to do about it...\n// We return undefined, instead of nothing here, so it's\n// easier to handle this case. if(!global) { ...}\n\nmodule.exports = g;\n\n\n//# sourceURL=webpack://%5Bname%5D/(webpack)/buildin/global.js?");
-
-/***/ }),
-
-/***/ "./src/core/configurable.js":
-/*!**********************************!*\
-  !*** ./src/core/configurable.js ***!
-  \**********************************/
-/*! exports provided: configurable */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"configurable\", function() { return configurable; });\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ \"./src/core/utils.js\");\n\n\n\nconst configurable = {\n    applyConfig: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])('applyConfig', function(config) {\n        this.config = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"deepmerge\"])(this.config, config);\n        return this;\n    })\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/configurable.js?");
-
-/***/ }),
-
-/***/ "./src/core/dataConfig/cache.js":
-/*!**************************************!*\
-  !*** ./src/core/dataConfig/cache.js ***!
-  \**************************************/
-/*! exports provided: makeCache */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"makeCache\", function() { return makeCache; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n\n\nfunction makeCache() {\n    const cache = new Map();\n\n    const makeKey = function(query) {\n        if (query.select.value.length > 1) {\n            console.info('Cache can\\'t handle query with more than one select value. Skipping query caching.', query);\n            return undefined;\n        }\n        return Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"stableStringifyObject\"])(query);\n    }\n    const has = function (query) { return cache.has(makeKey(query)); }\n    const get = function (query) { return cache.get(makeKey(query)); }\n    const set = function(query, response) {\n        if (query.select.value.length > 1) \n            return splitQuery(query).map(q => set(q, response));\n        \n        const key = makeKey(query);\n        return cache.set(key, response);\n    }\n    const setFromPromise = function(query, promise) {\n        return promise.then(response => set(query, response))\n    }\n    const splitQuery = function(query) {\n        return query.select.value.map(concept => {\n            const clone = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"deepclone\"])(query);\n            clone.select.value = [concept];\n            return clone;\n        });\n    }\n\n    return {\n        has, \n        get, \n        set,\n        setFromPromise\n    }\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/dataConfig/cache.js?");
-
-/***/ }),
-
-/***/ "./src/core/dataConfig/dataConfig.js":
-/*!*******************************************!*\
-  !*** ./src/core/dataConfig/dataConfig.js ***!
-  \*******************************************/
-/*! exports provided: dataConfig */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"dataConfig\", function() { return dataConfig; });\n/* harmony import */ var _vizabi__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../vizabi */ \"./src/core/vizabi.js\");\n/* harmony import */ var _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../dataSource/dataSourceStore */ \"./src/core/dataSource/dataSourceStore.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var _filter__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../filter */ \"./src/core/filter.js\");\n/* harmony import */ var _dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../dataframe/dataFrame */ \"./src/dataframe/dataFrame.js\");\n/* harmony import */ var _dataframe_transforms_filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../dataframe/transforms/filter */ \"./src/dataframe/transforms/filter.js\");\n/* harmony import */ var mobx_utils__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! mobx-utils */ \"./node_modules/mobx-utils/mobx-utils.module.js\");\n/* harmony import */ var _dataframe_info_extent__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../dataframe/info/extent */ \"./src/dataframe/info/extent.js\");\n/* harmony import */ var _dataframe_info_unique__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../../dataframe/info/unique */ \"./src/dataframe/info/unique.js\");\n/* harmony import */ var _dataframe_utils__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../dataframe/utils */ \"./src/dataframe/utils.js\");\n\n\n\n\n\n\n\n\n\n\n\n\nconst defaultConfig = {\n}\n\nconst defaults = {\n    filter: null,\n    constant: null,\n    concept: undefined,\n    space: null,\n    value: null,\n    filter: null,\n    locale: null,\n    source: null,\n    domain: [0, 1],\n    domainDataSource: 'auto'\n}\n\nfunction dataConfig(config = {}, parent) {\n\n    Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"applyDefaults\"])(config, defaultConfig);\n    let latestResponse = [];\n\n    return {\n        config,\n        parent,\n        get invariants() {\n            let fails = [];\n            if (this.constant && (this.concept || this.source)) fails.push(\"Can't have constant value and concept or source set.\");\n            if (this.conceptInSpace && this.source) fails.push(\"Can't have concept in space and have a source simultaneously\");\n            if (fails.length > 0)\n                console.warn(\"One or more invariants not satisfied:\",fails,this);\n        },\n        get source() {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"trace\"])();\n            if (this.config.source)\n                return _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_1__[\"dataSourceStore\"].getByDefinition(this.config.source)\n            else\n                return (this.parent.marker) ? this.parent.marker.data.source : null;\n        },\n        get space() {\n            //trace();\n            if(!this.parent.marker) // only markers do space autoconfig\n                return this.configSolution.space;\n            return this.config.space || (this.parent.marker ? this.parent.marker.data.space : defaults.space)\n        },\n        get constant() {\n            return Object(_vizabi__WEBPACK_IMPORTED_MODULE_0__[\"resolveRef\"])(this.config.constant) || defaults.constant;\n        },\n        isConstant() {\n            return this.constant != null;\n        },\n        get commonSpace() {\n            return Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"intersect\"])(this.space, this.parent.marker.data.space);\n        },\n        get filter() {\n            const config = this.config.filter || (this.parent.marker ? this.parent.marker.data.config.filter : {})\n            return Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"observable\"])(Object(_filter__WEBPACK_IMPORTED_MODULE_4__[\"filter\"])(config, this));\n        },\n        get locale() {\n            if (this.config.locale)\n                return typeof this.config.locale == \"string\" ? this.config.locale : this.config.locale.id;\n            else\n                return (this.parent.marker) ? this.parent.marker.data.locale : null;          \n        },\n        get concept() { \n            return this.parent.marker.data.configSolution.encodings[this.parent.name];\n            // return this.config.concept ? resolveRef(this.config.concept) : defaults.concept; \n        },\n        get conceptProps() { return this.source.getConcept(this.concept) },\n        get availability() { return this.source.availability.data.map(kv => this.source.getConcept(kv.value)) },\n        get domainDataSource() {\n            let source = this.config.domainDataSource || defaults.domainDataSource;\n            if (source === 'auto') {\n                source = this.conceptInSpace\n                    ? 'filterRequired'\n                    : 'self';\n            }\n            return source;\n        },\n        get domainData() {\n            const source = this.domainDataSource;\n            const data = source === 'self' ? this.responseMap\n                : this.parent.marker.transformedDataMaps.has(source) ? this.parent.marker.transformedDataMaps.get(source).get()\n                : source === 'markers' ? this.parent.marker.dataMap  \n                : this.responseMap;\n\n            return data;\n        },\n        get domain() {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"trace\"])();\n            if (this.isConstant())\n                return Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"isNumeric\"])(this.constant) ? [this.constant, this.constant] : [this.constant];\n\n            return this.calcDomain(this.domainData, this.conceptProps);\n        },\n        calcDomain(data, { concept, concept_type }) { \n            // use rows api implemented by both group and df\n            if ([\"measure\",\"time\"].includes(concept_type)) // continuous\n                return Object(_dataframe_info_extent__WEBPACK_IMPORTED_MODULE_8__[\"extent\"])(data.rows(), concept);\n            else // ordinal (entity_set, entity_domain, string)\n                return Object(_dataframe_info_unique__WEBPACK_IMPORTED_MODULE_9__[\"unique\"])(data.rows(), concept); \n        },\n\n\n        /**\n         * Finds a config which satisfies both marker.space and encoding.concept autoconfigs\n         */\n        get configSolution() {\n            let encodings;\n            let space = Object(_vizabi__WEBPACK_IMPORTED_MODULE_0__[\"resolveRef\"])(this.config.space);\n        \n            if (space && space.autoconfig) {\n                const availableSpaces = [...this.source.availability.keyLookup.values()];\n                const satisfiesSpaceAutoCfg = Object(_dataframe_transforms_filter__WEBPACK_IMPORTED_MODULE_6__[\"createFilterFn\"])(this.config.space.autoconfig);\n\n                space = availableSpaces\n                    .sort((a, b) => a.length - b.length) // smallest spaces first\n                    .filter(space => !space.includes(\"concept\") && space\n                            .map(c => this.source.getConcept(c))\n                            .every(satisfiesSpaceAutoCfg)\n                    )\n                    .find(space => this.resolveEncodingConcepts(space, this.parent.encoding));\n            } \n\n            space = space || defaults.space;\n            encodings = this.resolveEncodingConcepts(space, this.parent.encoding); \n\n            if (!space || !encodings)\n                console.warn(\"Could not resolve space or encoding concepts for marker.\", this.parent, { space, encodings });\n\n            return { space, encodings };\n        },\n\n        /**\n         * Tries to find encoding concepts for a given space and encodings Map. Returns solution if it succeeds. Returns `undefined` if it fails.\n         * @param {String[]} space \n         * @param {Map} encodings Map where keys are encoding names, values are encoding models\n         * @returns {Solution|undefined} solution\n         */\n        resolveEncodingConcepts(space, encodings) {\n            const concepts = {};\n            const success = [...encodings].every(([name, enc]) => {\n                // only resolve concepts for encodings which use concept property\n                if (!enc.config.data.concept) {\n                    concepts[name] = undefined;\n                    return true;\n                }\n                const encConcept = enc.data.resolveEncodingConcept(concepts, space);\n                if (encConcept !== undefined) {\n                    concepts[name] = encConcept;\n                    return true;\n                }\n                return false;\n            });\n            return success ? concepts : undefined;\n        },\n\n        /**\n         * Tries to find encoding concept for a given space, encoding and partial solution.  \n         * Should be called with encoding.data as `this`. \n         * Returns concept id which satisfies encoding definition (incl autoconfig) and does not overlap with partial solution.\n         * @param {*} solution object whose keys are encoding names and values concept ids, assigned to those encodings. \n         * @param {*} space \n         * @returns {string} concept id\n         */\n        resolveEncodingConcept(solution, space) {\n            let concept = Object(_vizabi__WEBPACK_IMPORTED_MODULE_0__[\"resolveRef\"])(this.config.concept);\n\n            if (concept && concept.autoconfig) {\n                const satisfiesAutoCfg = Object(_dataframe_transforms_filter__WEBPACK_IMPORTED_MODULE_6__[\"createFilterFn\"])(this.config.concept.autoconfig);\n                const usedConcepts = d3.values(solution);\n                const spaceConcepts = space.map(c => this.source.getConcept(c));\n                const availability = this.source.availability;\n    \n                const conceptsInThisSpace = [...availability.keyValueLookup.get(Object(_dataframe_utils__WEBPACK_IMPORTED_MODULE_10__[\"createKeyStr\"])(space)).values()]\n                    .map(kv => this.source.getConcept(kv.value))\n                    // exclude the ones such as \"is--country\", they won't get resolved\n                    .filter(c => c.concept.substr(0,4) !== \"is--\")\n                    .concat(spaceConcepts);\n          \n                concept = conceptsInThisSpace\n                    .find(c => satisfiesAutoCfg(c) && !usedConcepts.includes(c.concept)) || {};\n                concept = concept.concept;\n            }\n            return concept || defaults.concept;    \n        },\n        get hasOwnData() {\n            return this.source && this.concept && !this.conceptInSpace;\n        },\n        get promise() {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"trace\"])();\n            // can't use .then on source because its execution won't be tracked by mobx (b/c async)\n            if (this.source.state === mobx_utils__WEBPACK_IMPORTED_MODULE_7__[\"FULFILLED\"]) {\n                if (this.hasOwnData)\n                    return this.source.query(this.ddfQuery)\n                else   \n                    return Object(mobx_utils__WEBPACK_IMPORTED_MODULE_7__[\"fromPromise\"])(Promise.resolve());\n            }\n            // infinite pending, replaced when source is fulfilled\n            return Object(mobx_utils__WEBPACK_IMPORTED_MODULE_7__[\"fromPromise\"])(new Promise(() => {}));\n        },\n        get state() {\n            return this.promise.state;\n        },\n        get response() {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"trace\"])();\n            if (!this.source || !this.concept || this.conceptInSpace) {\n                if (this.conceptInSpace)\n                    console.warn(\"Encoding \" + this.parent.name + \" was asked for data but it has no own data. Reason: Concept in space.\");\n                else\n                    console.warn(\"Encoding \" + this.parent.name + \" was asked for data but it has no own data.\");\n            }\n            return this.promise.case({\n                pending: () => latestResponse,\n                rejected: e => latestResponse,\n                fulfilled: (res) => latestResponse = res\n            });\n        },\n        get responseMap() {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"trace\"])();\n            if (Object(_dataframe_utils__WEBPACK_IMPORTED_MODULE_10__[\"isDataFrame\"])(this.response))\n                return this.response;\n            else\n                return Object(_dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_5__[\"DataFrame\"])(this.response, this.commonSpace);\n        },\n        get conceptInSpace() {\n            return this.concept && this.space && this.space.includes(this.concept);\n        },\n        get ddfQuery() {\n            const query = {};\n            // select\n            query.select = {\n                key: this.space.slice(), // slice to make sure it's a normal array (not mobx)\n                value: [this.concept]\n            }\n\n            // from\n            query.from = (this.space.length === 1) ? \"entities\" : \"datapoints\";\n\n            // where\n            if (this.filter) {\n                query.where = this.filter.whereClause;\n            }\n          \n            if (this.locale) {\n                query.language = this.locale; \n            }\n          \n            return query;\n        },\n    };\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/dataConfig/dataConfig.js?");
-
-/***/ }),
-
-/***/ "./src/core/dataConfig/dataConfigStore.js":
-/*!************************************************!*\
-  !*** ./src/core/dataConfig/dataConfigStore.js ***!
-  \************************************************/
-/*! exports provided: dataConfigStore */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"dataConfigStore\", function() { return dataConfigStore; });\n/* harmony import */ var _genericStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../genericStore */ \"./src/core/genericStore.js\");\n/* harmony import */ var _dataConfig__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./dataConfig */ \"./src/core/dataConfig/dataConfig.js\");\n/* harmony import */ var _entityPropertyDataConfig__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./entityPropertyDataConfig */ \"./src/core/dataConfig/entityPropertyDataConfig.js\");\n\n\n\n\nconst dataConfigStore = Object(_genericStore__WEBPACK_IMPORTED_MODULE_0__[\"createStore\"])(_dataConfig__WEBPACK_IMPORTED_MODULE_1__[\"dataConfig\"], {\n    entityPropertyDataConfig: _entityPropertyDataConfig__WEBPACK_IMPORTED_MODULE_2__[\"entityPropertyDataConfig\"],\n});\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/dataConfig/dataConfigStore.js?");
-
-/***/ }),
-
-/***/ "./src/core/dataConfig/entityPropertyDataConfig.js":
-/*!*********************************************************!*\
-  !*** ./src/core/dataConfig/entityPropertyDataConfig.js ***!
-  \*********************************************************/
-/*! exports provided: entityPropertyDataConfig */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"entityPropertyDataConfig\", function() { return entityPropertyDataConfig; });\n/* harmony import */ var _dataConfig__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dataConfig */ \"./src/core/dataConfig/dataConfig.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var mobx_utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! mobx-utils */ \"./node_modules/mobx-utils/mobx-utils.module.js\");\n/* harmony import */ var _dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../dataframe/dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\n\n\n\n\nfunction entityPropertyDataConfig(cfg, parent) {\n    const base = Object(_dataConfig__WEBPACK_IMPORTED_MODULE_0__[\"dataConfig\"])(cfg, parent);\n\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"composeObj\"])(base, {\n\n        get promise() {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"trace\"])();\n            if (this.source.conceptsState !== \"fulfilled\") return mobx_utils__WEBPACK_IMPORTED_MODULE_3__[\"fromPromise\"].resolve([]);\n            const labelPromises = this.queries.map(query => this.source.query(query)\n                .then(data => ({ dim: query.select.key[0], data }))\n            );\n            return Object(mobx_utils__WEBPACK_IMPORTED_MODULE_3__[\"fromPromise\"])(Promise.all(labelPromises));\n        },\n        get queries() {\n            const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));\n            return entityDims.map(dim => ({\n                select: {\n                    key: [dim],\n                    value: [this.concept]\n                },\n                from: \"entities\"\n            }));\n        },\n        get lookups() {\n            const concept = this.concept;\n            const lookups = new Map();\n            this.response.forEach(response => {\n                const { dim, data } = response;\n                const lookup = new Map();\n                lookups.set(dim, lookup);\n                data.forEach(row => {\n                    lookup.set(row[dim], row[concept]);\n                })\n            });\n            return new Map([[this.concept, lookups]]);\n        },\n        get responseMap() {\n            return _dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_4__[\"DataFrame\"].fromLookups(this.lookups, this.commonSpace)\n        },\n        addLabels(markers, encName) {\n            // reduce lookups\n            const space = Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"toJS\"])(this.space);\n            const lookups = this.lookups;\n            markers.forEach((marker, key) => {\n                const label = {};\n                space.forEach(dim => {\n                    if (lookups.has(dim))\n                        label[dim] = lookups.get(dim).get(marker[dim]);\n                    else\n                        label[dim] = marker[dim];\n                });\n                marker[encName] = label;\n            });\n        }\n    })\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/dataConfig/entityPropertyDataConfig.js?");
-
-/***/ }),
-
-/***/ "./src/core/dataSource/baseDataSource.js":
-/*!***********************************************!*\
-  !*** ./src/core/dataSource/baseDataSource.js ***!
-  \***********************************************/
-/*! exports provided: baseDataSource */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"baseDataSource\", function() { return baseDataSource; });\n/* harmony import */ var mobx_utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx-utils */ \"./node_modules/mobx-utils/mobx-utils.module.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var _configurable__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../configurable */ \"./src/core/configurable.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _ddfquerytransform__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../ddfquerytransform */ \"./src/core/ddfquerytransform.js\");\n/* harmony import */ var _dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../dataframe/dataFrame */ \"./src/dataframe/dataFrame.js\");\n/* harmony import */ var _reader_inline__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../reader/inline */ \"./src/reader/inline.js\");\n/* harmony import */ var _reader_csv__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../reader/csv */ \"./src/reader/csv.js\");\n/* harmony import */ var _dataframe_utils__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../dataframe/utils */ \"./src/dataframe/utils.js\");\n/* harmony import */ var _dataConfig_cache__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../dataConfig/cache */ \"./src/core/dataConfig/cache.js\");\n\n\n\n\n\n\n\n\n\n\n\nconst defaultConfig = {\n    path: null,\n    values: null,\n    transforms: []\n}\n\nconst functions = {\n    get path() { return this.config.path },\n    get space() { return this.config.space },\n    get reader() {\n        if (this.values)\n            return Object(_reader_inline__WEBPACK_IMPORTED_MODULE_6__[\"inlineReader\"])({ values: this.values });\n        else if (this.path)\n            return Object(_reader_csv__WEBPACK_IMPORTED_MODULE_7__[\"csvReader\"])({ path: this.path });\n        console.warn(\"No inline values or csv path found. Please set `values` or `path` property on dataSource.\", this)\n    },\n    get values() { \n        // toJS: don't want insides of data to be observable (adds overhead & complexity)\n        return Object(mobx__WEBPACK_IMPORTED_MODULE_3__[\"toJS\"])(this.config.values);\n    },\n    get availability() {\n        let empty = this.buildAvailability();\n        return this.availabilityPromise.case({\n            fulfilled: v => v,\n            pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },\n            error: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); return empty }\n        })\n    },\n    get concepts() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_3__[\"trace\"])();\n        const empty = new Map();\n        return this.conceptsPromise.case({\n            fulfilled: v => Object(_dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_5__[\"DataFrame\"])(v, [\"concept\"]),\n            pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },\n            error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }\n        })\n    },\n    get defaultEncodingPromise() {\n        if (\"getDefaultEncoding\" in this.reader)\n            return this.reader.getDefaultEncoding();\n        else    \n            return Promise.resolve({});\n    },\n    get defaultEncoding() {\n        const empty = {};\n        return this.defaultEncodingPromise.case({\n            fulfilled: v => {\n                Object.values(v).forEach(enc => enc.source = this)\n                return v;\n            },\n            pending: () => { console.warn('Requesting default encoding before loaded. Will return empty. Recommended to await promise.'); return empty },\n            error: (e) => { console.warn('Requesting default encoding when loading errored. Will return empty. Recommended to check promise.'); return empty }\n        });\n    },\n    buildAvailability(responses = []) {\n        const \n            keyValueLookup = new Map(),\n            keyLookup = new Map(),\n            data = [];\n\n        /* utility functions, probably move later */\n        const getFromMap = (map, key, getNewVal) => {\n            map.has(key) || map.set(key, getNewVal());\n            return map.get(key);\n        }\n        const getNewMap = () => new Map();\n        const getMapFromMap = (map, key) => getFromMap(map, key, getNewMap);\n\n        /* handle availability responses */\n        responses.forEach(response => {\n            response = response.values ? response.values() : response; // get dataframe iterator if there\n            for(let row of response) {\n                let keyStr, valueLookup;\n                row.key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();\n                keyStr = Object(_dataframe_utils__WEBPACK_IMPORTED_MODULE_8__[\"createKeyStr\"])(row.key);\n                data.push(row);\n                keyLookup.set(keyStr, row.key);\n                valueLookup = getMapFromMap(keyValueLookup, keyStr);\n                valueLookup.set(row.value, row);    \n            };\n        });\n\n        return {\n            keyValueLookup,\n            keyLookup,\n            data\n        };\n    },\n    get availabilityPromise() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_3__[\"trace\"])();\n        const collections = [\"concepts\", \"entities\", \"datapoints\"];\n        const getCollAvailPromise = (collection) => this.query({\n            select: {\n                key: [\"key\", \"value\"],\n                value: []\n            },\n            from: collection + \".schema\"\n        });\n\n        return Object(mobx_utils__WEBPACK_IMPORTED_MODULE_0__[\"fromPromise\"])(Promise.all(collections.map(getCollAvailPromise))\n            .then(this.buildAvailability));\n    },\n    get conceptsPromise() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_3__[\"trace\"])();\n        return Object(mobx_utils__WEBPACK_IMPORTED_MODULE_0__[\"fromPromise\"])(this.availabilityPromise.then(av => {\n            const concepts = [\"name\", \"domain\", \"concept_type\", \"scales\"];\n            const conceptKeyString = Object(_dataframe_utils__WEBPACK_IMPORTED_MODULE_8__[\"createKeyStr\"])([\"concept\"]);\n            const avConcepts = concepts.filter(c => av.keyValueLookup.get(conceptKeyString).has(c));\n    \n            const query = {\n                select: {\n                    key: [\"concept\"],\n                    value: avConcepts\n                },\n                from: \"concepts\"\n            };           \n\n            return this.query(query);\n        }));\n    },\n    get metaDataPromise() {\n        return Object(mobx_utils__WEBPACK_IMPORTED_MODULE_0__[\"fromPromise\"])(Promise.all([this.availabilityPromise, this.conceptsPromise, this.defaultEncodingPromise]));\n    },\n    /* \n    *  separate state computed which don't become stale with new promise in same state \n    *  might use these later to make own .case({pending, fulfilled, rejected}) functionality    \n    */\n    get availabilityState() {\n        return this.availabilityPromise.state;\n    },\n    get conceptsState() {\n        return this.conceptsPromise.state;\n    },\n    get state() {\n        return this.metaDataPromise.state;\n    },\n    getConcept(concept) {\n        if (concept == \"concept_type\" || concept.indexOf('is--') === 0 || concept === \"concept\")\n            return { concept, name: concept }\n        if (!this.concepts.has({ concept }))\n            console.warn(\"Could not find concept \" + concept + \" in data source \", this);\n        return this.concepts.get({ concept }) || {};\n    },\n    isEntityConcept(conceptId) {\n        return [\"entity_set\", \"entity_domain\"].includes(this.getConcept(conceptId).concept_type);\n    },\n    query(query) {\n        //return [];\n        query = Object(_ddfquerytransform__WEBPACK_IMPORTED_MODULE_4__[\"dotToJoin\"])(query);\n        query = Object(_ddfquerytransform__WEBPACK_IMPORTED_MODULE_4__[\"addExplicitAnd\"])(query);\n        console.log('Adding to queue', query);\n        const queryPromise = this.enqueue(query);\n        return Object(mobx_utils__WEBPACK_IMPORTED_MODULE_0__[\"fromPromise\"])(queryPromise);\n    },\n    queue: [],\n    enqueue(query) {\n        return new Promise((resolve, reject) => {\n            this.queue.push({ query, resolves: [resolve], rejects: [reject] });\n            // defer so queue can fill up before queue is processed\n            // only first of deferred process calls will find a filled queue\n            Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"defer\"])(() => this.processQueue(this.queue));\n        })\n    },\n    processQueue(queue) {\n        return Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"pipe\"])(\n            this.resolveCached.bind(this),\n            this.combineQueries.bind(this), \n            this.sendQueries.bind(this),\n            this.setQueueHandlers.bind(this),\n            this.addToCache.bind(this),\n            this.clearQueue.bind(this)\n        )(queue);\n    },\n    combineQueries(queue) {\n        const queries = queue.reduce((queries, { query, resolves, rejects }) => {\n            const queryCombineId = this.calcCombineId(query);\n            if (queries.has(queryCombineId)) {\n                const { \n                    query: combinedQuery, \n                    resolves: combinedResolves, \n                    rejects: combinedRejects \n                } = queries.get(queryCombineId);\n                combinedQuery.select.value.push(...query.select.value);\n                combinedResolves.push(...resolves);\n                combinedRejects.push(...rejects);\n            } else {\n                queries.set(queryCombineId, {\n                    query: Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"deepclone\"])(query),\n                    resolves,\n                    rejects\n                });\n            }\n            return queries;\n        }, new Map());\n        return [...queries.values()];\n    },\n    cache: Object(_dataConfig_cache__WEBPACK_IMPORTED_MODULE_9__[\"makeCache\"])(),\n    resolveCached(queries) {\n        return queries.filter(query => !this.tryCache(query));\n    },\n    tryCache({ query, resolves }) {\n        let response;\n        if (response = this.cache.get(query)) {\n            console.warn('Resolving query from cache.', query);\n            resolves.forEach(resolve => resolve(response));\n            return true;\n        }\n        return false;\n    },\n    sendQueries(queries) {\n        return queries.map(({ query, resolves, rejects }) => {\n            console.log('Sending query to reader', query);\n            const promise = this.reader.read(query);\n            return {\n                query, resolves, rejects, promise\n            };\n        });\n    },\n    setQueueHandlers(queries) {\n        queries.forEach(({ promise, resolves, rejects }) => {\n            resolves.forEach(res => promise.then(res));\n            rejects.forEach(rej => promise.catch(rej));\n        })\n        return queries;\n    },\n    addToCache(queries) {\n        queries.forEach(({ query, promise }) => {\n            this.cache.setFromPromise(query, promise);\n        });\n        return queries;\n    },\n    clearQueue() {\n        this.queue.length = 0; // reset without changing ref\n    },\n    calcCombineId(query) {\n        const clone = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"deepclone\"])(query);\n        delete clone.select.value;\n        return Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"stableStringifyObject\"])(clone);\n    }\n}\n\nconst tryParse = data => {\n    for (let row of data) {\n        tryParseRow(row);\n    }\n    return data;\n}\n\nconst tryParseRow = d => {\n    //return d3.autoType(d);\n    for (let key in d) {\n        d[key] = parse(d[key]);\n    }\n    return d;\n}\n\nconst parse = (val) => (val == '') ? null : +val || val;\n\nfunction baseDataSource(config) {\n    Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"applyDefaults\"])(config, defaultConfig);\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"assign\"])({}, functions, _configurable__WEBPACK_IMPORTED_MODULE_2__[\"configurable\"], { config });\n}\n\nbaseDataSource.decorate = {\n    // to prevent config.values from becoming observable\n    // possibly paints with too broad a brush, other config might need to be deep later\n    config: mobx__WEBPACK_IMPORTED_MODULE_3__[\"observable\"].shallow,\n    // queue should be mutable by computed methods\n    // this is introducing state manipulation and makes these computed methods impure\n    // other solutions are welcome : )\n    queue: mobx__WEBPACK_IMPORTED_MODULE_3__[\"observable\"].ref,\n    cache: mobx__WEBPACK_IMPORTED_MODULE_3__[\"observable\"].ref\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/dataSource/baseDataSource.js?");
-
-/***/ }),
-
-/***/ "./src/core/dataSource/dataSourceStore.js":
-/*!************************************************!*\
-  !*** ./src/core/dataSource/dataSourceStore.js ***!
-  \************************************************/
-/*! exports provided: dataSourceStore */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"dataSourceStore\", function() { return dataSourceStore; });\n/* harmony import */ var _baseDataSource__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./baseDataSource */ \"./src/core/dataSource/baseDataSource.js\");\n/* harmony import */ var _genericStore__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../genericStore */ \"./src/core/genericStore.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n\n\n\n\nconst dataSourceStore = Object(_genericStore__WEBPACK_IMPORTED_MODULE_1__[\"createStore\"])(_baseDataSource__WEBPACK_IMPORTED_MODULE_0__[\"baseDataSource\"]);\n\ndataSourceStore.createAndAddType = function(type, readerObject) {\n    this.addType(type, Object(_utils__WEBPACK_IMPORTED_MODULE_2__[\"defaultDecorator\"])({\n        base: _baseDataSource__WEBPACK_IMPORTED_MODULE_0__[\"baseDataSource\"],\n        functions: {\n            get reader() {\n                // copy reader object (using original will only allow one datasource of this type)\n                const reader = Object.assign({}, readerObject);\n                reader.init({\n                    path: this.path,\n                    assetsPath: this.config.assetsPath\n                })\n                return reader;\n            }\n        }\n    }));\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/dataSource/dataSourceStore.js?");
-
-/***/ }),
-
-/***/ "./src/core/ddfquerytransform.js":
-/*!***************************************!*\
-  !*** ./src/core/ddfquerytransform.js ***!
-  \***************************************/
-/*! exports provided: dotToJoin, addExplicitAnd */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"dotToJoin\", function() { return dotToJoin; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"addExplicitAnd\", function() { return addExplicitAnd; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./utils */ \"./src/core/utils.js\");\n\n\n// only on base level now, should be recursive\nfunction dotToJoin(query) {\n    const props = query.where && Object.keys(query.where);\n    if (!props || props.length == 0)\n        return query;\n\n    const where = query.where,\n        newq = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"deepmerge\"])({}, query);\n\n    let i = 0;\n\n    props.forEach(p => {\n        const s = p.split('.');\n        if (s.length > 1) {\n            const [key, value] = s;\n            const filter = where[p];\n\n            const joinid = \"$\" + key + i++;\n            delete newq.where[p];\n            newq.where[key] = joinid;\n\n            if (!newq.join) newq.join = {};\n\n            newq.join[joinid] = {\n                key: key,\n                where: {\n                    [value]: filter\n                }\n            }\n        }\n    });\n\n    console.log(\"Transformed query: \", query, newq);\n    return newq;\n}\n\n// needed for WS\nfunction addExplicitAnd(query) {\n    // return if no where or only single where\n    const props = query.where && Object.keys(query.where);\n    if (!props || props.length < 2)\n        return query;\n\n    const newq = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"deepmerge\"])({}, query);\n    newq.where = {\n        \"$and\": []\n    }\n    props.forEach(prop => {\n        newq.where[\"$and\"].push({\n            [prop]: query.where[prop]\n        })\n    })\n\n    console.log(\"Transformed query: \", query, newq);\n    return newq;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/ddfquerytransform.js?");
-
-/***/ }),
-
-/***/ "./src/core/encoding/baseEncoding.js":
-/*!*******************************************!*\
-  !*** ./src/core/encoding/baseEncoding.js ***!
-  \*******************************************/
-/*! exports provided: baseEncoding */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"baseEncoding\", function() { return baseEncoding; });\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var _configurable__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../configurable */ \"./src/core/configurable.js\");\n/* harmony import */ var _marker_markerStore__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../marker/markerStore */ \"./src/core/marker/markerStore.js\");\n/* harmony import */ var _dataConfig_dataConfigStore__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../dataConfig/dataConfigStore */ \"./src/core/dataConfig/dataConfigStore.js\");\n/* harmony import */ var _scale_scaleStore__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../scale/scaleStore */ \"./src/core/scale/scaleStore.js\");\n\n\n\n\n\n\n//import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'\n\nconst defaultConfig = {\n    scale: {},\n    data: {}\n}\n\nconst functions = {\n    get marker() {\n        //trace();\n        const marker = _marker_markerStore__WEBPACK_IMPORTED_MODULE_3__[\"markerStore\"].getMarkerForEncoding(this);\n        if (marker == null) console.warn(\"Couldn't find marker model for encoding.\", { encoding: this });\n        return marker;\n    },\n    get name() {\n        return this.marker.getEncodingName(this);\n    },\n    get data() {\n        return _dataConfig_dataConfigStore__WEBPACK_IMPORTED_MODULE_4__[\"dataConfigStore\"].getByDefinition(this.config.data, this);\n    },\n    get scale() {\n        return _scale_scaleStore__WEBPACK_IMPORTED_MODULE_5__[\"scaleStore\"].getByDefinition(this.config.scale, this);\n    },\n    setWhich: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])('setWhich', function(kv) {\n        const concept = this.data.source.getConcept(kv.value.concept);\n\n        this.config.data.concept = concept.concept;\n        this.config.data.space = kv.key;\n        this.config.scale.domain = null;\n        this.config.scale.type = null;\n    }),\n    get prop() {\n        return this.marker.getPropForEncoding(this);\n    }\n}\n\nfunction baseEncoding(config, parent) {\n    Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"applyDefaults\"])(config, defaultConfig);\n    console.log('creating new encoding', config);\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"assign\"])({}, functions, _configurable__WEBPACK_IMPORTED_MODULE_2__[\"configurable\"], { config, parent });\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/encoding/baseEncoding.js?");
-
-/***/ }),
-
-/***/ "./src/core/encoding/encodingStore.js":
-/*!********************************************!*\
-  !*** ./src/core/encoding/encodingStore.js ***!
-  \********************************************/
-/*! exports provided: encodingStore */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"encodingStore\", function() { return encodingStore; });\n/* harmony import */ var _genericStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../genericStore */ \"./src/core/genericStore.js\");\n/* harmony import */ var _baseEncoding__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./baseEncoding */ \"./src/core/encoding/baseEncoding.js\");\n/* harmony import */ var _frame__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./frame */ \"./src/core/encoding/frame.js\");\n/* harmony import */ var _selection__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./selection */ \"./src/core/encoding/selection.js\");\n/* harmony import */ var _order__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./order */ \"./src/core/encoding/order.js\");\n/* harmony import */ var _trail__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./trail */ \"./src/core/encoding/trail.js\");\n\n\n\n\n\n\n\nconst encodingStore = Object(_genericStore__WEBPACK_IMPORTED_MODULE_0__[\"createStore\"])(_baseEncoding__WEBPACK_IMPORTED_MODULE_1__[\"baseEncoding\"], {\n    frame: _frame__WEBPACK_IMPORTED_MODULE_2__[\"frame\"],\n    selection: _selection__WEBPACK_IMPORTED_MODULE_3__[\"selection\"],\n    order: _order__WEBPACK_IMPORTED_MODULE_4__[\"order\"],\n    trail: _trail__WEBPACK_IMPORTED_MODULE_5__[\"trail\"]\n});\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/encoding/encodingStore.js?");
-
-/***/ }),
-
-/***/ "./src/core/encoding/frame.js":
-/*!************************************!*\
-  !*** ./src/core/encoding/frame.js ***!
-  \************************************/
-/*! exports provided: frame */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"frame\", function() { return frame; });\n/* harmony import */ var _baseEncoding__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./baseEncoding */ \"./src/core/encoding/baseEncoding.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var mobx_utils__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! mobx-utils */ \"./node_modules/mobx-utils/mobx-utils.module.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var _dataframe_utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../dataframe/utils */ \"./src/dataframe/utils.js\");\n\n\n\n\n\n//import { interpolate, extent } from 'd3';\n\nconst defaultConfig = {\n    modelType: \"frame\",\n    value: null,\n    scale: { modelType: \"frame\" },\n}\n\nconst defaults = {\n    interpolate: true,\n    loop: false,\n    speed: 100,\n    step: { unit: \"index\", size: 1 }\n}\n\nconst functions = {\n    get value() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"trace\"])();\n        let value;\n        if (this.config.value != null) {\n            value = Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"parseConfigValue\"])(this.config.value, this.data.conceptProps);\n            value = this.scale.clampToDomain(value);\n        } else {\n            value = this.scale.domain[0];\n        }\n        return value; \n    },\n    get index() {\n        const value = this.value;\n        return this.stepArray.findIndex(stepVal => Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"equals\"])(stepVal, value));\n    },\n    get stepArray() {\n        return [...this.stepFn()];\n    },\n    get speed() { return this.config.speed || defaults.speed },\n    get loop() { return this.config.loop || defaults.loop },\n    get stepSize() { return this.config.step && this.config.step.size || defaults.step.size },\n    get stepUnit() { return this.config.step && this.config.step.unit || this.getStepUnit() },\n    getStepUnit() {\n        if (this.data.state !== \"fulfilled\")\n            return defaults.step.unit; // no concept information yet\n\n        const { concept, concept_type } = this.data.conceptProps;\n        if (concept_type == 'measure') \n            return 'number';\n\n        if (['string','entity_domain','entity_set'].includes(concept_type)) \n            return 'index';\n\n        if (concept_type == 'time') {\n            if (['year', 'month','day','hour','minute','second'].includes(concept)) {\n                return concept;\n            }\n            if (concept == \"time\")\n                return \"year\";\n        }\n        return defaults.step.unit;\n    },\n    get interpolate() { return this.config.interpolate || defaults.interpolate },\n    get stepFn() {\n        return Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"stepIterator\"])(this.stepUnit, this.stepSize, this.scale.domain)\n    },\n    playing: false,\n    nextValGen: null,\n    togglePlaying() {\n        this.playing ?\n            this.stopPlaying() :\n            this.startPlaying();\n    },\n    startPlaying: function() {\n        if (Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"equals\"])(this.value, this.scale.domain[this.scale.domain.length-1]))\n            this.setValue(this.scale.domain[0]);\n\n        this.setPlaying(true);\n    },\n    stopPlaying: function() {\n        this.setPlaying(false);\n    },\n    setPlaying: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('setPlaying', function(playing) {\n        this.playing = playing;\n    }),\n    setSpeed: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('setSpeed', function(speed) {\n        speed = Math.max(0, speed);\n        this.config.speed = speed;\n    }),\n    setValue: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('setValue', function(value) {\n        const concept = this.data.conceptProps;\n        let date = value instanceof Date ? value : Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"parseConfigValue\"])(value, concept);\n        const string = typeof value === \"string\" ? value : Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"configValue\"])(value, concept);\n        if (date != null) {\n            date = this.scale.clampToDomain(date);\n        }\n        this.config.value = string;\n    }),\n    setIndex: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('setIndex', function(idx) {\n        this.setValue(this.stepArray[idx]);\n    }),\n    setValueAndStop: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('setValueAndStop', function(value) {\n        this.stopPlaying();\n        this.setValue(value);\n    }),\n    setIndexAndStop: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('setIndexAndStop', function(idx) {\n        this.stopPlaying();\n        this.setIndex(idx);\n    }),\n    update: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('update frame value', function() {\n        if (this.playing && this.marker.state === mobx_utils__WEBPACK_IMPORTED_MODULE_2__[\"FULFILLED\"]) {\n            const nxt = this.nextValGen.next();\n            if (nxt.done) {\n                if (this.loop) {\n                    this.setValue(this.scale.domain[0]);\n                    this.nextValGen = this.stepFn();\n                } else {\n                    this.stopPlaying();\n                }\n            } else {\n                this.setValue(nxt.value);\n            }\n        }\n    }),\n    get transformationFns() {\n        return {\n            'currentFrame': this.currentFrame.bind(this),\n            'frameMap': this.frameMap.bind(this)\n        }\n    },\n    currentFrame(data) {\n        if (data.has(this.frameKey)) {\n            return data.get(this.frameKey);\n        } else {\n            console.warn(\"Frame value not found in frame map\", this)\n            return new Map();\n        }\n    },\n    get frameKey() {\n        return Object(_dataframe_utils__WEBPACK_IMPORTED_MODULE_4__[\"createMarkerKey\"])({ [this.name]: this.value }, [this.name]);\n    },\n    get rowKeyDims() {\n        // remove frame concept from key if it's in there\n        // e.g. <geo,year>,pop => frame over year => <year>-><geo>,year,pop \n        return Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"relativeComplement\"])([this.data.concept], this.data.space);\n    },\n    frameMap(data) {\n        if (this.interpolate) \n            data = this.interpolateData(data);\n        return data.groupBy(this.name, this.rowKeyDims);\n    },\n    interpolateData(df) {\n        const concept = this.data.concept;\n        const name = this.name;\n        const domain = this.data.calcDomain(df, this.data.conceptProps);\n        const stepFn = Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"stepIterator\"])(this.stepUnit, this.stepSize, domain);\n\n        return df\n            .groupBy(this.rowKeyDims, [name])\n            .map((group, groupKeyDims) => { \n\n                const fillFns = {};\n                df.key.forEach(dim => {\n                    // copy space values from group key\n                    if (dim in groupKeyDims) \n                        fillFns[dim] = groupKeyDims[dim];\n                    // frame concept not in group key so copy from row\n                    if (dim === concept)\n                        fillFns[dim] = row => row[name];  \n                })\n\n                return group\n                    .reindex(stepFn)   // reindex also orders (needed for interpolation)\n                    .fillNull(fillFns) // fill nulls of marker space with custom fns\n                    .interpolate();    // fill rest of nulls through interpolation\n            })\n            .flatten(df.key);\n    },\n    setUpReactions() {\n        // need reaction for timer as it has to set frame value\n        // not allowed to call action (which changes state) from inside observable/computed, thus reaction needed\n        const controlTimer = Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"reaction\"])(\n            // mention all observables (state & computed) which you want to be tracked\n            // if not tracked, they will always be recomputed, their values are not cached\n            () => { return { playing: this.playing, speed: this.speed } },\n            ({ playing, speed }) => {\n                clearInterval(this.playInterval);\n                if (playing) {\n                    this.nextValGen = this.stepFn(this.value);\n                    this.update();\n                    this.playInterval = setInterval(this.update.bind(this), speed);\n                }\n            }, \n            { name: \"frame playback timer\" }\n        );\n    }\n}\n\nfunction frame(config) {\n    Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"applyDefaults\"])(config, defaultConfig);\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_3__[\"assign\"])(Object(_baseEncoding__WEBPACK_IMPORTED_MODULE_0__[\"baseEncoding\"])(config), functions);\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/encoding/frame.js?");
-
-/***/ }),
-
-/***/ "./src/core/encoding/order.js":
-/*!************************************!*\
-  !*** ./src/core/encoding/order.js ***!
-  \************************************/
-/*! exports provided: order */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"order\", function() { return order; });\n/* harmony import */ var _baseEncoding__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./baseEncoding */ \"./src/core/encoding/baseEncoding.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n\n\n\nconst directions = {\n    ascending: \"ascending\",\n    descending: \"descencding\"\n}\nconst defaults = {\n    direction: directions.ascending\n}\n\nconst order = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"defaultDecorator\"])({\n    base: _baseEncoding__WEBPACK_IMPORTED_MODULE_0__[\"baseEncoding\"],\n    functions: {\n        get direction() {\n            return this.data.config.direction || defaults.direction;\n        },\n        order(df) {\n            const name = this.name;\n            const direction = this.direction;\n            return df.order([{ [name]: direction }]);\n        },\n        get transformationFns() {\n            return {\n                order: this.order.bind(this)\n            }\n        },\n    }\n});\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/encoding/order.js?");
-
-/***/ }),
-
-/***/ "./src/core/encoding/selection.js":
-/*!****************************************!*\
-  !*** ./src/core/encoding/selection.js ***!
-  \****************************************/
-/*! exports provided: selection */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"selection\", function() { return selection; });\n/* harmony import */ var _baseEncoding__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./baseEncoding */ \"./src/core/encoding/baseEncoding.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n\n\n\nconst defaultConfig = {\n    modelType: \"selection\",\n    data: {\n        filter: {} // force own filter value so it doesn't fall back to marker filter like a normal encoding\n    }\n}\n\nconst functions = {}\n\nconst selection = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"defaultDecorator\"])({\n    base: _baseEncoding__WEBPACK_IMPORTED_MODULE_0__[\"baseEncoding\"],\n    defaultConfig,\n    functions: functions\n});\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/encoding/selection.js?");
-
-/***/ }),
-
-/***/ "./src/core/encoding/trail.js":
-/*!************************************!*\
-  !*** ./src/core/encoding/trail.js ***!
-  \************************************/
-/*! exports provided: trail */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"trail\", function() { return trail; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _baseEncoding__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./baseEncoding */ \"./src/core/encoding/baseEncoding.js\");\n/* harmony import */ var _dataframe_dataFrameGroup__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../dataframe/dataFrameGroup */ \"./src/dataframe/dataFrameGroup.js\");\n/* harmony import */ var _dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../dataframe/dataFrame */ \"./src/dataframe/dataFrame.js\");\n/* harmony import */ var _dataframe_utils__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../dataframe/utils */ \"./src/dataframe/utils.js\");\n/* harmony import */ var _vizabi__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../vizabi */ \"./src/core/vizabi.js\");\n\n\n\n\n\n\n\n\nconst defaultConfig = {\n    starts: {},\n    data: { filter: { markers: {} } }\n}\n\nconst defaults = {\n    show: true,\n    groupDim: null,\n}\n\nfunction trail(config, parent) {\n\n    Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"applyDefaults\"])(config, defaultConfig);\n\n    const base = Object(_baseEncoding__WEBPACK_IMPORTED_MODULE_2__[\"baseEncoding\"])(config, parent);\n\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"assign\"])(base, {\n        get show() { return this.config.show || defaults.show },\n        get starts() {\n            return this.config.starts;\n        },\n        get groupDim() {\n            return Object(_vizabi__WEBPACK_IMPORTED_MODULE_6__[\"resolveRef\"])(this.config.groupDim) || defaults.groupDim;\n        },\n        updateTrailStart: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])('update trail start', function(value) {\n            this.data.filter.markers.forEach((payload, key) => {\n                const start = this.starts[key];\n                if (value < start)\n                    this.config.starts[key] = value;\n            });\n        }),\n        setTrail: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])(function(d) {\n            const key = this.getKey(d);\n            this.config.starts[key] = d[this.groupDim]; // frame value\n            this.data.filter.set(d);\n        }),\n        deleteTrail: Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"action\"])(function(d) {\n            const key = this.getKey(d);\n            delete this.config.starts[key]; // frame value\n            this.data.filter.delete(d);\n        }),\n        getKey(d) {\n            return Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"isString\"])(d) ? d : d[Symbol.for('key')];\n        },\n        get transformationFns() {\n            return {\n                'addTrails': this.addTrails.bind(this)\n            }\n        },\n        // per given marker, in whatever group\n        //  1. get markers from groups before its group (possibly starting at given group)\n        //  2. add those markers to current group, with key including original group (so no collission)\n        //\n        addTrails(groupedDf) {\n            const frameMap = groupedDf;\n            // can't use this.groupDim because circular dep this.marker.transformedDataMap\n            const groupDim = groupedDf.key[0]; // supports only 1 dimensional grouping\n            const markers = this.data.filter.markers;\n\n            if (markers.size == 0)\n                return frameMap;\n\n            // create trails\n            const trails = new Map();\n            for (let key of markers.keys()) {\n                const trail = new Map();\n                trails.set(key, trail);\n                for (let [i, frame] of frameMap) {\n                    if (frame.hasByObjOrStr(null,key))\n                        trail.set(i, frame.getByObjOrStr(null,key));\n                }\n            }\n            \n            // add trails to frames\n            const prop = groupDim;\n            const newFrameMap = Object(_dataframe_dataFrameGroup__WEBPACK_IMPORTED_MODULE_3__[\"DataFrameGroupMap\"])([], frameMap.key, frameMap.descendantKeys);\n            const trailKeyDims = [...frameMap.descendantKeys[0], prop];\n            for (let [id, frame] of frameMap) {\n                const newFrame = Object(_dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_4__[\"DataFrame\"])([], frame.key);\n                for (let [markerKey, markerData] of frame) {\n                    // insert trails before its head marker\n                    if (trails.has(markerKey)) {\n                        const trail = trails.get(markerKey);\n                        const trailStart = this.starts[markerKey];\n                        const trailEnd = markerData[prop];\n                        // add trail markers in ascending order\n                        for (let keyStr of groupedDf.keys()) {\n                            const i = groupedDf.get(keyStr).values().next().value[prop]\n                            //const i = parseMarkerKey(keyStr)[prop];\n                            if (i < trailStart || !trail.has(keyStr)) continue;\n                            if (i >= trailEnd) break;\n                            const trailMarker = trail.get(keyStr);\n                            const newKey = Object(_dataframe_utils__WEBPACK_IMPORTED_MODULE_5__[\"createMarkerKey\"])(trailMarker, trailKeyDims);\n                            const newData = Object.assign({}, trailMarker, {\n                                [Symbol.for('key')]: newKey,\n                                [Symbol.for('trailHeadKey')]: markerKey\n                            });\n                            newFrame.set(newData, newKey);\n                        }\n                    }\n                    // (head) marker\n                    newFrame.set(markerData, markerKey);\n                }\n                newFrameMap.set(id, newFrame);\n            }\n            return newFrameMap;\n        }\n    });\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/encoding/trail.js?");
-
-/***/ }),
-
-/***/ "./src/core/filter.js":
-/*!****************************!*\
-  !*** ./src/core/filter.js ***!
-  \****************************/
-/*! exports provided: filter */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"filter\", function() { return filter; });\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ \"./src/core/utils.js\");\n/* harmony import */ var _vizabi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./vizabi */ \"./src/core/vizabi.js\");\n\n\n\n\nconst defaultConfig = {\n    markers: {},\n    dimensions: {}\n}\n\nfunction filter(config = {}, parent) {\n\n    Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"applyDefaults\"])(config, defaultConfig);\n\n    return {\n        config,\n        parent,\n        get markers() {\n            const cfg = Object(_vizabi__WEBPACK_IMPORTED_MODULE_2__[\"resolveRef\"])(this.config.markers);\n            const markers = (Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"isObservableArray\"])(cfg)) ?\n                cfg.map(m => [m, true]) :\n                Object.entries(cfg);\n            return new Map(markers);\n        },\n        get dimensions() {\n            return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"toJS\"])(this.config.dimensions);\n        },\n        has(d) {\n            return this.markers.has(this.getKey(d));\n        },\n        any() {\n            return this.markers.size !== 0;\n        },\n        getPayload(d) {\n            return this.markers.get(this.getKey(d));\n        },\n        set: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"setFilter\", function(d, payLoad = true) {\n            if (Array.isArray(d)) d.forEach(this.set.bind(this))\n            const key = this.getKey(d);\n            this.config.markers = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"mapToObj\"])(this.markers.set(key, payLoad));\n        }),\n        delete: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])(\"deleteFilter\", function(d) {\n            if (Array.isArray(d)) d.forEach(this.delete.bind(this))\n            const key = this.getKey(d);\n            const success = this.markers.delete(key)\n            this.config.markers = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"mapToObj\"])(this.markers);\n            return success;\n        }),\n        toggle(d) {\n            const key = this.getKey(d);\n            const del = this.delete(key);\n            if (!del) this.set(key);\n            return !del;\n        },\n        getKey(d) {\n            return Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"isString\"])(d) ? d : d[Symbol.for('key')];\n        },\n        get whereClause() {\n            let filter = {};\n\n            // dimension filters\n            const dimFilters = [];\n            this.parent.space.forEach(dim => {\n                if (this.dimensions[dim]) {\n                    dimFilters.push(this.dimensions[dim]);\n                }\n            })\n\n            // specific marker filters\n            const markerFilters = [];\n            for (let [key, payload] of this.markers) {\n                const markerSpace = Object.keys(key);\n                if (Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"arrayEquals\"])(markerSpace, this.parent.space)) {\n                    markerFilters.push(key);\n                }\n            }\n\n            // combine dimension and marker filters\n            if (markerFilters.length > 0) {\n                filter[\"$or\"] = markerFilters;\n                if (dimFilters.length > 0) {\n                    filter[\"$or\"].push({ \"$and\": dimFilters });\n                }\n            } else {\n                if (dimFilters.length > 0) {\n                    // clean implicit $and\n                    filter = _utils__WEBPACK_IMPORTED_MODULE_1__[\"deepmerge\"].all(dimFilters);\n                }\n            }\n\n            return filter;\n        },\n    }\n};\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/filter.js?");
-
-/***/ }),
-
-/***/ "./src/core/genericStore.js":
-/*!**********************************!*\
-  !*** ./src/core/genericStore.js ***!
-  \**********************************/
-/*! exports provided: createStore */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createStore\", function() { return createStore; });\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ \"./src/core/utils.js\");\n/* harmony import */ var _vizabi__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./vizabi */ \"./src/core/vizabi.js\");\n\n\n\n\nconst createStore = function(baseType, extendedTypes = {}) {\n    return Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"])({\n        modelTypes: {\n            base: baseType,\n            all: {\n                baseType,\n                ...extendedTypes\n            }\n        },\n        named: new Map(),\n        configRef: new Map(),\n        get: function(id) {\n            return this.named.get(id);\n        },\n        addType: function(modelType, modelConstructor) {\n            if (this.modelTypes[modelType])\n                console.warn(\"Adding model type \" + modelType + \" failed. Type already exists\", this);\n            this.modelTypes.all[modelType] = modelConstructor;\n        },\n        getAll: function() {\n            return [...this.named.values(), ...this.configRef.values()];\n        },\n        has: function(id) {\n            return this.named.has(id);\n        },\n        create: function(config, parent) {\n            //if (isObservableObject(config)) config = toJS(config);\n            let modelType = this.modelTypes.all[config.modelType] || this.modelTypes.base;\n            let model = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"])(\n                modelType(config, parent), \n                modelType.decorate || undefined, \n                { name: modelType.name || config.modelType || 'base' }\n            );\n            if (model.setUpReactions) model.setUpReactions();\n            return model;\n        },\n        set: Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"action\"])('store set', function(config, id, parent) {\n            let model = this.create(config, parent);\n            id ? this.named.set(id, model) : this.configRef.set(config, model);\n            return model;\n        }),\n        setMany: function(configs) {\n            const models = {};\n            for (let id in configs) {\n                models[id] = this.set(configs[id], id);\n            }\n            return models;\n        },\n        /**\n         * Definition is either the (1) model config object or (2) string id of the model  \n         * Case 1: creates and returns anonymous model\n         * Case 2: tries to fetch model from named models\n         * @param {string/object} def \n         * @returns {model} Returns the model that was fetched or created\n         */\n        getByDefinition(def, parent) {\n\n            // get by config by reference string\n            // e.g. \"markers.bubbles.encoding.size.data.concept\"\n            if (Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"isString\"])(def.ref) || Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"isNonNullObject\"])(def.ref)) {\n                if (this.configRef.has(def)) {\n                    return this.configRef.get(def);\n                }\n                def = Object(_vizabi__WEBPACK_IMPORTED_MODULE_2__[\"resolveRef\"])(def);\n            }\n\n            // get by config of another model\n            if (Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"isNonNullObject\"])(def) && \"config\" in def) {\n                def = def.config;\n            }\n\n            // get by config object\n            if (!Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"isString\"])(def) && def !== null) {\n                if (this.configRef.has(def)) {\n                    return this.configRef.get(def);\n                }\n                return this.set(def, null, parent);\n            }\n\n            // get by string name/id\n            if (this.has(def)) {\n                return this.get(def);\n            }\n            console.warn(\"Store: cannot find model with definition: \", def, { store: this });\n            return null;\n        },\n        /**\n         * \n         * @param {*} defs Object of model definitions\n         * @returns {Map} Map with models according to definitions\n         */\n        getByDefinitions(defs, parent) {\n            const map = new Map();\n            Object.keys(defs).forEach(prop => {\n                map.set(prop, this.getByDefinition(defs[prop]), parent)\n            })\n            return map;\n        }\n\n    }, {\n        named: mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].shallow,\n        configRef: mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].shallow\n    });\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/genericStore.js?");
-
-/***/ }),
-
-/***/ "./src/core/marker/baseMarker.js":
-/*!***************************************!*\
-  !*** ./src/core/marker/baseMarker.js ***!
-  \***************************************/
-/*! exports provided: baseMarker */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"baseMarker\", function() { return baseMarker; });\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../encoding/encodingStore */ \"./src/core/encoding/encodingStore.js\");\n/* harmony import */ var _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../dataSource/dataSourceStore */ \"./src/core/dataSource/dataSourceStore.js\");\n/* harmony import */ var _dataConfig_dataConfigStore__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../dataConfig/dataConfigStore */ \"./src/core/dataConfig/dataConfigStore.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var _configurable__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../configurable */ \"./src/core/configurable.js\");\n/* harmony import */ var _dataframe_transforms_fulljoin__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../dataframe/transforms/fulljoin */ \"./src/dataframe/transforms/fulljoin.js\");\n/* harmony import */ var _dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ../../dataframe/dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\n\n\n\n\n\n\n\n\nconst defaultConfig = {\n    data: {\n        space: [],\n        filter: {}\n    },\n    encoding: {},\n};\n\nconst defaults = {\n    requiredEncodings: [],\n    transformations: [\n        \"frame.frameMap\",\n        \"filterRequired\",\n        \"order.order\",\n        \"trail.addTrails\",\n        \"frame.currentFrame\"\n    ]\n}\n\nlet functions = {\n    on: function(prop, fn) {\n        if (this.validProp(prop) && typeof fn == \"function\") {\n            const disposer = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"reaction\"])(\n                () => this[prop], \n                propVal => fn.call(this, propVal)\n            );\n            this.getEventListenersMapFor(prop).set(fn, disposer);\n        }\n        return this;\n    },\n    off: function(prop, fn) {\n        if (this.validProp(prop) && this.eventListeners.get(prop).has(fn)){\n            this.getEventListenersMapFor(prop).get(fn)(); // dispose\n            this.getEventListenersMapFor(prop).delete(fn); // delete\n        }\n        return this;\n    },\n    validProp(prop) {\n        return prop in this;\n    },\n    get eventListeners() {\n        return new Map();\n    },\n    getEventListenersMapFor(prop) {\n        if (!this.eventListeners.has(prop))\n            this.eventListeners.set(prop, new Map());\n        return this.eventListeners.get(prop);\n    },\n    get data() {\n        return _dataConfig_dataConfigStore__WEBPACK_IMPORTED_MODULE_3__[\"dataConfigStore\"].getByDefinition(this.config.data, this)\n    },\n    get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },\n    get encoding() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"trace\"])();\n        if (Object.keys(this.config.encoding).length > 0)\n            return _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_1__[\"encodingStore\"].getByDefinitions(this.config.encoding, this);\n        \n        // get default encodings for data's data source\n        let defaultEnc;\n        if (defaultEnc = this.data.source.defaultEncoding)\n            return _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_1__[\"encodingStore\"].getByDefinitions(defaultEnc, this);\n\n        console.warn(\"No encoding found and marker data source has no default encodings\");\n    },\n    // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet \n    getEncodingName(encoding) {\n        for (let [name, enc] of this.encoding) {\n            if (enc == encoding) return name;\n        }\n    },\n    get state() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"trace\"])();\n        const encodingStates= [...this.encoding.values()].map(enc => enc.data.state);\n        const states = [this.data.source.state, ...encodingStates];\n        return Object(_utils__WEBPACK_IMPORTED_MODULE_4__[\"combineStates\"])(states);\n    },\n    get availability() {\n        const items = [];\n        _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_2__[\"dataSourceStore\"].getAll().forEach(ds => {\n            ds.availability.data.forEach(kv => {\n                items.push({ key: kv.key, value: ds.getConcept(kv.value), source: ds });\n            })\n        })\n        return items;\n    },\n    get spaceAvailability() {\n        const items = [];\n        _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_2__[\"dataSourceStore\"].getAll().forEach(ds => {\n            ds.availability.keyLookup.forEach((val, key) => {\n                items.push(val);\n            })\n        })\n        return items;\n    },\n    // computed to cache calculation\n    get dataMapCache() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"trace\"])();\n        // prevent recalculating on each encoding data coming in\n        if (this.state !== \"fulfilled\") \n            return Object(_dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_7__[\"DataFrame\"])([], this.data.space);\n\n        const markerDefiningEncodings = [];\n        const markerAmmendingEncodings = [];\n        const spaceEncodings = [];\n        const constantEncodings = [];\n\n        // sort visual encodings by how they add data to markers\n        for (let [name, encoding] of this.encoding) {\n\n            // no data or constant, no further processing (e.g. selections)\n            if (encoding.data.concept === undefined && !encoding.data.isConstant())\n                continue;\n\n            // constants value (ignores other config like concept etc)\n            else if (encoding.data.isConstant())\n                constantEncodings.push({ name, encoding });\n\n            // copy data from space/key\n            else if (encoding.data.conceptInSpace)\n                spaceEncodings.push({ name, encoding });\n            \n            // own data, not defining final markers (not required or proper subspace)\n            else if (Object(_utils__WEBPACK_IMPORTED_MODULE_4__[\"isProperSubset\"])(encoding.data.space, this.data.space) || !this.isRequired(name))\n                markerAmmendingEncodings.push(this.joinConfig(encoding, name));\n\n            // own data, superspace (includes identical space) and required defining markers\n            else\n                markerDefiningEncodings.push(this.joinConfig(encoding, name));    \n\n        }\n\n        // define markers (full join encoding data)\n        let dataMap = Object(_dataframe_transforms_fulljoin__WEBPACK_IMPORTED_MODULE_6__[\"fullJoin\"])(markerDefiningEncodings, this.data.space);\n        // ammend markers with non-defining data, constants and copies of space\n        dataMap = dataMap.leftJoin(markerAmmendingEncodings);\n        constantEncodings.forEach(({name, encoding}) => {\n            dataMap = dataMap.addColumn(name, encoding.data.constant);\n        })\n        spaceEncodings.forEach(({name, encoding}) => {\n            const concept = encoding.data.concept;\n            dataMap = dataMap.addColumn(name, row => row[concept]);\n        });\n\n        return dataMap;\n    },\n    joinConfig(encoding, name) {\n        return { \n            projection: { \n                [encoding.data.concept]: name\n            },\n            dataFrame: encoding.data.responseMap\n        }\n    },\n    isRequired(name) {\n        return this.requiredEncodings.length === 0 || this.requiredEncodings.includes(name)\n    },\n    filterRequired(data) {\n        const required = this.requiredEncodings;\n        return data\n            .filter(row => required.every(encName => row.hasOwnProperty(encName) && row[encName] !== null))\n            .filterGroups(group => group.size > 0);\n    },\n    /**\n     * transformationFns is an object \n     *  whose keys are transformation strings\n     *  whose values are transformation functions\n     */\n    get transformationFns() {\n        // marker transformation\n        const transformations = {\n            \"filterRequired\": this.filterRequired.bind(this)\n        };\n        // encoding transformations\n        for (let [name, enc] of this.encoding) {\n            if (enc.transformationFns)\n                for (let [tName, t] of Object.entries(enc.transformationFns))\n                    transformations[name + '.' + tName] = t;\n        }\n        return transformations;\n    },\n    /**\n     * Transformations is an array of strings, referring to transformations defined on the marker or encodings\n     * The array defines the order in which data will be transformed before being served.\n     * If a function reference cannot be resolved, it will be skipped. No error will be thrown.\n     * Encoding transformations are formatted \"<encodingName>.<functionName>\". E.g. \"frame.currentFrame\"\n     * Marker transformations are formatted \"<functionName>\". E.g. \"filterRequired\"\n     * This array of strings enables configuration of transformation order in a serializable format.\n     */\n    get transformations() {\n        const transformations = this.config.transformations || defaults.transformations;\n\n        return transformations\n            .filter(tStr => tStr in this.transformationFns)\n            .map(tStr => ({\n                    fn: this.transformationFns[tStr],\n                    name: tStr\n            }));\n    },\n    /**\n     * transformedDataMaps is a ES6 Map\n     *  whose keys are transformation strings or \"final\" and\n     *  whose values are DataFrames wrapped in a boxed mobx computed. \n     *      The DataFrame is a result of the transformation function applied to the previous DataFrame.  \n     */\n    // currently all transformation steps are cached in computed values. Computeds are great to prevent recalculations\n    // of previous steps when config of one step changes. However, it uses memory. We might want this more configurable.\n    get transformedDataMaps() {\n        Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"trace\"])();\n        // returns boxed computed, whose value can be reached by .get()\n        // if we'd call .get() in here (returning the value), each change would lead to applying all transformations\n        // because transformedDataMaps() would be observering all stepResults\n        // would be nice to find a way for transformedDataMaps to just return the value instead of a boxed computed\n        const results = new Map();\n        let stepResult = mobx__WEBPACK_IMPORTED_MODULE_0__[\"observable\"].box(this.dataMapCache, { deep: false });\n        this.transformations.forEach(({name, fn}) => {\n            let prevResult = stepResult; // local reference for closure of computed\n            stepResult = Object(mobx__WEBPACK_IMPORTED_MODULE_0__[\"computed\"])(\n                () => fn(prevResult.get()), \n                { name }\n            );\n            results.set(name, stepResult);\n        });\n        results.set('final', stepResult);\n        return results;\n    },\n    /**\n     * Helper function to get values from transformedDataMaps. Used to prevent the awkward `.get(name).get()` syntax.\n     */\n    getTransformedDataMap(name) {\n        if (this.transformedDataMaps.has(name))\n            return this.transformedDataMaps.get(name).get();\n        console.warn(\"Requesting unknown transformed data name: \", name);\n    },\n    get dataMap() {\n        return this.transformedDataMaps.get('final').get();\n    },\n    get dataArray() {\n        return this.dataMap.toJSON();\n    }\n}\n\nfunction baseMarker(config) {\n    Object(_utils__WEBPACK_IMPORTED_MODULE_4__[\"applyDefaults\"])(config, defaultConfig);\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_4__[\"assign\"])({}, functions, _configurable__WEBPACK_IMPORTED_MODULE_5__[\"configurable\"], { config });\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/marker/baseMarker.js?");
-
-/***/ }),
-
-/***/ "./src/core/marker/bubble.js":
-/*!***********************************!*\
-  !*** ./src/core/marker/bubble.js ***!
-  \***********************************/
-/*! exports provided: bubble */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"bubble\", function() { return bubble; });\n/* harmony import */ var _baseMarker__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./baseMarker */ \"./src/core/marker/baseMarker.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../encoding/encodingStore */ \"./src/core/encoding/encodingStore.js\");\n\n\n\n\n\nconst defaultConfig = {\n    requiredEncodings: [\"x\", \"y\", \"size\"],\n    encoding: {\n        size: { scale: { modelType: \"size\" } }\n    }\n}\n\nfunction bubble(config) {\n    const base = Object(_baseMarker__WEBPACK_IMPORTED_MODULE_0__[\"baseMarker\"])(config);\n\n    Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"applyDefaults\"])(config, defaultConfig);\n    Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"renameProperty\"])(base, \"encoding\", \"superEncoding\");\n\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"assign\"])(base, {\n        get encoding() {\n            const enc = this.superEncoding;\n            enc.set('highlighted', _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_3__[\"encodingStore\"].getByDefinition({ modelType: \"selection\" }));\n            enc.set('superhighlighted', _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_3__[\"encodingStore\"].getByDefinition({ modelType: \"selection\" }));\n            return enc;\n        },\n        toggleSelection: Object(mobx__WEBPACK_IMPORTED_MODULE_2__[\"action\"])(function(d) {\n            const trails = this.encoding.get('trail');\n            if (!trails.data.filter.has(d)) {\n                trails.setTrail(d);\n            } else {\n                trails.deleteTrail(d);\n            }\n        })\n    })\n\n}\n\nbubble.decorate = _baseMarker__WEBPACK_IMPORTED_MODULE_0__[\"baseMarker\"].decorate;\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/marker/bubble.js?");
-
-/***/ }),
-
-/***/ "./src/core/marker/markerStore.js":
-/*!****************************************!*\
-  !*** ./src/core/marker/markerStore.js ***!
-  \****************************************/
-/*! exports provided: markerStore */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"markerStore\", function() { return markerStore; });\n/* harmony import */ var _genericStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../genericStore */ \"./src/core/genericStore.js\");\n/* harmony import */ var _baseMarker__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./baseMarker */ \"./src/core/marker/baseMarker.js\");\n/* harmony import */ var _bubble__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./bubble */ \"./src/core/marker/bubble.js\");\n\n\n\n\nconst markerStore = Object(_genericStore__WEBPACK_IMPORTED_MODULE_0__[\"createStore\"])(_baseMarker__WEBPACK_IMPORTED_MODULE_1__[\"baseMarker\"], { bubble: _bubble__WEBPACK_IMPORTED_MODULE_2__[\"bubble\"] });\nmarkerStore.getMarkerForEncoding = function(enc) {\n    return this.getAll().find(marker => {\n        return [...marker.encoding.values()].some(encoding => enc === encoding);\n    }) || null;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/marker/markerStore.js?");
-
-/***/ }),
-
-/***/ "./src/core/scale/baseScale.js":
-/*!*************************************!*\
-  !*** ./src/core/scale/baseScale.js ***!
-  \*************************************/
-/*! exports provided: baseScale */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"baseScale\", function() { return baseScale; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n\n\n\nconst scales = {\n    \"linear\": d3.scaleLinear,\n    \"log\": d3.scaleLog,\n    \"sqrt\": d3.scaleSqrt,\n    \"ordinal\": d3.scaleOrdinal,\n    \"point\": d3.scalePoint,\n    \"band\": d3.scaleBand\n}\n\n\nconst defaultConfig = {\n    domain: null,\n    range: null,\n    type: null\n}\n\nconst defaults = {\n    domain: [0,1]\n}\n\nfunction baseScale(config = {}, parent) {\n\n    Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"applyDefaults\"])(config, defaultConfig);\n\n    return {\n        config,\n        parent,\n        // ordinal, point or band\n        ordinalScale: \"ordinal\",\n        get data() {\n            return this.parent.data;\n        },\n        get type() {\n            const concept = this.data.conceptProps;\n            let scaleType = null;\n            let scale;\n            if (scales[this.config.type])\n                scaleType = this.config.type;\n            else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale])\n                scaleType = scale;\n            else if (concept && [\"entity_domain\", \"entity_set\", \"string\"].includes(concept.concept_type))\n                scaleType = this.ordinalScale;\n            else\n                scaleType = \"linear\";\n            return scaleType;\n        },\n        get range() {\n            if (this.config.range != null)\n                return this.config.range\n\n            // default for constant is identity\n            if (this.data.isConstant())\n                return this.domain;\n\n            // default\n            return (this.type == \"ordinal\") ?\n                d3.schemeCategory10 : [0, 1];\n        },\n        set range(range) {\n            this.config.range = range;\n        },\n        get domain() {\n            Object(mobx__WEBPACK_IMPORTED_MODULE_1__[\"trace\"])();\n            return this.config.domain ? this.config.domain.map(c => Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"parseConfigValue\"])(c, this.data.conceptProps))\n                : this.data.domain ? this.data.domain\n                : defaults.domain;\n        },\n        clampToDomain(val) {\n            const domain = this.domain;\n            if (this.type == \"ordinal\" || this.type == \"band\" || this.type == \"point\")\n                return domain.includes(val) ? val : undefined;\n            \n            if (val < domain[0]) return domain[0];\n            if (val > domain[1]) return domain[1];\n            return val;\n        },\n        get d3Scale() {\n            const scale = scales[this.type]();\n            const domain = (this.type == \"log\" && this.domain[0] == 0) ? [1, this.domain[1]] : this.domain;\n            return scale.range(this.range).domain(domain);\n        },\n    }\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/scale/baseScale.js?");
-
-/***/ }),
-
-/***/ "./src/core/scale/color.js":
-/*!*********************************!*\
-  !*** ./src/core/scale/color.js ***!
-  \*********************************/
-/*! exports provided: color */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"color\", function() { return color; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var _baseScale__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./baseScale */ \"./src/core/scale/baseScale.js\");\n\n\n\nconst defaultConfig = {}\n\nconst colors = {\n    schemeCategory10: d3.schemeCategory10\n}\n\nfunction color(config, parent) {\n\n    Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"applyDefaults\"])(config, defaultConfig);\n    const s = Object(_baseScale__WEBPACK_IMPORTED_MODULE_1__[\"baseScale\"])(config, parent);\n\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"assign\"])(s, {\n        get range() {\n            const range = this.config.range;\n            if (Array.isArray(range))\n                return range;\n            \n            if (isString(range) && colors[range])\n                return colors[range];\n\n            if (this.type == \"ordinal\")\n                return d3.schemeCategory10;\n\n            return [\"red\", \"green\"];\n        }\n    });\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/scale/color.js?");
-
-/***/ }),
-
-/***/ "./src/core/scale/scaleStore.js":
-/*!**************************************!*\
-  !*** ./src/core/scale/scaleStore.js ***!
-  \**************************************/
-/*! exports provided: scaleStore */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"scaleStore\", function() { return scaleStore; });\n/* harmony import */ var _genericStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../genericStore */ \"./src/core/genericStore.js\");\n/* harmony import */ var _baseScale__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./baseScale */ \"./src/core/scale/baseScale.js\");\n/* harmony import */ var _color__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./color */ \"./src/core/scale/color.js\");\n/* harmony import */ var _size__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./size */ \"./src/core/scale/size.js\");\n\n\n\n\n\nconst scaleStore = Object(_genericStore__WEBPACK_IMPORTED_MODULE_0__[\"createStore\"])(_baseScale__WEBPACK_IMPORTED_MODULE_1__[\"baseScale\"], {\n    color: _color__WEBPACK_IMPORTED_MODULE_2__[\"color\"],\n    size: _size__WEBPACK_IMPORTED_MODULE_3__[\"size\"],\n});\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/scale/scaleStore.js?");
-
-/***/ }),
-
-/***/ "./src/core/scale/size.js":
-/*!********************************!*\
-  !*** ./src/core/scale/size.js ***!
-  \********************************/
-/*! exports provided: size */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"size\", function() { return size; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/core/utils.js\");\n/* harmony import */ var _baseScale__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./baseScale */ \"./src/core/scale/baseScale.js\");\n\n\n\nconst defaultConfig = {\n    type: \"sqrt\",\n    range: [0, 20]\n}\n\nfunction size(config, parent) {\n\n    Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"applyDefaults\"])(config, defaultConfig);\n    const s = Object(_baseScale__WEBPACK_IMPORTED_MODULE_1__[\"baseScale\"])(config, parent);\n\n    return Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"assign\"])(s, {\n        ordinalScale: \"point\",\n        get range() {\n            if (this.config.range != null)\n                return this.config.range\n            if (this.type == \"point\")\n                return [1, 20];\n            return [0, 20];\n        }\n    });\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/scale/size.js?");
-
-/***/ }),
-
-/***/ "./src/core/utils.js":
-/*!***************************!*\
-  !*** ./src/core/utils.js ***!
-  \***************************/
-/*! exports provided: isNumeric, isString, isEntityConcept, mapToObj, intersect, isProperSubset, relativeComplement, arrayEquals, assign, composeObj, ucFirst, getBoundGetter, moveProperty, renameProperty, fromPromiseAll, defaultDecorator, combineStates, isNonNullObject, deepmerge, deepclone, applyDefaults, equals, stepIterator, configValue, parseConfigValue, defer, compose, pipe, stableStringifyObject, getOrCreate */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isNumeric\", function() { return isNumeric; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isString\", function() { return isString; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isEntityConcept\", function() { return isEntityConcept; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"mapToObj\", function() { return mapToObj; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"intersect\", function() { return intersect; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isProperSubset\", function() { return isProperSubset; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"relativeComplement\", function() { return relativeComplement; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"arrayEquals\", function() { return arrayEquals; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"assign\", function() { return assign; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"composeObj\", function() { return composeObj; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ucFirst\", function() { return ucFirst; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getBoundGetter\", function() { return getBoundGetter; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"moveProperty\", function() { return moveProperty; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"renameProperty\", function() { return renameProperty; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"fromPromiseAll\", function() { return fromPromiseAll; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"defaultDecorator\", function() { return defaultDecorator; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"combineStates\", function() { return combineStates; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isNonNullObject\", function() { return isNonNullObject; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"deepmerge\", function() { return deepmerge; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"deepclone\", function() { return deepclone; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"applyDefaults\", function() { return applyDefaults; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"equals\", function() { return equals; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"stepIterator\", function() { return stepIterator; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"configValue\", function() { return configValue; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"parseConfigValue\", function() { return parseConfigValue; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"defer\", function() { return defer; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"compose\", function() { return compose; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"pipe\", function() { return pipe; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"stableStringifyObject\", function() { return stableStringifyObject; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getOrCreate\", function() { return getOrCreate; });\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n/* harmony import */ var mobx_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! mobx-utils */ \"./node_modules/mobx-utils/mobx-utils.module.js\");\n\n\n\nconst isNumeric = (n) => !isNaN(n) && isFinite(n);\n\nfunction isString(value) {\n    return typeof value == 'string';\n}\n\nfunction isEntityConcept(concept) {\n    return [\"entity_set\", \"entity_domain\"].includes(concept.concept_type);\n}\n\nfunction mapToObj(map) {\n    const obj = {};\n    map.forEach((v, k) => { obj[k] = v });\n    return obj;\n}\n\n// intersect of two arrays (representing sets)\n// i.e. everything in A which is also in B\nfunction intersect(a, b) {\n    return a.filter(e => b.includes(e));\n}\n\n/**\n * Is A a proper subset of B\n * Every A is in B, but A != B\n * @param {*} a \n * @param {*} b \n */\nfunction isProperSubset(a, b) {\n    const intersection = intersect(a,b);\n    return intersection.length == a.length && intersection.length != b.length;\n}\n\n/**\n * Relative complement (difference, B\\A) of A with respect to B\n * Everything in B which is not in A. A=[geo,year], B=[geo,year,gender], B\\A = [gender]\n * @param {*} a array representing set A\n * @param {*} b array representing set B\n */\nfunction relativeComplement(a, b) {\n    return b.filter(e => !a.includes(e));\n}\n\n// returns true if a and b are identical, regardless of order (i.e. like sets)\nfunction arrayEquals(a, b) {\n    const overlap = intersect(a, b);\n    return overlap.length == a.length && overlap.length == b.length;\n}\n\n// copies properties using property descriptors so accessors (and other meta-properties) get correctly copied\n// https://www.webreflection.co.uk/blog/2015/10/06/how-to-copy-objects-in-javascript\n// rewrote for clarity and make sources overwrite target (mimic Object.assign)\nfunction assign(target, ...sources) {\n    sources.forEach(source => {\n        Object.keys(source).forEach(property => {\n            Object.defineProperty(target, property, Object.getOwnPropertyDescriptor(source, property));\n        });\n    });\n    return target;\n}\nfunction composeObj(...parts) {\n    return assign({}, ...parts);\n}\n\nfunction ucFirst(string) {\n    return string.charAt(0).toUpperCase() + string.slice(1);\n}\n\n// gets a getter accessor from an object and binds it to the object\n// used to overload methods when decorating objects\nfunction getBoundGetter(obj, prop) {\n    return Object.getOwnPropertyDescriptor(obj, prop).get.bind(obj);\n}\n\nfunction moveProperty(oldObj, oldProp, newObj, newProp) {\n    Object.defineProperty(newObj, newProp, Object.getOwnPropertyDescriptor(oldObj, oldProp));\n}\nfunction renameProperty(obj, oldProp, newProp) {\n    moveProperty(obj, oldProp, obj, newProp)\n}\n\nfunction fromPromiseAll(promiseArray) {\n    if (promiseArray.every(p.state == \"fulfilled\"))\n        return mobx_utils__WEBPACK_IMPORTED_MODULE_1__[\"fromPromise\"].resolve(promiseArray);\n    if (promiseArray.some(p => p.state == \"rejected\"))\n        return mobx_utils__WEBPACK_IMPORTED_MODULE_1__[\"fromPromise\"].reject(promiseArray);\n}\n\nfunction defaultDecorator({ base, defaultConfig = {}, functions = {} }) {\n    if (Array.isArray(functions)) functions = assign({}, ...functions);\n    const newType = function decorate(config, parent) {\n        applyDefaults(config, defaultConfig);\n        delete functions.config;\n        base = (base == null) ? (config, parent) => ({ config, parent }) : base;\n        return assign(base(config, parent), functions);\n    }\n    newType.decorate = base.decorate;\n    return newType;\n}\n\nfunction combineStates(states) {\n    if (states.some(state => state === \"rejected\")) return \"rejected\";\n    if (states.every(state => state === \"fulfilled\")) return \"fulfilled\";\n    return \"pending\";\n}\n\n// code from https://github.com/TehShrike/is-mergeable-object\nfunction isMergeableObject(value) {\n    return isNonNullObject(value) &&\n        !isSpecial(value)\n}\n\nfunction isNonNullObject(value) {\n    return !!value && typeof value === 'object'\n}\n\nfunction isSpecial(value) {\n    var stringValue = Object.prototype.toString.call(value)\n\n    return stringValue === '[object RegExp]' ||\n        stringValue === '[object Date]' ||\n        isReactElement(value)\n}\n\n// see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25\nvar canUseSymbol = typeof Symbol === 'function' && Symbol.for\nvar REACT_ELEMENT_TYPE = canUseSymbol ? Symbol.for('react.element') : 0xeac7\n\nfunction isReactElement(value) {\n    return value.$$typeof === REACT_ELEMENT_TYPE\n}\n\n// c merge and helpers\n// code from https://github.com/KyleAMathews/deepmerge\nfunction emptyTarget(val) {\n    return Array.isArray(val) ? [] : {}\n}\n\nfunction cloneUnlessOtherwiseSpecified(value, options) {\n    return (options.clone !== false && options.isMergeableObject(value)) ?\n        deepmerge(emptyTarget(value), value, options) :\n        value\n}\n\nfunction defaultArrayMerge(target, source, options) {\n    return target.concat(source).map(function(element) {\n        return cloneUnlessOtherwiseSpecified(element, options)\n    })\n}\n\nfunction mergeObject(target, source, options) {\n    var destination = {}\n    if (options.isMergeableObject(target)) {\n        Object.keys(target).forEach(function(key) {\n            destination[key] = cloneUnlessOtherwiseSpecified(target[key], options)\n        })\n    }\n    Object.keys(source).forEach(function(key) {\n        if (!options.isMergeableObject(source[key]) || !target[key]) {\n            destination[key] = cloneUnlessOtherwiseSpecified(source[key], options)\n        } else {\n            destination[key] = deepmerge(target[key], source[key], options)\n        }\n    })\n    return destination\n}\n\nconst overwriteMerge = (destinationArray, sourceArray, options) => sourceArray\n\nfunction deepmerge(target, source, options) {\n    options = options || {}\n    options.arrayMerge = options.arrayMerge || overwriteMerge\n    options.isMergeableObject = options.isMergeableObject || isMergeableObject\n\n    var sourceIsArray = Array.isArray(source)\n    var targetIsArray = Array.isArray(target)\n    var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray\n\n    if (!sourceAndTargetTypesMatch) {\n        return cloneUnlessOtherwiseSpecified(source, options)\n    } else if (sourceIsArray) {\n        return options.arrayMerge(target, source, options)\n    } else {\n        return mergeObject(target, source, options)\n    }\n}\n\ndeepmerge.all = function deepmergeAll(array, options) {\n    if (!Array.isArray(array)) {\n        throw new Error('first argument should be an array')\n    }\n\n    return array.reduce(function(prev, next) {\n        return deepmerge(prev, next, options)\n    }, {})\n}\n\nfunction deepclone(object) {\n    return deepmerge({}, object);\n}\n\nfunction applyDefaults(config, defaults) {\n    const defaultProps = Object.keys(defaults);\n    defaultProps.forEach(prop => {\n        if (!config.hasOwnProperty(prop))\n            if (isMergeableObject(defaults[prop]))\n                config[prop] = deepclone(defaults[prop]); // object\n            else\n                config[prop] = defaults[prop]; // non object, e.g. null\n        else if (isMergeableObject(defaults[prop]))\n            if (isMergeableObject(config[prop]))\n                applyDefaults(config[prop], defaults[prop]);\n            else\n                config[prop] = deepclone(defaults[prop]);\n    })\n    return config;\n}\n\nfunction equals(a,b) {\n    if (a instanceof Date && b instanceof Date) {\n        return a.getTime() === b.getTime();\n    }\n    return a === b;\n}\n\nfunction getTimeInterval(unit) {\n    let interval;\n    if (interval = d3['utc' + ucFirst(unit)]) return interval;\n}\n\nfunction stepIterator(stepUnit, stepSize, domain) {\n    let interval;\n    if (interval = getTimeInterval(stepUnit)) {\n        return function* (min = domain[0], max = domain[1]) { \n            for (let i = min; i <= max; i = interval.offset(i, stepSize) )\n                yield i;\n        };\n    } else if (stepUnit === \"number\") {\n        return function* (min = domain[0], max = domain[1]) { \n            for (let i = min; i <= max; i += stepSize)\n                yield i;\n        };\n    } else if (stepUnit === \"index\") {\n        return function* (min, max = domain.length) {\n            min = (min === undefined) ? 0 : domain.indexOf(min);\n            for (let i = min; i < max; i += stepSize)\n                yield domain[i];\n        }\n    }\n    console.warn(\"No valid step iterator found.\", { stepUnit, stepSize, domain });\n}\n\nfunction configValue(value, concept) {\n    const { concept_type } = concept;\n    if (concept_type == \"time\" && value instanceof Date) {\n        return concept.format ? d3.utcFormat(concept.format)(value) : formatDate(value);\n    }\n    return value;\n}\n\nconst defaultParsers = [\n    d3.utcParse('%Y'),\n    d3.utcParse('%Y-%m'),\n    d3.utcParse('%Y-%m-%d'),\n    d3.utcParse('%Y-%m-%dT%H'),\n    d3.utcParse('%Y-%m-%dT%H-%M'),\n    d3.utcParse('%Y-%m-%dT%H-%M-%S')\n];\n\nfunction tryParse(timeString, parsers) {\n    for (let i = 0; i < parsers.length; i++) {\n      let dateObject = parsers[i](timeString);\n      if (dateObject) return dateObject;\n    }\n    console.warn('Could not parse time string ' + timeString)\n    return null;\n}\n\nfunction parseConfigValue(valueStr, concept) {\n    const { concept_type } = concept;\n\n    if (concept_type === \"time\") {\n        let parsers = concept.format \n            ? [d3.utcParse(concept.format), ...defaultParsers]\n            : defaultParsers;\n        return tryParse(valueStr, parsers);\n    }\n\n    if (concept_type === \"measure\") {\n        return +valueStr;\n    }\n\n    return \"\"+valueStr;\n}\nfunction formatDate(date) {\n    var month = date.getUTCMonth(),\n        day = date.getUTCDate(),\n        hours = date.getUTCHours(),\n        minutes = date.getUTCMinutes(),\n        seconds = date.getUTCSeconds(),\n        milliseconds = date.getUTCMilliseconds();\n    return isNaN(date) ? \"Invalid Date\"\n        : milliseconds ? formatFullDate(date) + \"T\" + pad(hours, 2) + \":\" + pad(minutes, 2) + \":\" + pad(seconds, 2) + \".\" + pad(milliseconds, 3) + \"Z\"\n        : seconds ? formatFullDate(date) + \"T\" + pad(hours, 2) + \":\" + pad(minutes, 2) + \":\" + pad(seconds, 2) + \"Z\"\n        : minutes || hours ? formatFullDate(date) + \"T\" + pad(hours, 2) + \":\" + pad(minutes, 2) + \"Z\"\n        : day !== 1 ? formatFullDate(date)\n        : month ? formatYear(date.getUTCFullYear(), 4) + \"-\" + pad(date.getUTCMonth() + 1, 2)\n        : formatYear(date.getUTCFullYear(), 4);\n}\n\nfunction formatFullDate(date) {\n    return formatYear(date.getUTCFullYear(), 4) + \"-\" + pad(date.getUTCMonth() + 1, 2) + \"-\" + pad(date.getUTCDate(), 2);\n}\n\nfunction formatYear(year) {\n    return year < 0 ? \"-\" + pad(-year, 6)\n        : year > 9999 ? \"+\" + pad(year, 6)\n        : pad(year, 4);\n}\n\nfunction pad(value, width) {\n    var s = value + \"\", length = s.length;\n    return length < width ? new Array(width - length + 1).join(0) + s : s;\n}\n    \nconst defer = setTimeout;\n\nfunction compose2(f, g) {\n    return (...args) => f(g(...args));\n}\nfunction compose(...fns) {\n    return fns.reduce(compose2);\n}\nfunction pipe(...fns) {\n    return fns.reduceRight(compose2);\n}\n\n\nfunction stableStringifyObject(obj) { \n    return JSON.stringify(canonicalObject(obj));\n}\n\nfunction canonicalObject(where) {\n    if (!isNonNullObject(where)) \n        return where;\n    const keys = Object.keys(where).sort();\n    return keys.map(key => ({ [key]: canonicalObject(where[key]) }));\n}\n\n/**\n * Returns value for `key` in `map`. If `key` not in map, first create new value using `create` getter function and set it to `key`.\n * @param {Map} map Map to get from\n * @param {Any} key Key to map\n * @param {Function} create Function which returns new value for new keys\n */\nfunction getOrCreate(map, key, create) {\n    let value;\n    if (map.has(key))\n        value = map.get(key);\n    else {\n        value = create();\n        map.set(key, value);\n    }\n    return value;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/utils.js?");
-
-/***/ }),
-
-/***/ "./src/core/vizabi.js":
-/*!****************************!*\
-  !*** ./src/core/vizabi.js ***!
-  \****************************/
-/*! exports provided: stores, default, resolveRef */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"stores\", function() { return stores; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"resolveRef\", function() { return resolveRef; });\n/* harmony import */ var _marker_markerStore__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./marker/markerStore */ \"./src/core/marker/markerStore.js\");\n/* harmony import */ var _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./encoding/encodingStore */ \"./src/core/encoding/encodingStore.js\");\n/* harmony import */ var _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./dataSource/dataSourceStore */ \"./src/core/dataSource/dataSourceStore.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./utils */ \"./src/core/utils.js\");\n/* harmony import */ var mobx__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! mobx */ \"./node_modules/mobx/lib/mobx.module.js\");\n\n\n\n\n\n\n\nconst stores = {\n    markers: _marker_markerStore__WEBPACK_IMPORTED_MODULE_0__[\"markerStore\"],\n    dataSources: _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_2__[\"dataSourceStore\"],\n    encodings: _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_1__[\"encodingStore\"]\n}\n\nlet config;\n\nconst vizabi = function(cfg) {\n    config = Object(mobx__WEBPACK_IMPORTED_MODULE_4__[\"observable\"])(cfg);\n\n    _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_2__[\"dataSourceStore\"].setMany(config.dataSources || {});\n    _encoding_encodingStore__WEBPACK_IMPORTED_MODULE_1__[\"encodingStore\"].setMany(config.encodings || {});\n    _marker_markerStore__WEBPACK_IMPORTED_MODULE_0__[\"markerStore\"].setMany(config.markers || {});\n\n    return { stores, config };\n}\nvizabi.mobx = mobx__WEBPACK_IMPORTED_MODULE_4__;\nvizabi.utils = _utils__WEBPACK_IMPORTED_MODULE_3__;\nvizabi.stores = stores;\nvizabi.dataSource = (cfg, id) =>{\n    // shortcut giving data directly in array-object format: [{...},{...}]\n    if (Array.isArray(cfg)) {\n        cfg = {\n            values: cfg\n        };\n    }\n\n    return _dataSource_dataSourceStore__WEBPACK_IMPORTED_MODULE_2__[\"dataSourceStore\"].set(cfg, id);\n} \nvizabi.marker = (cfg, id) => {\n    cfg = Object(mobx__WEBPACK_IMPORTED_MODULE_4__[\"observable\"])(cfg);\n    return _marker_markerStore__WEBPACK_IMPORTED_MODULE_0__[\"markerStore\"].set(cfg, id);\n}\n\n/* harmony default export */ __webpack_exports__[\"default\"] = (vizabi);\n\n/**\n * \n * @param {*} possibleRef \n * @returns config Config object as described in reference config\n */\nfunction resolveRef(possibleRef) {\n    // no ref\n    if (!possibleRef || typeof possibleRef.ref === \"undefined\")\n        return possibleRef\n\n    // handle config shorthand\n    let ref = (_utils__WEBPACK_IMPORTED_MODULE_3__[\"isString\"](possibleRef.ref)) ? { config: possibleRef.ref } : possibleRef.ref;\n\n    // invalid ref\n    if (!(ref.config || ref.model)) {\n        console.warn(\"Invalid reference, expected string reference in ref, ref.model or ref.config\", possibleRef);\n    }\n\n    if (ref.config) {\n        // user set config only\n        return resolveTreeRef(ref.config, config);\n    } else {\n        // model ref includes resolved defaults\n        const model = resolveTreeRef(ref.model, stores);\n        return transformModel(model, ref.transform);\n    }\n}\n\nfunction resolveTreeRef(refStr, tree) {\n    const ref = refStr.split('.');\n    let node = tree;\n    for (let i = 0; i < ref.length; i++) {\n        let child = ref[i];\n        if (typeof node == \"undefined\") {\n            console.warn(\"Couldn't resolve reference \" + refStr);\n            return null;\n        }\n        if (typeof node.get == \"function\")\n            node = node.get(child);\n        else\n            node = node[child];\n    }\n    return node;\n}\n\nfunction transformModel(model, transform) {\n    switch (transform) {\n        case \"entityConcept\":\n            return Object(mobx__WEBPACK_IMPORTED_MODULE_4__[\"observable\"])({\n                space: [model.data.concept],\n                filter: {\n                    dimensions: {\n                        [model.data.concept]: {\n                            [model.data.concept]: { $in: model.scale.domain }\n                        }\n                    }\n                },\n                source: \"gap\"\n            });\n        default:\n            // build new config based on model.config\n            break;\n    }\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/core/vizabi.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/dataFrame.js":
-/*!************************************!*\
-  !*** ./src/dataframe/dataFrame.js ***!
-  \************************************/
-/*! exports provided: DataFrame */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"DataFrame\", function() { return DataFrame; });\n/* harmony import */ var _transforms_order__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./transforms/order */ \"./src/dataframe/transforms/order.js\");\n/* harmony import */ var _transforms_fulljoin__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./transforms/fulljoin */ \"./src/dataframe/transforms/fulljoin.js\");\n/* harmony import */ var _storage_map__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./storage/map */ \"./src/dataframe/storage/map.js\");\n/* harmony import */ var _storage_lookups__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./storage/lookups */ \"./src/dataframe/storage/lookups.js\");\n/* harmony import */ var _transforms_copycolumn__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./transforms/copycolumn */ \"./src/dataframe/transforms/copycolumn.js\");\n/* harmony import */ var _transforms_leftjoin__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./transforms/leftjoin */ \"./src/dataframe/transforms/leftjoin.js\");\n/* harmony import */ var _transforms_filter__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./transforms/filter */ \"./src/dataframe/transforms/filter.js\");\n/* harmony import */ var _transforms_project__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./transforms/project */ \"./src/dataframe/transforms/project.js\");\n/* harmony import */ var _transforms_addColumn__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./transforms/addColumn */ \"./src/dataframe/transforms/addColumn.js\");\n/* harmony import */ var _transforms_group__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./transforms/group */ \"./src/dataframe/transforms/group.js\");\n/* harmony import */ var _transforms_interpolate__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./transforms/interpolate */ \"./src/dataframe/transforms/interpolate.js\");\n/* harmony import */ var _transforms_reindex__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./transforms/reindex */ \"./src/dataframe/transforms/reindex.js\");\n/* harmony import */ var _transforms_fillnull__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./transforms/fillnull */ \"./src/dataframe/transforms/fillnull.js\");\n/* harmony import */ var _info_extent__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./info/extent */ \"./src/dataframe/info/extent.js\");\n/* harmony import */ var _info_unique__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./info/unique */ \"./src/dataframe/info/unique.js\");\n/* harmony import */ var _transforms_copy__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./transforms/copy */ \"./src/dataframe/transforms/copy.js\");\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n//df.get([\"swe\",\"2015\"]).population\nconst fromLookups = (concepts, key) => constructDataFrame(Object(_storage_lookups__WEBPACK_IMPORTED_MODULE_3__[\"LookupStorage\"])(concepts, key));\nconst fromArray = (data = [], key = data.key || []) => constructDataFrame(Object(_storage_map__WEBPACK_IMPORTED_MODULE_2__[\"MapStorage\"])(data, key));\n\nconst DataFrame = fromArray;\nDataFrame.fromLookups = fromLookups;\nDataFrame.fromArray = fromArray;\n\nfunction constructDataFrame(storage) {\n    // https://medium.com/javascript-scene/the-hidden-treasures-of-object-composition-60cd89480381\n    // compose storage and DF methods by concatenation \n    // concatenation instead of aggregation/delegation as there is no overlap in keys and \n    // we want the full storage API to be available on the DataFrame\n    const df = Object.assign(storage,\n        {        \n            // transforms\n            order: (direction) => Object(_transforms_order__WEBPACK_IMPORTED_MODULE_0__[\"order\"])(df, direction), \n            leftJoin: (rightJoinParams) => Object(_transforms_leftjoin__WEBPACK_IMPORTED_MODULE_5__[\"leftJoin\"])({ dataFrame: df }, rightJoinParams),\n            fullJoin: (joinParams, key) => Object(_transforms_fulljoin__WEBPACK_IMPORTED_MODULE_1__[\"fullJoin\"])([{ dataFrame: df }, ...joinParams], key),\n            copyColumn: (src, dest) => Object(_transforms_copycolumn__WEBPACK_IMPORTED_MODULE_4__[\"copyColumn\"])(df, src, dest),\n            filter: (filterObj) => Object(_transforms_filter__WEBPACK_IMPORTED_MODULE_6__[\"filter\"])(df, filterObj),\n            project: (projection) => Object(_transforms_project__WEBPACK_IMPORTED_MODULE_7__[\"project\"])(df, projection),\n            addColumn: (name, value) => Object(_transforms_addColumn__WEBPACK_IMPORTED_MODULE_8__[\"addColumn\"])(df, name, value),\n            groupBy: (groupKey, memberKey) => Object(_transforms_group__WEBPACK_IMPORTED_MODULE_9__[\"groupBy\"])(df, groupKey, memberKey),\n            interpolate: () => Object(_transforms_interpolate__WEBPACK_IMPORTED_MODULE_10__[\"interpolate\"])(df),\n            reindex: (stepFn) => Object(_transforms_reindex__WEBPACK_IMPORTED_MODULE_11__[\"reindex\"])(df, stepFn),\n            fillNull: (fillValues) => Object(_transforms_fillnull__WEBPACK_IMPORTED_MODULE_12__[\"fillNull\"])(df, fillValues),\n            copy: () => Object(_transforms_copy__WEBPACK_IMPORTED_MODULE_15__[\"copy\"])(df),\n    \n            // info\n            extent: (concept) => Object(_info_extent__WEBPACK_IMPORTED_MODULE_13__[\"extent\"])(df, concept),\n            unique: (concept) => Object(_info_unique__WEBPACK_IMPORTED_MODULE_14__[\"unique\"])(df, concept),\n        \n            // export\n            toJSON: () => [...df.values()]\n        },\n        {\n            filterGroups: filterFn => {\n                return df.copy();\n            },\n            setRow: row => df.set(row)\n        }\n    );\n\n    return df;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/dataFrame.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/dataFrameGroup.js":
-/*!*****************************************!*\
-  !*** ./src/dataframe/dataFrameGroup.js ***!
-  \*****************************************/
-/*! exports provided: DataFrameGroupMap */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"DataFrameGroupMap\", function() { return DataFrameGroupMap; });\n/* harmony import */ var _dataFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./dataFrame */ \"./src/dataframe/dataFrame.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./utils */ \"./src/dataframe/utils.js\");\n/* harmony import */ var _transforms_interpolate__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./transforms/interpolate */ \"./src/dataframe/transforms/interpolate.js\");\n/* harmony import */ var _transforms_order__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./transforms/order */ \"./src/dataframe/transforms/order.js\");\n/* harmony import */ var _transforms_reindex__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./transforms/reindex */ \"./src/dataframe/transforms/reindex.js\");\n/* harmony import */ var _transforms_filter__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./transforms/filter */ \"./src/dataframe/transforms/filter.js\");\n\n\n\n\n\n\n\n/**\n * \n * @param {*} df DataFrame from which to create groups\n * @param {*} key key by which is grouped\n * @param {*} descKeys keys of groups and their descendants\n */\nfunction DataFrameGroupMap(df, key, descKeys = []) {\n\n    if (!Array.isArray(descKeys)) descKeys = [[descKeys]]; // desc keys is single string (e.g. 'year')\n    if (!Array.isArray(descKeys[0])) descKeys = [descKeys]; // desc keys is one key (e.g. ['year'])\n    if (!Array.isArray(key)) key = [key]; // key is single string (e.g. 'year')\n    if (!Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"isDataFrame\"])(df)) df = Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])(df);\n    if (descKeys.length === 0) descKeys = [df.key];  // descKeys is empty\n    \n    const groupMap = createGroupMap(key, descKeys, df)\n\n    for (let row of df.values()) {\n        groupMap.setRow(row);\n    }\n\n    return groupMap; \n}\n\nfunction createGroupMap(key, descendantKeys) {\n    const groupMap = new Map();\n    groupMap.key = key;\n    groupMap.keyFn = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"createKeyFn\"])(key);\n    groupMap.descendantKeys = descendantKeys;\n    groupMap.groupType = () => groupMap.descendantKeys.length === 1 ? 'DataFrame' : 'GroupMap';\n    groupMap.each = (fn) => each(groupMap, fn);\n    groupMap.map = (fn) => map(groupMap, fn);\n    // groupMap.mapCall = (fn) => mapCall(groupMap, fn); // not exposing mapcall\n    groupMap.interpolate = mapCall(groupMap, \"interpolate\");\n    groupMap.filter = mapCall(groupMap, \"filter\");\n    groupMap.order = mapCall(groupMap, \"order\");\n    groupMap.reindex = mapCall(groupMap, \"reindex\");\n    groupMap.flatten = (key) => flatten(groupMap, key);\n    groupMap.groupBy = (key) => {\n        for (group of groupMap.values()) {\n            const newGroup = group.groupBy(key);\n\n            // groups change from DataFrame to GroupMap\n            if (groupMap.groupType() === 'DataFrame')\n                groupMap.set(key, newGroup);\n        }\n        groupMap.descendantKeys.push(key);\n        return groupMap;\n    }\n    groupMap.createChild = (keyStr) => createChild(groupMap, keyStr);\n    groupMap.toJSON = () => mapToObject(groupMap);\n    groupMap.rows = function* () {\n        let group, row; \n        for (group of groupMap.values()) {\n            for (row of group.rows()) // get rows recursively\n                yield row;\n        }\n    }\n    groupMap.filterGroups = (filterFn) => {\n        let result = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);\n        for (let [key, group] of groupMap) {\n            const newGroup = group.filterGroups(filterFn);\n            if (filterFn(newGroup)) \n                result.set(key, newGroup);\n        }\n        return result;\n    }\n    groupMap.setRow = (row) => {\n        getOrCreateGroup(groupMap, row)\n            .setRow(row);\n    }\n    return groupMap;\n}\n\nfunction each(grouping, fn) {\n    for (let [key, df] of grouping) {\n        fn(df, Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"parseMarkerKey\"])(key));\n    }\n    return grouping;\n}\n\nfunction map(grouping, fn) {\n    for (let [key, df] of grouping) {\n        grouping.set(key, fn(df, Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"parseMarkerKey\"])(key)));\n    }\n    return grouping;\n}\n\nfunction mapCall(groupMap, fnName) {\n    return function() {\n        let result = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);\n        for (let [key, group] of groupMap) {\n            result.set(key, group[fnName](...arguments));\n        }\n        return result;\n    }\n}\n\n/**\n * \n * @param {*} group the group to find member in\n * @param {*} row data row to find member for\n */\nfunction getOrCreateGroup(groupMap, row) {\n    let group;\n    const keyStr = groupMap.keyFn(row);\n    if (groupMap.has(keyStr)) {\n        group = groupMap.get(keyStr);\n    } else {\n        group = groupMap.createChild(keyStr);\n    }\n    return group;\n}\n\nfunction createChild(groupMap, keyStr) {\n    // DataFrames have no children of their own (= leafs)\n    const child = groupMap.descendantKeys.length === 1\n        ? Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])([], groupMap.descendantKeys[0])\n        : DataFrameGroupMap([], groupMap.descendantKeys[0], groupMap.descendantKeys.slice(1));\n    \n    groupMap.set(keyStr, child);\n    return child;\n}\n\nfunction flatten(group, key = []) {\n    function* entries() {\n        for (let df of group.values()) {\n            for (let row of df.values()) {\n                yield row;\n            }\n        }\n    }\n    return Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])(entries(), key);\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/dataFrameGroup.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/info/extent.js":
-/*!**************************************!*\
-  !*** ./src/dataframe/info/extent.js ***!
-  \**************************************/
-/*! exports provided: extent */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"extent\", function() { return extent; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/dataframe/utils.js\");\n\n\n// in the style of d3.extent\nfunction extent(iter, concept) {\n    iter = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"getIter\"])(iter);\n    let min, max, value, row;\n    for (row of iter) {\n        if ((value = row[concept]) != null && value >= value) {\n            if (min === undefined) {\n                // find first comparable values\n                min = max = value;\n            } else {\n                // compare remaining values \n                if (min > value) min = value;\n                if (max < value) max = value;\n            }\n        }\n    }\n    return [min, max];\n}\n\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/info/extent.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/info/unique.js":
-/*!**************************************!*\
-  !*** ./src/dataframe/info/unique.js ***!
-  \**************************************/
-/*! exports provided: unique */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"unique\", function() { return unique; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/dataframe/utils.js\");\n\n\nfunction unique(iter, concept) {\n    iter = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"getIter\"])(iter);\n    \n    const unique = new Set()\n    for (let row of iter) \n        unique.add(row[concept]); \n\n    return [...unique];\n}\n\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/info/unique.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/storage/lookups.js":
-/*!******************************************!*\
-  !*** ./src/dataframe/storage/lookups.js ***!
-  \******************************************/
-/*! exports provided: LookupStorage */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"LookupStorage\", function() { return LookupStorage; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/dataframe/utils.js\");\n\n\n/**\n * Virtual data frame storage based on lookups. A row is constructed on request from lookups for each dimension of requested key.\n * @param {*} concepts Map of concepts. Each concept is a map of dimensions. Each dimension is a map of values on that dimension. E.g. name=>geo=>swe=>Sweden\n */\nfunction LookupStorage(concepts, keyArr) {\n    const storage = {};\n    storage.key = keyArr = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"normalizeKey\"])(keyArr);\n    storage.fields = new Set([...keyArr, ...concepts.keys()]);\n    storage.data = concepts;\n    storage.has = (keyObj) => {\n        // true if there is at least one concept which has a lookup for every dimension in key\n        // i.e. a row can be returned for this key\n        return true; //[...concepts.values()].some(lookups => keyArr.every(dim => dim in keyObj && lookups.has(dim)));\n    }\n    storage.get = (keyObj) => {\n        const row = {};\n        concepts.forEach((lookups, concept) => {\n            const entityProps = {};\n            keyArr.forEach(dim => {\n                if (lookups.has(dim))\n                    entityProps[dim] = lookups.get(dim).get(keyObj[dim]);\n                else\n                    entityProps[dim] = keyObj[dim];\n            });\n            row[concept] = entityProps;\n        });\n        return row;\n    }\n    storage.hasByObjOrStr = (keyObj, keyStr) => storage.has(keyObj);\n    storage.getByObjOrStr = (keyObj, keyStr) => storage.get(keyObj);\n    storage.set = (keyObj, value) => { \n        console.warn(\"Invalid operation. Generated dataframe does not support .set().\")\n    }\n    storage.values = () => { console.warn(\"Generated dataframe .values() not implemented yet\")};\n    storage.delete = () => { console.warn(\"Invalid operation. Generated dataframe does not support .delete()\")};\n    storage[Symbol.iterator] = function* generate() {\n        console.warn(\"Invalid operation. Generated dataframe iterator not yet implemented.\");\n    } \n    return storage;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/storage/lookups.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/storage/map.js":
-/*!**************************************!*\
-  !*** ./src/dataframe/storage/map.js ***!
-  \**************************************/
-/*! exports provided: MapStorage */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"MapStorage\", function() { return MapStorage; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/dataframe/utils.js\");\n\n\nfunction MapStorage(data = [], keyArr = data.key || []) {\n    \n    const storage = createEmptyMap();\n    storage.key = keyArr;\n    storage.batchSet(data);\n\n    return storage;\n}\n\nfunction createEmptyMap() {\n    const storage = new Map();\n    let key = [], isRangeKey;\n\n    // local references to functions which will be decorated\n    const has = storage.has.bind(storage);\n    const get = storage.get.bind(storage);\n    const set = storage.set.bind(storage);\n\n    storage.fields = new Set();\n    storage.keyFn = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"rangeIndex\"])(0);\n    storage.setKey = newKey => {\n        key = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"normalizeKey\"])(newKey); \n        isRangeKey = key.length === 0; \n        storage.keyFn = isRangeKey ? Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"rangeIndex\"])(0) : Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"createKeyFn\"])(storage.key);\n        storage.updateIndexes(storage);\n    }\n    Object.defineProperty(storage, 'key', { \n        set: storage.setKey,\n        get: () => key\n    });\n    storage.has = keyObj => isRangeKey ? false     : has(storage.keyFn(keyObj));\n    storage.get = keyObj => isRangeKey ? undefined : get(storage.keyFn(keyObj));\n    storage.set = (row, keyStr) => {\n        // passing keyStr is optimization to circumvent keyStr generation (TODO: check performance impact)\n        // if keyStr set, we assume it's correct. Only use when you know keyStr fits with current key dims\n        if (keyStr === undefined || isRangeKey)\n            keyStr = storage.keyFn(row, key);\n        checkFields(storage.fields, row);\n        row[Symbol.for('key')] = keyStr;\n        set(keyStr, row);\n    }\n    storage.hasByObjOrStr = (keyObj, keyStr) => has(keyStr);\n    storage.getByObjOrStr = (keyObj, keyStr) => get(keyStr);\n    storage.batchSet = rowIter => batchSet(storage, rowIter);\n    storage.rows = storage.values;\n    storage.updateIndexes = () => updateIndexes(storage);\n    return storage;\n}\n\nfunction checkFields(fields, row) {\n    for (let field in row) {\n        if (!fields.has(field)) {\n            fields.add(field);\n        }\n    }\n}\n\nfunction batchSet(storage, rowIter) {\n    const duplicates = [];\n\n    rowIter = Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"getIter\"])(rowIter);\n\n    for (let row of rowIter) {\n        if (storage.has(row))\n            duplicates.push({ keyStr: storage.keyFn(row), orig: storage.get(row), new: row})\n        storage.set(row);\n    }\n\n    if (duplicates.length > 0)\n        console.warn('Found duplicates for given key when constructing dataframe.', { key: storage.key, duplicates });\n}\n\nfunction updateIndexes(storage) {\n    for (let [key, row] of storage) {\n        storage.delete(key);\n        // set won't overwrite any not-yet-deleted keys \n        // because key dims are either different \n        // or if they're identical, we just removed the key it would overwrite\n        storage.set(row); \n    }\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/storage/map.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/addColumn.js":
-/*!***********************************************!*\
-  !*** ./src/dataframe/transforms/addColumn.js ***!
-  \***********************************************/
-/*! exports provided: addColumn */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"addColumn\", function() { return addColumn; });\n/**\n * Adds column to df, in place\n * @param {DataFrame} df \n * @param {string} name \n * @param {value|function} value \n */\nfunction addColumn(df, name, value) {\n    if (typeof value == \"function\") {\n        for (let row of df.values()) {\n            row[name] = value(row);\n        }\n    }\n    else {    \n        for (let row of df.values()) {\n            row[name] = value;\n        }\n    }\n    return df;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/addColumn.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/copy.js":
-/*!******************************************!*\
-  !*** ./src/dataframe/transforms/copy.js ***!
-  \******************************************/
-/*! exports provided: copy */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"copy\", function() { return copy; });\n/* harmony import */ var _dataFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\nconst copy = df => Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])(df);\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/copy.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/copycolumn.js":
-/*!************************************************!*\
-  !*** ./src/dataframe/transforms/copycolumn.js ***!
-  \************************************************/
-/*! exports provided: copyColumn */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"copyColumn\", function() { return copyColumn; });\nfunction copyColumn(df, srcCol, newCol) {\n    for (let row of df.values()) {\n        row[newCol] = row[srcCol];\n    }\n    return df;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/copycolumn.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/fillnull.js":
-/*!**********************************************!*\
-  !*** ./src/dataframe/transforms/fillnull.js ***!
-  \**********************************************/
-/*! exports provided: fillNull */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"fillNull\", function() { return fillNull; });\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils */ \"./src/dataframe/utils.js\");\n\n\nfunction fillNull(df, fillValues) {\n    let concept, row;\n    // per concept fill\n    if (Object(_utils__WEBPACK_IMPORTED_MODULE_0__[\"isNonNullObject\"])(fillValues)) {\n        for (concept in fillValues) {\n            const fillValue = fillValues[concept];\n            // per concept function fill\n            if (typeof fillValue == \"function\") {\n                for (row of df.values()) {\n                    if (row[concept] === null)\n                        row[concept] = fillValue(row);\n                }\n            }\n            // per concept constant fill\n            else {\n                for (row of df.values()) {\n                    if (row[concept] === null)\n                        row[concept] = fillValue;\n                }\n            }\n        }\n    }\n    // constant fill\n    else {\n        for (row of df.values()) {\n            for (concept in row) {\n                if (row[concept] === null)\n                    row[concept] = fillValues;\n            }\n        }\n    }\n    return df;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/fillnull.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/filter.js":
-/*!********************************************!*\
-  !*** ./src/dataframe/transforms/filter.js ***!
-  \********************************************/
-/*! exports provided: filter, createFilterFn, applyFilterRow */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"filter\", function() { return filter; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createFilterFn\", function() { return createFilterFn; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"applyFilterRow\", function() { return applyFilterRow; });\n/* harmony import */ var _dataFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\n/**\n * Filters dataframe based on either filter function or DDFQL filter specification\n * @param {DataFrame} df \n * @param {Function|FilterSpec} filter \n */\nfunction filter(df, filter) {\n\n    if (!validFilterArg(filter))\n        return df;\n\n    const filterFn = (typeof filter == \"function\") ? \n        filter : createFilterFn(filter);    \n\n    const result = Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])([], df.key);\n    for(let [key, row] of df) {\n        if (filterFn(row))\n            result.set(row, key);\n    }\n\n    return result;\n}\n\nfunction validFilterArg(filter) {\n    return filter && (typeof filter === \"function\" || Object.keys(filter).length > 0)\n}\n\n/**\n * Partially apply applyFilterRow, giving only the filter spec\n * @param {Object} filterSpec Filter specification according to DDFQL WHERE spec\n * @returns {Function} Filter function, which takes an object and returns a boolean representing if the object satifies the filterSpec\n */\nfunction createFilterFn(filterSpec) {\n    return (row) => applyFilterRow(row, filterSpec);\n}\n\nfunction applyFilterRow(row, filter) {\n    // implicit $and in filter object handled by .every()\n    return Object.keys(filter).every(filterKey => {\n        let operator;\n        if (operator = operators.get(filterKey)) {\n            // { $eq: \"europe\" } / { $lte: 5 } / { $and: [{...}, ...] }\n            return operator(row, filter[filterKey]);\n        } else if(typeof filter[filterKey] != \"object\") { // assuming values are primitives not Number/Boolean/String objects\n            // { <field>: <value> } is shorthand for { <field>: { $eq: <value> }} \n            return operators.get(\"$eq\")(row[filterKey], filter[filterKey]);\n        } else {\n            // filterSpec[filterKey] is an object and will thus contain a comparison operator\n            // { <field>: { $<operator>: <value> }}\n            // no deep objects (like in Mongo) supported:\n            // { <field>: { <subfield>: { ... } } }\n            return applyFilterRow(row[filterKey], filter[filterKey]);\n        }\n    });\n}\n\nconst operators = new Map([\n    /* logical operators */\n    [\"$and\", (row, predicates) => predicates.every(p => applyFilterRow(row,p))],\n    [\"$or\",  (row, predicates) => predicates.some(p => applyFilterRow(row,p))],\n    [\"$not\", (row, predicate) => !applyFilterRow(row, predicate)],\n    [\"$nor\", (row, predicates) => !predicates.some(p => applyFilterRow(row,p))],\n\n    /* comparison operators */\n    [\"$eq\",  (rowValue, filterValue) => rowValue === filterValue],\n    [\"$ne\",  (rowValue, filterValue) => rowValue !== filterValue],\n    [\"$gt\",  (rowValue, filterValue) => rowValue > filterValue],\n    [\"$gte\", (rowValue, filterValue) => rowValue >= filterValue],\n    [\"$lt\",  (rowValue, filterValue) => rowValue < filterValue],\n    [\"$lte\", (rowValue, filterValue) => rowValue <= filterValue],\n    [\"$in\",  (rowValue, filterValue) => filterValue.includes(rowValue)],\n    [\"$nin\", (rowValue, filterValue) => !filterValue.includes(rowValue)],\n]);\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/filter.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/fulljoin.js":
-/*!**********************************************!*\
-  !*** ./src/dataframe/transforms/fulljoin.js ***!
-  \**********************************************/
-/*! exports provided: fullJoin */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"fullJoin\", function() { return fullJoin; });\n/* harmony import */ var _dataFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\nfunction fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {\n    \n    return joinParams\n        .reduce((params, param) => {\n            const baseParam = params.find(baseParam => baseParam.dataFrame === param.dataFrame);\n            if (baseParam)\n                Object.keys(param.projection).forEach(key => {\n                    baseParam.projection[key] = param.projection[key];\n                });\n            else\n                params.push(param);\n            return params;\n        }, [])\n        .reduce(\n            _fullJoin, \n            Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])([], joinKey)\n        );\n\n}\n\n/**\n * Full join. Impure: Modifies left df. Left key is join key. Right key must contain all join key fields (can't use regular fields for joining).\n * @param {DataFrame} left DataFrame used as base for join\n * @param {*} rightCfg { dataFrame: DataFrame, projection: { origField: projField } }\n */\nfunction _fullJoin(left, rightCfg) {\n    // join or copy right rows onto result\n    const joinKey = left.key;\n    const dataKey = rightCfg.dataFrame.key;\n    const projection = normalizeProjection(rightCfg.projection) || {};\n\n    if (!joinKey.every(dim => dataKey.includes(dim)))\n        console.warn(\"Right key does not contain all join fields.\", { left: left, right: rightCfg });\n    if (!projection || Object.keys(projection).length === 0)\n        console.warn(\"No projection given for join so no new fields will be joined\", { left: left, right: rightCfg } );\n\n    for (let [keyStr, rightRow] of rightCfg.dataFrame) {\n        const leftRow = getOrCreateRow(left, joinKey, rightRow, keyStr)  \n        // project with aliases        \n        for(let key in projection) {\n            leftRow[projection[key]] = rightRow[key];\n        }\n    }\n\n    return left;\n}\n\n// change array [\"geo\",\"year\"] to { geo: \"geo\", year: \"year\" }\nfunction normalizeProjection(projection) {\n    if (!Array.isArray(projection))\n        return projection;\n    \n    return projection.reduce((obj, field) => {\n        obj[field] = field;\n        return obj;\n    }, {});\n}\n\nfunction createObj(space, row, keyStr) {\n    const obj = {\n        [Symbol.for('key')]: keyStr\n    };\n    space.forEach(dim => obj[dim] = row[dim])\n    return obj;\n}\n\nfunction getOrCreateRow(df, keyArr, row, keyStr) {\n    let obj;\n    // if (keyStr == undefined) keyStr = createMarkerKey(row, keyArr);\n    if (!df.hasByObjOrStr(row, keyStr)) {\n        obj = createObj(keyArr, row, keyStr);\n        df.set(obj, keyStr);\n    } else {\n        obj = df.getByObjOrStr(row, keyStr);\n    }\n    return obj;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/fulljoin.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/group.js":
-/*!*******************************************!*\
-  !*** ./src/dataframe/transforms/group.js ***!
-  \*******************************************/
-/*! exports provided: groupBy */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"groupBy\", function() { return groupBy; });\n/* harmony import */ var _dataFrameGroup__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../dataFrameGroup */ \"./src/dataframe/dataFrameGroup.js\");\n\n\nfunction groupBy(df, groupKey, memberKey = df.key) {\n\n    return Object(_dataFrameGroup__WEBPACK_IMPORTED_MODULE_0__[\"DataFrameGroupMap\"])(df, groupKey, memberKey);\n    \n}\n\n\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/group.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/interpolate.js":
-/*!*************************************************!*\
-  !*** ./src/dataframe/transforms/interpolate.js ***!
-  \*************************************************/
-/*! exports provided: interpolate */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"interpolate\", function() { return interpolate; });\n\nfunction interpolate(df) {\n    return interpolateAllFields(df);\n}\n\nfunction interpolateAllFields(df) {\n    for (let field of df.fields) {\n        interpolateField(df, field);\n    }\n    return df;\n}\n\nfunction interpolateField(df, field) {\n    let prevVal = null;\n    let gapRows = [];\n    for (let row of df.values()) {\n        const fieldVal = row[field];\n        if (fieldVal === undefined || fieldVal === null) {\n            gapRows.push(row);\n        } else {\n            // fill gap if it exists and is inner\n            if (prevVal != null && gapRows.length > 0) {\n                interpolateGap(gapRows, prevVal, fieldVal, field);\n            }\n            gapRows = [];\n            prevVal = fieldVal;\n        }\n    }\n}\n\nfunction interpolateGap(gapRows, startVal, endVal, field) {\n    const int = d3.interpolate(startVal, endVal);\n    const delta = 1 / (gapRows.length+1);\n    let mu = 0;\n    for (let gapRow of gapRows) {\n        mu += delta;\n        gapRow[field] = int(mu);\n    }\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/interpolate.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/leftjoin.js":
-/*!**********************************************!*\
-  !*** ./src/dataframe/transforms/leftjoin.js ***!
-  \**********************************************/
-/*! exports provided: leftJoin */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"leftJoin\", function() { return leftJoin; });\n/* harmony import */ var _copycolumn__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./copycolumn */ \"./src/dataframe/transforms/copycolumn.js\");\n/* harmony import */ var _utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils */ \"./src/dataframe/utils.js\");\n/* harmony import */ var _dataFrame__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\n\n\n        // TODO: add check for non-marker space dimensions to contain only one value\n        // -> save first row values and all next values should be equal to first\n\n/**\n * Join right on left with overlapping columns of key as join columns.\n * @param {*} left \n * @param  {...any} rights \n */\nfunction leftJoin(left, rights) {\n    const leftDf = left.dataFrame;\n    const leftKey = leftDf.key;\n    \n    const rightCopies = rights.filter(r => leftKey.some(d => d in r.projection));\n    rights = rights.filter(r => !rightCopies.includes(r)).map(r => { \n        const sameKey = Object(_utils__WEBPACK_IMPORTED_MODULE_1__[\"arrayEquals\"])(r.dataFrame.key, leftKey);\n        r.hasFn = sameKey ? \"hasByObjOrStr\" : \"has\";\n        r.getFn = sameKey ? \"getByObjOrStr\" : \"get\";\n        return r;\n    });\n\n    const result = Object(_dataFrame__WEBPACK_IMPORTED_MODULE_2__[\"DataFrame\"])([], leftKey)\n\n    for (let [keyStr, row] of leftDf) {\n        // left row as base\n        const leftRow = cloneRow(row);\n        \n        // join any rows in right dfs which have same key as left row\n        for (let { dataFrame, projection, hasFn, getFn } of rights) {\n            if (dataFrame[hasFn](row, keyStr)) {\n                const rightRow = dataFrame[getFn](row, keyStr);\n                for(let key in projection) {\n                    leftRow[projection[key]] = rightRow[key];\n                }\n            }\n        }\n        \n        // set row\n        result.set(leftRow, keyStr);\n    }\n    for (let right of rightCopies) {\n        // weird chrome bug: using for(let col in right.projection) in combination with \n        // assigning right.projection[col] to var or passing into function crashes chrome\n        // therefore for...of w/ object.keys\n        // for(let col in right.projection) {\n        for (let col of Object.keys(right.projection)) { \n            Object(_copycolumn__WEBPACK_IMPORTED_MODULE_0__[\"copyColumn\"])(result, col, right.projection[col]); \n        }   \n    }\n    return result;\n}\n\nfunction joinRows(...rows) {\n    return Object.assign(...rows);\n}\nfunction cloneRow(row) {\n    return joinRows({}, row);\n}\n\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/leftjoin.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/order.js":
-/*!*******************************************!*\
-  !*** ./src/dataframe/transforms/order.js ***!
-  \*******************************************/
-/*! exports provided: order */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"order\", function() { return order; });\n/* harmony import */ var _dataFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\nconst directions = {\n    ascending: 1,\n    decending: -1\n}\n\nfunction order(df, order_by = []) {\n    if (order_by.length == 0) return df;\n\n    const data = Array.from(df.values());\n    const orderNormalized = normalizeOrder(order_by);\n    const n = orderNormalized.length;\n\n    data.sort((a,b) => {\n        for (var i = 0; i < n; i++) {\n            const order = orderNormalized[i];\n            if (a[order.concept] < b[order.concept])\n                return -1 * order.direction;\n            else if (a[order.concept] > b[order.concept])\n                return order.direction;\n        } \n        return 0;\n    });\n\n    return Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])(data, df.key);\n}\n\n/**    \n * Process [\"geo\"] or [{\"geo\": \"asc\"}] to [{ concept: \"geo\", direction: 1 }];\n * @param {} order \n */\nfunction normalizeOrder(order_by) {\n    if (typeof order_by === \"string\") \n        return [{ concept: order_by, direction: directions.ascending }];\n    return order_by.map(orderPart => {\n        if (typeof orderPart == \"string\") {\n            return { concept: orderPart, direction: directions.ascending };\n        }\telse {\n            const concept   = Object.keys(orderPart)[0];\n            const direction = orderPart[concept] == \"asc\" \n                ? directions.ascending \n                : directions.decending;\n            return { concept, direction };\n        }\n    });\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/order.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/project.js":
-/*!*********************************************!*\
-  !*** ./src/dataframe/transforms/project.js ***!
-  \*********************************************/
-/*! exports provided: project */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"project\", function() { return project; });\n/* harmony import */ var _fulljoin__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./fulljoin */ \"./src/dataframe/transforms/fulljoin.js\");\n\n\n// use projection feature of full join\nconst project = (df, projection) => Object(_fulljoin__WEBPACK_IMPORTED_MODULE_0__[\"fullJoin\"])([{ dataFrame: df, projection: projection }]);\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/project.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/transforms/reindex.js":
-/*!*********************************************!*\
-  !*** ./src/dataframe/transforms/reindex.js ***!
-  \*********************************************/
-/*! exports provided: reindex */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"reindex\", function() { return reindex; });\n/* harmony import */ var _dataFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../dataFrame */ \"./src/dataframe/dataFrame.js\");\n\n\n// TODO: add check if there are rows that are don't fit stepfn \n// (iterate over df and match one step of stepfn with step of iteration)\nfunction reindex(df, stepGen) {\n    const empty = createEmptyRow(df.fields);\n    const result = Object(_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])([], df.key);\n    const index = df.key[0]; // supports only single indexed\n    for (let key of stepGen()) {\n        const keyObj = { [index]: key };\n        const row = df.has(keyObj) \n            ? df.get(keyObj)\n            : Object.assign({ }, empty, keyObj);\n        result.set(row);\n    }\n    return result;\n}\n\nfunction createEmptyRow(fields) {\n    const obj = {};\n    for (let field of fields) obj[field] = null;\n    return obj;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/transforms/reindex.js?");
-
-/***/ }),
-
-/***/ "./src/dataframe/utils.js":
-/*!********************************!*\
-  !*** ./src/dataframe/utils.js ***!
-  \********************************/
-/*! exports provided: getIter, isDataFrame, arrayEquals, intersect, isNonNullObject, normalizeKey, createKeyStr, createKey2, isNumeric, esc, createMarkerKey, createKeyFn, parseMarkerKey, pick, unique, curry, compose, pipe, rangeIndex, mapToObject */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"getIter\", function() { return getIter; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isDataFrame\", function() { return isDataFrame; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"arrayEquals\", function() { return arrayEquals; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"intersect\", function() { return intersect; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isNonNullObject\", function() { return isNonNullObject; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"normalizeKey\", function() { return normalizeKey; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createKeyStr\", function() { return createKeyStr; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createKey2\", function() { return createKey2; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isNumeric\", function() { return isNumeric; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"esc\", function() { return esc; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createMarkerKey\", function() { return createMarkerKey; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"createKeyFn\", function() { return createKeyFn; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"parseMarkerKey\", function() { return parseMarkerKey; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"pick\", function() { return pick; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"unique\", function() { return unique; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"curry\", function() { return curry; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"compose\", function() { return compose; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"pipe\", function() { return pipe; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"rangeIndex\", function() { return rangeIndex; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"mapToObject\", function() { return mapToObject; });\nfunction getIter(iter) {\n    if (\"values\" in iter && typeof iter.values === \"function\")\n        return iter.values();\n    return iter;\n}\n\nfunction isDataFrame(data) {\n    return \"hasByObjOrStr\" in data && typeof data.hasByObjOrStr === \"function\";\n}\n\n// returns true if a and b are identical, regardless of order (i.e. like sets)\nfunction arrayEquals(a, b) {\n    const overlap = intersect(a, b);\n    return overlap.length == a.length && overlap.length == b.length;\n}\n\n// intersect of two arrays (representing sets)\n// i.e. everything in A which is also in B\nfunction intersect(a, b) {\n    return a.filter(e => b.includes(e));\n}\n\nfunction isNonNullObject(value) {\n    return !!value && typeof value === 'object'\n}\n\nfunction normalizeKey(key) {\n    return key.slice(0).sort();\n}\n\nconst createKeyStr = (key) => key.map(esc).join('-');\n\nconst createKey2 = (space, row) => space.map(dim => row[dim]).join('-');\n// micro-optimizations below as this is code that runs for each row in data to create key to the row\n\nconst isNumeric = (n) => !isNaN(n) && isFinite(n);\n\n// TODO: probably use different replace function, long version in jsperf\n// string replace functions jsperf: https://jsperf.com/string-replace-methods\n// regexp not here, not fast in any browser\n/**\n * Verbose string replace using progressive indexOf. Fastest in Chrome.\n * Does not manipulate input string.\n * @param {*} str Input string\n * @param {*} ndl Needle to find in input string\n * @param {*} repl Replacement string to replace needle with\n */\nfunction replace(str, ndl, repl) {\n    var outstr = '',\n        start = 0,\n        end = 0,\n        l = ndl.length;\n    if (!str && str !== \"\" || str === undefined) debugger;\n    while ((end = str.indexOf(ndl, start)) > -1) {\n        outstr += str.slice(start, end) + repl;\n        start = end + l;\n    }\n    return outstr + str.slice(start);\n}\n// fastest in firefox\nfunction replace_sj(str, ndl, repl) {\n    return str.split(ndl).join(repl);\n}\n\nfunction isString(str) {\n    typeof str === \"string\";\n}\n\n// precalc strings for optimization\nconst escapechar = \"\\\\\";\nconst joinchar = \"-\";\nconst dblescape = escapechar + escapechar;\nconst joinescape = escapechar + joinchar;\nvar esc = str => {\n    if (str instanceof Date) str = str.toISOString();\n    if (isNumeric(str)) return str;\n    return replace(replace(str, escapechar, dblescape), joinchar, joinescape);\n}\n\n// jsperf of key-creation options. Simple concat hash + escaping wins: https://jsperf.com/shallow-hash-of-object\n// for loop is faster than keys.map().join('-');\n// but in Edge, json.stringify is faster\n// pre-escaped space would add extra performance\nconst createDimKeyStr = (dim, dimVal) => {\n    if (dimVal instanceof Date) dimVal = dimVal.toISOString();\n    //if (!dim || !dimVal) debugger;\n    return esc(dim) + joinchar + esc(dimVal);\n}\nconst createMarkerKey = (row, space = Object.keys(row).sort()) => {\n    const l = space.length;\n\n/*    if (l===1)\n        return createDimKeyStr(space[0],row[space[0]]+\"\";\n*/\n\n    // space.map(c => createDimKeyStr(row[c]))).join(joinchar);\n    var res = (l > 0) ? createDimKeyStr(space[0], row[space[0]]) : '';\n    for (var i = 1; i < l; i++) {\n        res += joinchar + createDimKeyStr(space[i], row[space[i]]);\n    }\n    return res\n}\n\nconst createKeyFn = (space) => {\n    const spaceEsc = space.map(esc);\n    const l = space.length;\n    return (row) => {\n        const parts = [];\n        let field, i, j;\n        for (i = j = 0; i < l; i++, j+=2) {\n            parts[j] = field = spaceEsc[i]; \n            parts[j+1] = esc(row[field]);\n        }\n        return parts.join(joinchar);\n    }\n}\n\nfunction parseMarkerKey(str) {\n    // \"remove\" escaping by splitting to be able to split on actual joins\n    // then, put it back together\n    var parts = str.split(dblescape).map(\n        s => s.split(joinescape).map(\n            s => s.split(joinchar)\n        )\n    )\n    var values = [];\n    var val = '';\n    for (let i = 0; i < parts.length; i++) {\n        for (let j = 0; j < parts[i].length; j++) {\n            for (let k = 0; k < parts[i][j].length; k++) {\n                // double escape found, glue again with escape char\n                if (j === 0 && k === 0) {\n                    if (i !== 0) val += escapechar;\n                    val += parts[i][j][k];\n                } \n                // joinescape found, glue again with join char\n                else if (k === 0) {\n                    if (j !== 0) val += joinchar;\n                    val += parts[i][j][k]\n                }\n                // actual joinchar found, correct split\n                else {\n                    values.push(val);\n                    val = parts[i][j][k];    \n                }\n            }\n        }\n    }\n    values.push(val);\n\n    // create key, odd is dim, even is dimension value\n    const key = {};\n    for (let i = 0; i < values.length; i += 2) {\n        key[values[i]] = values[i+1];\n    }\n    return key;\n}\n\n// end micro-optimizations\n\nfunction pick(object, keys) {\n    return keys.reduce((obj, key) => {\n        if (object[key]) {\n            obj[key] = object[key];\n        }\n        return obj;\n        }, {});\n}\n\nfunction unique(...arrays) {\n    const uniqueSet = new Set(arrays.flat());\n    return Array.from(uniqueSet);\n}\n\n/**\n * Creates an auto-curried function out of the supplied function. An autocurried function can be applied either in a curried fashion or normally.\n * E.g. fn(a,b,c) can be called like fn(a)(b)(c) or f(a, b)(c) or f(a,b,c) or f(a)(b, c) or f()(a,b,c) etc\n * @param {Function} fn \n * @returns {Function} autocurried\n */\nfunction curry(fn) {\n    /* need to specify arity this way since Function.length \n     * does not include rest arguments (...rest) which are used \n     * in the partial function (which is curried too ) \n     */\n    function curryN(arity, fn) {\n        return function curried(...args) {\n            if (arity < args.length) {\n                function partial(...otherArgs) {\n                    fn(...args, ...otherArgs);\n                }\n                return curryN(arity - args.length, partial);\n            } else {\n                return fn(...args);\n            }\n        }\n    }\n    return curryN(fn.length, fn);\n\n    /* identical big-arrow implementation\n    const curryN = (arity, fn) => (...args) => \n        arity < args.length\n            ? curryN(arity - args.length, (...restArgs) => fn(...args, ...restArgs))\n            : fn(...args) \n\n    return curryN(fn.length, fn);\n    */\n}\n\nfunction compose2(f, g) {\n    return (...args) => f(g(...args));\n}\nfunction compose(...fns) {\n    return fns.reduce(compose2);\n}\nfunction pipe(...fns) {\n    return fns.reduceRight(compose2);\n}\n\nfunction rangeIndex(index = 0) {\n    return (row, key) => index++;\n}\n\nfunction mapToObject(map) {\n    const result = {};\n    for ([key, group] of groupMap) {\n        result[key] = group.toJSON();\n    }\n    return result;\n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/dataframe/utils.js?");
-
-/***/ }),
-
-/***/ "./src/reader/csv.js":
-/*!***************************!*\
-  !*** ./src/reader/csv.js ***!
-  \***************************/
-/*! exports provided: csvReader */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"csvReader\", function() { return csvReader; });\n/* harmony import */ var _inline__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./inline */ \"./src/reader/inline.js\");\n\n\n\nfunction csvReader({ path = \"data.csv\", keyConcepts = [], dtypes }) {\n\n    return Object(_inline__WEBPACK_IMPORTED_MODULE_0__[\"inlineReader\"])({ \n        values: d3.csv(path, d3.autoType),\n        keyConcepts,\n        dtypes\n    });\n    \n}\n\n//# sourceURL=webpack://%5Bname%5D/./src/reader/csv.js?");
-
-/***/ }),
-
-/***/ "./src/reader/inline.js":
-/*!******************************!*\
-  !*** ./src/reader/inline.js ***!
-  \******************************/
-/*! exports provided: inlineReader */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"inlineReader\", function() { return inlineReader; });\n/* harmony import */ var _dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../dataframe/dataFrame */ \"./src/dataframe/dataFrame.js\");\n/* harmony import */ var _core_utils__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../core/utils */ \"./src/core/utils.js\");\n\n\n\n\nfunction inlineReader({ values = [], keyConcepts = [], dtypes }) {\n    const dataPromise = Promise.resolve(values)\n        .then(parse(dtypes))\n        .then(_dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"]);\n\n    return {\n        async read(query) {\n            let data = await dataPromise;\n\n            if (isConceptQuery(query))\n                data = Object(_dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])(getConcepts(data), [\"concept\"]);\n\n            if (isSchemaQuery(query))\n                data = Object(_dataframe_dataFrame__WEBPACK_IMPORTED_MODULE_0__[\"DataFrame\"])(getSchema(data, query, keyConcepts), [\"key\",\"value\"]);\n\n            return applyQuery(data, query);\n        },\n        getAsset(assetId) {\n            console.warn('Inline reader does not support assets', { assetId })\n        },\n        async getDefaultEncoding() {\n            const data = await dataPromise;\n            const encConfig = {};\n            data.fields.forEach(concept => {\n                encConfig[concept] = {\n                    concept, \n                    space: keyConcepts\n                }\n            });\n            return encConfig;\n        }\n    }\n}\n\nfunction isConceptQuery(query) {\n    return \"from\" in query && query.from == \"concepts\";\n}\n\nfunction isSchemaQuery(query) {\n    return \"from\" in query && query.from.endsWith('.schema');\n}\n\nfunction getConcepts(data) {\n    const types = getTypes(data);\n    return [...data.fields].map(concept => ({\n        concept,\n        concept_type: types.get(concept)\n    }));\n}\n\nfunction getSchema(data, { from }, keyConcepts) {\n    if (from == \"datapoints.schema\") {\n        const indicatorConcepts = Object(_core_utils__WEBPACK_IMPORTED_MODULE_1__[\"relativeComplement\"])(keyConcepts, [...data.fields]);\n        return indicatorConcepts.map(concept => ({\n            key: [...keyConcepts],\n            value: concept\n        }));        \n    }\n    if (from == \"concepts.schema\") {\n        return [{ key: [\"concept\"], value: \"concept_type\"}];\n    }\n    if (from == \"entities.schema\") {\n        return [];\n    }\n    console.warn(\"Invalid schema query `from` clause: \", from);\n}\n\nfunction applyQuery(data, query) {\n    const { select, from, where, order_by, join } = query;\n    const { key, value } = select;\n    const projection = [...key, ...value];\n\n    if (\"join\" in query)\n        console.warn('Inline reader does not handle joins as it handles only one table.', { query })\n\n    const result = data\n        .filter(where)\n        .project(projection)\n        .order(order_by);\n    return result;\n}\n\n/*\n{\n    year: { timeFormat: \"%Y\", locale: \"ru-RU\" }\n    pop: number\n}\n*/\nfunction parse(dtypes) {\n    const parseRow = parserFromDtypes(dtypes);\n    return function(data) {\n        let row;\n        for (row of data) {\n            parseRow(row); // in place\n        }\n        return data;\n    }\n}\n\nconst dtypeParsers = {\n    string: d => d,\n    number: d => +d,\n    auto: autoParse,\n    year: d3.utcParse(\"%Y\"),\n    month: d3.utcParse(\"%Y-%m\"),\n    day: d3.utcParse(\"%Y-%m-%d\")\n}\n\nfunction parserFromDtypes(dtypes) {\n\n    if (dtypes == \"auto\") \n        return d3.autoType;\n\n    // create field parsers\n    const parsers = {};\n    let field;\n    \n    for (field in dtypes) {\n        const dtype = dtypes[field];\n\n        let parser;\n        if (dtype in dtypeParsers) parser = dtypeParsers[dtype];\n        if (\"timeFormat\" in dtype) parser = d3.timeParse(dtype.timeFormat);\n\n        if (!parser) console.warn('Unknown date type given, fall back to identity parser.', dtype);\n        parsers[dtype] = parser || (d => d);\n    }\n\n    // return row parser\n    return (row) => {\n        let parse, field;\n        for (field in row) {\n            if (parse = parsers[field]) \n                row[field] = parse(row[field]);\n        }\n    }\n}\n\n/**\n * Parse string to js primitives or Date. Based on d3.autoType\n * @param {any} value Value to be parsed \n */\nfunction autoParse(value) {\n    var value = value.trim(), number;\n    if (!value) value = null;\n    else if (value === \"true\") value = true;\n    else if (value === \"false\") value = false;\n    else if (value === \"NaN\") value = NaN;\n    else if (!isNaN(number = +value)) value = number;\n    else if (/^([-+]\\d{2})?\\d{4}(-\\d{2}(-\\d{2})?)?(T\\d{2}:\\d{2}(:\\d{2}(\\.\\d{3})?)?(Z|[-+]\\d{2}:\\d{2})?)?$/.test(value)) value = new Date(value);\n    return value;\n}\n\nfunction getTypes(data) {\n    const types = new Map();\n\n    // get types from first row\n    const [firstRow] = data.values();\n    for (let field in firstRow) {\n        types.set(field, getType(firstRow[field]));\n    }\n    // check if those types are consistent\n    for (let [field, type] in types) {\n        if (!validateType(storage, field, type)) {\n            console.warn(\"Field \" + field + \" is not consistently typed \" + type);\n            types.set(field, \"mixed\");\n        }\n    }\n    return types;\n}\n\nfunction validateType(storage, field, type) {\n    for (row of storage.values()) {\n        if (getType(row[field]) !== type)\n            return false;\n    }\n}\n\nfunction getType(value) {\n    if (isDate(value))    return 'time';\n    if (isString(value))  return 'string';\n    if (isNumber(value))  return 'measure';\n    if (isBoolean(value)) return 'boolean';\n    console.warn(\"Couldn't decide type of value.\", { value });\n}\n\nconst isDate = val => val instanceof Date\nconst isNumber = val => typeof val === \"number\" || !!val && typeof val === \"object\" && Object.prototype.toString.call(val) === \"[object Number]\";\nconst isString = val => typeof val === \"string\";\nconst isBoolean = val => typeof val === \"boolean\";\n\n//# sourceURL=webpack://%5Bname%5D/./src/reader/inline.js?");
-
-/***/ })
-
-/******/ })["default"];
-});
+// http://vizabi.org v1.0.1 Copyright 2019 undefined
+(function (global, factory) {
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('mobx')) :
+  typeof define === 'function' && define.amd ? define(['mobx'], factory) :
+  (global = global || self, global.Vizabi = factory(global.mobx));
+}(this, (function (mobx) { 'use strict';
+
+  function fail$1(message) {
+      throw new Error("[mobx-utils] " + message);
+  }
+  function invariant(cond, message) {
+      if (message === void 0) { message = "Illegal state"; }
+      if (!cond)
+          fail$1(message);
+  }
+  var deepFields = function (x) {
+      return (x &&
+          x !== Object.prototype &&
+          Object.getOwnPropertyNames(x).concat(deepFields(Object.getPrototypeOf(x)) || []));
+  };
+  var distinctDeepFields = function (x) {
+      var deepFieldsIndistinct = deepFields(x);
+      var deepFieldsDistinct = deepFieldsIndistinct.filter(function (item, index) { return deepFieldsIndistinct.indexOf(item) === index; });
+      return deepFieldsDistinct;
+  };
+  var getAllMethodsAndProperties = function (x) {
+      return distinctDeepFields(x).filter(function (name) { return name !== "constructor" && !~name.indexOf("__"); });
+  };
+
+  var PENDING = "pending";
+  var FULFILLED = "fulfilled";
+  var REJECTED = "rejected";
+  function caseImpl(handlers) {
+      switch (this.state) {
+          case PENDING:
+              return handlers.pending && handlers.pending(this.value);
+          case REJECTED:
+              return handlers.rejected && handlers.rejected(this.value);
+          case FULFILLED:
+              return handlers.fulfilled ? handlers.fulfilled(this.value) : this.value;
+      }
+  }
+  function createObservablePromise(origPromise, oldPromise) {
+      invariant(arguments.length <= 2, "fromPromise expects up to two arguments");
+      invariant(typeof origPromise === "function" ||
+          (typeof origPromise === "object" &&
+              origPromise &&
+              typeof origPromise.then === "function"), "Please pass a promise or function to fromPromise");
+      if (origPromise.isPromiseBasedObservable === true)
+          return origPromise;
+      if (typeof origPromise === "function") {
+          // If it is a (reject, resolve function, wrap it)
+          origPromise = new Promise(origPromise);
+      }
+      var promise = origPromise;
+      origPromise.then(mobx.action("observableFromPromise-resolve", function (value) {
+          promise.value = value;
+          promise.state = FULFILLED;
+      }), mobx.action("observableFromPromise-reject", function (reason) {
+          promise.value = reason;
+          promise.state = REJECTED;
+      }));
+      promise.isPromiseBasedObservable = true;
+      promise.case = caseImpl;
+      var oldData = oldPromise && oldPromise.state === FULFILLED ? oldPromise.value : undefined;
+      mobx.extendObservable(promise, {
+          value: oldData,
+          state: PENDING
+      }, {}, { deep: false });
+      return promise;
+  }
+  /**
+   * `fromPromise` takes a Promise, extends it with 2 observable properties that track
+   * the status of the promise and returns it. The returned object has the following observable properties:
+   *  - `value`: either the initial value, the value the Promise resolved to, or the value the Promise was rejected with. use `.state` if you need to be able to tell the difference.
+   *  - `state`: one of `"pending"`, `"fulfilled"` or `"rejected"`
+   *
+   * And the following methods:
+   * - `case({fulfilled, rejected, pending})`: maps over the result using the provided handlers, or returns `undefined` if a handler isn't available for the current promise state.
+   * - `then((value: TValue) => TResult1 | PromiseLike<TResult1>, [(rejectReason: any) => any])`: chains additional handlers to the provided promise.
+   *
+   * The returned object implements `PromiseLike<TValue>`, so you can chain additional `Promise` handlers using `then`. You may also use it with `await` in `async` functions.
+   *
+   * Note that the status strings are available as constants:
+   * `mobxUtils.PENDING`, `mobxUtils.REJECTED`, `mobxUtil.FULFILLED`
+   *
+   * fromPromise takes an optional second argument, a previously created `fromPromise` based observable.
+   * This is useful to replace one promise based observable with another, without going back to an intermediate
+   * "pending" promise state while fetching data. For example:
+   *
+   * @example
+   * \@observer
+   * class SearchResults extends React.Component {
+   *   \@observable searchResults
+   *
+   *   componentDidUpdate(nextProps) {
+   *     if (nextProps.query !== this.props.query)
+   *       this.comments = fromPromise(
+   *         window.fetch("/search?q=" + nextProps.query),
+   *         // by passing, we won't render a pending state if we had a successful search query before
+   *         // rather, we will keep showing the previous search results, until the new promise resolves (or rejects)
+   *         this.searchResults
+   *       )
+   *   }
+   *
+   *   render() {
+   *     return this.searchResults.case({
+   *        pending: (staleValue) => {
+   *          return staleValue || "searching" // <- value might set to previous results while the promise is still pending
+   *        },
+   *        fulfilled: (value) => {
+   *          return value // the fresh results
+   *        },
+   *        rejected: (error) => {
+   *          return "Oops: " + error
+   *        }
+   *     })
+   *   }
+   * }
+   *
+   * Observable promises can be created immediately in a certain state using
+   * `fromPromise.reject(reason)` or `fromPromise.resolve(value?)`.
+   * The main advantage of `fromPromise.resolve(value)` over `fromPromise(Promise.resolve(value))` is that the first _synchronously_ starts in the desired state.
+   *
+   * It is possible to directly create a promise using a resolve, reject function:
+   * `fromPromise((resolve, reject) => setTimeout(() => resolve(true), 1000))`
+   *
+   * @example
+   * const fetchResult = fromPromise(fetch("http://someurl"))
+   *
+   * // combine with when..
+   * when(
+   *   () => fetchResult.state !== "pending",
+   *   () => {
+   *     console.log("Got ", fetchResult.value)
+   *   }
+   * )
+   *
+   * // or a mobx-react component..
+   * const myComponent = observer(({ fetchResult }) => {
+   *   switch(fetchResult.state) {
+   *      case "pending": return <div>Loading...</div>
+   *      case "rejected": return <div>Ooops... {fetchResult.value}</div>
+   *      case "fulfilled": return <div>Gotcha: {fetchResult.value}</div>
+   *   }
+   * })
+   *
+   * // or using the case method instead of switch:
+   *
+   * const myComponent = observer(({ fetchResult }) =>
+   *   fetchResult.case({
+   *     pending:   () => <div>Loading...</div>,
+   *     rejected:  error => <div>Ooops.. {error}</div>,
+   *     fulfilled: value => <div>Gotcha: {value}</div>,
+   *   }))
+   *
+   * // chain additional handler(s) to the resolve/reject:
+   *
+   * fetchResult.then(
+   *   (result) =>  doSomeTransformation(result),
+   *   (rejectReason) => console.error('fetchResult was rejected, reason: ' + rejectReason)
+   * ).then(
+   *   (transformedResult) => console.log('transformed fetchResult: ' + transformedResult)
+   * )
+   *
+   * @param {IThenable<T>} promise The promise which will be observed
+   * @param {IThenable<T>} oldPromise? The promise which will be observed
+   * @returns {IPromiseBasedObservable<T>}
+   */
+  var fromPromise = createObservablePromise;
+  fromPromise.reject = mobx.action("fromPromise.reject", function (reason) {
+      var p = fromPromise(Promise.reject(reason));
+      p.state = REJECTED;
+      p.value = reason;
+      return p;
+  });
+  fromPromise.resolve = mobx.action("fromPromise.resolve", function (value) {
+      if (value === void 0) { value = undefined; }
+      var p = fromPromise(Promise.resolve(value));
+      p.state = FULFILLED;
+      p.value = value;
+      return p;
+  });
+
+  var __decorate =  function (decorators, target, key, desc) {
+      var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+      if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+      else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+      return c > 3 && r && Object.defineProperty(target, key, r), r;
+  };
+  var StreamListener = /** @class */ (function () {
+      function StreamListener(observable$$1, initialValue) {
+          var _this = this;
+          this.current = undefined;
+          mobx.runInAction(function () {
+              _this.current = initialValue;
+              _this.subscription = observable$$1.subscribe(_this);
+          });
+      }
+      StreamListener.prototype.dispose = function () {
+          if (this.subscription) {
+              this.subscription.unsubscribe();
+          }
+      };
+      StreamListener.prototype.next = function (value) {
+          this.current = value;
+      };
+      StreamListener.prototype.complete = function () {
+          this.dispose();
+      };
+      StreamListener.prototype.error = function (value) {
+          this.current = value;
+          this.dispose();
+      };
+      __decorate([
+          mobx.observable.ref
+      ], StreamListener.prototype, "current", void 0);
+      __decorate([
+          mobx.action.bound
+      ], StreamListener.prototype, "next", null);
+      __decorate([
+          mobx.action.bound
+      ], StreamListener.prototype, "complete", null);
+      __decorate([
+          mobx.action.bound
+      ], StreamListener.prototype, "error", null);
+      return StreamListener;
+  }());
+
+  var __assign =  function () {
+      __assign = Object.assign || function(t) {
+          for (var s, i = 1, n = arguments.length; i < n; i++) {
+              s = arguments[i];
+              for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                  t[p] = s[p];
+          }
+          return t;
+      };
+      return __assign.apply(this, arguments);
+  };
+  var __decorate$1 =  function (decorators, target, key, desc) {
+      var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+      if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+      else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+      return c > 3 && r && Object.defineProperty(target, key, r), r;
+  };
+  var RESERVED_NAMES = ["model", "reset", "submit", "isDirty", "isPropertyDirty", "resetProperty"];
+  var ViewModel = /** @class */ (function () {
+      function ViewModel(model) {
+          var _this = this;
+          this.model = model;
+          this.localValues = mobx.observable.map({});
+          this.localComputedValues = mobx.observable.map({});
+          this.isPropertyDirty = function (key) {
+              return _this.localValues.has(key);
+          };
+          invariant(mobx.isObservableObject(model), "createViewModel expects an observable object");
+          // use this helper as Object.getOwnPropertyNames doesn't return getters
+          getAllMethodsAndProperties(model).forEach(function (key) {
+              if (key === mobx.$mobx || key === "__mobxDidRunLazyInitializers") {
+                  return;
+              }
+              invariant(RESERVED_NAMES.indexOf(key) === -1, "The propertyname " + key + " is reserved and cannot be used with viewModels");
+              if (mobx.isComputedProp(model, key)) {
+                  var derivation = mobx._getAdministration(model, key).derivation; // Fixme: there is no clear api to get the derivation
+                  _this.localComputedValues.set(key, mobx.computed(derivation.bind(_this)));
+              }
+              var descriptor = Object.getOwnPropertyDescriptor(model, key);
+              var additionalDescriptor = descriptor ? { enumerable: descriptor.enumerable } : {};
+              Object.defineProperty(_this, key, __assign(__assign({}, additionalDescriptor), { configurable: true, get: function () {
+                      if (mobx.isComputedProp(model, key))
+                          return _this.localComputedValues.get(key).get();
+                      if (_this.isPropertyDirty(key))
+                          return _this.localValues.get(key);
+                      else
+                          return _this.model[key];
+                  }, set: mobx.action(function (value) {
+                      if (value !== _this.model[key]) {
+                          _this.localValues.set(key, value);
+                      }
+                      else {
+                          _this.localValues.delete(key);
+                      }
+                  }) }));
+          });
+      }
+      Object.defineProperty(ViewModel.prototype, "isDirty", {
+          get: function () {
+              return this.localValues.size > 0;
+          },
+          enumerable: true,
+          configurable: true
+      });
+      Object.defineProperty(ViewModel.prototype, "changedValues", {
+          get: function () {
+              return this.localValues.toJS();
+          },
+          enumerable: true,
+          configurable: true
+      });
+      ViewModel.prototype.submit = function () {
+          var _this = this;
+          mobx.keys(this.localValues).forEach(function (key) {
+              var source = _this.localValues.get(key);
+              var destination = _this.model[key];
+              if (mobx.isObservableArray(destination)) {
+                  destination.replace(source);
+              }
+              else if (mobx.isObservableMap(destination)) {
+                  destination.clear();
+                  destination.merge(source);
+              }
+              else if (!mobx.isComputed(source)) {
+                  _this.model[key] = source;
+              }
+          });
+          this.localValues.clear();
+      };
+      ViewModel.prototype.reset = function () {
+          this.localValues.clear();
+      };
+      ViewModel.prototype.resetProperty = function (key) {
+          this.localValues.delete(key);
+      };
+      __decorate$1([
+          mobx.computed
+      ], ViewModel.prototype, "isDirty", null);
+      __decorate$1([
+          mobx.computed
+      ], ViewModel.prototype, "changedValues", null);
+      __decorate$1([
+          mobx.action.bound
+      ], ViewModel.prototype, "submit", null);
+      __decorate$1([
+          mobx.action.bound
+      ], ViewModel.prototype, "reset", null);
+      __decorate$1([
+          mobx.action.bound
+      ], ViewModel.prototype, "resetProperty", null);
+      return ViewModel;
+  }());
+
+  const isNumeric = (n) => !isNaN(n) && isFinite(n);
+
+  function isString$1(value) {
+      return typeof value == 'string';
+  }
+
+  function isEntityConcept(concept) {
+      return ["entity_set", "entity_domain"].includes(concept.concept_type);
+  }
+
+  function mapToObj(map) {
+      const obj = {};
+      map.forEach((v, k) => { obj[k] = v; });
+      return obj;
+  }
+
+  // intersect of two arrays (representing sets)
+  // i.e. everything in A which is also in B
+  function intersect(a, b) {
+      return a.filter(e => b.includes(e));
+  }
+
+  /**
+   * Is A a proper subset of B
+   * Every A is in B, but A != B
+   * @param {*} a 
+   * @param {*} b 
+   */
+  function isProperSubset(a, b) {
+      const intersection = intersect(a,b);
+      return intersection.length == a.length && intersection.length != b.length;
+  }
+
+  /**
+   * Relative complement (difference, B\A) of A with respect to B
+   * Everything in B which is not in A. A=[geo,year], B=[geo,year,gender], B\A = [gender]
+   * @param {*} a array representing set A
+   * @param {*} b array representing set B
+   */
+  function relativeComplement(a, b) {
+      return b.filter(e => !a.includes(e));
+  }
+
+  // returns true if a and b are identical, regardless of order (i.e. like sets)
+  function arrayEquals(a, b) {
+      const overlap = intersect(a, b);
+      return overlap.length == a.length && overlap.length == b.length;
+  }
+
+  // copies properties using property descriptors so accessors (and other meta-properties) get correctly copied
+  // https://www.webreflection.co.uk/blog/2015/10/06/how-to-copy-objects-in-javascript
+  // rewrote for clarity and make sources overwrite target (mimic Object.assign)
+  function assign(target, ...sources) {
+      sources.forEach(source => {
+          Object.keys(source).forEach(property => {
+              Object.defineProperty(target, property, Object.getOwnPropertyDescriptor(source, property));
+          });
+      });
+      return target;
+  }
+  function composeObj(...parts) {
+      return assign({}, ...parts);
+  }
+
+  function ucFirst(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  // gets a getter accessor from an object and binds it to the object
+  // used to overload methods when decorating objects
+  function getBoundGetter(obj, prop) {
+      return Object.getOwnPropertyDescriptor(obj, prop).get.bind(obj);
+  }
+
+  function moveProperty(oldObj, oldProp, newObj, newProp) {
+      Object.defineProperty(newObj, newProp, Object.getOwnPropertyDescriptor(oldObj, oldProp));
+  }
+  function renameProperty(obj, oldProp, newProp) {
+      moveProperty(obj, oldProp, obj, newProp);
+  }
+
+  function fromPromiseAll(promiseArray) {
+      if (promiseArray.every(p.state == "fulfilled"))
+          return fromPromise.resolve(promiseArray);
+      if (promiseArray.some(p => p.state == "rejected"))
+          return fromPromise.reject(promiseArray);
+  }
+
+  function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
+      if (Array.isArray(functions)) functions = assign({}, ...functions);
+      const newType = function decorate(config, parent) {
+          applyDefaults(config, defaultConfig);
+          delete functions.config;
+          base = (base == null) ? (config, parent) => ({ config, parent }) : base;
+          return assign(base(config, parent), functions);
+      };
+      newType.decorate = base.decorate;
+      return newType;
+  }
+
+  function combineStates(states) {
+      if (states.some(state => state === "rejected")) return "rejected";
+      if (states.every(state => state === "fulfilled")) return "fulfilled";
+      return "pending";
+  }
+
+  // code from https://github.com/TehShrike/is-mergeable-object
+  function isMergeableObject(value) {
+      return isNonNullObject(value) &&
+          !isSpecial(value)
+  }
+
+  function isNonNullObject(value) {
+      return !!value && typeof value === 'object'
+  }
+
+  function isSpecial(value) {
+      var stringValue = Object.prototype.toString.call(value);
+
+      return stringValue === '[object RegExp]' ||
+          stringValue === '[object Date]' ||
+          isReactElement(value)
+  }
+
+  // see https://github.com/facebook/react/blob/b5ac963fb791d1298e7f396236383bc955f916c1/src/isomorphic/classic/element/ReactElement.js#L21-L25
+  var canUseSymbol = typeof Symbol === 'function' && Symbol.for;
+  var REACT_ELEMENT_TYPE = canUseSymbol ? Symbol.for('react.element') : 0xeac7;
+
+  function isReactElement(value) {
+      return value.$$typeof === REACT_ELEMENT_TYPE
+  }
+
+  // c merge and helpers
+  // code from https://github.com/KyleAMathews/deepmerge
+  function emptyTarget(val) {
+      return Array.isArray(val) ? [] : {}
+  }
+
+  function cloneUnlessOtherwiseSpecified(value, options) {
+      return (options.clone !== false && options.isMergeableObject(value)) ?
+          deepmerge(emptyTarget(value), value, options) :
+          value
+  }
+
+  function mergeObject(target, source, options) {
+      var destination = {};
+      if (options.isMergeableObject(target)) {
+          Object.keys(target).forEach(function(key) {
+              destination[key] = cloneUnlessOtherwiseSpecified(target[key], options);
+          });
+      }
+      Object.keys(source).forEach(function(key) {
+          if (!options.isMergeableObject(source[key]) || !target[key]) {
+              destination[key] = cloneUnlessOtherwiseSpecified(source[key], options);
+          } else {
+              destination[key] = deepmerge(target[key], source[key], options);
+          }
+      });
+      return destination
+  }
+
+  const overwriteMerge = (destinationArray, sourceArray, options) => sourceArray;
+
+  function deepmerge(target, source, options) {
+      options = options || {};
+      options.arrayMerge = options.arrayMerge || overwriteMerge;
+      options.isMergeableObject = options.isMergeableObject || isMergeableObject;
+
+      var sourceIsArray = Array.isArray(source);
+      var targetIsArray = Array.isArray(target);
+      var sourceAndTargetTypesMatch = sourceIsArray === targetIsArray;
+
+      if (!sourceAndTargetTypesMatch) {
+          return cloneUnlessOtherwiseSpecified(source, options)
+      } else if (sourceIsArray) {
+          return options.arrayMerge(target, source, options)
+      } else {
+          return mergeObject(target, source, options)
+      }
+  }
+
+  deepmerge.all = function deepmergeAll(array, options) {
+      if (!Array.isArray(array)) {
+          throw new Error('first argument should be an array')
+      }
+
+      return array.reduce(function(prev, next) {
+          return deepmerge(prev, next, options)
+      }, {})
+  };
+
+  function deepclone(object) {
+      return deepmerge({}, object);
+  }
+
+  function applyDefaults(config, defaults) {
+      const defaultProps = Object.keys(defaults);
+      defaultProps.forEach(prop => {
+          if (!config.hasOwnProperty(prop))
+              if (isMergeableObject(defaults[prop]))
+                  config[prop] = deepclone(defaults[prop]); // object
+              else
+                  config[prop] = defaults[prop]; // non object, e.g. null
+          else if (isMergeableObject(defaults[prop]))
+              if (isMergeableObject(config[prop]))
+                  applyDefaults(config[prop], defaults[prop]);
+              else
+                  config[prop] = deepclone(defaults[prop]);
+      });
+      return config;
+  }
+
+  function equals(a,b) {
+      if (a instanceof Date && b instanceof Date) {
+          return a.getTime() === b.getTime();
+      }
+      return a === b;
+  }
+
+  function getTimeInterval(unit) {
+      let interval;
+      if (interval = d3['utc' + ucFirst(unit)]) return interval;
+  }
+
+  function stepIterator(stepUnit, stepSize, domain) {
+      let interval;
+      if (interval = getTimeInterval(stepUnit)) {
+          return function* (min = domain[0], max = domain[1]) { 
+              for (let i = min; i <= max; i = interval.offset(i, stepSize) )
+                  yield i;
+          };
+      } else if (stepUnit === "number") {
+          return function* (min = domain[0], max = domain[1]) { 
+              for (let i = min; i <= max; i += stepSize)
+                  yield i;
+          };
+      } else if (stepUnit === "index") {
+          return function* (min, max = domain.length) {
+              min = (min === undefined) ? 0 : domain.indexOf(min);
+              for (let i = min; i < max; i += stepSize)
+                  yield domain[i];
+          }
+      }
+      console.warn("No valid step iterator found.", { stepUnit, stepSize, domain });
+  }
+
+  function configValue(value, concept) {
+      const { concept_type } = concept;
+      if (concept_type == "time" && value instanceof Date) {
+          return concept.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
+      }
+      return value;
+  }
+
+  const defaultParsers = [
+      d3.utcParse('%Y'),
+      d3.utcParse('%Y-%m'),
+      d3.utcParse('%Y-%m-%d'),
+      d3.utcParse('%Y-%m-%dT%H'),
+      d3.utcParse('%Y-%m-%dT%H-%M'),
+      d3.utcParse('%Y-%m-%dT%H-%M-%S')
+  ];
+
+  function tryParse(timeString, parsers) {
+      for (let i = 0; i < parsers.length; i++) {
+        let dateObject = parsers[i](timeString);
+        if (dateObject) return dateObject;
+      }
+      console.warn('Could not parse time string ' + timeString);
+      return null;
+  }
+
+  function parseConfigValue(valueStr, concept) {
+      const { concept_type } = concept;
+
+      if (concept_type === "time") {
+          let parsers = concept.format 
+              ? [d3.utcParse(concept.format), ...defaultParsers]
+              : defaultParsers;
+          return tryParse(valueStr, parsers);
+      }
+
+      if (concept_type === "measure") {
+          return +valueStr;
+      }
+
+      return ""+valueStr;
+  }
+  function formatDate(date) {
+      var month = date.getUTCMonth(),
+          day = date.getUTCDate(),
+          hours = date.getUTCHours(),
+          minutes = date.getUTCMinutes(),
+          seconds = date.getUTCSeconds(),
+          milliseconds = date.getUTCMilliseconds();
+      return isNaN(date) ? "Invalid Date"
+          : milliseconds ? formatFullDate(date) + "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "." + pad(milliseconds, 3) + "Z"
+          : seconds ? formatFullDate(date) + "T" + pad(hours, 2) + ":" + pad(minutes, 2) + ":" + pad(seconds, 2) + "Z"
+          : minutes || hours ? formatFullDate(date) + "T" + pad(hours, 2) + ":" + pad(minutes, 2) + "Z"
+          : day !== 1 ? formatFullDate(date)
+          : month ? formatYear(date.getUTCFullYear()) + "-" + pad(date.getUTCMonth() + 1, 2)
+          : formatYear(date.getUTCFullYear());
+  }
+
+  function formatFullDate(date) {
+      return formatYear(date.getUTCFullYear()) + "-" + pad(date.getUTCMonth() + 1, 2) + "-" + pad(date.getUTCDate(), 2);
+  }
+
+  function formatYear(year) {
+      return year < 0 ? "-" + pad(-year, 6)
+          : year > 9999 ? "+" + pad(year, 6)
+          : pad(year, 4);
+  }
+
+  function pad(value, width) {
+      var s = value + "", length = s.length;
+      return length < width ? new Array(width - length + 1).join(0) + s : s;
+  }
+      
+  const defer = setTimeout;
+
+  function compose2(f, g) {
+      return (...args) => f(g(...args));
+  }
+  function compose(...fns) {
+      return fns.reduce(compose2);
+  }
+  function pipe(...fns) {
+      return fns.reduceRight(compose2);
+  }
+
+
+  function stableStringifyObject(obj) { 
+      return JSON.stringify(canonicalObject(obj));
+  }
+
+  function canonicalObject(where) {
+      if (!isNonNullObject(where)) 
+          return where;
+      const keys = Object.keys(where).sort();
+      return keys.map(key => ({ [key]: canonicalObject(where[key]) }));
+  }
+
+  /**
+   * Returns value for `key` in `map`. If `key` not in map, first create new value using `create` getter function and set it to `key`.
+   * @param {Map} map Map to get from
+   * @param {Any} key Key to map
+   * @param {Function} create Function which returns new value for new keys
+   */
+  function getOrCreate(map, key, create) {
+      let value;
+      if (map.has(key))
+          value = map.get(key);
+      else {
+          value = create();
+          map.set(key, value);
+      }
+      return value;
+  }
+
+  var utils = /*#__PURE__*/Object.freeze({
+    __proto__: null,
+    isNumeric: isNumeric,
+    isString: isString$1,
+    isEntityConcept: isEntityConcept,
+    mapToObj: mapToObj,
+    intersect: intersect,
+    isProperSubset: isProperSubset,
+    relativeComplement: relativeComplement,
+    arrayEquals: arrayEquals,
+    assign: assign,
+    composeObj: composeObj,
+    ucFirst: ucFirst,
+    getBoundGetter: getBoundGetter,
+    moveProperty: moveProperty,
+    renameProperty: renameProperty,
+    fromPromiseAll: fromPromiseAll,
+    defaultDecorator: defaultDecorator,
+    combineStates: combineStates,
+    isNonNullObject: isNonNullObject,
+    deepmerge: deepmerge,
+    deepclone: deepclone,
+    applyDefaults: applyDefaults,
+    equals: equals,
+    stepIterator: stepIterator,
+    configValue: configValue,
+    parseConfigValue: parseConfigValue,
+    defer: defer,
+    compose: compose,
+    pipe: pipe,
+    stableStringifyObject: stableStringifyObject,
+    getOrCreate: getOrCreate
+  });
+
+  const createStore = function(baseType, extendedTypes = {}) {
+      return mobx.observable({
+          modelTypes: {
+              base: baseType,
+              all: {
+                  baseType,
+                  ...extendedTypes
+              }
+          },
+          named: new Map(),
+          configRef: new Map(),
+          get: function(id) {
+              return this.named.get(id);
+          },
+          addType: function(modelType, modelConstructor) {
+              if (this.modelTypes[modelType])
+                  console.warn("Adding model type " + modelType + " failed. Type already exists", this);
+              this.modelTypes.all[modelType] = modelConstructor;
+          },
+          getAll: function() {
+              return [...this.named.values(), ...this.configRef.values()];
+          },
+          has: function(id) {
+              return this.named.has(id);
+          },
+          create: function(config, parent) {
+              //if (isObservableObject(config)) config = toJS(config);
+              let modelType = this.modelTypes.all[config.modelType] || this.modelTypes.base;
+              let model = mobx.observable(
+                  modelType(config, parent), 
+                  modelType.decorate || undefined, 
+                  { name: modelType.name || config.modelType || 'base' }
+              );
+              if (model.setUpReactions) model.setUpReactions();
+              return model;
+          },
+          set: mobx.action('store set', function(config, id, parent) {
+              let model = this.create(config, parent);
+              id ? this.named.set(id, model) : this.configRef.set(config, model);
+              return model;
+          }),
+          setMany: function(configs) {
+              const models = {};
+              for (let id in configs) {
+                  models[id] = this.set(configs[id], id);
+              }
+              return models;
+          },
+          /**
+           * Definition is either the (1) model config object or (2) string id of the model  
+           * Case 1: creates and returns anonymous model
+           * Case 2: tries to fetch model from named models
+           * @param {string/object} def 
+           * @returns {model} Returns the model that was fetched or created
+           */
+          getByDefinition(def, parent) {
+
+              // get by config by reference string
+              // e.g. "markers.bubbles.encoding.size.data.concept"
+              if (isString$1(def.ref) || isNonNullObject(def.ref)) {
+                  if (this.configRef.has(def)) {
+                      return this.configRef.get(def);
+                  }
+                  def = resolveRef(def);
+              }
+
+              // get by config of another model
+              if (isNonNullObject(def) && "config" in def) {
+                  def = def.config;
+              }
+
+              // get by config object
+              if (!isString$1(def) && def !== null) {
+                  if (this.configRef.has(def)) {
+                      return this.configRef.get(def);
+                  }
+                  return this.set(def, null, parent);
+              }
+
+              // get by string name/id
+              if (this.has(def)) {
+                  return this.get(def);
+              }
+              console.warn("Store: cannot find model with definition: ", def, { store: this });
+              return null;
+          },
+          /**
+           * 
+           * @param {*} defs Object of model definitions
+           * @returns {Map} Map with models according to definitions
+           */
+          getByDefinitions(defs, parent) {
+              const map = new Map();
+              Object.keys(defs).forEach(prop => {
+                  map.set(prop, this.getByDefinition(defs[prop]), parent);
+              });
+              return map;
+          }
+
+      }, {
+          named: mobx.observable.shallow,
+          configRef: mobx.observable.shallow
+      });
+  };
+
+  const configurable = {
+      applyConfig: mobx.action('applyConfig', function(config) {
+          this.config = deepmerge(this.config, config);
+          return this;
+      })
+  };
+
+  // only on base level now, should be recursive
+  function dotToJoin(query) {
+      const props = query.where && Object.keys(query.where);
+      if (!props || props.length == 0)
+          return query;
+
+      const where = query.where,
+          newq = deepmerge({}, query);
+
+      let i = 0;
+
+      props.forEach(p => {
+          const s = p.split('.');
+          if (s.length > 1) {
+              const [key, value] = s;
+              const filter = where[p];
+
+              const joinid = "$" + key + i++;
+              delete newq.where[p];
+              newq.where[key] = joinid;
+
+              if (!newq.join) newq.join = {};
+
+              newq.join[joinid] = {
+                  key: key,
+                  where: {
+                      [value]: filter
+                  }
+              };
+          }
+      });
+
+      console.log("Transformed query: ", query, newq);
+      return newq;
+  }
+
+  // needed for WS
+  function addExplicitAnd(query) {
+      // return if no where or only single where
+      const props = query.where && Object.keys(query.where);
+      if (!props || props.length < 2)
+          return query;
+
+      const newq = deepmerge({}, query);
+      newq.where = {
+          "$and": []
+      };
+      props.forEach(prop => {
+          newq.where["$and"].push({
+              [prop]: query.where[prop]
+          });
+      });
+
+      console.log("Transformed query: ", query, newq);
+      return newq;
+  }
+
+  const directions = {
+      ascending: 1,
+      decending: -1
+  };
+
+  function order(df, order_by = []) {
+      if (order_by.length == 0) return df;
+
+      const data = Array.from(df.values());
+      const orderNormalized = normalizeOrder(order_by);
+      const n = orderNormalized.length;
+
+      data.sort((a,b) => {
+          for (var i = 0; i < n; i++) {
+              const order = orderNormalized[i];
+              if (a[order.concept] < b[order.concept])
+                  return -1 * order.direction;
+              else if (a[order.concept] > b[order.concept])
+                  return order.direction;
+          } 
+          return 0;
+      });
+
+      return DataFrame(data, df.key);
+  }
+
+  /**    
+   * Process ["geo"] or [{"geo": "asc"}] to [{ concept: "geo", direction: 1 }];
+   * @param {} order 
+   */
+  function normalizeOrder(order_by) {
+      if (typeof order_by === "string") 
+          return [{ concept: order_by, direction: directions.ascending }];
+      return order_by.map(orderPart => {
+          if (typeof orderPart == "string") {
+              return { concept: orderPart, direction: directions.ascending };
+          }	else {
+              const concept   = Object.keys(orderPart)[0];
+              const direction = orderPart[concept] == "asc" 
+                  ? directions.ascending 
+                  : directions.decending;
+              return { concept, direction };
+          }
+      });
+  }
+
+  function fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {
+      
+      return joinParams
+          .reduce((params, param) => {
+              const baseParam = params.find(baseParam => baseParam.dataFrame === param.dataFrame);
+              if (baseParam)
+                  Object.keys(param.projection).forEach(key => {
+                      baseParam.projection[key] = param.projection[key];
+                  });
+              else
+                  params.push(param);
+              return params;
+          }, [])
+          .reduce(
+              _fullJoin, 
+              DataFrame([], joinKey)
+          );
+
+  }
+
+  /**
+   * Full join. Impure: Modifies left df. Left key is join key. Right key must contain all join key fields (can't use regular fields for joining).
+   * @param {DataFrame} left DataFrame used as base for join
+   * @param {*} rightCfg { dataFrame: DataFrame, projection: { origField: projField } }
+   */
+  function _fullJoin(left, rightCfg) {
+      // join or copy right rows onto result
+      const joinKey = left.key;
+      const dataKey = rightCfg.dataFrame.key;
+      const projection = normalizeProjection(rightCfg.projection) || {};
+
+      if (!joinKey.every(dim => dataKey.includes(dim)))
+          console.warn("Right key does not contain all join fields.", { left: left, right: rightCfg });
+      if (!projection || Object.keys(projection).length === 0)
+          console.warn("No projection given for join so no new fields will be joined", { left: left, right: rightCfg } );
+
+      for (let [keyStr, rightRow] of rightCfg.dataFrame) {
+          const leftRow = getOrCreateRow(left, joinKey, rightRow, keyStr);  
+          // project with aliases        
+          for(let key in projection) {
+              leftRow[projection[key]] = rightRow[key];
+          }
+      }
+
+      return left;
+  }
+
+  // change array ["geo","year"] to { geo: "geo", year: "year" }
+  function normalizeProjection(projection) {
+      if (!Array.isArray(projection))
+          return projection;
+      
+      return projection.reduce((obj, field) => {
+          obj[field] = field;
+          return obj;
+      }, {});
+  }
+
+  function createObj(space, row, keyStr) {
+      const obj = {
+          [Symbol.for('key')]: keyStr
+      };
+      space.forEach(dim => obj[dim] = row[dim]);
+      return obj;
+  }
+
+  function getOrCreateRow(df, keyArr, row, keyStr) {
+      let obj;
+      // if (keyStr == undefined) keyStr = createMarkerKey(row, keyArr);
+      if (!df.hasByObjOrStr(row, keyStr)) {
+          obj = createObj(keyArr, row, keyStr);
+          df.set(obj, keyStr);
+      } else {
+          obj = df.getByObjOrStr(row, keyStr);
+      }
+      return obj;
+  }
+
+  function getIter(iter) {
+      if ("values" in iter && typeof iter.values === "function")
+          return iter.values();
+      return iter;
+  }
+
+  function isDataFrame(data) {
+      return "hasByObjOrStr" in data && typeof data.hasByObjOrStr === "function";
+  }
+
+  // returns true if a and b are identical, regardless of order (i.e. like sets)
+  function arrayEquals$1(a, b) {
+      const overlap = intersect$1(a, b);
+      return overlap.length == a.length && overlap.length == b.length;
+  }
+
+  // intersect of two arrays (representing sets)
+  // i.e. everything in A which is also in B
+  function intersect$1(a, b) {
+      return a.filter(e => b.includes(e));
+  }
+
+  function isNonNullObject$1(value) {
+      return !!value && typeof value === 'object'
+  }
+
+  function normalizeKey(key) {
+      return key.slice(0).sort();
+  }
+
+  const createKeyStr = (key) => key.map(esc).join('-');
+  // micro-optimizations below as this is code that runs for each row in data to create key to the row
+
+  const isNumeric$1 = (n) => !isNaN(n) && isFinite(n);
+
+  // TODO: probably use different replace function, long version in jsperf
+  // string replace functions jsperf: https://jsperf.com/string-replace-methods
+  // regexp not here, not fast in any browser
+  /**
+   * Verbose string replace using progressive indexOf. Fastest in Chrome.
+   * Does not manipulate input string.
+   * @param {*} str Input string
+   * @param {*} ndl Needle to find in input string
+   * @param {*} repl Replacement string to replace needle with
+   */
+  function replace(str, ndl, repl) {
+      var outstr = '',
+          start = 0,
+          end = 0,
+          l = ndl.length;
+      if (!str && str !== "" || str === undefined) debugger;
+      while ((end = str.indexOf(ndl, start)) > -1) {
+          outstr += str.slice(start, end) + repl;
+          start = end + l;
+      }
+      return outstr + str.slice(start);
+  }
+
+  // precalc strings for optimization
+  const escapechar = "\\";
+  const joinchar = "-";
+  const dblescape = escapechar + escapechar;
+  const joinescape = escapechar + joinchar;
+  var esc = str => {
+      if (str instanceof Date) str = str.toISOString();
+      if (isNumeric$1(str)) return str;
+      return replace(replace(str, escapechar, dblescape), joinchar, joinescape);
+  };
+
+  // jsperf of key-creation options. Simple concat hash + escaping wins: https://jsperf.com/shallow-hash-of-object
+  // for loop is faster than keys.map().join('-');
+  // but in Edge, json.stringify is faster
+  // pre-escaped space would add extra performance
+  const createDimKeyStr = (dim, dimVal) => {
+      if (dimVal instanceof Date) dimVal = dimVal.toISOString();
+      //if (!dim || !dimVal) debugger;
+      return esc(dim) + joinchar + esc(dimVal);
+  };
+  const createMarkerKey = (row, space = Object.keys(row).sort()) => {
+      const l = space.length;
+
+  /*    if (l===1)
+          return createDimKeyStr(space[0],row[space[0]]+"";
+  */
+
+      // space.map(c => createDimKeyStr(row[c]))).join(joinchar);
+      var res = (l > 0) ? createDimKeyStr(space[0], row[space[0]]) : '';
+      for (var i = 1; i < l; i++) {
+          res += joinchar + createDimKeyStr(space[i], row[space[i]]);
+      }
+      return res
+  };
+
+  const createKeyFn = (space) => {
+      const spaceEsc = space.map(esc);
+      const l = space.length;
+      return (row) => {
+          const parts = [];
+          let field, i, j;
+          for (i = j = 0; i < l; i++, j+=2) {
+              parts[j] = field = spaceEsc[i]; 
+              parts[j+1] = esc(row[field]);
+          }
+          return parts.join(joinchar);
+      }
+  };
+
+  function parseMarkerKey(str) {
+      // "remove" escaping by splitting to be able to split on actual joins
+      // then, put it back together
+      var parts = str.split(dblescape).map(
+          s => s.split(joinescape).map(
+              s => s.split(joinchar)
+          )
+      );
+      var values = [];
+      var val = '';
+      for (let i = 0; i < parts.length; i++) {
+          for (let j = 0; j < parts[i].length; j++) {
+              for (let k = 0; k < parts[i][j].length; k++) {
+                  // double escape found, glue again with escape char
+                  if (j === 0 && k === 0) {
+                      if (i !== 0) val += escapechar;
+                      val += parts[i][j][k];
+                  } 
+                  // joinescape found, glue again with join char
+                  else if (k === 0) {
+                      if (j !== 0) val += joinchar;
+                      val += parts[i][j][k];
+                  }
+                  // actual joinchar found, correct split
+                  else {
+                      values.push(val);
+                      val = parts[i][j][k];    
+                  }
+              }
+          }
+      }
+      values.push(val);
+
+      // create key, odd is dim, even is dimension value
+      const key = {};
+      for (let i = 0; i < values.length; i += 2) {
+          key[values[i]] = values[i+1];
+      }
+      return key;
+  }
+
+  function rangeIndex(index = 0) {
+      return (row, key) => index++;
+  }
+
+  function MapStorage(data = [], keyArr = data.key || []) {
+      
+      const storage = createEmptyMap();
+      storage.key = keyArr;
+      storage.batchSet(data);
+
+      return storage;
+  }
+
+  function createEmptyMap() {
+      const storage = new Map();
+      let key = [], isRangeKey;
+
+      // local references to functions which will be decorated
+      const has = storage.has.bind(storage);
+      const get = storage.get.bind(storage);
+      const set = storage.set.bind(storage);
+
+      storage.fields = new Set();
+      storage.keyFn = rangeIndex(0);
+      storage.setKey = newKey => {
+          key = normalizeKey(newKey); 
+          isRangeKey = key.length === 0; 
+          storage.keyFn = isRangeKey ? rangeIndex(0) : createKeyFn(storage.key);
+          storage.updateIndexes(storage);
+      };
+      Object.defineProperty(storage, 'key', { 
+          set: storage.setKey,
+          get: () => key
+      });
+      storage.has = keyObj => isRangeKey ? false     : has(storage.keyFn(keyObj));
+      storage.get = keyObj => isRangeKey ? undefined : get(storage.keyFn(keyObj));
+      storage.set = (row, keyStr) => {
+          // passing keyStr is optimization to circumvent keyStr generation (TODO: check performance impact)
+          // if keyStr set, we assume it's correct. Only use when you know keyStr fits with current key dims
+          if (keyStr === undefined || isRangeKey)
+              keyStr = storage.keyFn(row, key);
+          checkFields(storage.fields, row);
+          row[Symbol.for('key')] = keyStr;
+          set(keyStr, row);
+      };
+      storage.hasByObjOrStr = (keyObj, keyStr) => has(keyStr);
+      storage.getByObjOrStr = (keyObj, keyStr) => get(keyStr);
+      storage.batchSet = rowIter => batchSet(storage, rowIter);
+      storage.rows = storage.values;
+      storage.updateIndexes = () => updateIndexes(storage);
+      return storage;
+  }
+
+  function checkFields(fields, row) {
+      for (let field in row) {
+          if (!fields.has(field)) {
+              fields.add(field);
+          }
+      }
+  }
+
+  function batchSet(storage, rowIter) {
+      const duplicates = [];
+
+      rowIter = getIter(rowIter);
+
+      for (let row of rowIter) {
+          if (storage.has(row))
+              duplicates.push({ keyStr: storage.keyFn(row), orig: storage.get(row), new: row});
+          storage.set(row);
+      }
+
+      if (duplicates.length > 0)
+          console.warn('Found duplicates for given key when constructing dataframe.', { key: storage.key, duplicates });
+  }
+
+  function updateIndexes(storage) {
+      for (let [key, row] of storage) {
+          storage.delete(key);
+          // set won't overwrite any not-yet-deleted keys 
+          // because key dims are either different 
+          // or if they're identical, we just removed the key it would overwrite
+          storage.set(row); 
+      }
+  }
+
+  /**
+   * Virtual data frame storage based on lookups. A row is constructed on request from lookups for each dimension of requested key.
+   * @param {*} concepts Map of concepts. Each concept is a map of dimensions. Each dimension is a map of values on that dimension. E.g. name=>geo=>swe=>Sweden
+   */
+  function LookupStorage(concepts, keyArr) {
+      const storage = {};
+      storage.key = keyArr = normalizeKey(keyArr);
+      storage.fields = new Set([...keyArr, ...concepts.keys()]);
+      storage.data = concepts;
+      storage.has = (keyObj) => {
+          // true if there is at least one concept which has a lookup for every dimension in key
+          // i.e. a row can be returned for this key
+          return true; //[...concepts.values()].some(lookups => keyArr.every(dim => dim in keyObj && lookups.has(dim)));
+      };
+      storage.get = (keyObj) => {
+          const row = {};
+          concepts.forEach((lookups, concept) => {
+              const entityProps = {};
+              keyArr.forEach(dim => {
+                  if (lookups.has(dim))
+                      entityProps[dim] = lookups.get(dim).get(keyObj[dim]);
+                  else
+                      entityProps[dim] = keyObj[dim];
+              });
+              row[concept] = entityProps;
+          });
+          return row;
+      };
+      storage.hasByObjOrStr = (keyObj, keyStr) => storage.has(keyObj);
+      storage.getByObjOrStr = (keyObj, keyStr) => storage.get(keyObj);
+      storage.set = (keyObj, value) => { 
+          console.warn("Invalid operation. Generated dataframe does not support .set().");
+      };
+      storage.values = () => { console.warn("Generated dataframe .values() not implemented yet");};
+      storage.delete = () => { console.warn("Invalid operation. Generated dataframe does not support .delete()");};
+      storage[Symbol.iterator] = function* generate() {
+          console.warn("Invalid operation. Generated dataframe iterator not yet implemented.");
+      }; 
+      return storage;
+  }
+
+  function copyColumn(df, srcCol, newCol) {
+      for (let row of df.values()) {
+          row[newCol] = row[srcCol];
+      }
+      return df;
+  }
+
+  // TODO: add check for non-marker space dimensions to contain only one value
+          // -> save first row values and all next values should be equal to first
+
+  /**
+   * Join right on left with overlapping columns of key as join columns.
+   * @param {*} left 
+   * @param  {...any} rights 
+   */
+  function leftJoin(left, rights) {
+      const leftDf = left.dataFrame;
+      const leftKey = leftDf.key;
+      
+      const rightCopies = rights.filter(r => leftKey.some(d => d in r.projection));
+      rights = rights.filter(r => !rightCopies.includes(r)).map(r => { 
+          const sameKey = arrayEquals$1(r.dataFrame.key, leftKey);
+          r.hasFn = sameKey ? "hasByObjOrStr" : "has";
+          r.getFn = sameKey ? "getByObjOrStr" : "get";
+          return r;
+      });
+
+      const result = DataFrame([], leftKey);
+
+      for (let [keyStr, row] of leftDf) {
+          // left row as base
+          const leftRow = cloneRow(row);
+          
+          // join any rows in right dfs which have same key as left row
+          for (let { dataFrame, projection, hasFn, getFn } of rights) {
+              if (dataFrame[hasFn](row, keyStr)) {
+                  const rightRow = dataFrame[getFn](row, keyStr);
+                  for(let key in projection) {
+                      leftRow[projection[key]] = rightRow[key];
+                  }
+              }
+          }
+          
+          // set row
+          result.set(leftRow, keyStr);
+      }
+      for (let right of rightCopies) {
+          // weird chrome bug: using for(let col in right.projection) in combination with 
+          // assigning right.projection[col] to var or passing into function crashes chrome
+          // therefore for...of w/ object.keys
+          // for(let col in right.projection) {
+          for (let col of Object.keys(right.projection)) { 
+              copyColumn(result, col, right.projection[col]); 
+          }   
+      }
+      return result;
+  }
+
+  function joinRows(...rows) {
+      return Object.assign(...rows);
+  }
+  function cloneRow(row) {
+      return joinRows({}, row);
+  }
+
+  /**
+   * Filters dataframe based on either filter function or DDFQL filter specification
+   * @param {DataFrame} df 
+   * @param {Function|FilterSpec} filter 
+   */
+  function filter(df, filter) {
+
+      if (!validFilterArg(filter))
+          return df;
+
+      const filterFn = (typeof filter == "function") ? 
+          filter : createFilterFn(filter);    
+
+      const result = DataFrame([], df.key);
+      for(let [key, row] of df) {
+          if (filterFn(row))
+              result.set(row, key);
+      }
+
+      return result;
+  }
+
+  function validFilterArg(filter) {
+      return filter && (typeof filter === "function" || Object.keys(filter).length > 0)
+  }
+
+  /**
+   * Partially apply applyFilterRow, giving only the filter spec
+   * @param {Object} filterSpec Filter specification according to DDFQL WHERE spec
+   * @returns {Function} Filter function, which takes an object and returns a boolean representing if the object satifies the filterSpec
+   */
+  function createFilterFn(filterSpec) {
+      return (row) => applyFilterRow(row, filterSpec);
+  }
+
+  function applyFilterRow(row, filter) {
+      // implicit $and in filter object handled by .every()
+      return Object.keys(filter).every(filterKey => {
+          let operator;
+          if (operator = operators.get(filterKey)) {
+              // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
+              return operator(row, filter[filterKey]);
+          } else if(typeof filter[filterKey] != "object") { // assuming values are primitives not Number/Boolean/String objects
+              // { <field>: <value> } is shorthand for { <field>: { $eq: <value> }} 
+              return operators.get("$eq")(row[filterKey], filter[filterKey]);
+          } else {
+              // filterSpec[filterKey] is an object and will thus contain a comparison operator
+              // { <field>: { $<operator>: <value> }}
+              // no deep objects (like in Mongo) supported:
+              // { <field>: { <subfield>: { ... } } }
+              return applyFilterRow(row[filterKey], filter[filterKey]);
+          }
+      });
+  }
+
+  const operators = new Map([
+      /* logical operators */
+      ["$and", (row, predicates) => predicates.every(p => applyFilterRow(row,p))],
+      ["$or",  (row, predicates) => predicates.some(p => applyFilterRow(row,p))],
+      ["$not", (row, predicate) => !applyFilterRow(row, predicate)],
+      ["$nor", (row, predicates) => !predicates.some(p => applyFilterRow(row,p))],
+
+      /* comparison operators */
+      ["$eq",  (rowValue, filterValue) => rowValue === filterValue],
+      ["$ne",  (rowValue, filterValue) => rowValue !== filterValue],
+      ["$gt",  (rowValue, filterValue) => rowValue > filterValue],
+      ["$gte", (rowValue, filterValue) => rowValue >= filterValue],
+      ["$lt",  (rowValue, filterValue) => rowValue < filterValue],
+      ["$lte", (rowValue, filterValue) => rowValue <= filterValue],
+      ["$in",  (rowValue, filterValue) => filterValue.includes(rowValue)],
+      ["$nin", (rowValue, filterValue) => !filterValue.includes(rowValue)],
+  ]);
+
+  // use projection feature of full join
+  const project = (df, projection) => fullJoin([{ dataFrame: df, projection: projection }]);
+
+  /**
+   * Adds column to df, in place
+   * @param {DataFrame} df 
+   * @param {string} name 
+   * @param {value|function} value 
+   */
+  function addColumn(df, name, value) {
+      if (typeof value == "function") {
+          for (let row of df.values()) {
+              row[name] = value(row);
+          }
+      }
+      else {    
+          for (let row of df.values()) {
+              row[name] = value;
+          }
+      }
+      return df;
+  }
+
+  function interpolate(df) {
+      return interpolateAllFields(df);
+  }
+
+  function interpolateAllFields(df) {
+      for (let field of df.fields) {
+          interpolateField(df, field);
+      }
+      return df;
+  }
+
+  function interpolateField(df, field) {
+      let prevVal = null;
+      let gapRows = [];
+      for (let row of df.values()) {
+          const fieldVal = row[field];
+          if (fieldVal === undefined || fieldVal === null) {
+              gapRows.push(row);
+          } else {
+              // fill gap if it exists and is inner
+              if (prevVal != null && gapRows.length > 0) {
+                  interpolateGap(gapRows, prevVal, fieldVal, field);
+              }
+              gapRows = [];
+              prevVal = fieldVal;
+          }
+      }
+  }
+
+  function interpolateGap(gapRows, startVal, endVal, field) {
+      const int = d3.interpolate(startVal, endVal);
+      const delta = 1 / (gapRows.length+1);
+      let mu = 0;
+      for (let gapRow of gapRows) {
+          mu += delta;
+          gapRow[field] = int(mu);
+      }
+  }
+
+  // TODO: add check if there are rows that are don't fit stepfn 
+  // (iterate over df and match one step of stepfn with step of iteration)
+  function reindex(df, stepGen) {
+      const empty = createEmptyRow(df.fields);
+      const result = DataFrame([], df.key);
+      const index = df.key[0]; // supports only single indexed
+      for (let key of stepGen()) {
+          const keyObj = { [index]: key };
+          const row = df.has(keyObj) 
+              ? df.get(keyObj)
+              : Object.assign({ }, empty, keyObj);
+          result.set(row);
+      }
+      return result;
+  }
+
+  function createEmptyRow(fields) {
+      const obj = {};
+      for (let field of fields) obj[field] = null;
+      return obj;
+  }
+
+  /**
+   * 
+   * @param {*} df DataFrame from which to create groups
+   * @param {*} key key by which is grouped
+   * @param {*} descKeys keys of groups and their descendants
+   */
+  function DataFrameGroupMap(df, key, descKeys = []) {
+
+      if (!Array.isArray(descKeys)) descKeys = [[descKeys]]; // desc keys is single string (e.g. 'year')
+      if (!Array.isArray(descKeys[0])) descKeys = [descKeys]; // desc keys is one key (e.g. ['year'])
+      if (!Array.isArray(key)) key = [key]; // key is single string (e.g. 'year')
+      if (!isDataFrame(df)) df = DataFrame(df);
+      if (descKeys.length === 0) descKeys = [df.key];  // descKeys is empty
+      
+      const groupMap = createGroupMap(key, descKeys);
+
+      for (let row of df.values()) {
+          groupMap.setRow(row);
+      }
+
+      return groupMap; 
+  }
+
+  function createGroupMap(key, descendantKeys) {
+      const groupMap = new Map();
+      groupMap.key = key;
+      groupMap.keyFn = createKeyFn(key);
+      groupMap.descendantKeys = descendantKeys;
+      groupMap.groupType = () => groupMap.descendantKeys.length === 1 ? 'DataFrame' : 'GroupMap';
+      groupMap.each = (fn) => each(groupMap, fn);
+      groupMap.map = (fn) => map(groupMap, fn);
+      // groupMap.mapCall = (fn) => mapCall(groupMap, fn); // not exposing mapcall
+      groupMap.interpolate = mapCall(groupMap, "interpolate");
+      groupMap.filter = mapCall(groupMap, "filter");
+      groupMap.order = mapCall(groupMap, "order");
+      groupMap.reindex = mapCall(groupMap, "reindex");
+      groupMap.flatten = (key) => flatten(groupMap, key);
+      groupMap.groupBy = (key) => {
+          for (let group of groupMap.values()) {
+              const newGroup = group.groupBy(key);
+
+              // groups change from DataFrame to GroupMap
+              if (groupMap.groupType() === 'DataFrame')
+                  groupMap.set(key, newGroup);
+          }
+          groupMap.descendantKeys.push(key);
+          return groupMap;
+      };
+      groupMap.createChild = (keyStr) => createChild(groupMap, keyStr);
+      groupMap.toJSON = () => mapToObject(groupMap);
+      groupMap.rows = function* () {
+          let group, row; 
+          for (group of groupMap.values()) {
+              for (row of group.rows()) // get rows recursively
+                  yield row;
+          }
+      };
+      groupMap.filterGroups = (filterFn) => {
+          let result = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
+          for (let [key, group] of groupMap) {
+              const newGroup = group.filterGroups(filterFn);
+              if (filterFn(newGroup)) 
+                  result.set(key, newGroup);
+          }
+          return result;
+      };
+      groupMap.setRow = (row) => {
+          getOrCreateGroup(groupMap, row)
+              .setRow(row);
+      };
+      return groupMap;
+  }
+
+  function each(grouping, fn) {
+      for (let [key, df] of grouping) {
+          fn(df, parseMarkerKey(key));
+      }
+      return grouping;
+  }
+
+  function map(grouping, fn) {
+      for (let [key, df] of grouping) {
+          grouping.set(key, fn(df, parseMarkerKey(key)));
+      }
+      return grouping;
+  }
+
+  function mapCall(groupMap, fnName) {
+      return function() {
+          let result = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
+          for (let [key, group] of groupMap) {
+              result.set(key, group[fnName](...arguments));
+          }
+          return result;
+      }
+  }
+
+  /**
+   * 
+   * @param {*} group the group to find member in
+   * @param {*} row data row to find member for
+   */
+  function getOrCreateGroup(groupMap, row) {
+      let group;
+      const keyStr = groupMap.keyFn(row);
+      if (groupMap.has(keyStr)) {
+          group = groupMap.get(keyStr);
+      } else {
+          group = groupMap.createChild(keyStr);
+      }
+      return group;
+  }
+
+  function createChild(groupMap, keyStr) {
+      // DataFrames have no children of their own (= leafs)
+      const child = groupMap.descendantKeys.length === 1
+          ? DataFrame([], groupMap.descendantKeys[0])
+          : DataFrameGroupMap([], groupMap.descendantKeys[0], groupMap.descendantKeys.slice(1));
+      
+      groupMap.set(keyStr, child);
+      return child;
+  }
+
+  function flatten(group, key = []) {
+      function* entries() {
+          for (let df of group.values()) {
+              for (let row of df.values()) {
+                  yield row;
+              }
+          }
+      }
+      return DataFrame(entries(), key);
+  }
+
+  function groupBy(df, groupKey, memberKey = df.key) {
+
+      return DataFrameGroupMap(df, groupKey, memberKey);
+      
+  }
+
+  function fillNull(df, fillValues) {
+      let concept, row;
+      // per concept fill
+      if (isNonNullObject$1(fillValues)) {
+          for (concept in fillValues) {
+              const fillValue = fillValues[concept];
+              // per concept function fill
+              if (typeof fillValue == "function") {
+                  for (row of df.values()) {
+                      if (row[concept] === null)
+                          row[concept] = fillValue(row);
+                  }
+              }
+              // per concept constant fill
+              else {
+                  for (row of df.values()) {
+                      if (row[concept] === null)
+                          row[concept] = fillValue;
+                  }
+              }
+          }
+      }
+      // constant fill
+      else {
+          for (row of df.values()) {
+              for (concept in row) {
+                  if (row[concept] === null)
+                      row[concept] = fillValues;
+              }
+          }
+      }
+      return df;
+  }
+
+  // in the style of d3.extent
+  function extent(iter, concept) {
+      iter = getIter(iter);
+      let min, max, value, row;
+      for (row of iter) {
+          if ((value = row[concept]) != null && value >= value) {
+              if (min === undefined) {
+                  // find first comparable values
+                  min = max = value;
+              } else {
+                  // compare remaining values 
+                  if (min > value) min = value;
+                  if (max < value) max = value;
+              }
+          }
+      }
+      return [min, max];
+  }
+
+  function unique(iter, concept) {
+      iter = getIter(iter);
+      
+      const unique = new Set();
+      for (let row of iter) 
+          unique.add(row[concept]); 
+
+      return [...unique];
+  }
+
+  const copy = df => DataFrame(df);
+
+  //df.get(["swe","2015"]).population
+  const fromLookups = (concepts, key) => constructDataFrame(LookupStorage(concepts, key));
+  const fromArray = (data = [], key = data.key || []) => constructDataFrame(MapStorage(data, key));
+
+  const DataFrame = fromArray;
+  DataFrame.fromLookups = fromLookups;
+  DataFrame.fromArray = fromArray;
+
+  function constructDataFrame(storage) {
+      // https://medium.com/javascript-scene/the-hidden-treasures-of-object-composition-60cd89480381
+      // compose storage and DF methods by concatenation 
+      // concatenation instead of aggregation/delegation as there is no overlap in keys and 
+      // we want the full storage API to be available on the DataFrame
+      const df = Object.assign(storage,
+          {        
+              // transforms
+              order: (direction) => order(df, direction), 
+              leftJoin: (rightJoinParams) => leftJoin({ dataFrame: df }, rightJoinParams),
+              fullJoin: (joinParams, key) => fullJoin([{ dataFrame: df }, ...joinParams], key),
+              copyColumn: (src, dest) => copyColumn(df, src, dest),
+              filter: (filterObj) => filter(df, filterObj),
+              project: (projection) => project(df, projection),
+              addColumn: (name, value) => addColumn(df, name, value),
+              groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
+              interpolate: () => interpolate(df),
+              reindex: (stepFn) => reindex(df, stepFn),
+              fillNull: (fillValues) => fillNull(df, fillValues),
+              copy: () => copy(df),
+      
+              // info
+              extent: (concept) => extent(df, concept),
+              unique: (concept) => unique(df, concept),
+          
+              // export
+              toJSON: () => [...df.values()]
+          },
+          {
+              filterGroups: filterFn => {
+                  return df.copy();
+              },
+              setRow: row => df.set(row)
+          }
+      );
+
+      return df;
+  }
+
+  function inlineReader({ values = [], keyConcepts = [], dtypes }) {
+      const dataPromise = Promise.resolve(values)
+          .then(parse(dtypes))
+          .then(DataFrame);
+
+      return {
+          async read(query) {
+              let data = await dataPromise;
+
+              if (isConceptQuery(query))
+                  data = DataFrame(getConcepts(data), ["concept"]);
+
+              if (isSchemaQuery(query))
+                  data = DataFrame(getSchema(data, query, keyConcepts), ["key","value"]);
+
+              return applyQuery(data, query);
+          },
+          getAsset(assetId) {
+              console.warn('Inline reader does not support assets', { assetId });
+          },
+          async getDefaultEncoding() {
+              const data = await dataPromise;
+              const encConfig = {};
+              data.fields.forEach(concept => {
+                  encConfig[concept] = {
+                      concept, 
+                      space: keyConcepts
+                  };
+              });
+              return encConfig;
+          }
+      }
+  }
+
+  function isConceptQuery(query) {
+      return "from" in query && query.from == "concepts";
+  }
+
+  function isSchemaQuery(query) {
+      return "from" in query && query.from.endsWith('.schema');
+  }
+
+  function getConcepts(data) {
+      const types = getTypes(data);
+      return [...data.fields].map(concept => ({
+          concept,
+          concept_type: types.get(concept)
+      }));
+  }
+
+  function getSchema(data, { from }, keyConcepts) {
+      if (from == "datapoints.schema") {
+          const indicatorConcepts = relativeComplement(keyConcepts, [...data.fields]);
+          return indicatorConcepts.map(concept => ({
+              key: [...keyConcepts],
+              value: concept
+          }));        
+      }
+      if (from == "concepts.schema") {
+          return [{ key: ["concept"], value: "concept_type"}];
+      }
+      if (from == "entities.schema") {
+          return [];
+      }
+      console.warn("Invalid schema query `from` clause: ", from);
+  }
+
+  function applyQuery(data, query) {
+      const { select, from, where, order_by, join } = query;
+      const { key, value } = select;
+      const projection = [...key, ...value];
+
+      if ("join" in query)
+          console.warn('Inline reader does not handle joins as it handles only one table.', { query });
+
+      const result = data
+          .filter(where)
+          .project(projection)
+          .order(order_by);
+      return result;
+  }
+
+  /*
+  {
+      year: { timeFormat: "%Y", locale: "ru-RU" }
+      pop: number
+  }
+  */
+  function parse(dtypes) {
+      const parseRow = parserFromDtypes(dtypes);
+      return function(data) {
+          let row;
+          for (row of data) {
+              parseRow(row); // in place
+          }
+          return data;
+      }
+  }
+
+  const dtypeParsers = {
+      string: d => d,
+      number: d => +d,
+      auto: autoParse,
+      year: d3.utcParse("%Y"),
+      month: d3.utcParse("%Y-%m"),
+      day: d3.utcParse("%Y-%m-%d")
+  };
+
+  function parserFromDtypes(dtypes) {
+
+      if (dtypes == "auto") 
+          return d3.autoType;
+
+      // create field parsers
+      const parsers = {};
+      let field;
+      
+      for (field in dtypes) {
+          const dtype = dtypes[field];
+
+          let parser;
+          if (dtype in dtypeParsers) parser = dtypeParsers[dtype];
+          if ("timeFormat" in dtype) parser = d3.timeParse(dtype.timeFormat);
+
+          if (!parser) console.warn('Unknown date type given, fall back to identity parser.', dtype);
+          parsers[dtype] = parser || (d => d);
+      }
+
+      // return row parser
+      return (row) => {
+          let parse, field;
+          for (field in row) {
+              if (parse = parsers[field]) 
+                  row[field] = parse(row[field]);
+          }
+      }
+  }
+
+  /**
+   * Parse string to js primitives or Date. Based on d3.autoType
+   * @param {any} value Value to be parsed 
+   */
+  function autoParse(value) {
+      var value = value.trim(), number;
+      if (!value) value = null;
+      else if (value === "true") value = true;
+      else if (value === "false") value = false;
+      else if (value === "NaN") value = NaN;
+      else if (!isNaN(number = +value)) value = number;
+      else if (/^([-+]\d{2})?\d{4}(-\d{2}(-\d{2})?)?(T\d{2}:\d{2}(:\d{2}(\.\d{3})?)?(Z|[-+]\d{2}:\d{2})?)?$/.test(value)) value = new Date(value);
+      return value;
+  }
+
+  function getTypes(data) {
+      const types = new Map();
+
+      // get types from first row
+      const [firstRow] = data.values();
+      for (let field in firstRow) {
+          types.set(field, getType(firstRow[field]));
+      }
+      // check if those types are consistent
+      for (let [field, type] in types) {
+          if (!validateType(storage, field, type)) {
+              console.warn("Field " + field + " is not consistently typed " + type);
+              types.set(field, "mixed");
+          }
+      }
+      return types;
+  }
+
+  function validateType(storage, field, type) {
+      for (row of storage.values()) {
+          if (getType(row[field]) !== type)
+              return false;
+      }
+  }
+
+  function getType(value) {
+      if (isDate(value))    return 'time';
+      if (isString$2(value))  return 'string';
+      if (isNumber(value))  return 'measure';
+      if (isBoolean(value)) return 'boolean';
+      console.warn("Couldn't decide type of value.", { value });
+  }
+
+  const isDate = val => val instanceof Date;
+  const isNumber = val => typeof val === "number" || !!val && typeof val === "object" && Object.prototype.toString.call(val) === "[object Number]";
+  const isString$2 = val => typeof val === "string";
+  const isBoolean = val => typeof val === "boolean";
+
+  function csvReader({ path = "data.csv", keyConcepts = [], dtypes }) {
+
+      return inlineReader({ 
+          values: d3.csv(path, d3.autoType),
+          keyConcepts,
+          dtypes
+      });
+      
+  }
+
+  function makeCache() {
+      const cache = new Map();
+
+      const makeKey = function(query) {
+          if (query.select.value.length > 1) {
+              console.info('Cache can\'t handle query with more than one select value. Skipping query caching.', query);
+              return undefined;
+          }
+          return stableStringifyObject(query);
+      };
+      const has = function (query) { return cache.has(makeKey(query)); };
+      const get = function (query) { return cache.get(makeKey(query)); };
+      const set = function(query, response) {
+          if (query.select.value.length > 1) 
+              return splitQuery(query).map(q => set(q, response));
+          
+          const key = makeKey(query);
+          return cache.set(key, response);
+      };
+      const setFromPromise = function(query, promise) {
+          return promise.then(response => set(query, response))
+      };
+      const splitQuery = function(query) {
+          return query.select.value.map(concept => {
+              const clone = deepclone(query);
+              clone.select.value = [concept];
+              return clone;
+          });
+      };
+
+      return {
+          has, 
+          get, 
+          set,
+          setFromPromise
+      }
+  }
+
+  const defaultConfig = {
+      path: null,
+      values: null,
+      transforms: []
+  };
+
+  const functions = {
+      get path() { return this.config.path },
+      get space() { return this.config.space },
+      get reader() {
+          if (this.values)
+              return inlineReader({ values: this.values });
+          else if (this.path)
+              return csvReader({ path: this.path });
+          console.warn("No inline values or csv path found. Please set `values` or `path` property on dataSource.", this);
+      },
+      get values() { 
+          // toJS: don't want insides of data to be observable (adds overhead & complexity)
+          return mobx.toJS(this.config.values);
+      },
+      get availability() {
+          let empty = this.buildAvailability();
+          return this.availabilityPromise.case({
+              fulfilled: v => v,
+              pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },
+              error: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); return empty }
+          })
+      },
+      get concepts() {
+          mobx.trace();
+          const empty = new Map();
+          return this.conceptsPromise.case({
+              fulfilled: v => DataFrame(v, ["concept"]),
+              pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
+              error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
+          })
+      },
+      get defaultEncodingPromise() {
+          if ("getDefaultEncoding" in this.reader)
+              return this.reader.getDefaultEncoding();
+          else    
+              return Promise.resolve({});
+      },
+      get defaultEncoding() {
+          const empty = {};
+          return this.defaultEncodingPromise.case({
+              fulfilled: v => {
+                  Object.values(v).forEach(enc => enc.source = this);
+                  return v;
+              },
+              pending: () => { console.warn('Requesting default encoding before loaded. Will return empty. Recommended to await promise.'); return empty },
+              error: (e) => { console.warn('Requesting default encoding when loading errored. Will return empty. Recommended to check promise.'); return empty }
+          });
+      },
+      buildAvailability(responses = []) {
+          const 
+              keyValueLookup = new Map(),
+              keyLookup = new Map(),
+              data = [];
+
+          /* utility functions, probably move later */
+          const getFromMap = (map, key, getNewVal) => {
+              map.has(key) || map.set(key, getNewVal());
+              return map.get(key);
+          };
+          const getNewMap = () => new Map();
+          const getMapFromMap = (map, key) => getFromMap(map, key, getNewMap);
+
+          /* handle availability responses */
+          responses.forEach(response => {
+              response = response.values ? response.values() : response; // get dataframe iterator if there
+              for(let row of response) {
+                  let keyStr, valueLookup;
+                  row.key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();
+                  keyStr = createKeyStr(row.key);
+                  data.push(row);
+                  keyLookup.set(keyStr, row.key);
+                  valueLookup = getMapFromMap(keyValueLookup, keyStr);
+                  valueLookup.set(row.value, row);    
+              }        });
+
+          return {
+              keyValueLookup,
+              keyLookup,
+              data
+          };
+      },
+      get availabilityPromise() {
+          mobx.trace();
+          const collections = ["concepts", "entities", "datapoints"];
+          const getCollAvailPromise = (collection) => this.query({
+              select: {
+                  key: ["key", "value"],
+                  value: []
+              },
+              from: collection + ".schema"
+          });
+
+          return fromPromise(Promise.all(collections.map(getCollAvailPromise))
+              .then(this.buildAvailability));
+      },
+      get conceptsPromise() {
+          mobx.trace();
+          return fromPromise(this.availabilityPromise.then(av => {
+              const concepts = ["name", "domain", "concept_type", "scales"];
+              const conceptKeyString = createKeyStr(["concept"]);
+              const avConcepts = concepts.filter(c => av.keyValueLookup.get(conceptKeyString).has(c));
+      
+              const query = {
+                  select: {
+                      key: ["concept"],
+                      value: avConcepts
+                  },
+                  from: "concepts"
+              };           
+
+              return this.query(query);
+          }));
+      },
+      get metaDataPromise() {
+          return fromPromise(Promise.all([this.availabilityPromise, this.conceptsPromise, this.defaultEncodingPromise]));
+      },
+      /* 
+      *  separate state computed which don't become stale with new promise in same state 
+      *  might use these later to make own .case({pending, fulfilled, rejected}) functionality    
+      */
+      get availabilityState() {
+          return this.availabilityPromise.state;
+      },
+      get conceptsState() {
+          return this.conceptsPromise.state;
+      },
+      get state() {
+          return this.metaDataPromise.state;
+      },
+      getConcept(concept) {
+          if (concept == "concept_type" || concept.indexOf('is--') === 0 || concept === "concept")
+              return { concept, name: concept }
+          if (!this.concepts.has({ concept }))
+              console.warn("Could not find concept " + concept + " in data source ", this);
+          return this.concepts.get({ concept }) || {};
+      },
+      isEntityConcept(conceptId) {
+          return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
+      },
+      query(query) {
+          //return [];
+          query = dotToJoin(query);
+          query = addExplicitAnd(query);
+          console.log('Adding to queue', query);
+          const queryPromise = this.enqueue(query);
+          return fromPromise(queryPromise);
+      },
+      queue: [],
+      enqueue(query) {
+          return new Promise((resolve, reject) => {
+              this.queue.push({ query, resolves: [resolve], rejects: [reject] });
+              // defer so queue can fill up before queue is processed
+              // only first of deferred process calls will find a filled queue
+              defer(() => this.processQueue(this.queue));
+          })
+      },
+      processQueue(queue) {
+          return pipe(
+              this.resolveCached.bind(this),
+              this.combineQueries.bind(this), 
+              this.sendQueries.bind(this),
+              this.setQueueHandlers.bind(this),
+              this.addToCache.bind(this),
+              this.clearQueue.bind(this)
+          )(queue);
+      },
+      combineQueries(queue) {
+          const queries = queue.reduce((queries, { query, resolves, rejects }) => {
+              const queryCombineId = this.calcCombineId(query);
+              if (queries.has(queryCombineId)) {
+                  const { 
+                      query: combinedQuery, 
+                      resolves: combinedResolves, 
+                      rejects: combinedRejects 
+                  } = queries.get(queryCombineId);
+                  const additionalValues = query.select.value.filter(v => combinedQuery.select.value.includes(v) === false);
+                  combinedQuery.select.value.push(...additionalValues);
+                  combinedResolves.push(...resolves);
+                  combinedRejects.push(...rejects);
+              } else {
+                  queries.set(queryCombineId, {
+                      query: deepclone(query),
+                      resolves,
+                      rejects
+                  });
+              }
+              return queries;
+          }, new Map());
+          return [...queries.values()];
+      },
+      cache: makeCache(),
+      resolveCached(queries) {
+          return queries.filter(query => !this.tryCache(query));
+      },
+      tryCache({ query, resolves }) {
+          let response;
+          if (response = this.cache.get(query)) {
+              console.warn('Resolving query from cache.', query);
+              resolves.forEach(resolve => resolve(response));
+              return true;
+          }
+          return false;
+      },
+      sendQueries(queries) {
+          return queries.map(({ query, resolves, rejects }) => {
+              console.log('Sending query to reader', query);
+              const promise = this.reader.read(query);
+              return {
+                  query, resolves, rejects, promise
+              };
+          });
+      },
+      setQueueHandlers(queries) {
+          queries.forEach(({ promise, resolves, rejects }) => {
+              resolves.forEach(res => promise.then(res));
+              rejects.forEach(rej => promise.catch(rej));
+          });
+          return queries;
+      },
+      addToCache(queries) {
+          queries.forEach(({ query, promise }) => {
+              this.cache.setFromPromise(query, promise);
+          });
+          return queries;
+      },
+      clearQueue() {
+          this.queue.length = 0; // reset without changing ref
+      },
+      calcCombineId(query) {
+          const clone = deepclone(query);
+          delete clone.select.value;
+          return stableStringifyObject(clone);
+      }
+  };
+
+  function baseDataSource(config) {
+      applyDefaults(config, defaultConfig);
+      return assign({}, functions, configurable, { config });
+  }
+
+  baseDataSource.decorate = {
+      // to prevent config.values from becoming observable
+      // possibly paints with too broad a brush, other config might need to be deep later
+      config: mobx.observable.shallow,
+      // queue should be mutable by computed methods
+      // this is introducing state manipulation and makes these computed methods impure
+      // other solutions are welcome : )
+      queue: mobx.observable.ref,
+      cache: mobx.observable.ref
+  };
+
+  const dataSourceStore = createStore(baseDataSource);
+
+  dataSourceStore.createAndAddType = function(type, readerObject) {
+      this.addType(type, defaultDecorator({
+          base: baseDataSource,
+          functions: {
+              get reader() {
+                  // copy reader object (using original would only allow one datasource of this type)
+                  const reader = Object.assign({}, readerObject);
+                  reader.init(this.config || {});
+                  return reader;
+              }
+          }
+      }));
+  };
+
+  const defaultConfig$1 = {
+      markers: {},
+      dimensions: {}
+  };
+
+  function filter$1(config = {}, parent) {
+
+      applyDefaults(config, defaultConfig$1);
+
+      return {
+          config,
+          parent,
+          get markers() {
+              const cfg = resolveRef(this.config.markers);
+              const markers = (mobx.isObservableArray(cfg)) ?
+                  cfg.map(m => [m, true]) :
+                  Object.entries(cfg);
+              return new Map(markers);
+          },
+          get dimensions() {
+              return mobx.toJS(this.config.dimensions);
+          },
+          has(d) {
+              return this.markers.has(this.getKey(d));
+          },
+          any() {
+              return this.markers.size !== 0;
+          },
+          getPayload(d) {
+              return this.markers.get(this.getKey(d));
+          },
+          set: mobx.action("setFilter", function(d, payLoad = true) {
+              if (Array.isArray(d)) d.forEach(this.set.bind(this));
+              const key = this.getKey(d);
+              this.config.markers = mapToObj(this.markers.set(key, payLoad));
+          }),
+          delete: mobx.action("deleteFilter", function(d) {
+              if (Array.isArray(d)) d.forEach(this.delete.bind(this));
+              const key = this.getKey(d);
+              const success = this.markers.delete(key);
+              this.config.markers = mapToObj(this.markers);
+              return success;
+          }),
+          toggle: mobx.action("toggleFilter", function(d) {
+              const key = this.getKey(d);
+              const del = this.delete(key);
+              if (!del) this.set(key);
+              return !del;
+          }),
+          getKey(d) {
+              return isString$1(d) ? d : d[Symbol.for('key')];
+          },
+          get whereClause() {
+              let filter = {};
+
+              // dimension filters
+              const dimFilters = [];
+              this.parent.space.forEach(dim => {
+                  if (this.dimensions[dim]) {
+                      dimFilters.push(this.dimensions[dim]);
+                  }
+              });
+
+              // specific marker filters
+              const markerFilters = [];
+              for (let [key, payload] of this.markers) {
+                  const markerSpace = Object.keys(key);
+                  if (arrayEquals(markerSpace, this.parent.space)) {
+                      markerFilters.push(key);
+                  }
+              }
+
+              // combine dimension and marker filters
+              if (markerFilters.length > 0) {
+                  filter["$or"] = markerFilters;
+                  if (dimFilters.length > 0) {
+                      filter["$or"].push({ "$and": dimFilters });
+                  }
+              } else {
+                  if (dimFilters.length > 0) {
+                      // clean implicit $and
+                      filter = deepmerge.all(dimFilters);
+                  }
+              }
+
+              return filter;
+          },
+      }
+  }
+
+  const defaultConfig$2 = {
+  };
+
+  const defaults = {
+      filter: null,
+      constant: null,
+      concept: undefined,
+      space: null,
+      value: null,
+      filter: null,
+      locale: null,
+      source: null,
+      domain: [0, 1],
+      domainDataSource: 'auto'
+  };
+
+  function dataConfig(config = {}, parent) {
+
+      applyDefaults(config, defaultConfig$2);
+      let latestResponse = [];
+
+      return {
+          config,
+          parent,
+          get invariants() {
+              let fails = [];
+              if (this.constant && (this.concept || this.source)) fails.push("Can't have constant value and concept or source set.");
+              if (this.conceptInSpace && this.source) fails.push("Can't have concept in space and have a source simultaneously");
+              if (fails.length > 0)
+                  console.warn("One or more invariants not satisfied:",fails,this);
+          },
+          get source() {
+              mobx.trace();
+              if (this.config.source)
+                  return dataSourceStore.getByDefinition(this.config.source)
+              else
+                  return (this.parent.marker) ? this.parent.marker.data.source : null;
+          },
+          get space() {
+              //trace();
+              if(!this.parent.marker) // only markers do space autoconfig
+                  return this.configSolution.space;
+              return this.config.space || (this.parent.marker ? this.parent.marker.data.space : defaults.space)
+          },
+          get constant() {
+              return resolveRef(this.config.constant) || defaults.constant;
+          },
+          isConstant() {
+              return this.constant != null;
+          },
+          get commonSpace() {
+              return intersect(this.space, this.parent.marker.data.space);
+          },
+          get filter() {
+              const config = this.config.filter || (this.parent.marker ? this.parent.marker.data.config.filter : {});
+              return mobx.observable(filter$1(config, this));
+          },
+          get locale() {
+              if (this.config.locale)
+                  return typeof this.config.locale == "string" ? this.config.locale : this.config.locale.id;
+              else
+                  return (this.parent.marker) ? this.parent.marker.data.locale : null;          
+          },
+          get concept() { 
+              return this.parent.marker.data.configSolution.encodings[this.parent.name];
+              // return this.config.concept ? resolveRef(this.config.concept) : defaults.concept; 
+          },
+          get conceptProps() { return this.source.getConcept(this.concept) },
+          get availability() { return this.source.availability.data.map(kv => this.source.getConcept(kv.value)) },
+          get domainDataSource() {
+              let source = this.config.domainDataSource || defaults.domainDataSource;
+              if (source === 'auto') {
+                  source = this.conceptInSpace
+                      ? 'filterRequired'
+                      : 'self';
+              }
+              return source;
+          },
+          get domainData() {
+              const source = this.domainDataSource;
+              const data = source === 'self' ? this.responseMap
+                  : this.parent.marker.transformedDataMaps.has(source) ? this.parent.marker.transformedDataMaps.get(source).get()
+                  : source === 'markers' ? this.parent.marker.dataMap  
+                  : this.responseMap;
+
+              return data;
+          },
+          get domain() {
+              mobx.trace();
+              if (this.isConstant())
+                  return isNumeric(this.constant) ? [this.constant, this.constant] : [this.constant];
+
+              return this.calcDomain(this.domainData, this.conceptProps);
+          },
+          calcDomain(data, { concept, concept_type }) { 
+              // use rows api implemented by both group and df
+              if (["measure","time"].includes(concept_type)) // continuous
+                  return extent(data.rows(), concept);
+              else // ordinal (entity_set, entity_domain, string)
+                  return unique(data.rows(), concept); 
+          },
+
+
+          /**
+           * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
+           */
+          get configSolution() {
+              let encodings;
+              let space = resolveRef(this.config.space);
+          
+              if (space && space.autoconfig) {
+                  const availableSpaces = [...this.source.availability.keyLookup.values()];
+                  const satisfiesSpaceAutoCfg = createFilterFn(this.config.space.autoconfig);
+
+                  space = availableSpaces
+                      .sort((a, b) => a.length - b.length) // smallest spaces first
+                      .filter(space => !space.includes("concept") && space
+                              .map(c => this.source.getConcept(c))
+                              .every(satisfiesSpaceAutoCfg)
+                      )
+                      .find(space => this.resolveEncodingConcepts(space, this.parent.encoding));
+              } 
+
+              space = space || defaults.space;
+              encodings = this.resolveEncodingConcepts(space, this.parent.encoding); 
+
+              if (!space || !encodings)
+                  console.warn("Could not resolve space or encoding concepts for marker.", this.parent, { space, encodings });
+
+              return { space, encodings };
+          },
+
+          /**
+           * Tries to find encoding concepts for a given space and encodings Map. Returns solution if it succeeds. Returns `undefined` if it fails.
+           * @param {String[]} space 
+           * @param {Map} encodings Map where keys are encoding names, values are encoding models
+           * @returns {Solution|undefined} solution
+           */
+          resolveEncodingConcepts(space, encodings) {
+              const concepts = {};
+              const success = [...encodings].every(([name, enc]) => {
+                  // only resolve concepts for encodings which use concept property
+                  if (!enc.config.data.concept) {
+                      concepts[name] = undefined;
+                      return true;
+                  }
+                  const encConcept = enc.data.resolveEncodingConcept(concepts, space);
+                  if (encConcept !== undefined) {
+                      concepts[name] = encConcept;
+                      return true;
+                  }
+                  return false;
+              });
+              return success ? concepts : undefined;
+          },
+
+          /**
+           * Tries to find encoding concept for a given space, encoding and partial solution.  
+           * Should be called with encoding.data as `this`. 
+           * Returns concept id which satisfies encoding definition (incl autoconfig) and does not overlap with partial solution.
+           * @param {*} solution object whose keys are encoding names and values concept ids, assigned to those encodings. 
+           * @param {*} space 
+           * @returns {string} concept id
+           */
+          resolveEncodingConcept(solution, space) {
+              let concept = resolveRef(this.config.concept);
+
+              if (concept && concept.autoconfig) {
+                  const satisfiesAutoCfg = createFilterFn(this.config.concept.autoconfig);
+                  const usedConcepts = d3.values(solution);
+                  const spaceConcepts = space.map(c => this.source.getConcept(c));
+                  const availability = this.source.availability;
+      
+                  const conceptsInThisSpace = [...availability.keyValueLookup.get(createKeyStr(space)).values()]
+                      .map(kv => this.source.getConcept(kv.value))
+                      // exclude the ones such as "is--country", they won't get resolved
+                      .filter(c => c.concept.substr(0,4) !== "is--")
+                      .concat(spaceConcepts);
+            
+                  concept = conceptsInThisSpace
+                      .find(c => satisfiesAutoCfg(c) && !usedConcepts.includes(c.concept)) || {};
+                  concept = concept.concept;
+              }
+              return concept || defaults.concept;    
+          },
+          get hasOwnData() {
+              return this.source && this.concept && !this.conceptInSpace;
+          },
+          get promise() {
+              mobx.trace();
+              // can't use .then on source because its execution won't be tracked by mobx (b/c async)
+              if (this.source.state === FULFILLED) {
+                  if (this.hasOwnData)
+                      return this.source.query(this.ddfQuery)
+                  else   
+                      return fromPromise(Promise.resolve());
+              }
+              // infinite pending, replaced when source is fulfilled
+              return fromPromise(new Promise(() => {}));
+          },
+          get state() {
+              return this.promise.state;
+          },
+          get response() {
+              mobx.trace();
+              if (!this.source || !this.concept || this.conceptInSpace) {
+                  if (this.conceptInSpace)
+                      console.warn("Encoding " + this.parent.name + " was asked for data but it has no own data. Reason: Concept in space.");
+                  else
+                      console.warn("Encoding " + this.parent.name + " was asked for data but it has no own data.");
+              }
+              return this.promise.case({
+                  pending: () => latestResponse,
+                  rejected: e => latestResponse,
+                  fulfilled: (res) => latestResponse = res
+              });
+          },
+          get responseMap() {
+              mobx.trace();
+              if (isDataFrame(this.response))
+                  return this.response;
+              else
+                  return DataFrame(this.response, this.commonSpace);
+          },
+          get conceptInSpace() {
+              return this.concept && this.space && this.space.includes(this.concept);
+          },
+          get ddfQuery() {
+              const query = {};
+              // select
+              query.select = {
+                  key: this.space.slice(), // slice to make sure it's a normal array (not mobx)
+                  value: [this.concept]
+              };
+
+              // from
+              query.from = (this.space.length === 1) ? "entities" : "datapoints";
+
+              // where
+              if (this.filter) {
+                  query.where = this.filter.whereClause;
+              }
+            
+              if (this.locale) {
+                  query.language = this.locale; 
+              }
+            
+              return query;
+          },
+      };
+  }
+
+  function entityPropertyDataConfig(cfg, parent) {
+      const base = dataConfig(cfg, parent);
+
+      return composeObj(base, {
+
+          get promise() {
+              mobx.trace();
+              if (this.source.conceptsState !== "fulfilled") return fromPromise.resolve([]);
+              const labelPromises = this.queries.map(query => this.source.query(query)
+                  .then(data => ({ dim: query.select.key[0], data }))
+              );
+              return fromPromise(Promise.all(labelPromises));
+          },
+          get queries() {
+              const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));
+              return entityDims.map(dim => ({
+                  select: {
+                      key: [dim],
+                      value: [this.concept]
+                  },
+                  from: "entities"
+              }));
+          },
+          get lookups() {
+              const concept = this.concept;
+              const lookups = new Map();
+              this.response.forEach(response => {
+                  const { dim, data } = response;
+                  const lookup = new Map();
+                  lookups.set(dim, lookup);
+                  data.forEach(row => {
+                      lookup.set(row[dim], row[concept]);
+                  });
+              });
+              return new Map([[this.concept, lookups]]);
+          },
+          get responseMap() {
+              return DataFrame.fromLookups(this.lookups, this.commonSpace)
+          },
+          addLabels(markers, encName) {
+              // reduce lookups
+              const space = mobx.toJS(this.space);
+              const lookups = this.lookups;
+              markers.forEach((marker, key) => {
+                  const label = {};
+                  space.forEach(dim => {
+                      if (lookups.has(dim))
+                          label[dim] = lookups.get(dim).get(marker[dim]);
+                      else
+                          label[dim] = marker[dim];
+                  });
+                  marker[encName] = label;
+              });
+          }
+      })
+  }
+
+  const dataConfigStore = createStore(dataConfig, {
+      entityPropertyDataConfig,
+  });
+
+  const scales = {
+      "linear": d3.scaleLinear,
+      "log": d3.scaleLog,
+      "sqrt": d3.scaleSqrt,
+      "ordinal": d3.scaleOrdinal,
+      "point": d3.scalePoint,
+      "band": d3.scaleBand
+  };
+
+
+  const defaultConfig$3 = {
+      domain: null,
+      range: null,
+      type: null
+  };
+
+  const defaults$1 = {
+      domain: [0,1]
+  };
+
+  function baseScale(config = {}, parent) {
+
+      applyDefaults(config, defaultConfig$3);
+
+      return {
+          config,
+          parent,
+          // ordinal, point or band
+          ordinalScale: "ordinal",
+          get data() {
+              return this.parent.data;
+          },
+          get type() {
+              const concept = this.data.conceptProps;
+              let scaleType = null;
+              let scale;
+              if (scales[this.config.type])
+                  scaleType = this.config.type;
+              else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale])
+                  scaleType = scale;
+              else if (concept && ["entity_domain", "entity_set", "string"].includes(concept.concept_type))
+                  scaleType = this.ordinalScale;
+              else
+                  scaleType = "linear";
+              return scaleType;
+          },
+          get range() {
+              if (this.config.range != null)
+                  return this.config.range
+
+              // default for constant is identity
+              if (this.data.isConstant())
+                  return this.domain;
+
+              // default
+              return (this.type == "ordinal") ?
+                  d3.schemeCategory10 : [0, 1];
+          },
+          set range(range) {
+              this.config.range = range;
+          },
+          get domain() {
+              mobx.trace();
+              return this.config.domain ? this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps))
+                  : this.data.domain ? this.data.domain
+                  : defaults$1.domain;
+          },
+          clampToDomain(val) {
+              const domain = this.domain;
+              if (this.type == "ordinal" || this.type == "band" || this.type == "point")
+                  return domain.includes(val) ? val : undefined;
+              
+              if (val < domain[0]) return domain[0];
+              if (val > domain[1]) return domain[1];
+              return val;
+          },
+          get d3Scale() {
+              const scale = scales[this.type]();
+              const domain = (this.type == "log" && this.domain[0] == 0) ? [1, this.domain[1]] : this.domain;
+              return scale.range(this.range).domain(domain);
+          },
+      }
+  }
+
+  const defaultConfig$4 = {};
+
+  const colors = {
+      schemeCategory10: d3.schemeCategory10
+  };
+
+  function color(config, parent) {
+
+      applyDefaults(config, defaultConfig$4);
+      const s = baseScale(config, parent);
+
+      return assign(s, {
+          get range() {
+              const range = this.config.range;
+              if (Array.isArray(range))
+                  return range;
+              
+              if (isString(range) && colors[range])
+                  return colors[range];
+
+              if (this.type == "ordinal")
+                  return d3.schemeCategory10;
+
+              return ["red", "green"];
+          }
+      });
+  }
+
+  const defaultConfig$5 = {
+      type: "sqrt",
+      range: [0, 20]
+  };
+
+  function size(config, parent) {
+
+      applyDefaults(config, defaultConfig$5);
+      const s = baseScale(config, parent);
+
+      return assign(s, {
+          ordinalScale: "point",
+          get range() {
+              if (this.config.range != null)
+                  return this.config.range
+              if (this.type == "point")
+                  return [1, 20];
+              return [0, 20];
+          }
+      });
+  }
+
+  const scaleStore = createStore(baseScale, {
+      color,
+      size,
+  });
+
+  //import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
+
+  const defaultConfig$6 = {
+      scale: {},
+      data: {}
+  };
+
+  const functions$1 = {
+      get marker() {
+          //trace();
+          const marker = markerStore.getMarkerForEncoding(this);
+          if (marker == null) console.warn("Couldn't find marker model for encoding.", { encoding: this });
+          return marker;
+      },
+      get name() {
+          return this.marker.getEncodingName(this);
+      },
+      get data() {
+          return dataConfigStore.getByDefinition(this.config.data, this);
+      },
+      get scale() {
+          return scaleStore.getByDefinition(this.config.scale, this);
+      },
+      setWhich: mobx.action('setWhich', function(kv) {
+          const concept = this.data.source.getConcept(kv.value.concept);
+
+          this.config.data.concept = concept.concept;
+          this.config.data.space = kv.key;
+          this.config.scale.domain = null;
+          this.config.scale.type = null;
+      }),
+      get prop() {
+          return this.marker.getPropForEncoding(this);
+      }
+  };
+
+  function baseEncoding(config, parent) {
+      applyDefaults(config, defaultConfig$6);
+      console.log('creating new encoding', config);
+      return assign({}, functions$1, configurable, { config, parent });
+  }
+
+  //import { interpolate, extent } from 'd3';
+
+  const defaultConfig$7 = {
+      modelType: "frame",
+      value: null,
+      scale: { modelType: "frame" },
+  };
+
+  const defaults$2 = {
+      interpolate: true,
+      loop: false,
+      speed: 100,
+      step: { unit: "index", size: 1 }
+  };
+
+  const functions$2 = {
+      get value() {
+          mobx.trace();
+          let value;
+          if (this.config.value != null) {
+              value = parseConfigValue(this.config.value, this.data.conceptProps);
+              value = this.scale.clampToDomain(value);
+          } else {
+              value = this.scale.domain[0];
+          }
+          return value; 
+      },
+      get index() {
+          const value = this.value;
+          return this.stepArray.findIndex(stepVal => equals(stepVal, value));
+      },
+      get stepArray() {
+          return [...this.stepFn()];
+      },
+      get speed() { return this.config.speed || defaults$2.speed },
+      get loop() { return this.config.loop || defaults$2.loop },
+      get stepSize() { return this.config.step && this.config.step.size || defaults$2.step.size },
+      get stepUnit() { return this.config.step && this.config.step.unit || this.getStepUnit() },
+      getStepUnit() {
+          if (this.data.state !== "fulfilled")
+              return defaults$2.step.unit; // no concept information yet
+
+          const { concept, concept_type } = this.data.conceptProps;
+          if (concept_type == 'measure') 
+              return 'number';
+
+          if (['string','entity_domain','entity_set'].includes(concept_type)) 
+              return 'index';
+
+          if (concept_type == 'time') {
+              if (['year', 'month','day','hour','minute','second'].includes(concept)) {
+                  return concept;
+              }
+              if (concept == "time")
+                  return "year";
+          }
+          return defaults$2.step.unit;
+      },
+      get interpolate() { return this.config.interpolate || defaults$2.interpolate },
+      get stepFn() {
+          return stepIterator(this.stepUnit, this.stepSize, this.scale.domain)
+      },
+      playing: false,
+      nextValGen: null,
+      togglePlaying() {
+          this.playing ?
+              this.stopPlaying() :
+              this.startPlaying();
+      },
+      startPlaying: function() {
+          if (equals(this.value, this.scale.domain[this.scale.domain.length-1]))
+              this.setValue(this.scale.domain[0]);
+
+          this.setPlaying(true);
+      },
+      stopPlaying: function() {
+          this.setPlaying(false);
+      },
+      setPlaying: mobx.action('setPlaying', function(playing) {
+          this.playing = playing;
+      }),
+      setSpeed: mobx.action('setSpeed', function(speed) {
+          speed = Math.max(0, speed);
+          this.config.speed = speed;
+      }),
+      setValue: mobx.action('setValue', function(value) {
+          const concept = this.data.conceptProps;
+          let date = value instanceof Date ? value : parseConfigValue(value, concept);
+          const string = typeof value === "string" ? value : configValue(value, concept);
+          if (date != null) {
+              date = this.scale.clampToDomain(date);
+          }
+          this.config.value = string;
+      }),
+      setIndex: mobx.action('setIndex', function(idx) {
+          this.setValue(this.stepArray[idx]);
+      }),
+      setValueAndStop: mobx.action('setValueAndStop', function(value) {
+          this.stopPlaying();
+          this.setValue(value);
+      }),
+      setIndexAndStop: mobx.action('setIndexAndStop', function(idx) {
+          this.stopPlaying();
+          this.setIndex(idx);
+      }),
+      update: mobx.action('update frame value', function() {
+          if (this.playing && this.marker.state === FULFILLED) {
+              const nxt = this.nextValGen.next();
+              if (nxt.done) {
+                  if (this.loop) {
+                      this.setValue(this.scale.domain[0]);
+                      this.nextValGen = this.stepFn();
+                  } else {
+                      this.stopPlaying();
+                  }
+              } else {
+                  this.setValue(nxt.value);
+              }
+          }
+      }),
+      get transformationFns() {
+          return {
+              'currentFrame': this.currentFrame.bind(this),
+              'frameMap': this.frameMap.bind(this)
+          }
+      },
+      currentFrame(data) {
+          if (data.has(this.frameKey)) {
+              return data.get(this.frameKey);
+          } else {
+              console.warn("Frame value not found in frame map", this);
+              return new Map();
+          }
+      },
+      get frameKey() {
+          return createMarkerKey({ [this.name]: this.value }, [this.name]);
+      },
+      get rowKeyDims() {
+          // remove frame concept from key if it's in there
+          // e.g. <geo,year>,pop => frame over year => <year>-><geo>,year,pop 
+          return relativeComplement([this.data.concept], this.data.space);
+      },
+      frameMap(data) {
+          if (this.interpolate) 
+              data = this.interpolateData(data);
+          return data.groupBy(this.name, this.rowKeyDims);
+      },
+      interpolateData(df) {
+          const concept = this.data.concept;
+          const name = this.name;
+          const domain = this.data.calcDomain(df, this.data.conceptProps);
+          const stepFn = stepIterator(this.stepUnit, this.stepSize, domain);
+
+          return df
+              .groupBy(this.rowKeyDims, [name])
+              .map((group, groupKeyDims) => { 
+
+                  const fillFns = {};
+                  df.key.forEach(dim => {
+                      // copy space values from group key
+                      if (dim in groupKeyDims) 
+                          fillFns[dim] = groupKeyDims[dim];
+                      // frame concept not in group key so copy from row
+                      if (dim === concept)
+                          fillFns[dim] = row => row[name];  
+                  });
+
+                  return group
+                      .reindex(stepFn)   // reindex also orders (needed for interpolation)
+                      .fillNull(fillFns) // fill nulls of marker space with custom fns
+                      .interpolate();    // fill rest of nulls through interpolation
+              })
+              .flatten(df.key);
+      },
+      setUpReactions() {
+          // need reaction for timer as it has to set frame value
+          // not allowed to call action (which changes state) from inside observable/computed, thus reaction needed
+          const controlTimer = mobx.reaction(
+              // mention all observables (state & computed) which you want to be tracked
+              // if not tracked, they will always be recomputed, their values are not cached
+              () => { return { playing: this.playing, speed: this.speed } },
+              ({ playing, speed }) => {
+                  clearInterval(this.playInterval);
+                  if (playing) {
+                      this.nextValGen = this.stepFn(this.value);
+                      this.update();
+                      this.playInterval = setInterval(this.update.bind(this), speed);
+                  }
+              }, 
+              { name: "frame playback timer" }
+          );
+      }
+  };
+
+  function frame(config) {
+      applyDefaults(config, defaultConfig$7);
+      return assign(baseEncoding(config), functions$2);
+  }
+
+  const defaultConfig$8 = {
+      modelType: "selection",
+      data: {
+          filter: {} // force own filter value so it doesn't fall back to marker filter like a normal encoding
+      }
+  };
+
+  const functions$3 = {};
+
+  const selection = defaultDecorator({
+      base: baseEncoding,
+      defaultConfig: defaultConfig$8,
+      functions: functions$3
+  });
+
+  const directions$1 = {
+      ascending: "ascending",
+      descending: "descencding"
+  };
+  const defaults$3 = {
+      direction: directions$1.ascending
+  };
+
+  const order$1 = defaultDecorator({
+      base: baseEncoding,
+      functions: {
+          get direction() {
+              return this.data.config.direction || defaults$3.direction;
+          },
+          order(df) {
+              const name = this.name;
+              const direction = this.direction;
+              return df.order([{ [name]: direction }]);
+          },
+          get transformationFns() {
+              return {
+                  order: this.order.bind(this)
+              }
+          },
+      }
+  });
+
+  const defaultConfig$9 = {
+      starts: {},
+      data: { filter: { markers: {} } }
+  };
+
+  const defaults$4 = {
+      show: true,
+      groupDim: null,
+  };
+
+  function trail(config, parent) {
+
+      applyDefaults(config, defaultConfig$9);
+
+      const base = baseEncoding(config, parent);
+
+      return assign(base, {
+          get show() { return this.config.show || defaults$4.show },
+          get starts() {
+              return this.config.starts;
+          },
+          get groupDim() {
+              return resolveRef(this.config.groupDim) || defaults$4.groupDim;
+          },
+          updateTrailStart: mobx.action('update trail start', function(value) {
+              this.data.filter.markers.forEach((payload, key) => {
+                  const start = this.starts[key];
+                  if (value < start)
+                      this.config.starts[key] = value;
+              });
+          }),
+          setTrail: mobx.action(function(d) {
+              const key = this.getKey(d);
+              this.config.starts[key] = d[this.groupDim]; // frame value
+              this.data.filter.set(d);
+          }),
+          deleteTrail: mobx.action(function(d) {
+              const key = this.getKey(d);
+              delete this.config.starts[key]; // frame value
+              this.data.filter.delete(d);
+          }),
+          getKey(d) {
+              return isString$1(d) ? d : d[Symbol.for('key')];
+          },
+          get transformationFns() {
+              return {
+                  'addTrails': this.addTrails.bind(this)
+              }
+          },
+          // per given marker, in whatever group
+          //  1. get markers from groups before its group (possibly starting at given group)
+          //  2. add those markers to current group, with key including original group (so no collission)
+          //
+          addTrails(groupedDf) {
+              const frameMap = groupedDf;
+              // can't use this.groupDim because circular dep this.marker.transformedDataMap
+              const groupDim = groupedDf.key[0]; // supports only 1 dimensional grouping
+              const markers = this.data.filter.markers;
+
+              if (markers.size == 0)
+                  return frameMap;
+
+              // create trails
+              const trails = new Map();
+              for (let key of markers.keys()) {
+                  const trail = new Map();
+                  trails.set(key, trail);
+                  for (let [i, frame] of frameMap) {
+                      if (frame.hasByObjOrStr(null,key))
+                          trail.set(i, frame.getByObjOrStr(null,key));
+                  }
+              }
+              
+              // add trails to frames
+              const prop = groupDim;
+              const newFrameMap = DataFrameGroupMap([], frameMap.key, frameMap.descendantKeys);
+              const trailKeyDims = [...frameMap.descendantKeys[0], prop];
+              for (let [id, frame] of frameMap) {
+                  const newFrame = DataFrame([], frame.key);
+                  for (let [markerKey, markerData] of frame) {
+                      // insert trails before its head marker
+                      if (trails.has(markerKey)) {
+                          const trail = trails.get(markerKey);
+                          const trailStart = this.starts[markerKey];
+                          const trailEnd = markerData[prop];
+                          // add trail markers in ascending order
+                          for (let keyStr of groupedDf.keys()) {
+                              const i = groupedDf.get(keyStr).values().next().value[prop];
+                              //const i = parseMarkerKey(keyStr)[prop];
+                              if (i < trailStart || !trail.has(keyStr)) continue;
+                              if (i >= trailEnd) break;
+                              const trailMarker = trail.get(keyStr);
+                              const newKey = createMarkerKey(trailMarker, trailKeyDims);
+                              const newData = Object.assign({}, trailMarker, {
+                                  [Symbol.for('key')]: newKey,
+                                  [Symbol.for('trailHeadKey')]: markerKey
+                              });
+                              newFrame.set(newData, newKey);
+                          }
+                      }
+                      // (head) marker
+                      newFrame.set(markerData, markerKey);
+                  }
+                  newFrameMap.set(id, newFrame);
+              }
+              return newFrameMap;
+          }
+      });
+  }
+
+  const encodingStore = createStore(baseEncoding, {
+      frame,
+      selection,
+      order: order$1,
+      trail
+  });
+
+  const defaultConfig$a = {
+      data: {
+          space: [],
+          filter: {}
+      },
+      encoding: {},
+  };
+
+  const defaults$5 = {
+      requiredEncodings: [],
+      transformations: [
+          "frame.frameMap",
+          "filterRequired",
+          "order.order",
+          "trail.addTrails",
+          "frame.currentFrame"
+      ]
+  };
+
+  let functions$4 = {
+      on: function(prop, fn) {
+          if (this.validProp(prop) && typeof fn == "function") {
+              const disposer = mobx.reaction(
+                  () => this[prop], 
+                  propVal => fn.call(this, propVal)
+              );
+              this.getEventListenersMapFor(prop).set(fn, disposer);
+          }
+          return this;
+      },
+      off: function(prop, fn) {
+          if (this.validProp(prop) && this.eventListeners.get(prop).has(fn)){
+              this.getEventListenersMapFor(prop).get(fn)(); // dispose
+              this.getEventListenersMapFor(prop).delete(fn); // delete
+          }
+          return this;
+      },
+      validProp(prop) {
+          return prop in this;
+      },
+      get eventListeners() {
+          return new Map();
+      },
+      getEventListenersMapFor(prop) {
+          if (!this.eventListeners.has(prop))
+              this.eventListeners.set(prop, new Map());
+          return this.eventListeners.get(prop);
+      },
+      get data() {
+          return dataConfigStore.getByDefinition(this.config.data, this)
+      },
+      get requiredEncodings() { return this.config.requiredEncodings || defaults$5.requiredEncodings },
+      get encoding() {
+          mobx.trace();
+          if (Object.keys(this.config.encoding).length > 0)
+              return encodingStore.getByDefinitions(this.config.encoding, this);
+          
+          // get default encodings for data's data source
+          let defaultEnc;
+          if (defaultEnc = this.data.source.defaultEncoding)
+              return encodingStore.getByDefinitions(defaultEnc, this);
+
+          console.warn("No encoding found and marker data source has no default encodings");
+      },
+      // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet 
+      getEncodingName(encoding) {
+          for (let [name, enc] of this.encoding) {
+              if (enc == encoding) return name;
+          }
+      },
+      get state() {
+          mobx.trace();
+          const encodingStates= [...this.encoding.values()].map(enc => enc.data.state);
+          const states = [this.data.source.state, ...encodingStates];
+          return combineStates(states);
+      },
+      get availability() {
+          const items = [];
+          dataSourceStore.getAll().forEach(ds => {
+              ds.availability.data.forEach(kv => {
+                  items.push({ key: kv.key, value: ds.getConcept(kv.value), source: ds });
+              });
+          });
+          return items;
+      },
+      get spaceAvailability() {
+          const items = [];
+          dataSourceStore.getAll().forEach(ds => {
+              ds.availability.keyLookup.forEach((val, key) => {
+                  items.push(val);
+              });
+          });
+          return items;
+      },
+      // computed to cache calculation
+      get dataMapCache() {
+          mobx.trace();
+          // prevent recalculating on each encoding data coming in
+          if (this.state !== "fulfilled") 
+              return DataFrame([], this.data.space);
+
+          const markerDefiningEncodings = [];
+          const markerAmmendingEncodings = [];
+          const spaceEncodings = [];
+          const constantEncodings = [];
+
+          // sort visual encodings by how they add data to markers
+          for (let [name, encoding] of this.encoding) {
+
+              // no data or constant, no further processing (e.g. selections)
+              if (encoding.data.concept === undefined && !encoding.data.isConstant())
+                  continue;
+
+              // constants value (ignores other config like concept etc)
+              else if (encoding.data.isConstant())
+                  constantEncodings.push({ name, encoding });
+
+              // copy data from space/key
+              else if (encoding.data.conceptInSpace)
+                  spaceEncodings.push({ name, encoding });
+              
+              // own data, not defining final markers (not required or proper subspace)
+              else if (isProperSubset(encoding.data.space, this.data.space) || !this.isRequired(name))
+                  markerAmmendingEncodings.push(this.joinConfig(encoding, name));
+
+              // own data, superspace (includes identical space) and required defining markers
+              else
+                  markerDefiningEncodings.push(this.joinConfig(encoding, name));    
+
+          }
+
+          // define markers (full join encoding data)
+          let dataMap = fullJoin(markerDefiningEncodings, this.data.space);
+          // ammend markers with non-defining data, constants and copies of space
+          dataMap = dataMap.leftJoin(markerAmmendingEncodings);
+          constantEncodings.forEach(({name, encoding}) => {
+              dataMap = dataMap.addColumn(name, encoding.data.constant);
+          });
+          spaceEncodings.forEach(({name, encoding}) => {
+              const concept = encoding.data.concept;
+              dataMap = dataMap.addColumn(name, row => row[concept]);
+          });
+
+          return dataMap;
+      },
+      joinConfig(encoding, name) {
+          return { 
+              projection: { 
+                  [encoding.data.concept]: name
+              },
+              dataFrame: encoding.data.responseMap
+          }
+      },
+      isRequired(name) {
+          return this.requiredEncodings.length === 0 || this.requiredEncodings.includes(name)
+      },
+      filterRequired(data) {
+          const required = this.requiredEncodings;
+          return data
+              .filter(row => required.every(encName => row.hasOwnProperty(encName) && row[encName] !== null))
+              .filterGroups(group => group.size > 0);
+      },
+      /**
+       * transformationFns is an object 
+       *  whose keys are transformation strings
+       *  whose values are transformation functions
+       */
+      get transformationFns() {
+          // marker transformation
+          const transformations = {
+              "filterRequired": this.filterRequired.bind(this)
+          };
+          // encoding transformations
+          for (let [name, enc] of this.encoding) {
+              if (enc.transformationFns)
+                  for (let [tName, t] of Object.entries(enc.transformationFns))
+                      transformations[name + '.' + tName] = t;
+          }
+          return transformations;
+      },
+      /**
+       * Transformations is an array of strings, referring to transformations defined on the marker or encodings
+       * The array defines the order in which data will be transformed before being served.
+       * If a function reference cannot be resolved, it will be skipped. No error will be thrown.
+       * Encoding transformations are formatted "<encodingName>.<functionName>". E.g. "frame.currentFrame"
+       * Marker transformations are formatted "<functionName>". E.g. "filterRequired"
+       * This array of strings enables configuration of transformation order in a serializable format.
+       */
+      get transformations() {
+          const transformations = this.config.transformations || defaults$5.transformations;
+
+          return transformations
+              .filter(tStr => tStr in this.transformationFns)
+              .map(tStr => ({
+                      fn: this.transformationFns[tStr],
+                      name: tStr
+              }));
+      },
+      /**
+       * transformedDataMaps is a ES6 Map
+       *  whose keys are transformation strings or "final" and
+       *  whose values are DataFrames wrapped in a boxed mobx computed. 
+       *      The DataFrame is a result of the transformation function applied to the previous DataFrame.  
+       */
+      // currently all transformation steps are cached in computed values. Computeds are great to prevent recalculations
+      // of previous steps when config of one step changes. However, it uses memory. We might want this more configurable.
+      get transformedDataMaps() {
+          mobx.trace();
+          // returns boxed computed, whose value can be reached by .get()
+          // if we'd call .get() in here (returning the value), each change would lead to applying all transformations
+          // because transformedDataMaps() would be observering all stepResults
+          // would be nice to find a way for transformedDataMaps to just return the value instead of a boxed computed
+          const results = new Map();
+          let stepResult = mobx.observable.box(this.dataMapCache, { deep: false });
+          this.transformations.forEach(({name, fn}) => {
+              let prevResult = stepResult; // local reference for closure of computed
+              stepResult = mobx.computed(
+                  () => fn(prevResult.get()), 
+                  { name }
+              );
+              results.set(name, stepResult);
+          });
+          results.set('final', stepResult);
+          return results;
+      },
+      /**
+       * Helper function to get values from transformedDataMaps. Used to prevent the awkward `.get(name).get()` syntax.
+       */
+      getTransformedDataMap(name) {
+          if (this.transformedDataMaps.has(name))
+              return this.transformedDataMaps.get(name).get();
+          console.warn("Requesting unknown transformed data name: ", name);
+      },
+      get dataMap() {
+          return this.transformedDataMaps.get('final').get();
+      },
+      get dataArray() {
+          return this.dataMap.toJSON();
+      }
+  };
+
+  function baseMarker(config) {
+      applyDefaults(config, defaultConfig$a);
+      return assign({}, functions$4, configurable, { config });
+  }
+
+  const defaultConfig$b = {
+      requiredEncodings: ["x", "y", "size"],
+      encoding: {
+          size: { scale: { modelType: "size" } }
+      }
+  };
+
+  function bubble(config) {
+      const base = baseMarker(config);
+
+      applyDefaults(config, defaultConfig$b);
+      renameProperty(base, "encoding", "superEncoding");
+
+      return assign(base, {
+          get encoding() {
+              const enc = this.superEncoding;
+              enc.set('highlighted', encodingStore.getByDefinition({ modelType: "selection" }));
+              enc.set('superhighlighted', encodingStore.getByDefinition({ modelType: "selection" }));
+              return enc;
+          },
+          toggleSelection: mobx.action(function(d) {
+              const trails = this.encoding.get('trail');
+              if (!trails.data.filter.has(d)) {
+                  trails.setTrail(d);
+              } else {
+                  trails.deleteTrail(d);
+              }
+          })
+      })
+
+  }
+
+  bubble.decorate = baseMarker.decorate;
+
+  const markerStore = createStore(baseMarker, { bubble });
+  markerStore.getMarkerForEncoding = function(enc) {
+      return this.getAll().find(marker => {
+          return [...marker.encoding.values()].some(encoding => enc === encoding);
+      }) || null;
+  };
+
+  const stores = {
+      markers: markerStore,
+      dataSources: dataSourceStore,
+      encodings: encodingStore
+  };
+
+  let config;
+
+  const vizabi = function(cfg) {
+      config = mobx.observable(cfg);
+
+      dataSourceStore.setMany(config.dataSources || {});
+      encodingStore.setMany(config.encodings || {});
+      markerStore.setMany(config.markers || {});
+
+      return { stores, config };
+  };
+  vizabi.mobx = mobx;
+  vizabi.utils = utils;
+  vizabi.stores = stores;
+  vizabi.dataSource = (cfg, id) =>{
+      // shortcut giving data directly in array-object format: [{...},{...}]
+      if (Array.isArray(cfg)) {
+          cfg = {
+              values: cfg
+          };
+      }
+
+      return dataSourceStore.set(cfg, id);
+  }; 
+  vizabi.marker = (cfg, id) => {
+      cfg = mobx.observable(cfg);
+      return markerStore.set(cfg, id);
+  };
+
+  /**
+   * 
+   * @param {*} possibleRef 
+   * @returns config Config object as described in reference config
+   */
+  function resolveRef(possibleRef) {
+      // no ref
+      if (!possibleRef || typeof possibleRef.ref === "undefined")
+          return possibleRef
+
+      // handle config shorthand
+      let ref = (isString$1(possibleRef.ref)) ? { config: possibleRef.ref } : possibleRef.ref;
+
+      // invalid ref
+      if (!(ref.config || ref.model)) {
+          console.warn("Invalid reference, expected string reference in ref, ref.model or ref.config", possibleRef);
+      }
+
+      if (ref.config) {
+          // user set config only
+          return resolveTreeRef(ref.config, config);
+      } else {
+          // model ref includes resolved defaults
+          const model = resolveTreeRef(ref.model, stores);
+          return transformModel(model, ref.transform);
+      }
+  }
+
+  function resolveTreeRef(refStr, tree) {
+      const ref = refStr.split('.');
+      let node = tree;
+      for (let i = 0; i < ref.length; i++) {
+          let child = ref[i];
+          if (typeof node == "undefined") {
+              console.warn("Couldn't resolve reference " + refStr);
+              return null;
+          }
+          if (typeof node.get == "function")
+              node = node.get(child);
+          else
+              node = node[child];
+      }
+      return node;
+  }
+
+  function transformModel(model, transform) {
+      switch (transform) {
+          case "entityConcept":
+              return mobx.observable({
+                  space: [model.data.concept],
+                  filter: {
+                      dimensions: {
+                          [model.data.concept]: {
+                              [model.data.concept]: { $in: model.scale.domain }
+                          }
+                      }
+                  },
+                  source: "gap"
+              });
+      }
+  }
+
+  return vizabi;
+
+})));
+//# sourceMappingURL=Vizabi.js.map
