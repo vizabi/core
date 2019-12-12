@@ -2,7 +2,8 @@ import { baseEncoding } from './baseEncoding';
 import { action, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, equals, getTimeInterval, mapToObj, stepIterator } from '../utils';
-import { createMarkerKey } from '../../dataframe/utils';
+import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
+import { createMarkerKey, parseMarkerKey } from '../../dataframe/utils';
 import { DataFrame } from '../../dataframe/dataFrame';
 //import { interpolate, extent } from 'd3';
 
@@ -69,6 +70,12 @@ const functions = {
         }
         return defaults.step.unit;
     },
+    // get dataTransforms() {
+    //     return this.marker.dataTransforms
+    // },
+    // setInterpolation: action('setInterpolate', function(onOrOff) {
+    //     this.config.interpolate = !!onOrOff;
+    // }),
     get interpolate() { return this.config.interpolate || defaults.interpolate },
     get stepFn() {
         return stepIterator(this.stepUnit, this.stepSize, this.scale.domain)
@@ -175,6 +182,7 @@ const functions = {
         const name = this.name;
         const domain = this.data.calcDomain(df, this.data.conceptProps);
         const stepFn = stepIterator(this.stepUnit, this.stepSize, domain);
+        // const dataTransforms = this.dataTransforms;
 
         return df
             .groupBy(this.rowKeyDims, [name])
@@ -193,9 +201,38 @@ const functions = {
                 return group
                     .reindex(stepFn)   // reindex also orders (needed for interpolation)
                     .fillNull(fillFns) // fill nulls of marker space with custom fns
-                    .interpolate();    // fill rest of nulls through interpolation
+                    .interpolate()    // fill rest of nulls through interpolation
+                // const transforms = [...group.fields].map(f => dataTransforms[f]).filter(t => !!t);
+                // if (transforms.length > 0) {
+                //     return transforms.reduce((g,t) => g[t].apply(g), transformedGroup)
+                // } else {
+                //     return transformedGroup
+                // }
             })
             .flatten(df.key);
+    },
+    differentiate(df, xField) {
+        // const name = this.name;
+        // let differentiated = df.groupBy(this.rowKeyDims, [name]);
+        let prevFrame;
+        let result = DataFrameGroupMap([], df.key, df.descendantKeys);
+        for (let [yKey, frame] of df) {
+            const newFrame = frame.copy()
+            for(let [key, row] of newFrame) {
+                const newRow = Object.assign({}, row);
+                const xValue = row[xField];
+                if (xValue !== undefined) {
+                    newRow[xField] = prevFrame ? xValue - prevFrame.get(parseMarkerKey(key))[xField] : 0;
+                }
+                newFrame.set(newRow, key);
+            }
+            prevFrame = frame;
+            result.set(yKey, newFrame);
+        }
+        return result;
+        //         return group.differentiate(xField);
+        //     });
+        // differentiated = differentiated.flatten(df.key)
     },
     setUpReactions() {
         // need reaction for timer as it has to set frame value
