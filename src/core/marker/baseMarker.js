@@ -175,15 +175,6 @@ let functions = {
         const frame = this.encoding.get("frame")
         return frame && this.encoding.get(xField) ? frame.differentiate(data, xField) : data
     },
-    // get dataTransforms() {
-    //     const transforms = {}
-    //     for (let [name, enc] of this.encoding) {
-    //         if (enc.config && enc.config.data && enc.config.data.transformations instanceof Array) {
-    //             transforms[name] = enc.config.data.transformations
-    //         }
-    //     }
-    //     return transforms
-    // },
     /**
      * transformationFns is an object 
      *  whose keys are transformation strings

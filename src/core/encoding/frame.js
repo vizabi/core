@@ -70,12 +70,6 @@ const functions = {
         }
         return defaults.step.unit;
     },
-    // get dataTransforms() {
-    //     return this.marker.dataTransforms
-    // },
-    // setInterpolation: action('setInterpolate', function(onOrOff) {
-    //     this.config.interpolate = !!onOrOff;
-    // }),
     get interpolate() { return this.config.interpolate || defaults.interpolate },
     get stepFn() {
         return stepIterator(this.stepUnit, this.stepSize, this.scale.domain)
@@ -182,7 +176,6 @@ const functions = {
         const name = this.name;
         const domain = this.data.calcDomain(df, this.data.conceptProps);
         const stepFn = stepIterator(this.stepUnit, this.stepSize, domain);
-        // const dataTransforms = this.dataTransforms;
 
         return df
             .groupBy(this.rowKeyDims, [name])
@@ -202,18 +195,38 @@ const functions = {
                     .reindex(stepFn)   // reindex also orders (needed for interpolation)
                     .fillNull(fillFns) // fill nulls of marker space with custom fns
                     .interpolate()    // fill rest of nulls through interpolation
-                // const transforms = [...group.fields].map(f => dataTransforms[f]).filter(t => !!t);
-                // if (transforms.length > 0) {
-                //     return transforms.reduce((g,t) => g[t].apply(g), transformedGroup)
-                // } else {
-                //     return transformedGroup
-                // }
             })
             .flatten(df.key);
     },
+    /*
+     * Compute the differential (stepwise differences) for the given field 
+     * and return it as a new dataframe(group).
+     * NOTE: this requires that the given df is interpolated.
+     * USAGE: set a correct list of transformations on the __marker__
+     * and then add/remove the string "differentiate" to the data of an 
+     * encoding in that marker. For example:
+     *   markers: {
+     *      marker_destination: {
+     *        encoding: {
+     *           "x": {
+     *             data: {
+     *               concept: "displaced_population",
+     *               transformations: ["differentiate"]
+     *             }
+     *           },
+     *          ...
+     *        },
+     *        transformations: [
+     *          "frame.frameMap",
+     *          "x.differentiate",
+     *          "filterRequired",
+     *          "order.order",
+     *          "trail.addTrails",
+     *          "frame.currentFrame"
+     *        ]
+     * 
+     */
     differentiate(df, xField) {
-        // const name = this.name;
-        // let differentiated = df.groupBy(this.rowKeyDims, [name]);
         let prevFrame;
         let result = DataFrameGroupMap([], df.key, df.descendantKeys);
         for (let [yKey, frame] of df) {
@@ -230,9 +243,6 @@ const functions = {
             result.set(yKey, newFrame);
         }
         return result;
-        //         return group.differentiate(xField);
-        //     });
-        // differentiated = differentiated.flatten(df.key)
     },
     setUpReactions() {
         // need reaction for timer as it has to set frame value
