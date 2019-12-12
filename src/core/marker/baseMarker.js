@@ -170,6 +170,19 @@ let functions = {
             .filter(row => required.every(encName => row.hasOwnProperty(encName) && row[encName] !== null))
             .filterGroups(group => group.size > 0);
     },
+    differentiate(xField, data) {
+        const frame = this.encoding.get("frame")
+        return frame && this.encoding.get(xField) ? frame.differentiate(data, xField) : data
+    },
+    // get dataTransforms() {
+    //     const transforms = {}
+    //     for (let [name, enc] of this.encoding) {
+    //         if (enc.config && enc.config.data && enc.config.data.transformations instanceof Array) {
+    //             transforms[name] = enc.config.data.transformations
+    //         }
+    //     }
+    //     return transforms
+    // },
     /**
      * transformationFns is an object 
      *  whose keys are transformation strings
@@ -185,6 +198,13 @@ let functions = {
             if (enc.transformationFns)
                 for (let [tName, t] of Object.entries(enc.transformationFns))
                     transformations[name + '.' + tName] = t;
+            if (enc.config && enc.config.data && enc.config.data.transformations instanceof Array) {
+                for (let tName of enc.config.data.transformations) {
+                    const fn = this[tName];
+                    if (fn)
+                        transformations[name + '.' + tName] = fn.bind(this, name)
+                }
+            }
         }
         return transformations;
     },
@@ -198,9 +218,9 @@ let functions = {
      */
     get transformations() {
         const transformations = this.config.transformations || defaults.transformations;
-
+        const transformationFns = this.transformationFns;
         return transformations
-            .filter(tStr => tStr in this.transformationFns)
+            .filter(tStr => tStr in transformationFns)
             .map(tStr => ({
                     fn: this.transformationFns[tStr],
                     name: tStr

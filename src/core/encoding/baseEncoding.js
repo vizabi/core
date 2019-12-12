@@ -24,6 +24,12 @@ const functions = {
     get data() {
         return dataConfigStore.getByDefinition(this.config.data, this);
     },
+    // differences: action('differences', function () {
+    //     this.data.config.transformations = ['differentiate'];
+    // }),
+    // normal: action('normal', function() {
+    //     delete this.data.config.transformations;
+    // }),
     get scale() {
         return scaleStore.getByDefinition(this.config.scale, this);
     },
