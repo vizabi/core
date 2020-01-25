@@ -271,6 +271,7 @@ const functions = {
         );
     },
     getInterpolatedFrame(data, value) {
+        if (!data.size) return;
         const steps = this.stepsAround(value);
         const stepsDf = steps.map(s => {
             const key = createMarkerKey({ [this.name]: s }, [this.name]);
@@ -296,7 +297,7 @@ const functions = {
         const index = d3.bisectLeft(stepArray, value);
         const indexStep = stepArray[index];
         return equals(value, indexStep) ?
-            [indexStep]
+            [indexStep, indexStep]
             :
             [stepArray[index - 1] || indexStep, indexStep];
     },
@@ -305,7 +306,7 @@ const functions = {
     },
     snap(value) {
         const steps = this.stepsAround(value);
-        return steps.length == 1 ? steps[0] : steps[Math.round(this.fraction(value, steps))];
+        return steps[0] === steps[1] ? steps[0] : steps[Math.round(this.fraction(value, steps))];
     },
     interpolateBetweenDf(df1, df2, keyFieldsFillFns, fields, fraction) {
         const df = DataFrame([], df1.key);
@@ -313,15 +314,19 @@ const functions = {
         for(const [key, row1] of df1) {
             row2 = df2.getByObjOrStr(undefined, key);
             if (!row2) continue;
-            newRow = Object.assign({}, row1);
-            for (let field of fields) {
-                newRow[field] = d3.interpolate(row1[field], row2[field])(fraction);
-            }
-            for (let concept in keyFieldsFillFns) {
-                const fillValue = keyFieldsFillFns[concept];
-                newRow[concept] = typeof fillValue == "function" ? fillValue(newRow) : fillValue;
-            }
-            df.setRow(newRow);
+            if (row2 !== row1) {
+                newRow = Object.assign({}, row1);
+                for (let field of fields) {
+                    newRow[field] = d3.interpolate(row1[field], row2[field])(fraction);
+                }
+                for (let concept in keyFieldsFillFns) {
+                    const fillValue = keyFieldsFillFns[concept];
+                    newRow[concept] = typeof fillValue == "function" ? fillValue(newRow) : fillValue;
+                }
+            } else {
+                newRow = row1;
+            }   
+            df.set(newRow, newRow[Symbol.for('key')]);
         }
         return df;
     },
