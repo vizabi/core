@@ -70,12 +70,6 @@ const functions = {
         }
         return defaults.step.unit;
     },
-    // get dataTransforms() {
-    //     return this.marker.dataTransforms
-    // },
-    // setInterpolation: action('setInterpolate', function(onOrOff) {
-    //     this.config.interpolate = !!onOrOff;
-    // }),
     get interpolate() { return this.config.interpolate || defaults.interpolate },
     get stepFn() {
         return stepIterator(this.stepUnit, this.stepSize, this.scale.domain)
@@ -182,7 +176,6 @@ const functions = {
         const name = this.name;
         const domain = this.data.calcDomain(df, this.data.conceptProps);
         const stepFn = stepIterator(this.stepUnit, this.stepSize, domain);
-        // const dataTransforms = this.dataTransforms;
 
         return df
             .groupBy(this.rowKeyDims, [name])
