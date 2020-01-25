@@ -23,19 +23,50 @@ export function trail(config, parent) {
     const base = baseEncoding(config, parent);
 
     return assign(base, {
-        get show() { return this.config.show || defaults.show },
+        get show() { 
+            return this.config.show || (typeof this.config.show === "undefined" && defaults.show) },
         get starts() {
             return this.config.starts;
         },
         get groupDim() {
             return resolveRef(this.config.groupDim) || defaults.groupDim;
         },
+        get limits() {
+            const markers = this.data.filter.markers;
+            const frameMap = this.marker.getTransformedDataMap("order.order");
+
+            const limits = {};
+
+            for (let key of markers.keys()) {
+                let searchStartLimit = true;
+                let prevFrame;
+                limits[key] = [];
+                for (let [i, frame] of frameMap) {
+                    if (searchStartLimit && frame.hasByObjOrStr(null,key)) {
+                        limits[key].push(frame.getByObjOrStr(null,key)[this.groupDim]);
+                        searchStartLimit = false;
+                    }
+                    if (!searchStartLimit && !frame.hasByObjOrStr(null,key)) {
+                        break;
+                    }
+                    prevFrame = frame;
+                }
+                limits[key].push(prevFrame.getByObjOrStr(null,key)[this.groupDim]);
+            }
+
+            return limits;
+        },
         updateTrailStart: action('update trail start', function(value) {
             this.data.filter.markers.forEach((payload, key) => {
                 const start = this.starts[key];
-                if (value < start)
-                    this.config.starts[key] = value;
+                const limits = this.limits[key];
+                if (!start || value < start)
+                    this.config.starts[key] = value < limits[0] ? limits[0] : value;
             });
+        }),
+        setShow: action(function(show) {
+            this.config.show = show;
+            if (show === false) this.config.starts = {};
         }),
         setTrail: action(function(d) {
             const key = this.getKey(d);
@@ -65,7 +96,7 @@ export function trail(config, parent) {
             const groupDim = groupedDf.key[0]; // supports only 1 dimensional grouping
             const markers = this.data.filter.markers;
 
-            if (markers.size == 0)
+            if (markers.size == 0 || !this.show)
                 return frameMap;
 
             // create trails
@@ -75,10 +106,10 @@ export function trail(config, parent) {
                 trails.set(key, trail);
                 for (let [i, frame] of frameMap) {
                     if (frame.hasByObjOrStr(null,key))
-                        trail.set(i, frame.getByObjOrStr(null,key));
+                        trail.set(i, Object.assign({}, frame.getByObjOrStr(null,key)));
                 }
             }
-            
+
             // add trails to frames
             const prop = groupDim;
             const newFrameMap = DataFrameGroupMap([], frameMap.key, frameMap.descendantKeys);
@@ -96,10 +127,10 @@ export function trail(config, parent) {
                             const i = groupedDf.get(keyStr).values().next().value[prop]
                             //const i = parseMarkerKey(keyStr)[prop];
                             if (i < trailStart || !trail.has(keyStr)) continue;
-                            if (i >= trailEnd) break;
+                            if (i > trailEnd) break;
                             const trailMarker = trail.get(keyStr);
                             const newKey = createMarkerKey(trailMarker, trailKeyDims);
-                            const newData = Object.assign({}, trailMarker, {
+                            const newData = Object.assign(trailMarker, {
                                 [Symbol.for('key')]: newKey,
                                 [Symbol.for('trailHeadKey')]: markerKey
                             });
