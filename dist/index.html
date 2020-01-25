@@ -117,9 +117,9 @@
         // import { mobx.autorun, action, spy, mobx.observable } from 'mobx'
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
-var waffle = new WsReader.WsReader.getReader();
+//var waffle = new WsReader.WsReader.getReader();
 Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
-Vizabi.stores.dataSources.createAndAddType('waffle', waffle);
+//Vizabi.stores.dataSources.createAndAddType('waffle', waffle);
 window.viz = Vizabi(config);
 window.Vizabi = Vizabi;
 window.autorun = mobx.autorun;
