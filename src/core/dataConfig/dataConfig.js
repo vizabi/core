@@ -152,7 +152,7 @@ export function dataConfig(config = {}, parent) {
             const concepts = {};
             const success = [...encodings].every(([name, enc]) => {
                 // only resolve concepts for encodings which use concept property
-                if (!enc.config.data.concept) {
+                if (!resolveRef(enc.data.config).concept) {
                     concepts[name] = undefined;
                     return true;
                 }
