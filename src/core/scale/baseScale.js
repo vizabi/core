@@ -15,7 +15,8 @@ const scales = {
 const defaultConfig = {
     domain: null,
     range: null,
-    type: null
+    type: null,
+    zoomed: null
 }
 
 const defaults = {
@@ -84,6 +85,12 @@ export function baseScale(config = {}, parent) {
             const scale = scales[this.type]();
             const domain = (this.type == "log" && this.domain[0] == 0) ? [1, this.domain[1]] : this.domain;
             return scale.range(this.range).domain(domain);
+        },
+        get zoomed() {
+            return this.config.zoomed;
+        },
+        set zoomed(zoomed) {
+            this.config.zoomed = zoomed;
         },
     }
 }

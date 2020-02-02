@@ -34,6 +34,7 @@ const functions = {
         this.config.data.space = kv.key;
         this.config.scale.domain = null;
         this.config.scale.type = null;
+        this.config.scale.zoomed = null;
     }),
     get prop() {
         return this.marker.getPropForEncoding(this);
