@@ -61,12 +61,16 @@ export const createStore = function(baseType, extendedTypes = {}) {
 
             // get by config by reference string
             // e.g. "markers.bubbles.encoding.size.data.concept"
+            // def = resolveRef(def);
+            /*
             if (isString(def.ref) || isNonNullObject(def.ref)) {
                 if (this.configRef.has(def)) {
                     return this.configRef.get(def);
                 }
                 def = resolveRef(def);
             }
+            */
+            
 
             // get by config of another model
             if (isNonNullObject(def) && "config" in def) {
@@ -75,9 +79,11 @@ export const createStore = function(baseType, extendedTypes = {}) {
 
             // get by config object
             if (!isString(def) && def !== null) {
-                if (this.configRef.has(def)) {
+                /*if (this.configRef.has(def)) {
+                    console.warn('Getting model by saved config ref');
                     return this.configRef.get(def);
                 }
+                */
                 return this.set(def, null, parent);
             }
 

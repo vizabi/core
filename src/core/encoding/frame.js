@@ -5,15 +5,10 @@ import { assign, applyDefaults, relativeComplement, configValue, parseConfigValu
 import { createMarkerKey } from '../../dataframe/utils';
 //import { interpolate, extent } from 'd3';
 
-const defaultConfig = {
-    modelType: "frame",
-    value: null,
-    scale: { modelType: "frame" },
-}
-
 const defaults = {
     interpolate: true,
     loop: false,
+    value: null,
     speed: 100,
     step: { unit: "index", size: 1 }
 }
@@ -21,7 +16,7 @@ const defaults = {
 const functions = {
     get value() {
         trace();
-        let value;
+        let value = this.config.value || defaults.value;
         if (this.config.value != null) {
             value = parseConfigValue(this.config.value, this.data.conceptProps);
             value = this.scale.clampToDomain(value);
@@ -198,6 +193,6 @@ const functions = {
 }
 
 export function frame(config) {
-    applyDefaults(config, defaultConfig);
-    return assign(baseEncoding(config), functions);
+    const encoding = baseEncoding(config);
+    return assign(encoding, functions);
 }

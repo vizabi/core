@@ -1,4 +1,3 @@
-import { resolveRef } from "../vizabi";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
 import { applyDefaults, intersect, isNumeric } from "../utils";
@@ -9,9 +8,6 @@ import { fromPromise, FULFILLED } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
 import { createKeyStr, isDataFrame } from "../../dataframe/utils";
-
-const defaultConfig = {
-}
 
 const defaults = {
     filter: null,
@@ -28,7 +24,6 @@ const defaults = {
 
 export function dataConfig(config = {}, parent) {
 
-    applyDefaults(config, defaultConfig);
     let latestResponse = [];
 
     return {
@@ -43,8 +38,9 @@ export function dataConfig(config = {}, parent) {
         },
         get source() {
             trace();
-            if (this.config.source)
-                return dataSourceStore.getByDefinition(this.config.source)
+            const source = this.config.source || defaults.source;
+            if (source)
+                return dataSourceStore.getByDefinition(source)
             else
                 return (this.parent.marker) ? this.parent.marker.data.source : null;
         },
@@ -55,7 +51,7 @@ export function dataConfig(config = {}, parent) {
             return this.config.space || (this.parent.marker ? this.parent.marker.data.space : defaults.space)
         },
         get constant() {
-            return resolveRef(this.config.constant) || defaults.constant;
+            return this.config.constant || defaults.constant;
         },
         isConstant() {
             return this.constant != null;
@@ -64,7 +60,7 @@ export function dataConfig(config = {}, parent) {
             return intersect(this.space, this.parent.marker.data.space);
         },
         get filter() {
-            const config = this.config.filter || (this.parent.marker ? this.parent.marker.data.config.filter : {})
+            const config = this.config.filter || (this.parent.marker ? this.parent.marker.data.config.filter : defaults.filter)
             return observable(filter(config, this));
         },
         get locale() {
@@ -118,7 +114,7 @@ export function dataConfig(config = {}, parent) {
          */
         get configSolution() {
             let encodings;
-            let space = resolveRef(this.config.space);
+            let space = this.config.space;
         
             if (space && space.autoconfig) {
                 const availableSpaces = [...this.source.availability.keyLookup.values()];
@@ -151,7 +147,7 @@ export function dataConfig(config = {}, parent) {
         resolveEncodingConcepts(space, encodings) {
             const concepts = {};
             const success = [...encodings].every(([name, enc]) => {
-                // only resolve concepts for encodings which use concept property
+                // only resolve concepts for encodings which use concept 
                 if (!enc.config.data.concept) {
                     concepts[name] = undefined;
                     return true;
@@ -175,7 +171,7 @@ export function dataConfig(config = {}, parent) {
          * @returns {string} concept id
          */
         resolveEncodingConcept(solution, space) {
-            let concept = resolveRef(this.config.concept);
+            let concept = this.config.concept;
 
             if (concept && concept.autoconfig) {
                 const satisfiesAutoCfg = createFilterFn(this.config.concept.autoconfig);

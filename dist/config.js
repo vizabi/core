@@ -90,8 +90,9 @@ const config = {
         "legend": {
             data: {
                 ref: {
+                    path: "markers.bubble.encoding.color",
+                    root: "model",
                     transform: "entityConcept",
-                    model: "markers.bubble.encoding.color"
                 }
             },
             encoding: {
@@ -109,6 +110,7 @@ const config = {
             data: {
                 source: "gap",
                 space: ["country", "time"],
+                filter: {}
                 /*filter: {
                     markers: {},
                     dimensions: {

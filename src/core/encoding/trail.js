@@ -1,17 +1,16 @@
 import { assign, applyDefaults, isString } from "../utils";
-import { action } from "mobx";
+import { action, extendObservable } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { parseMarkerKey, createMarkerKey } from "../../dataframe/utils";
-import { resolveRef } from "../vizabi";
 
 const defaultConfig = {
-    starts: {},
     data: { filter: { markers: {} } }
 }
 
 const defaults = {
+    starts: {},
     show: true,
     groupDim: null,
 }
@@ -25,10 +24,10 @@ export function trail(config, parent) {
     return assign(base, {
         get show() { return this.config.show || defaults.show },
         get starts() {
-            return this.config.starts;
+            return this.config.starts || defaults.starts;
         },
         get groupDim() {
-            return resolveRef(this.config.groupDim) || defaults.groupDim;
+            return this.config.groupDim || defaults.groupDim;
         },
         updateTrailStart: action('update trail start', function(value) {
             this.data.filter.markers.forEach((payload, key) => {
@@ -39,6 +38,8 @@ export function trail(config, parent) {
         }),
         setTrail: action(function(d) {
             const key = this.getKey(d);
+            if (this.config.starts === undefined) 
+                extendObservable(this.config, { starts: {} });
             this.config.starts[key] = d[this.groupDim]; // frame value
             this.data.filter.set(d);
         }),

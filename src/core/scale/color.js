@@ -1,7 +1,5 @@
-import { applyDefaults, assign } from "../utils";
+import { assign } from "../utils";
 import { baseScale } from "./baseScale";
-
-const defaultConfig = {}
 
 const colors = {
     schemeCategory10: d3.schemeCategory10
@@ -9,7 +7,6 @@ const colors = {
 
 export function color(config, parent) {
 
-    applyDefaults(config, defaultConfig);
     const s = baseScale(config, parent);
 
     return assign(s, {

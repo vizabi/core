@@ -12,11 +12,11 @@ const defaultConfig = {
     data: {
         space: [],
         filter: {}
-    },
-    encoding: {},
+    }
 };
 
 const defaults = {
+    encoding: {},
     requiredEncodings: [],
     transformations: [
         "frame.frameMap",
@@ -62,8 +62,9 @@ let functions = {
     get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
     get encoding() {
         trace();
-        if (Object.keys(this.config.encoding).length > 0)
-            return encodingStore.getByDefinitions(this.config.encoding, this);
+        const encoding = this.config.encoding || defaults.config;
+        if (Object.keys(encoding).length > 0)
+            return encodingStore.getByDefinitions(encoding, this);
         
         // get default encodings for data's data source
         let defaultEnc;
@@ -250,6 +251,5 @@ let functions = {
 }
 
 export function baseMarker(config) {
-    applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
 }

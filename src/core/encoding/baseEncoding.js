@@ -22,6 +22,7 @@ const functions = {
         return this.marker.getEncodingName(this);
     },
     get data() {
+        //return dataConfigStore.getByDefinition([ ['config', this.config.data ], ['marker', this.marker.data] ]);
         return dataConfigStore.getByDefinition(this.config.data, this);
     },
     get scale() {

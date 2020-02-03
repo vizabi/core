@@ -5,11 +5,13 @@
   "description": "Vizabi with mobx state",
   "scripts": {
     "start": "webpack-dev-server -d --open",
-    "test": "jest"
+    "test": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "d3-time": "^1.0.11",
+    "d3-time-format": "^2.1.3",
     "mobx": "^5.9.0",
     "mobx-utils": "^5.1.0"
   },
@@ -22,15 +24,16 @@
     "webpack-cli": "^3.2.3",
     "webpack-dev-server": "^3.2.1"
   },
-  "serve": {
-    "content": "./dist",
-    "hot": false
-  },
   "babel": {
     "presets": [
-      ["@babel/preset-env", { 
-        "targets": { "node": "current" } 
-      }]
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
     ]
   }
 }

@@ -1,5 +1,8 @@
-import { autorun } from "mobx";
+import { utcMillisecond, utcSecond, utcMinute, utcHour, utcDay, utcWeek, utcMonth, utcYear } from "d3-time";
+import { utcParse, utcFormat } from "d3-time-format";
 import { fromPromise } from "mobx-utils";
+
+const d3Intervals = { utcMillisecond, utcSecond,utcMinute, utcHour, utcDay, utcWeek, utcMonth, utcYear }
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -228,7 +231,7 @@ export function equals(a,b) {
 
 function getTimeInterval(unit) {
     let interval;
-    if (interval = d3['utc' + ucFirst(unit)]) return interval;
+    if (interval = d3Intervals['utc' + ucFirst(unit)]) return interval;
 }
 
 export function stepIterator(stepUnit, stepSize, domain) {
@@ -256,18 +259,18 @@ export function stepIterator(stepUnit, stepSize, domain) {
 export function configValue(value, concept) {
     const { concept_type } = concept;
     if (concept_type == "time" && value instanceof Date) {
-        return concept.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
+        return concept.format ? utcFormat(concept.format)(value) : formatDate(value);
     }
     return value;
 }
 
 const defaultParsers = [
-    d3.utcParse('%Y'),
-    d3.utcParse('%Y-%m'),
-    d3.utcParse('%Y-%m-%d'),
-    d3.utcParse('%Y-%m-%dT%H'),
-    d3.utcParse('%Y-%m-%dT%H-%M'),
-    d3.utcParse('%Y-%m-%dT%H-%M-%S')
+    utcParse('%Y'),
+    utcParse('%Y-%m'),
+    utcParse('%Y-%m-%d'),
+    utcParse('%Y-%m-%dT%H'),
+    utcParse('%Y-%m-%dT%H-%M'),
+    utcParse('%Y-%m-%dT%H-%M-%S')
 ];
 
 function tryParse(timeString, parsers) {
@@ -284,7 +287,7 @@ export function parseConfigValue(valueStr, concept) {
 
     if (concept_type === "time") {
         let parsers = concept.format 
-            ? [d3.utcParse(concept.format), ...defaultParsers]
+            ? [utcParse(concept.format), ...defaultParsers]
             : defaultParsers;
         return tryParse(valueStr, parsers);
     }

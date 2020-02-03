@@ -9,15 +9,14 @@ import { csvReader } from '../../reader/csv';
 import { createKeyStr } from '../../dataframe/utils';
 import { makeCache } from '../dataConfig/cache';
 
-const defaultConfig = {
+
+const defaults = {
     path: null,
-    values: null,
-    transforms: []
+    values: null
 }
 
 const functions = {
-    get path() { return this.config.path },
-    get space() { return this.config.space },
+    get path() { return this.config.path || defaults.path },
     get reader() {
         if (this.values)
             return inlineReader({ values: this.values });
@@ -27,7 +26,7 @@ const functions = {
     },
     get values() { 
         // toJS: don't want insides of data to be observable (adds overhead & complexity)
-        return toJS(this.config.values);
+        return toJS(this.config.values) || defaults.values;
     },
     get availability() {
         let empty = this.buildAvailability();
@@ -268,7 +267,6 @@ const tryParseRow = d => {
 const parse = (val) => (val == '') ? null : +val || val;
 
 export function baseDataSource(config) {
-    applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
 }
 

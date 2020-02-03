@@ -33,6 +33,8 @@ var marker = Vizabi.marker({
 Vizabi.mobx.autorun(() => {
   if (marker.state === "fulfilled")
     draw(marker.dataArray);
+  if (marker.state === "rejected")
+    console.log(marker.promise)
 })
 
 
