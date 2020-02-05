@@ -10,6 +10,7 @@ import { DataFrame } from '../../dataframe/dataFrame';
 const defaultConfig = {
     modelType: "frame",
     value: null,
+    loop: false,
     scale: { modelType: "frame" },
 }
 
@@ -23,19 +24,13 @@ const defaults = {
 const functions = {
     get value() {
         trace();
-        const configValue = this.config.value;
-        const configAnimationValue = this.config.animationValue;
         let value;
 
-        if (configAnimationValue) {
-            value = configAnimationValue
+        if (this.config.value != null) {
+            value = parseConfigValue(this.config.value, this.data.conceptProps);
+            value = this.scale.clampToDomain(value);
         } else {
-            if (configValue != null) {
-                value = parseConfigValue(configValue, this.data.conceptProps);
-                value = this.scale.clampToDomain(value);
-            } else {
-                value = this.scale.domain[0];
-            }
+            value = this.scale.domain[0];
         }
         return value;
     },
@@ -95,24 +90,15 @@ const functions = {
     }),
     setSpeed: action('setSpeed', function(speed) {
         speed = Math.max(0, speed);
-            this.config.speed = speed;
+        this.config.speed = speed;
     }),
-    setValue: action('setValue', function(value, animationFlag) {
+    setValue: action('setValue', function(value) {
         const concept = this.data.conceptProps;
-        let date = value instanceof Date ? value : parseConfigValue(value, concept);
-        if (date != null) {
-            date = this.scale.clampToDomain(date);
+        let parsed = parseConfigValue(value, concept);
+        if (parsed != null) {
+            parsed = this.scale.clampToDomain(parsed);
         }
-        if (animationFlag) {
-            this.config.animationValue = date;
-        } else { 
-            if (this.config.animationValue) {
-                this.config.animationValue = null
-                value = this.snap(value);
-            }
-            const string = typeof value === "string" ? value : configValue(value, concept);
-            this.config.value = string;
-        }
+        this.config.value = configValue(parsed, concept);
     }),
     setIndex: action('setIndex', function(idx) {
         this.setValue(this.stepArray[idx]);
@@ -127,12 +113,11 @@ const functions = {
     }),
     update: action('update frame value', function() {
         if (this.playing && this.marker.state === FULFILLED) {
-            const nxt = this.nextValGen.next();
+            let nxt = this.nextValGen.next();
             if (nxt.done) {
                 if (this.loop) {
-                    this.setValue(this.scale.domain[0]);
                     this.nextValGen = this.stepFn();
-                    this.nextValGen.next();
+                    this.setValue(this.nextValGen.next().value);
                 } else {
                     this.stopPlaying();
                 }
@@ -297,10 +282,10 @@ const functions = {
     fraction(value, steps) {
         return (value - steps[0]) / (steps[1] - steps[0]);
     },
-    snap(value) {
-        const steps = this.stepsAround(value);
-        return steps[0] === steps[1] ? steps[0] : steps[Math.round(this.fraction(value, steps))];
-    },
+    snap: action('snap', function () {
+        const steps = this.stepsAround(this.value);
+        this.config.value = steps[0] === steps[1] ? steps[0] : steps[Math.round(this.fraction(this.value, steps))];
+    }),
     interpolateBetweenDf(df1, df2, keyFieldsFillFns, fields, fraction) {
         const df = DataFrame([], df1.key);
         let newRow, row2;

@@ -4,7 +4,7 @@ import { fromPromise } from "mobx-utils";
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
 export function isString(value) {
-    return typeof value == 'string';
+    return typeof value == 'string' || value instanceof String;
 }
 
 export function isEntityConcept(concept) {
@@ -265,9 +265,10 @@ const defaultParsers = [
     d3.utcParse('%Y'),
     d3.utcParse('%Y-%m'),
     d3.utcParse('%Y-%m-%d'),
-    d3.utcParse('%Y-%m-%dT%H'),
-    d3.utcParse('%Y-%m-%dT%H-%M'),
-    d3.utcParse('%Y-%m-%dT%H-%M-%S')
+    d3.utcParse('%Y-%m-%dT%HZ'),
+    d3.utcParse('%Y-%m-%dT%H:%MZ'),
+    d3.utcParse('%Y-%m-%dT%H:%M:%SZ'),
+    d3.utcParse('%Y-%m-%dT%H:%M:%S.%LZ')
 ];
 
 function tryParse(timeString, parsers) {
@@ -279,7 +280,17 @@ function tryParse(timeString, parsers) {
     return null;
 }
 
+/**
+ * Parses string `valueStr` to different type, depending on `concept` type. 
+ * Type `time` is parsed to `Date`, `measure` to `number`, any other to string. 
+ * If `valueStr` is not a string, it is returned as is.
+ * 
+ * @param {string} valueStr String to parse
+ * @param {Object} concept Concept object of which valueStr is a value
+ */
 export function parseConfigValue(valueStr, concept) {
+    if (!isString(valueStr)) return valueStr;
+
     const { concept_type } = concept;
 
     if (concept_type === "time") {
