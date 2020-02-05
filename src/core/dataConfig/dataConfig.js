@@ -178,19 +178,23 @@ export function dataConfig(config = {}, parent) {
             let concept = resolveRef(this.config.concept);
 
             if (concept && concept.autoconfig) {
-                const satisfiesAutoCfg = createFilterFn(this.config.concept.autoconfig);
-                const usedConcepts = d3.values(solution);
+                const satisfiesAutoCfg = createFilterFn(concept.autoconfig);
+                const usedConcepts = Object.values(solution);
                 const spaceConcepts = space.map(c => this.source.getConcept(c));
                 const availability = this.source.availability;
     
-                const conceptsInThisSpace = [...availability.keyValueLookup.get(createKeyStr(space)).values()]
+                const conceptsForThisSpace = [...availability.keyValueLookup.get(createKeyStr(space)).values()]
                     .map(kv => this.source.getConcept(kv.value))
                     // exclude the ones such as "is--country", they won't get resolved
                     .filter(c => c.concept.substr(0,4) !== "is--")
                     .concat(spaceConcepts);
-          
-                concept = conceptsInThisSpace
-                    .find(c => satisfiesAutoCfg(c) && (c.concept_type == "time" || !usedConcepts.includes(c.concept))) || {};
+
+                // first try unused concepts, otherwise, use already used concept
+                const passedConcepts = conceptsForThisSpace.filter(satisfiesAutoCfg);
+                concept = passedConcepts.find(c => !usedConcepts.includes(c.concept)) 
+                    || passedConcepts[0]
+                    || {};
+
                 concept = concept.concept;
             }
             return concept || defaults.concept;    
