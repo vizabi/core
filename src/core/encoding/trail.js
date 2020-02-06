@@ -1,5 +1,5 @@
 import { assign, applyDefaults, isString } from "../utils";
-import { action } from "mobx";
+import { action, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
@@ -14,6 +14,7 @@ const defaultConfig = {
 const defaults = {
     show: true,
     groupDim: null,
+    starts: {}
 }
 
 export function trail(config, parent) {
@@ -25,57 +26,70 @@ export function trail(config, parent) {
     return assign(base, {
         get show() { 
             return this.config.show || (typeof this.config.show === "undefined" && defaults.show) },
-        get starts() {
-            return this.config.starts;
-        },
         get groupDim() {
             return resolveRef(this.config.groupDim) || defaults.groupDim;
         },
         get limits() {
+            trace();
             const markers = this.data.filter.markers;
-            const frameMap = this.marker.getTransformedDataMap("order.order");
+            // should not use ordered datamap but the actual groupMap we trailed
+            const groupMap = this.marker.getTransformedDataMap("order.order");
 
             const limits = {};
-
             for (let key of markers.keys()) {
-                let searchStartLimit = true;
-                let prevFrame;
-                limits[key] = [];
-                for (let [i, frame] of frameMap) {
-                    if (searchStartLimit && frame.hasByObjOrStr(null,key)) {
-                        limits[key].push(frame.getByObjOrStr(null,key)[this.groupDim]);
-                        searchStartLimit = false;
-                    }
-                    if (!searchStartLimit && !frame.hasByObjOrStr(null,key)) {
-                        break;
-                    }
-                    prevFrame = frame;
-                }
-                limits[key].push(prevFrame.getByObjOrStr(null,key)[this.groupDim]);
+                limits[key] = this.groupMapExtent(groupMap, key);
             }
-
             return limits;
         },
+        /**
+         * Given a sorted and gapless `groupMap`, gives min and max groups in which `markerKey` is present
+         * @param {*} groupMap groupMap sorted by key
+         * @param {*} markerKey key whose groupKey-extent is to be found in groupMap
+         * @returns {array} Array ([min,max]) of group keys in given `groupMap` for given `markerKey`
+         */
+        groupMapExtent(groupMap, markerKey) {
+            let min, max, groupKey, group;
+            for ([groupKey, group] of groupMap) {
+                if (group.hasByObjOrStr(null, markerKey)) {
+                    if (min === undefined) {
+                        min = group;
+                    }
+                    max = group;
+                } else if (min) {
+                    break;
+                }
+            }
+            // should not rely on groupDim but use groupKey because group might itself be a groupMap
+            return [min, max].map(group => group.getByObjOrStr(null, markerKey)[this.groupDim]);
+        },
         updateTrailStart: action('update trail start', function(value) {
-            this.data.filter.markers.forEach((payload, key) => {
-                const start = this.starts[key];
-                const limits = this.limits[key];
-                if (!start || value < start)
-                    this.config.starts[key] = value < limits[0] ? limits[0] : value;
-            });
+            for (let key in this.config.starts) {
+                const start = this.config.starts[key];
+                this.config.starts[key] = start < value ? start : value;
+            }
         }),
+
+        get starts() {
+            const starts = {};
+            for (let key in this.limits) {
+                const start = this.config.starts[key];
+                const minLimit = this.limits[key][0];
+                starts[key] = start > minLimit ? start : minLimit; // Math.max(this.config.starts[key], this.limits[key][0]);
+            }
+            return starts;
+        },
         setShow: action(function(show) {
             this.config.show = show;
-            if (show === false) this.config.starts = {};
+            if (show === false) this.config.starts = defaults.starts;
         }),
         setTrail: action(function(d) {
             const key = this.getKey(d);
-            this.config.starts[key] = d[this.groupDim]; // frame value
+            this.config.starts[key] = d[this.groupDim]; // group key
             this.data.filter.set(d);
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
-            delete this.config.starts[key]; // frame value
+            delete this.config.starts[key]; // group key
             this.data.filter.delete(d);
         }),
         getKey(d) {
@@ -86,63 +100,65 @@ export function trail(config, parent) {
                 'addTrails': this.addTrails.bind(this)
             }
         },
-        // per given marker, in whatever group
-        //  1. get markers from groups before its group (possibly starting at given group)
-        //  2. add those markers to current group, with key including original group (so no collission)
-        //
-        addTrails(groupedDf) {
-            const frameMap = groupedDf;
+        /**
+         *  Per given marker, in whatever ordered group
+         *  1. get markers from groups before its group (possibly starting at given group)
+         *  2. add those markers to current group, with new key including original group (so no collission)
+         * @param {*} groupMap 
+         */
+        addTrails(groupMap) {
+
             // can't use this.groupDim because circular dep this.marker.transformedDataMap
-            const groupDim = groupedDf.key[0]; // supports only 1 dimensional grouping
+            const groupDim = groupMap.key[0]; // supports only 1 dimensional grouping
             const markers = this.data.filter.markers;
 
             if (markers.size == 0 || !this.show)
-                return frameMap;
+                return groupMap;
 
             // create trails
             const trails = new Map();
             for (let key of markers.keys()) {
                 const trail = new Map();
                 trails.set(key, trail);
-                for (let [i, frame] of frameMap) {
-                    if (frame.hasByObjOrStr(null,key))
-                        trail.set(i, Object.assign({}, frame.getByObjOrStr(null,key)));
+                for (let [i, group] of groupMap) {
+                    if (group.hasByObjOrStr(null,key))
+                        trail.set(i, Object.assign({}, group.getByObjOrStr(null,key)));
                 }
             }
 
-            // add trails to frames
+            // add trails to groups
             const prop = groupDim;
-            const newFrameMap = DataFrameGroupMap([], frameMap.key, frameMap.descendantKeys);
-            const trailKeyDims = [...frameMap.descendantKeys[0], prop];
-            for (let [id, frame] of frameMap) {
-                const newFrame = DataFrame([], frame.key);
-                for (let [markerKey, markerData] of frame) {
+            const newGroupMap = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
+            const trailKeyDims = [...groupMap.descendantKeys[0], prop];
+            for (let [id, group] of groupMap) {
+                const newGroup = DataFrame([], group.key);
+                for (let [markerKey, markerData] of group) {
                     // insert trails before its head marker
                     if (trails.has(markerKey)) {
                         const trail = trails.get(markerKey);
                         const trailStart = this.starts[markerKey];
                         const trailEnd = markerData[prop];
                         // add trail markers in ascending order
-                        for (let keyStr of groupedDf.keys()) {
-                            const i = groupedDf.get(keyStr).values().next().value[prop]
+                        for (let keyStr of groupMap.keys()) {
+                            const i = groupMap.get(keyStr).values().next().value[prop]
                             //const i = parseMarkerKey(keyStr)[prop];
                             if (i < trailStart || !trail.has(keyStr)) continue;
-                            if (i > trailEnd) break;
+                            if (i >= trailEnd) break;
                             const trailMarker = trail.get(keyStr);
                             const newKey = createMarkerKey(trailMarker, trailKeyDims);
                             const newData = Object.assign(trailMarker, {
                                 [Symbol.for('key')]: newKey,
                                 [Symbol.for('trailHeadKey')]: markerKey
                             });
-                            newFrame.set(newData, newKey);
+                            newGroup.set(newData, newKey);
                         }
                     }
                     // (head) marker
-                    newFrame.set(markerData, markerKey);
+                    newGroup.set(markerData, markerKey);
                 }
-                newFrameMap.set(id, newFrame);
+                newGroupMap.set(id, newGroup);
             }
-            return newFrameMap;
+            return newGroupMap;
         }
     });
 }

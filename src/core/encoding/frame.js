@@ -113,11 +113,11 @@ const functions = {
     }),
     update: action('update frame value', function() {
         if (this.playing && this.marker.state === FULFILLED) {
-            let nxt = this.nextValGen.next();
+            const nxt = this.nextValGen.next();
             if (nxt.done) {
                 if (this.loop) {
                     this.nextValGen = this.stepFn();
-                    this.setValue(this.nextValGen.next().value);
+                    this.update();              
                 } else {
                     this.stopPlaying();
                 }
