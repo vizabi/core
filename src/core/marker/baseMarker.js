@@ -22,6 +22,7 @@ const defaults = {
     transformations: [
         "frame.frameMap",
         "filterRequired",
+        "trail.addPreviousTrailHeads",
         "order.order",
         "trail.addTrails",
         "frame.currentFrame"

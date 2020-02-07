@@ -97,8 +97,39 @@ export function trail(config, parent) {
         },
         get transformationFns() {
             return {
+                'addPreviousTrailHeads': this.addPreviousTrailHeads.bind(this),
                 'addTrails': this.addTrails.bind(this)
             }
+        },
+        addPreviousTrailHeads(groupMap) {
+            const trailMarkers = this.data.filter.markers;
+            if (trailMarkers.size == 0 || !this.show)
+                return groupMap;
+
+            const newGroupMap = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
+            const trailHeads = new Map();
+            for (let [id, group] of groupMap) {
+                const historicalTrails = new Set();
+                for (let trailMarkerKey of trailMarkers.keys()) {
+                    // current group doesn't have a head for this trail that has already passed
+                    if (!group.hasByObjOrStr(null, trailMarkerKey)) {
+                        if (trailHeads.has(trailMarkerKey)) {
+                            historicalTrails.add(trailMarkerKey);
+                        }
+                    } else {
+                        const trailMarker = group.getByObjOrStr(null, trailMarkerKey);
+                        trailHeads.set(trailMarkerKey, trailMarker);
+                    }
+                }
+
+                const newGroup = group.copy();
+                for (let trailMarkerKey of historicalTrails) {
+                    const trailHead = trailHeads.get(trailMarkerKey);
+                    newGroup.set(trailHead);
+                }
+                newGroupMap.set(id, newGroup);
+            }
+            return newGroupMap;
         },
         /**
          *  Per given marker, in whatever ordered group
@@ -139,12 +170,10 @@ export function trail(config, parent) {
                         const trailStart = this.starts[markerKey];
                         const trailEnd = markerData[prop];
                         // add trail markers in ascending order
-                        for (let keyStr of groupMap.keys()) {
-                            const i = groupMap.get(keyStr).values().next().value[prop]
-                            //const i = parseMarkerKey(keyStr)[prop];
-                            if (i < trailStart || !trail.has(keyStr)) continue;
-                            if (i >= trailEnd) break;
-                            const trailMarker = trail.get(keyStr);
+                        for (let [keyStr, trailMarker] of trail) {
+                            const idx = trailMarker[prop];
+                            if (idx < trailStart) continue;
+                            if (idx >= trailEnd) break;
                             const newKey = createMarkerKey(trailMarker, trailKeyDims);
                             const newData = Object.assign(trailMarker, {
                                 [Symbol.for('key')]: newKey,

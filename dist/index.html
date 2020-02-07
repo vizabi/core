@@ -375,6 +375,7 @@ function chart() {
                 .attr("id", d => d[Symbol.for('key')])
                 .on("click", d => {
                     if (!d[Symbol.for('trailHeadKey')]) marker.toggleSelection(d);
+                    highlightFilter.delete(d);
                 })
                 .on("mouseover", d => highlightFilter.set(d))
                 .on("mouseout", d => highlightFilter.delete(d));
