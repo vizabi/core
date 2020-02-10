@@ -15,6 +15,7 @@ import { extent } from "./info/extent";
 import { unique } from "./info/unique";
 import { copy } from "./transforms/copy";
 import { differentiate } from "./transforms/differentiate"
+import { interpolateBetween } from "./transforms/interpolateBetween";
 
 //df.get(["swe","2015"]).population
 const fromLookups = (concepts, key) => constructDataFrame(LookupStorage(concepts, key));
@@ -41,6 +42,7 @@ function constructDataFrame(storage) {
             addColumn: (name, value) => addColumn(df, name, value),
             groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
             interpolate: () => interpolate(df),
+            interpolateTowards: (df2, mu) => interpolateBetween(df, df2, mu),
             reindex: (stepFn) => reindex(df, stepFn),
             fillNull: (fillValues) => fillNull(df, fillValues),
             copy: () => copy(df),

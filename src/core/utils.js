@@ -231,7 +231,7 @@ function getTimeInterval(unit) {
     if (interval = d3['utc' + ucFirst(unit)]) return interval;
 }
 
-export function stepIterator(stepUnit, stepSize, domain) {
+export function stepGeneratorFunction(stepUnit, stepSize, domain) {
     let interval;
     if (interval = getTimeInterval(stepUnit)) {
         return function* (min = domain[0], max = domain[1]) { 
@@ -243,7 +243,7 @@ export function stepIterator(stepUnit, stepSize, domain) {
             for (let i = min; i <= max; i += stepSize)
                 yield i;
         };
-    } else if (stepUnit === "index") {
+    } else if (stepUnit === "step") {
         return function* (min, max = domain.length) {
             min = (min === undefined) ? 0 : domain.indexOf(min);
             for (let i = min; i < max; i += stepSize)
