@@ -31,7 +31,7 @@ const functions = {
         }
         return value;
     },
-    get step() { return this.stepScale(this.value); },
+    get step() { return this.stepScale.invert(this.value); },
     
     /**
      * Scale with frame values (e.g. years) as domain and step number (e.g. 0-15) as range.
@@ -44,9 +44,8 @@ const functions = {
         const domainData = this.data.domainData;
         const frameValues = [];
         domainData.each(group => frameValues.push(group.values().next().value[this.name]));
-        if (this.value instanceof Date)
-            return d3.scaleUtc(frameValues, d3.range(0, this.stepCount));
-        return d3.scaleLinear(frameValues, d3.range(0, this.stepCount));
+        // use (possible) dates in range so no need for separate utcScale on time concepts
+        return d3.scaleLinear(d3.range(0, this.stepCount), frameValues); 
     },
     get stepCount() {
         return this.data.domainData.size
@@ -87,7 +86,7 @@ const functions = {
         this.config.value = configValue(parsed, concept);
     }),
     setStep: action('setStep', function setStep(step) {
-        this.setValue(this.stepScale.invert(step));
+        this.setValue(this.stepScale(step));
     }),
     setValueAndStop: action('setValueAndStop', function setValueAndStop(value) {
         this.stopPlaying();
@@ -194,7 +193,7 @@ const functions = {
         return [Math.floor(this.step), Math.ceil(this.step)];
     },
     get framesAround() {
-        return this.stepsAround.map(this.stepScale.invert);
+        return this.stepsAround.map(this.stepScale);
     },
 
     /*
