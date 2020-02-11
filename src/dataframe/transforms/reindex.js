@@ -2,12 +2,12 @@ import { DataFrame } from "../dataFrame";
 
 // TODO: add check if there are rows that are don't fit stepfn 
 // (iterate over df and match one step of stepfn with step of iteration)
-export function reindex(df, stepGen) {
+export function reindex(df, index) {
     const empty = createEmptyRow(df.fields);
     const result = DataFrame([], df.key);
-    const index = df.key[0]; // supports only single indexed
-    for (let key of stepGen()) {
-        const keyObj = { [index]: key };
+    const keyConcept = df.key[0]; // supports only single indexed
+    for (let key of index) {
+        const keyObj = { [keyConcept]: key };
         const row = df.has(keyObj) 
             ? df.get(keyObj)
             : Object.assign({ }, empty, keyObj);

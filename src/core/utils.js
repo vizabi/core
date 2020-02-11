@@ -226,39 +226,26 @@ export function equals(a,b) {
     return a === b;
 }
 
-function getTimeInterval(unit) {
-    let interval;
-    if (interval = d3['utc' + ucFirst(unit)]) return interval;
-}
-
-export function stepGeneratorFunction(stepUnit, stepSize, domain) {
-    let interval;
-    if (interval = getTimeInterval(stepUnit)) {
-        return function* (min = domain[0], max = domain[1]) { 
-            for (let i = min; i <= max; i = interval.offset(i, stepSize) )
-                yield i;
-        };
-    } else if (stepUnit === "number") {
-        return function* (min = domain[0], max = domain[1]) { 
-            for (let i = min; i <= max; i += stepSize)
-                yield i;
-        };
-    } else if (stepUnit === "step") {
-        return function* (min, max = domain.length) {
-            min = (min === undefined) ? 0 : domain.indexOf(min);
-            for (let i = min; i < max; i += stepSize)
-                yield domain[i];
-        }
-    }
-    console.warn("No valid step iterator found.", { stepUnit, stepSize, domain });
-}
-
 export function configValue(value, concept) {
     const { concept_type } = concept;
     if (concept_type == "time" && value instanceof Date) {
         return concept.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
     }
     return value;
+}
+
+
+export function range(start, stop, concept) {
+    if (concept == "time") concept = "year";
+    const interval = d3['utc' + ucFirst(concept)];
+    const rangeFn = interval ? interval.range : d3.range;
+    return rangeFn(start, stop);
+}
+
+export function inclusiveRange(start, stop, concept) {
+    const result = range(start, stop, concept);
+    result.push(stop);
+    return result;
 }
 
 const defaultParsers = [

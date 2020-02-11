@@ -1,24 +1,21 @@
 import { baseEncoding } from './baseEncoding';
 import { action, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
 import { createMarkerKey, parseMarkerKey } from '../../dataframe/utils';
-import { DataFrame } from '../../dataframe/dataFrame';
-//import { interpolate, extent } from 'd3';
 
 const defaultConfig = {
     modelType: "frame",
     value: null,
-    loop: false,
-    scale: { modelType: "frame" },
+    loop: false
 }
 
 const defaults = {
     interpolate: true,
     loop: false,
-    speed: 100,
-    step: { unit: "step", size: 1 }
+    playbackSteps: 1,
+    speed: 100
 }
 
 const functions = {
@@ -34,55 +31,39 @@ const functions = {
         }
         return value;
     },
-    get interpolate() { return this.config.interpolate || defaults.interpolate },
-    get step() { return this.stepScale.invert(this.value); },
-    get stepSize() { return this.config.step && this.config.step.size || defaults.step.size },
-    get stepUnit() { return this.config.step && this.config.step.unit || this.autoStepUnit() },
-    autoStepUnit() {
-        if (this.data.state !== "fulfilled")
-            return defaults.step.unit; // no concept information yet
-
-        const { concept, concept_type } = this.data.conceptProps;
-        if (concept_type == 'measure') 
-            return 'number';
-
-        if (['string','entity_domain','entity_set'].includes(concept_type)) 
-            return 'step';
-
-        if (concept_type == 'time') {
-            if (['year', 'month','day','hour','minute','second'].includes(concept)) {
-                return concept;
-            }
-            if (concept == "time")
-                return "year";
-        }
-        return defaults.step.unit;
-    },
-    get framesAround() {
-        return [Math.floor(this.step), Math.ceil(this.step)].map(this.stepScale);
-    },
-    get count() {        
-        const intervalName = 'utc' + ucFirst(this.stepUnit);
-        let diff;
-        if (d3[intervalName]) 
-            diff = Math.floor(d3[intervalName].count(this.scale.domain[0], this.scale.domain[1]) / this.stepSize);
-        else
-            diff = (end - start) / this.stepSize;
-        return diff + 1;
-    },
+    get step() { return this.stepScale(this.value); },
+    
+    /**
+     * Scale with frame values (e.g. years) as domain and step number (e.g. 0-15) as range.
+     * @returns D3 scale
+     */
+    // this scale uses binary search to find which subsection of scale to work on. Could be optimized
+    // using knowledge frames are equidistant. Using e.g. time interval offset.
+    // can't use 2 point linear scale as time is not completely linear (leap year/second etc)
     get stepScale() {
-        return d3.scaleLinear([0, this.count - 1], this.scale.domain);
+        const domainData = this.data.domainData;
+        const frameValues = [];
+        domainData.each(group => frameValues.push(group.values().next().value[this.name]));
+        if (this.value instanceof Date)
+            return d3.scaleUtc(frameValues, d3.range(0, this.stepCount));
+        return d3.scaleLinear(frameValues, d3.range(0, this.stepCount));
     },
+    get stepCount() {
+        return this.data.domainData.size
+    },
+
+    // PLAYBACK
     get speed() { return this.config.speed || defaults.speed },
     get loop() { return this.config.loop || defaults.loop },
+    get playbackSteps() { return this.config.playbackSteps || defaults.playbackSteps },
     playing: false,
     togglePlaying() {
         this.playing ?
             this.stopPlaying() :
             this.startPlaying();
     },
-    startPlaying: action('startPlaying', function() {
-        if (this.step >= this.stepCount)
+    startPlaying: action('startPlaying', function startPlaying() {
+        if (this.step >= this.stepCount - 1)
             this.setStep(0);
 
         this.setPlaying(true);
@@ -90,14 +71,14 @@ const functions = {
     stopPlaying: function() {
         this.setPlaying(false);
     },
-    setPlaying: action('setPlaying', function(playing) {
+    setPlaying: action('setPlaying', function setPlaying(playing) {
         this.playing = playing;
     }),
-    setSpeed: action('setSpeed', function(speed) {
+    setSpeed: action('setSpeed', function setSpeed(speed) {
         speed = Math.max(0, speed);
         this.config.speed = speed;
     }),
-    setValue: action('setValue', function(value) {
+    setValue: action('setValue', function setValue(value) {
         const concept = this.data.conceptProps;
         let parsed = parseConfigValue(value, concept);
         if (parsed != null) {
@@ -105,34 +86,40 @@ const functions = {
         }
         this.config.value = configValue(parsed, concept);
     }),
-    setStep: action('setStep', function(step) {
-        this.setValue(this.stepScale(step));
+    setStep: action('setStep', function setStep(step) {
+        this.setValue(this.stepScale.invert(step));
     }),
-    setValueAndStop: action('setValueAndStop', function(value) {
+    setValueAndStop: action('setValueAndStop', function setValueAndStop(value) {
         this.stopPlaying();
         this.setValue(value);
     }),
-    setStepAndStop: action('setStepAndStop', function(step) {
+    setStepAndStop: action('setStepAndStop', function setStepAndStop(step) {
         this.stopPlaying();
         this.setStep(step);
     }),
-    snap: action('snap', function () {
+    snap: action('snap', function snap() {
         this.setStep(Math.round(this.step));
     }),
-    nextStep: action('update to next frame value', function() {
+    nextStep: action('update to next frame value', function nextStep() {
         if (this.playing && this.marker.state === FULFILLED) {
-            let nxt = this.step + 1;
+            let nxt = this.step + this.playbackSteps;
             if (nxt < this.stepCount) {
                 this.setStep(nxt);
-            } else {
+            } else if (this.step == this.stepCount - 1) {
+                // on last frame
                 if (this.loop) {
                     this.setStep(0);          
                 } else {
                     this.stopPlaying();
                 }
+            } else {
+                // not yet on last frame, go there first
+                this.setStep(this.stepCount - 1); 
             }
         }
     }),
+
+    // TRANSFORMS
     get transformationFns() {
         return {
             'frameMap': this.frameMap.bind(this),
@@ -141,6 +128,7 @@ const functions = {
     },
 
     // FRAMEMAP TRANSFORM
+    get interpolate() { return this.config.interpolate || defaults.interpolate },
     frameMap(data) {
         if (this.interpolate) 
             data = this.interpolateData(data);
@@ -152,7 +140,7 @@ const functions = {
         // can't use scale.domain as it is calculated after 
         // filterRequired, which needs data to be interpolated
         const domain = this.data.calcDomain(df, this.data.conceptProps);
-        const stepGenerator = stepGeneratorFunction(this.stepUnit, this.stepSize, domain);
+        const newIndex = inclusiveRange(domain[0], domain[1], concept);
 
         return df
             .groupBy(this.rowKeyDims, [name])
@@ -169,7 +157,7 @@ const functions = {
                 })
 
                 return group
-                    .reindex(stepGenerator)   // reindex also orders (needed for interpolation)
+                    .reindex(newIndex) // reindex also orders (needed for interpolation)
                     .fillNull(fillFns) // fill nulls of marker space with custom fns
                     .interpolate()    // fill rest of nulls through interpolation
             })
@@ -198,13 +186,15 @@ const functions = {
     },
     getInterpolatedFrame(df, step) {
         if (!df.size) return;
-        const before = this.getFrameByStep(Math.floor(step), df);
-        const after = this.getFrameByStep(Math.ceil(step), df);
+        const keys = Array.from(df.keys());
+        const [before, after] = this.stepsAround.map(step => df.get(keys[step]));
         return before.interpolateTowards(after, step % 1);
     },
-    getFrameByStep(step, data = this.frameMap) {
-        const keys = Array.from(data.keys());
-        return data.get(keys[step]);
+    get stepsAround() {
+        return [Math.floor(this.step), Math.ceil(this.step)];
+    },
+    get framesAround() {
+        return this.stepsAround.map(this.stepScale.invert);
     },
 
     /*
