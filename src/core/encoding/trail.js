@@ -29,6 +29,9 @@ export function trail(config, parent) {
         get groupDim() {
             return resolveRef(this.config.groupDim) || defaults.groupDim;
         },
+        /**
+         * For each trailed marker, get the min-max of the trail. 
+         */
         get limits() {
             trace();
             const markers = this.data.filter.markers;
@@ -62,19 +65,25 @@ export function trail(config, parent) {
             // should not rely on groupDim but use groupKey because group might itself be a groupMap
             return [min, max].map(group => group.getByObjOrStr(null, markerKey)[this.groupDim]);
         },
-        updateTrailStart: action('update trail start', function(value) {
+        /**
+         * Set trail start of every bubble to `value` if value is lower than current trail start.
+         * Should also include check for trail limit but action won't observe limits observable and thus not memoize it.
+         */
+        updateTrailStart: action('update trail start', function updateTrailStart(value) {
             for (let key in this.config.starts) {
                 const start = this.config.starts[key];
                 this.config.starts[key] = start < value ? start : value;
             }
         }),
-
+        /**
+         * Object of trail starts from config, clamped to trail lower limits
+         */
         get starts() {
             const starts = {};
             for (let key in this.limits) {
                 const start = this.config.starts[key];
                 const minLimit = this.limits[key][0];
-                starts[key] = start > minLimit ? start : minLimit; // Math.max(this.config.starts[key], this.limits[key][0]);
+                starts[key] = start > minLimit ? start : minLimit;
             }
             return starts;
         },
