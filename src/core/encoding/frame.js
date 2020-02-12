@@ -41,7 +41,8 @@ const functions = {
     // using knowledge frames are equidistant. Using e.g. time interval offset.
     // can't use 2 point linear scale as time is not completely linear (leap year/second etc)
     get stepScale() {
-        const domainData = this.data.domainData;
+        // default domain data is after filtering, so empty frames are dropped, so steps doesn't include those
+        const domainData = this.data.domainData; 
         const frameValues = [];
         domainData.each(group => frameValues.push(group.values().next().value[this.name]));
         // use (possible) dates in range so no need for separate utcScale on time concepts
@@ -137,7 +138,7 @@ const functions = {
         const concept = this.data.concept;
         const name = this.name;
         // can't use scale.domain as it is calculated after 
-        // filterRequired, which needs data to be interpolated
+        // filterRequired, which needs data to be interpolated (and might have less frames)
         const domain = this.data.calcDomain(df, this.data.conceptProps);
         const newIndex = inclusiveRange(domain[0], domain[1], concept);
 

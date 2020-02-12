@@ -173,7 +173,12 @@ export function trail(config, parent) {
                         for (let [keyStr, trailMarker] of trail) {
                             const idx = trailMarker[prop];
                             if (idx < trailStart) continue;
-                            if (idx >= trailEnd) break;
+                            // idx > trailEnd includes main bubble in trail as well (as opposed to >=).
+                            // This creates duplicate trail head markers in key frames but allows easy interpolation logic
+                            // for interpolated frames. Trail head is source for two interpolated bubbles, current frame and (trail head-1).
+                            // Another solution would be to allow multiple keys per datapoint (e.g. geo-swe-frame-2000 AND geo-swe)
+                            // and make interpolation interpolate for both keys.
+                            if (idx > trailEnd) break;
                             const newKey = createMarkerKey(trailMarker, trailKeyDims);
                             const newData = Object.assign(trailMarker, {
                                 [Symbol.for('key')]: newKey,
