@@ -114,9 +114,8 @@ const functions = {
     get conceptsPromise() {
         trace();
         return fromPromise(this.availabilityPromise.then(av => {
-            const concepts = ["name", "domain", "concept_type", "scales"];
             const conceptKeyString = createKeyStr(["concept"]);
-            const avConcepts = concepts.filter(c => av.keyValueLookup.get(conceptKeyString).has(c));
+            const avConcepts = [...av.keyValueLookup.get(conceptKeyString).keys()];
     
             const query = {
                 select: {
