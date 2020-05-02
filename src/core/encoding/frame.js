@@ -159,7 +159,7 @@ const functions = {
                 return group
                     .reindex(newIndex) // reindex also orders (needed for interpolation)
                     .fillNull(fillFns) // fill nulls of marker space with custom fns
-                    .interpolate()    // fill rest of nulls through interpolation
+                    .interpolate();    // fill rest of nulls through interpolation
             })
             .flatten(df.key);
     },
@@ -174,7 +174,7 @@ const functions = {
         return data.has(this.frameKey) ? 
             data.get(this.frameKey)
             :
-            this.getInterpolatedFrame(data, this.step);
+            this.getInterpolatedFrame(data, this.step, this.stepsAround);
         // else {
         //     console.warn("Frame value not found in frame map", this)
         //     return new Map();
@@ -184,10 +184,10 @@ const functions = {
     get frameKey() {
         return createMarkerKey({ [this.name]: this.value });
     },
-    getInterpolatedFrame(df, step) {
+    getInterpolatedFrame(df, step, stepsAround) {
         if (!df.size) return;
         const keys = Array.from(df.keys());
-        const [before, after] = this.stepsAround.map(step => df.get(keys[step]));
+        const [before, after] = stepsAround.map(step => df.get(keys[step]));
         return before.interpolateTowards(after, step % 1);
     },
     get stepsAround() {

@@ -269,7 +269,13 @@ let functions = {
         return data.has(frameKey) ? 
             data.get(frameKey)
             :
-            frame.getInterpolatedFrame(data, value);
+            getInterpolatedFrame(frame, data, value);
+
+        function getInterpolatedFrame(frame, data, value) {
+            const step = frame.stepScale.invert(value);
+            const stepsAround = [Math.floor(step), Math.ceil(step)];
+            return frame.getInterpolatedFrame(data, step, stepsAround);
+        }
     }
 }
 
