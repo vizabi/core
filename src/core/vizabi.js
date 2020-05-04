@@ -99,7 +99,14 @@ function transformModel(model, transform) {
                         }
                     }
                 },
-                source: "gap"
+                source: model.data.source,
+                locale: model.data.locale
+            });
+        case "entityConceptSkipFilter":
+            return observable({
+                space: model.data.isConstant() ? [] : [model.data.concept],
+                source: model.data.source,
+                locale: model.data.locale
             });
         default:
             // build new config based on model.config

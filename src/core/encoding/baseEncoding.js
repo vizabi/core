@@ -27,14 +27,23 @@ const functions = {
     get scale() {
         return scaleStore.getByDefinition(this.config.scale, this);
     },
-    setWhich: action('setWhich', function(kv) {
-        const concept = this.data.source.getConcept(kv.value.concept);
+    setWhich: action('setWhich', function(kv) {        
+        if (kv.key) {
+            const concept = this.data.source.getConcept(kv.value.concept);
 
-        this.config.data.concept = concept.concept;
-        this.config.data.space = kv.key;
+            this.config.data.concept = concept.concept;        
+            this.config.data.space = kv.key;
+            delete this.config.data.constant;
+        } else {
+            this.config.data.constant = kv.value.concept;
+            delete this.config.data.concept;
+            //delete this.config.data.space;
+        }
+
         this.config.scale.domain = null;
         this.config.scale.type = null;
         this.config.scale.zoomed = null;
+        this.config.scale.palette = {};
     }),
     get prop() {
         return this.marker.getPropForEncoding(this);

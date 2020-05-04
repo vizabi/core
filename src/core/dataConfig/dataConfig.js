@@ -74,10 +74,10 @@ export function dataConfig(config = {}, parent) {
                 return (this.parent.marker) ? this.parent.marker.data.locale : null;          
         },
         get concept() { 
-            return this.parent.marker.data.configSolution.encodings[this.parent.name];
+            return (this.parent.marker.data.configSolution.encodings || {})[this.parent.name];
             // return this.config.concept ? resolveRef(this.config.concept) : defaults.concept; 
         },
-        get conceptProps() { return this.source.getConcept(this.concept) },
+        get conceptProps() { return this.concept && this.source.getConcept(this.concept) },
         get availability() { return this.source.availability.data.map(kv => this.source.getConcept(kv.value)) },
         get domainDataSource() {
             let source = this.config.domainDataSource || defaults.domainDataSource;

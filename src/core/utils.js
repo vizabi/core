@@ -364,3 +364,20 @@ export function getOrCreate(map, key, create) {
     }
     return value;
 }
+
+/**
+ * Return filtered object(shallow cloned)
+ * @param {Object} obj 
+ * @param {Function} filter
+ */
+export function filterObject(obj, filter) {
+    let result = {}, key;
+
+    for (key in obj) {
+        if (obj.hasOwnProperty(key) && filter(key, obj[key])) {
+            result[key] = obj[key];
+        }
+    }
+
+    return result;
+}

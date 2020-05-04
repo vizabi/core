@@ -4,6 +4,7 @@ import { trace } from "mobx";
 const scales = {
     "linear": d3.scaleLinear,
     "log": d3.scaleLog,
+    "genericLog": d3.scaleSymlog,
     "sqrt": d3.scaleSqrt,
     "ordinal": d3.scaleOrdinal,
     "point": d3.scalePoint,
@@ -36,6 +37,9 @@ export function baseScale(config = {}, parent) {
             return this.parent.data;
         },
         get type() {
+            if (this.data.isConstant()) {
+                return this.ordinalScale;
+            }
             const concept = this.data.conceptProps;
             let scaleType = null;
             let scale;
@@ -49,6 +53,11 @@ export function baseScale(config = {}, parent) {
                 scaleType = "time";
             else
                 scaleType = "linear";
+            
+            if (scaleType == "log" && d3.min(this.domain) <= 0 && d3.max(this.domain) >= 0) {
+                scaleType = "genericLog";
+            }
+
             return scaleType;
         },
         get range() {
@@ -72,25 +81,38 @@ export function baseScale(config = {}, parent) {
                 : this.data.domain ? this.data.domain
                 : defaults.domain;
         },
+        set domain(domain) {
+            this.config.domain = domain;
+        },
         clampToDomain(val) {
             const domain = this.domain;
-            if (this.type == "ordinal" || this.type == "band" || this.type == "point")
+            if (this.isDiscrete())
                 return domain.includes(val) ? val : undefined;
             
             if (val < domain[0]) return domain[0];
             if (val > domain[1]) return domain[1];
             return val;
         },
-        get d3Scale() {
+        d3ScaleCreate() {
             const scale = scales[this.type]();
-            const domain = (this.type == "log" && this.domain[0] == 0) ? [1, this.domain[1]] : this.domain;
-            return scale.range(this.range).domain(domain);
+            if (this.type === "genericLog") {
+                //TODO
+                //scale.constant(limitsObj.minAbsNear0);
+            }
+                
+            return scale.domain(this.domain).range(this.range);
+        },
+        get d3Scale() {
+            return this.d3ScaleCreate();
         },
         get zoomed() {
-            return this.config.zoomed;
+            return this.config.zoomed ? this.config.zoomed.map(c => parseConfigValue(c, this.data.conceptProps)) : this.domain;
         },
         set zoomed(zoomed) {
             this.config.zoomed = zoomed;
         },
+        isDiscrete() {
+            return this.type == "ordinal" || this.type == "band" || this.type == "point";
+        }
     }
 }
