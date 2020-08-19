@@ -7,7 +7,7 @@ const d3Intervals = { utcMillisecond, utcSecond,utcMinute, utcHour, utcDay, utcW
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
 export function isString(value) {
-    return typeof value == 'string';
+    return typeof value == 'string' || value instanceof String;
 }
 
 export function isEntityConcept(concept) {
@@ -229,33 +229,6 @@ export function equals(a,b) {
     return a === b;
 }
 
-function getTimeInterval(unit) {
-    let interval;
-    if (interval = d3Intervals['utc' + ucFirst(unit)]) return interval;
-}
-
-export function stepIterator(stepUnit, stepSize, domain) {
-    let interval;
-    if (interval = getTimeInterval(stepUnit)) {
-        return function* (min = domain[0], max = domain[1]) { 
-            for (let i = min; i <= max; i = interval.offset(i, stepSize) )
-                yield i;
-        };
-    } else if (stepUnit === "number") {
-        return function* (min = domain[0], max = domain[1]) { 
-            for (let i = min; i <= max; i += stepSize)
-                yield i;
-        };
-    } else if (stepUnit === "index") {
-        return function* (min, max = domain.length) {
-            min = (min === undefined) ? 0 : domain.indexOf(min);
-            for (let i = min; i < max; i += stepSize)
-                yield domain[i];
-        }
-    }
-    console.warn("No valid step iterator found.", { stepUnit, stepSize, domain });
-}
-
 export function configValue(value, concept) {
     const { concept_type } = concept;
     if (concept_type == "time" && value instanceof Date) {
@@ -264,13 +237,28 @@ export function configValue(value, concept) {
     return value;
 }
 
+
+export function range(start, stop, concept) {
+    if (concept == "time") concept = "year";
+    const interval = d3['utc' + ucFirst(concept)];
+    const rangeFn = interval ? interval.range : d3.range;
+    return rangeFn(start, stop);
+}
+
+export function inclusiveRange(start, stop, concept) {
+    const result = range(start, stop, concept);
+    result.push(stop);
+    return result;
+}
+
 const defaultParsers = [
-    utcParse('%Y'),
-    utcParse('%Y-%m'),
-    utcParse('%Y-%m-%d'),
-    utcParse('%Y-%m-%dT%H'),
-    utcParse('%Y-%m-%dT%H-%M'),
-    utcParse('%Y-%m-%dT%H-%M-%S')
+    d3.utcParse('%Y'),
+    d3.utcParse('%Y-%m'),
+    d3.utcParse('%Y-%m-%d'),
+    d3.utcParse('%Y-%m-%dT%HZ'),
+    d3.utcParse('%Y-%m-%dT%H:%MZ'),
+    d3.utcParse('%Y-%m-%dT%H:%M:%SZ'),
+    d3.utcParse('%Y-%m-%dT%H:%M:%S.%LZ')
 ];
 
 function tryParse(timeString, parsers) {
@@ -282,7 +270,17 @@ function tryParse(timeString, parsers) {
     return null;
 }
 
+/**
+ * Parses string `valueStr` to different type, depending on `concept` type. 
+ * Type `time` is parsed to `Date`, `measure` to `number`, any other to string. 
+ * If `valueStr` is not a string, it is returned as is.
+ * 
+ * @param {string} valueStr String to parse
+ * @param {Object} concept Concept object of which valueStr is a value
+ */
 export function parseConfigValue(valueStr, concept) {
+    if (!isString(valueStr)) return valueStr;
+
     const { concept_type } = concept;
 
     if (concept_type === "time") {

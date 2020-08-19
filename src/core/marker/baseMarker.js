@@ -3,6 +3,7 @@ import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, isProperSubset, combineStates } from "../utils";
+import { createMarkerKey } from '../../dataframe/utils';
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -20,10 +21,11 @@ const defaults = {
     requiredEncodings: [],
     transformations: [
         "frame.frameMap",
-        "filterRequired",
-        "order.order",
-        "trail.addTrails",
-        "frame.currentFrame"
+        "filterRequired", // after framemap so doesn't remove interpolatable rows
+        "trail.addPreviousTrailHeads", // before ordering so trailheads get ordered
+        "order.order", 
+        "trail.addTrails", // after ordering so trails stay together
+        "frame.currentFrame" // final to make it quick
     ]
 }
 
@@ -171,6 +173,10 @@ let functions = {
             .filter(row => required.every(encName => row.hasOwnProperty(encName) && row[encName] !== null))
             .filterGroups(group => group.size > 0);
     },
+    differentiate(xField, data) {
+        const frame = this.encoding.get("frame")
+        return frame && this.encoding.get(xField) ? frame.differentiate(data, xField) : data
+    },
     /**
      * transformationFns is an object 
      *  whose keys are transformation strings
@@ -186,6 +192,13 @@ let functions = {
             if (enc.transformationFns)
                 for (let [tName, t] of Object.entries(enc.transformationFns))
                     transformations[name + '.' + tName] = t;
+            if (enc.config && enc.config.data && enc.config.data.transformations instanceof Array) {
+                for (let tName of enc.config.data.transformations) {
+                    const fn = this[tName];
+                    if (fn)
+                        transformations[name + '.' + tName] = fn.bind(this, name)
+                }
+            }
         }
         return transformations;
     },
@@ -199,9 +212,9 @@ let functions = {
      */
     get transformations() {
         const transformations = this.config.transformations || defaults.transformations;
-
+        const transformationFns = this.transformationFns;
         return transformations
-            .filter(tStr => tStr in this.transformationFns)
+            .filter(tStr => tStr in transformationFns)
             .map(tStr => ({
                     fn: this.transformationFns[tStr],
                     name: tStr
@@ -247,6 +260,17 @@ let functions = {
     },
     get dataArray() {
         return this.dataMap.toJSON();
+    },
+    getDataMapByFrameValue(value) {
+        const frame = this.encoding.get("frame");
+        if (!frame) return this.dataMap;
+
+        const frameKey = createMarkerKey({ [frame.name]: value }, [frame.name]);
+        const data = this.getTransformedDataMap('filterRequired');
+        return data.has(frameKey) ? 
+            data.get(frameKey)
+            :
+            frame.getInterpolatedFrame(data, value);
     }
 }
 
