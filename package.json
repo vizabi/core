@@ -16,7 +16,7 @@
     "start": "webpack-dev-server -d --open",
     "rollup": "rollup -c",
     "test": "jest",
-    "test-break": "node --inspect-brk node_modules/.bin/jest --runInBand",
+    "test-break": "node --inspect-brk node_modules/.bin/jest --runInBand"
   },
   "author": "Jasper Heeffer and others at Gapminder Foundation",
   "license": "BSD-3-Clause",
