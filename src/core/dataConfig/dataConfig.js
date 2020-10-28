@@ -130,10 +130,14 @@ export function dataConfig(config = {}, parent) {
             } 
 
             space = space || defaults.space;
+            
+            if (!space)
+                console.warn("Could not resolve space concepts for marker", this.parent, { space });            
+            
             encodings = this.resolveEncodingConcepts(space, this.parent.encoding); 
 
-            if (!space || !encodings)
-                console.warn("Could not resolve space or encoding concepts for marker.", this.parent, { space, encodings });
+            if (!encodings)
+                console.warn("Could not resolve encoding concepts for marker", this.parent, { encodings });
 
             return { space, encodings };
         },
