@@ -1,4 +1,4 @@
-import { assign, applyDefaults, isString } from "../utils";
+import { assign, applyDefaults, isString, configValue, parseConfigValue } from "../utils";
 import { action, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
@@ -71,8 +71,12 @@ export function trail(config, parent) {
          */
         updateTrailStart: action('update trail start', function updateTrailStart(value) {
             for (let key in this.config.starts) {
-                const start = this.config.starts[key];
-                this.config.starts[key] = start < value ? start : value;
+                const start = this.starts[key];
+                const minLimit = this.limits[key][0];
+                const newStart = start < value ? start : value < minLimit ? start : value;
+                if (start != newStart) {
+                    this.config.starts[key] = configValue(newStart, this.data.source.getConcept(this.groupDim));
+                }
             }
         }),
         /**
@@ -81,7 +85,7 @@ export function trail(config, parent) {
         get starts() {
             const starts = {};
             for (let key in this.limits) {
-                const start = this.config.starts[key];
+                const start = parseConfigValue(this.config.starts[key], this.data.source.getConcept(this.groupDim));
                 const minLimit = this.limits[key][0];
                 starts[key] = start > minLimit ? start : minLimit;
             }
@@ -93,7 +97,7 @@ export function trail(config, parent) {
         }),
         setTrail: action(function(d) {
             const key = this.getKey(d);
-            this.config.starts[key] = d[this.groupDim]; // group key
+            this.config.starts[key] = configValue(d[this.groupDim], this.data.source.getConcept(this.groupDim)); // group key
             this.data.filter.set(d);
         }),
         deleteTrail: action(function(d) {
