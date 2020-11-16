@@ -70,7 +70,7 @@ export const createStore = function(baseType, extendedTypes = {}) {
 
             // get by config of another model
             if (isNonNullObject(def) && "config" in def) {
-                def = def.config;
+                return def;
             }
 
             // get by config object
