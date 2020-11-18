@@ -1,4 +1,4 @@
-import { fromPromise, FULFILLED } from 'mobx-utils'
+import { computedFn, fromPromise, FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, defer, deepclone, pipe, stableStringifyObject } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
@@ -144,6 +144,9 @@ const functions = {
     get state() {
         return this.metaDataPromise.state;
     },
+    get identity() {
+        return stableStringifyObject(this.config);
+    },
     getConcept(concept) {
         if (concept == "concept_type" || concept.indexOf('is--') === 0 || concept === "concept")
             return { concept, name: concept }
@@ -156,13 +159,19 @@ const functions = {
     },
     query(query) {
         //return [];
+        if (!query._id) {
+            query._id = this.identity;
+        }
         query = dotToJoin(query);
         query = addExplicitAnd(query);
         console.log('Adding to queue', query);
         const queryPromise = this.enqueue(query);
         return fromPromise(queryPromise);
     },
-    queue: [],
+    //queue: [],
+    get queue() {
+        return [];
+    },
     enqueue(query) {
         return new Promise((resolve, reject) => {
             this.queue.push({ query, resolves: [resolve], rejects: [reject] });
@@ -279,6 +288,6 @@ baseDataSource.decorate = {
     // queue should be mutable by computed methods
     // this is introducing state manipulation and makes these computed methods impure
     // other solutions are welcome : )
-    queue: observable.ref,
+    //queue: observable.ref,
     cache: observable.ref
 }
