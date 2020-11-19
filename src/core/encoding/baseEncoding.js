@@ -29,6 +29,14 @@ const functions = {
     },
     setWhich: action('setWhich', function(kv) {        
         if (kv.key) {
+            //check ds
+            const markerDS = this.marker.config.data.source;
+            if (kv.value.dataSource == markerDS) {
+                delete this.config.data.source;
+            } else {
+                this.config.data.source = kv.value.dataSource;
+            }
+
             const concept = this.data.source.getConcept(kv.value.concept);
 
             this.config.data.concept = concept.concept;        
