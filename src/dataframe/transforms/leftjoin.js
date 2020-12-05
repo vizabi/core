@@ -30,12 +30,13 @@ export function leftJoin(left, rights) {
         
         // join any rows in right dfs which have same key as left row
         for (let { dataFrame, projection, hasFn, getFn } of rights) {
-            if (dataFrame[hasFn](row, keyStr)) {
+            //if (dataFrame[hasFn](row, keyStr)) {
                 const rightRow = dataFrame[getFn](row, keyStr);
+                if (rightRow === undefined) continue;
                 for(let key in projection) {
                     leftRow[projection[key]] = rightRow[key];
                 }
-            }
+            //}
         }
         
         // set row

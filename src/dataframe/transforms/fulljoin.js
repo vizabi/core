@@ -69,11 +69,17 @@ function createObj(space, row, keyStr) {
 function getOrCreateRow(df, keyArr, row, keyStr) {
     let obj;
     // if (keyStr == undefined) keyStr = createMarkerKey(row, keyArr);
-    if (!df.hasByObjOrStr(row, keyStr)) {
+
+    obj = df.getByObjOrStr(row, keyStr);
+    if (obj === undefined) {
         obj = createObj(keyArr, row, keyStr);
         df.set(obj, keyStr);
-    } else {
-        obj = df.getByObjOrStr(row, keyStr);
     }
+    // if (!df.hasByObjOrStr(row, keyStr)) {
+    //     obj = createObj(keyArr, row, keyStr);
+    //     df.set(obj, keyStr);
+    // } else {
+    //     obj = df.getByObjOrStr(row, keyStr);
+    // }
     return obj;
 }

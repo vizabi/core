@@ -62,10 +62,12 @@ function batchSet(storage, rowIter) {
 
     rowIter = getIter(rowIter);
 
+    let keyStr;
     for (let row of rowIter) {
-        if (storage.has(row))
-            duplicates.push({ keyStr: storage.keyFn(row), orig: storage.get(row), new: row})
-        storage.set(row);
+        keyStr = storage.keyFn(row);
+        if (storage.hasByObjOrStr(null, keyStr))
+            duplicates.push({ keyStr, orig: storage.getByObjOrStr(null, keyStr), new: row})
+        storage.set(row, keyStr);
     }
 
     if (duplicates.length > 0)
