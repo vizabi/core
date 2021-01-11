@@ -1,16 +1,18 @@
-import { action, isObservableArray, toJS } from 'mobx';
-import { isString, mapToObj, applyDefaults, deepmerge, arrayEquals } from './utils';
+import { action, isObservableArray, toJS, observable} from 'mobx';
+import { applyDefaults } from './config/config';
+import { isString, mapToObj, deepmerge, arrayEquals } from './utils';
 
-const defaultConfig = {
-    markers: {},
-    dimensions: {}
-}
 
 export function filter(config = {}, parent) {
 
-    applyDefaults(config, defaultConfig);
+    if (!config.dimensions) config.dimensions = {};
 
-    return {
+    applyDefaults(config, {
+        markers: {},
+        dimensions: {}
+    });
+
+    return observable({
         config,
         parent,
         get markers() {
@@ -95,5 +97,5 @@ export function filter(config = {}, parent) {
 
             return filter;
         },
-    }
+    });
 };

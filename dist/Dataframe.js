@@ -1,4 +1,4 @@
-// http://vizabi.org v1.0.1 Copyright 2019 undefined
+// http://vizabi.org v1.0.1 Copyright 2020 undefined
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -285,8 +285,8 @@
             set: storage.setKey,
             get: () => key
         });
-        storage.has = keyObj => isRangeKey ? false     : has(storage.keyFn(keyObj));
-        storage.get = keyObj => isRangeKey ? undefined : get(storage.keyFn(keyObj));
+        storage.has = keyObj => isRangeKey ? has(keyObj) : has(storage.keyFn(keyObj));
+        storage.get = keyObj => isRangeKey ? get(keyObj) : get(storage.keyFn(keyObj));
         storage.set = (row, keyStr) => {
             // passing keyStr is optimization to circumvent keyStr generation (TODO: check performance impact)
             // if keyStr set, we assume it's correct. Only use when you know keyStr fits with current key dims
@@ -351,6 +351,24 @@
             // i.e. a row can be returned for this key
             return true; //[...concepts.values()].some(lookups => keyArr.every(dim => dim in keyObj && lookups.has(dim)));
         };
+        /**
+         * Given a key like 
+         * { 
+         *      geo: 'swe', 
+         *      gender: 'fem' 
+         * } 
+         * Returns e.g. 
+         * { 
+         *      name: { 
+         *          geo: 'Sweden', 
+         *          gender: 'Female' 
+         *      }, 
+         *      description: { 
+         *          geo: 'foo', 
+         *          gender: 'bar' 
+         *      }
+         *  }
+         */
         storage.get = (keyObj) => {
             const row = {};
             concepts.forEach((lookups, concept) => {
@@ -580,12 +598,12 @@
 
     // TODO: add check if there are rows that are don't fit stepfn 
     // (iterate over df and match one step of stepfn with step of iteration)
-    function reindex(df, stepGen) {
+    function reindex(df, index) {
         const empty = createEmptyRow(df.fields);
         const result = DataFrame([], df.key);
-        const index = df.key[0]; // supports only single indexed
-        for (let key of stepGen()) {
-            const keyObj = { [index]: key };
+        const keyConcept = df.key[0]; // supports only single indexed
+        for (let key of index) {
+            const keyObj = { [keyConcept]: key };
             const row = df.has(keyObj) 
                 ? df.get(keyObj)
                 : Object.assign({ }, empty, keyObj);
@@ -805,6 +823,39 @@
 
     const copy = df => DataFrame(df);
 
+    /*
+      "Differentiate" a given field in this dataframe.
+    */
+    function differentiate(df, xField = 'x', yField = 'time') {
+      let prevX;
+      for (let row of df.values()) {
+        const difference = prevX ? row[xField] - prevX : 0;
+        prevX = row[xField];
+        row[xField] = difference;
+      }
+      return df;
+    }
+
+    function interpolateBetween(from, to, mu) {
+        const df = DataFrame([], from.key);
+        
+        let newRow, row2;
+        for(const [key, row1] of from) {
+            row2 = to.getByObjOrStr(undefined, key);
+            if (!row2) continue;
+            if (row2 !== row1) { // same object, depends on trails using same object for trail markers across frames.
+                newRow = Object.assign({}, row1);
+                for (let field in newRow) {
+                    newRow[field] = d3.interpolate(row1[field], row2[field])(mu);
+                }
+            } else {
+                newRow = row1;
+            }   
+            df.set(newRow, newRow[Symbol.for('key')]);
+        }
+        return df;
+    }
+
     //df.get(["swe","2015"]).population
     const fromLookups = (concepts, key) => constructDataFrame(LookupStorage(concepts, key));
     const fromArray = (data = [], key = data.key || []) => constructDataFrame(MapStorage(data, key));
@@ -830,9 +881,11 @@
                 addColumn: (name, value) => addColumn(df, name, value),
                 groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
                 interpolate: () => interpolate(df),
+                interpolateTowards: (df2, mu) => interpolateBetween(df, df2, mu),
                 reindex: (stepFn) => reindex(df, stepFn),
                 fillNull: (fillValues) => fillNull(df, fillValues),
                 copy: () => copy(df),
+                differentiate: (xField) => differentiate(df, xField),
         
                 // info
                 extent: (concept) => extent(df, concept),

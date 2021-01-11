@@ -1,13 +1,18 @@
 import { assign } from "../utils";
 import { baseScale } from "./baseScale";
+import * as d3 from "d3-scale-chromatic";
+import { observable } from "mobx";
 
 const colors = {
     schemeCategory10: d3.schemeCategory10
 }
 
 export function color(config, parent) {
+    return observable(color.nonObservable(config, parent));
+}
 
-    const s = baseScale(config, parent);
+color.nonObservable = function(config, parent) {
+    const s = baseScale.nonObservable(config, parent);
 
     return assign(s, {
         get range() {

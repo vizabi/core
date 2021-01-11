@@ -32,7 +32,7 @@ function _fullJoin(left, rightCfg) {
     const projection = normalizeProjection(rightCfg.projection) || {};
 
     if (!joinKey.every(dim => dataKey.includes(dim)))
-        console.warn("Right key does not contain all join fields.", { left: left, right: rightCfg });
+        console.warn("Right key is not a subset of left key.", { keys: { left: joinKey, right: dataKey }, left, right: rightCfg });
     if (!projection || Object.keys(projection).length === 0)
         console.warn("No projection given for join so no new fields will be joined", { left: left, right: rightCfg } );
 

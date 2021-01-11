@@ -1,5 +1,7 @@
 import { DataFrame } from "../dataframe/dataFrame";
 import { relativeComplement } from "../core/utils";
+import * as d3 from "d3-time-format";
+import { autoType as d3AutoType } from 'd3-dsv';
 
 
 export function inlineReader({ values = [], keyConcepts = [], dtypes }) {
@@ -113,7 +115,7 @@ const dtypeParsers = {
 function parserFromDtypes(dtypes) {
 
     if (dtypes == "auto") 
-        return d3.autoType;
+        return d3AutoType;
 
     // create field parsers
     const parsers = {};

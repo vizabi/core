@@ -1,32 +1,33 @@
-import { assign, applyDefaults, isString } from "../utils";
-import { action, trace } from "mobx";
-import { baseEncoding } from "./baseEncoding";
+import { assign, isString } from "../utils";
+import { action, trace, observable } from "mobx";
+import { encoding } from "./encoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { parseMarkerKey, createMarkerKey } from "../../dataframe/utils";
-
-const defaultConfig = {
-    data: { filter: { markers: {} } }
-}
-
-const defaults = {
-    starts: {},
-    show: true,
-    groupDim: null,
-    starts: {}
-}
+import { applyDefaults } from "../config/config";
 
 export function trail(config, parent) {
+    return observable(trail.nonObservable(config, parent));
+}
 
-    applyDefaults(config, defaultConfig);
+trail.nonObservable = function(config, parent) {
 
-    const base = baseEncoding(config, parent);
+    const defaults = {
+        starts: {},
+        show: true,
+        groupDim: null,
+        data: { filter: { markers: {} } }
+    };
+    applyDefaults(config, defaults);
+
+    const base = encoding.nonObservable(config, parent);
 
     return assign(base, {
         get show() { 
-            return this.config.show || (typeof this.config.show === "undefined" && defaults.show) },
+            return this.config.show;
+        },
         get groupDim() {
-            return this.config.groupDim || defaults.groupDim;
+            return this.config.groupDim;
         },
         /**
          * For each trailed marker, get the min-max of the trail. 

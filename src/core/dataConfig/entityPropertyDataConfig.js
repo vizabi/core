@@ -1,21 +1,41 @@
 import { dataConfig } from './dataConfig';
-import { composeObj, renameProperty } from '../utils';
-import { trace, toJS } from 'mobx';
+import { composeObj, fromPromiseAll, renameProperty } from '../utils';
+import { trace, toJS, observable } from 'mobx';
 import { fromPromise } from 'mobx-utils';
 import { DataFrame } from '../../dataframe/dataFrame';
+import { createConfig } from '../config/config';
 
 export function entityPropertyDataConfig(cfg, parent) {
-    const base = dataConfig(cfg, parent);
+    return observable(
+        entityPropertyDataConfig.nonObservable(createConfig(cfg), parent), {
+        config: observable.ref
+    });
+}
+entityPropertyDataConfig.nonObservable = function (cfg, parent) {
+    const base = dataConfig.nonObservable(cfg, parent);
 
     return composeObj(base, {
 
         get promise() {
-            trace();
-            if (this.source.conceptsState !== "fulfilled") return fromPromise.resolve([]);
+            const sourcePromises = [];
+
+            sourcePromises.push(this.source.metaDataPromise);
+            if (this.needsMarkerSource) { sourcePromises.push(this.marker.data.source.metaDataPromise); }
+            if (sourcePromises.length > 0) {
+                const combined = fromPromiseAll(sourcePromises);
+                return combined.case({ 
+                    fulfilled: () => this.sendQueries(),
+                    pending: () => combined,
+                })
+            } else {
+                return this.sendQueries();
+            }
+        },
+        sendQueries() {
             const labelPromises = this.queries.map(query => this.source.query(query)
                 .then(data => ({ dim: query.select.key[0], data }))
             );
-            return fromPromise(Promise.all(labelPromises));
+            return fromPromise(Promise.all(labelPromises))
         },
         get queries() {
             const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));
@@ -41,7 +61,7 @@ export function entityPropertyDataConfig(cfg, parent) {
             return new Map([[this.concept, lookups]]);
         },
         get responseMap() {
-            return DataFrame.fromLookups(this.lookups, this.commonSpace)
+            return DataFrame.fromLookups(this.lookups, this.space)
         },
         addLabels(markers, encName) {
             // reduce lookups

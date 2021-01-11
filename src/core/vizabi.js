@@ -3,7 +3,7 @@ import { encodingStore } from './encoding/encodingStore'
 import { dataSourceStore } from './dataSource/dataSourceStore'
 import * as utils from './utils'
 import * as mobx from 'mobx';
-import { createConfig } from './config';
+import { createConfig } from './config/config';
 
 export const stores = {
     markers: markerStore,
@@ -11,16 +11,14 @@ export const stores = {
     encodings: encodingStore
 }
 
-let config;
-
 const vizabi = function(cfg) {
-    config = createConfig(cfg, { model: stores });
-
-    dataSourceStore.setMany(config.dataSources || {});
-    encodingStore.setMany(config.encodings || {});
-    markerStore.setMany(config.markers || {});
-
-    return { stores, config };
+    const config = createConfig(cfg, { model: stores });
+    const models = {};
+    for (const storeName in stores) {
+        models[storeName] = stores[storeName].createMany(config[storeName] || {})
+    }
+    
+    return models;
 }
 vizabi.mobx = mobx;
 vizabi.utils = utils;
@@ -32,12 +30,16 @@ vizabi.dataSource = (cfg, id) =>{
             values: cfg
         };
     }
-
-    return dataSourceStore.set(cfg, id);
+    cfg = createConfig(cfg);
+    return dataSourceStore.create(cfg, null, id);
 } 
 vizabi.marker = (cfg, id) => {
     cfg = createConfig(cfg);
-    return markerStore.set(cfg, id);
+    return markerStore.create(cfg, null, id);
+}
+vizabi.encoding = (cfg, id) => {
+    cfg = createConfig(cfg);
+    return encodingStore.create(cfg, null, id);
 }
 
-export default vizabi;
+export default vizabi;4

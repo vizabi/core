@@ -1,4 +1,4 @@
-import { normalizeKey, getIter, rangeIndex, createKeyFn } from "../utils";
+import { normalizeKey, getIter, rangeIndex, createKeyFn, isNonNullObject } from "../utils";
 
 export function MapStorage(data = [], keyArr = data.key || []) {
     
@@ -30,8 +30,15 @@ function createEmptyMap() {
         set: storage.setKey,
         get: () => key
     });
-    storage.has = keyObj => isRangeKey ? false     : has(storage.keyFn(keyObj));
-    storage.get = keyObj => isRangeKey ? undefined : get(storage.keyFn(keyObj));
+    storage.has = keyObj => isRangeKey ? has(keyObj) : has(storage.keyFn(keyObj));
+    storage.get = keyObj => {
+        if (!isRangeKey && !isNonNullObject(keyObj))
+            throw(new Error('Dataframe key is not an object: ' + JSON.stringify(keyObj)))
+        const key = isRangeKey ? keyObj : storage.keyFn(keyObj)
+        if (!has(key))
+            throw(new Error('Key not found in dataframe: ' + JSON.stringify(keyObj)))
+        return get(key);
+    }
     storage.set = (row, keyStr) => {
         // passing keyStr is optimization to circumvent keyStr generation (TODO: check performance impact)
         // if keyStr set, we assume it's correct. Only use when you know keyStr fits with current key dims

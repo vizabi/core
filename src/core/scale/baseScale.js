@@ -1,5 +1,8 @@
-import { applyDefaults, parseConfigValue } from "../utils";
-import { trace } from "mobx";
+import { parseConfigValue } from "../utils";
+import { trace, observable } from "mobx";
+import * as d3 from "d3-scale";
+import { schemeCategory10 as d3SchemeCategory10 } from "d3-scale-chromatic";
+import { getDefault, getWithoutDefault, applyDefaults } from "../config/config";
 
 const scales = {
     "linear": d3.scaleLinear,
@@ -11,26 +14,29 @@ const scales = {
     "time": d3.scaleUtc
 }
 
-
-const defaultConfig = {
-    domain: null,
-    range: null,
-    type: null
+export function baseScale(config, parent) {
+    return observable(baseScale.nonObservable(config, parent))
 }
 
-const defaults = {
-    domain: [0,1]
-}
+baseScale.nonObservable = function(config, parent) {
 
-export function baseScale(config = {}, parent) {
+    // console.log('creating new scale for', parent.name);
 
-    applyDefaults(config, defaultConfig);
+    applyDefaults(config, {
+        range: [0, 1],
+        type: 'linear',
+        domain: [0, 1]
+    })
 
     return {
         config,
         parent,
         // ordinal, point or band
         ordinalScale: "ordinal",
+        get path() {
+            return this.parent ? this.parent.path + '.' + name : name;
+        },
+        name: 'scale',
         get data() {
             return this.parent.data;
         },
@@ -38,8 +44,9 @@ export function baseScale(config = {}, parent) {
             const concept = this.data.conceptProps;
             let scaleType = null;
             let scale;
-            if (scales[this.config.type])
-                scaleType = this.config.type;
+            const userType = getWithoutDefault(this.config, 'type');
+            if (scales[userType])
+                scaleType = userType;
             else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale])
                 scaleType = scale;
             else if (concept && ["entity_domain", "entity_set", "string"].includes(concept.concept_type))
@@ -47,7 +54,7 @@ export function baseScale(config = {}, parent) {
             else if (concept && ["time"].includes(concept.concept_type))
                 scaleType = "time";
             else
-                scaleType = "linear";
+                scaleType = getDefault(this.config, 'type');
             return scaleType;
         },
         get range() {
@@ -60,16 +67,16 @@ export function baseScale(config = {}, parent) {
 
             // default
             return (this.type == "ordinal") ?
-                d3.schemeCategory10 : [0, 1];
+                d3SchemeCategory10 : this.defaults.range;
         },
         set range(range) {
             this.config.range = range;
         },
         get domain() {
-            trace();
-            return this.config.domain ? this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps))
+            const userDomain = getWithoutDefault(this.config, 'domain');
+            return userDomain ? userDomain.map(c => parseConfigValue(c, this.data.conceptProps))
                 : this.data.domain ? this.data.domain
-                : defaults.domain;
+                : getDefault(this.config, 'domain');
         },
         clampToDomain(val) {
             const domain = this.domain;

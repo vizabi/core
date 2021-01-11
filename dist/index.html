@@ -107,8 +107,7 @@
         <script src="https://d3js.org/d3.v5.js"></script>
         <script src="vizabi-ddfcsv-reader.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.min.js"></script>
-        <script src="https://unpkg.com/mobx-utils/mobx-utils.umd.js"></script>
-        <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/preview/master/assets/vendor/js/vizabi-ws-reader/vizabi-ws-reader.js"></script>
+        <script src="https://unpkg.com/mobx-utils@5.6.1/mobx-utils.umd.js"></script>
         <script src="Vizabi.js"></script>
         <script src="config.js"></script>
 
@@ -125,7 +124,7 @@ window.Vizabi = Vizabi;
 window.autorun = mobx.autorun;
 
 mobx.autorun(() => {
-    d3.select("#right pre").html(JSON.stringify(viz.config, null, 2))
+    // d3.select("#right pre").html(JSON.stringify(viz.config, null, 2))
 }, { name: "showcfg" })
 
 
@@ -164,8 +163,8 @@ chart();
 
 function chart() {
 
-    const marker = viz.stores.markers.get("bubble");
-    const legendmarker = viz.stores.markers.get("legend");
+    const marker = Vizabi.stores.markers.get("bubble");
+    const legendmarker = Vizabi.stores.markers.get("legend");
 
     var xAxis = d3.axisBottom();
     var yAxis = d3.axisLeft();
@@ -202,13 +201,13 @@ function chart() {
     
     function setupTimecontrol() {
 
-        const frameCfg = marker.encoding.get("frame");
+        const frameCfg = marker.encoding.frame;
 
         const timecontrol = d3.select("#timecontrol");
         playtoggle = timecontrol.select("#toggle")
             .on('click', function() { frameCfg.togglePlaying() })
         timeslider = timecontrol.select("#timeslider")
-            .on('input', function() { frameCfg.setIndexAndStop(this.value) });
+            .on('input', function() { frameCfg.setStepAndStop(this.value) });
         speedslider = timecontrol.select("#speedslider")
             .attr('min', 1)
             .attr('max', 1000)
@@ -247,11 +246,14 @@ function chart() {
         var wrap = document.getElementById("wrapper");
         appLayout.wrapper.height = wrap.clientHeight;
         appLayout.wrapper.width = wrap.clientWidth;
-        marker.encoding.get('x').scale.range = [0,wrap.clientWidth];
-        marker.encoding.get('y').scale.range = [wrap.clientHeight,0];
     });
     window.addEventListener("resize", updateSize);
     updateSize();
+    mobx.autorun(() => {
+        marker.encoding.x.scale.range = [0,  appLayout.wrapper.width];
+        marker.encoding.y.scale.range = [appLayout.wrapper.height, 0];
+    })
+    //updateSize(); // not in autorun so encoding is not memoized!
 
     mobx.autorun(setupTimecontrol);
     mobx.autorun(drawBubbles);
@@ -268,8 +270,8 @@ function chart() {
 
     function setupZoom() {
 
-        const xConfig = marker.encoding.get("x");
-        const yConfig = marker.encoding.get("y");
+        const xConfig = marker.encoding.x;
+        const yConfig = marker.encoding.y;
 
         var zoom = d3.zoom()
             //.scaleExtent([.1, 20])
@@ -308,12 +310,12 @@ function chart() {
         }
 
         function draw() {
-            const frameCfg = marker.encoding.get("frame");
+            const frameCfg = marker.encoding.frame;
             const [min, max] = frameCfg.scale.domain;
             d3.select("#timecontrol").select('.frameval').text(frameCfg.value.toISOString());
             timeslider.attr('min', 0)
-                .attr('max', frameCfg.stepArray.length - 1)
-                .property('value', frameCfg.index)
+                .attr('max', frameCfg.stepCount - 1)
+                .property('value', frameCfg.step)
                 .attr('step', 1);
 
             speedslider.property('value', frameCfg.speed);
@@ -324,10 +326,10 @@ function chart() {
 
     function drawBubbles() {
 
-        mobx.reaction(
+        /*mobx.reaction(
             () => marker.encoding.get('frame').value, 
             (value) => marker.encoding.get('trail').updateTrailStart(value)
-        );
+        );*/
 
         start(marker, {
             pending: showLoading,
@@ -345,20 +347,20 @@ function chart() {
 
         function showData() {
             const data = marker.dataArray;
-            const sizeConfig = marker.encoding.get("size");
+            const sizeConfig = marker.encoding.size;
             const sizeScale = sizeConfig.scale.d3Scale;
-            const colorConfig = marker.encoding.get("color");
+            const colorConfig = marker.encoding.color;
             const colorScale = colorConfig.scale.d3Scale;
-            const xConfig = marker.encoding.get("x");
-            const yConfig = marker.encoding.get("y");
-            const frameConfig = marker.encoding.get("frame");
-            const trailMdl = marker.encoding.get("trail");
+            const xConfig = marker.encoding.x;
+            const yConfig = marker.encoding.y;
+            const frameConfig = marker.encoding.frame;
+            const trailMdl = marker.encoding.trail;
             const trailConcept = trailMdl.groupDim;
-            const selectedConfig = marker.encoding.get("selected");
+            const selectedConfig = marker.encoding.selected;
             const selectedFilter = selectedConfig.data.filter
-            const highlightConfig = marker.encoding.get("highlighted");
+            const highlightConfig = marker.encoding.highlighted;
             const highlightFilter = highlightConfig.data.filter;
-            const superHighlight = marker.encoding.get("superhighlighted");
+            const superHighlight = marker.encoding.superhighlighted;
             const superHighlightFilter = superHighlight.data.filter;
 
             // data join
@@ -518,8 +520,8 @@ function chart() {
 
         function draw() {
 
-            const superHighlight = marker.encoding.get("superhighlighted");
-            let colorConfig = marker.encoding.get('color');
+            const superHighlight = marker.encoding.superhighlighted;
+            let colorConfig = marker.encoding.color;
             let data;
 
             if (colorConfig.data.isConstant()) {
@@ -527,7 +529,7 @@ function chart() {
             } else if (Vizabi.utils.isEntityConcept(colorConfig.data.conceptProps)) {
                 // need extra query
                 data = legendmarker.dataArray;
-                colorConfig = legendmarker.encoding.get('color');
+                colorConfig = legendmarker.encoding.color;
             } else {
                 data = colorConfig.scale.domain.map(d => ({ color: d, name: d }));
             }
@@ -590,8 +592,8 @@ function chart() {
         }
 
         function draw() {
-            const xConfig = marker.encoding.get("x");
-            const yConfig = marker.encoding.get("y");
+            const xConfig = marker.encoding.x;
+            const yConfig = marker.encoding.y;
 
             chart.attr("width", appLayout.width + appLayout.margin.left + appLayout.margin.right)
                 .attr("height", appLayout.height + appLayout.margin.top + appLayout.margin.bottom)
@@ -624,7 +626,7 @@ function chart() {
 
     function drawEncoding() {
 
-        mobxUtils.fromPromise(viz.stores.dataSources.get('gap').metaDataPromise).case({
+        mobxUtils.fromPromise(Vizabi.stores.dataSources.get('gap').metaDataPromise).case({
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
@@ -644,6 +646,9 @@ function chart() {
                 .on("change", function() {
                     const space = d3.select(this.options[this.selectedIndex]).datum();
                     marker.config.data.space = space;
+                    for (prop in marker.encoding) {
+                        marker.encoding[prop].data.filter.config.dimensions = {}
+                    }
                 });
 
             const spaceOptUpd = spaceSel
@@ -675,7 +680,7 @@ function chart() {
                 .attr('class', 'encConceptSelect')
                 .on("change", function(enc) {
                     const kv = d3.select(this.options[this.selectedIndex]).datum();
-                    marker.encoding.get(enc).setWhich(kv);
+                    marker.encoding[enc].setWhich(kv);
                 });
             divsEnter.insert("label", ":first-child").attr('for', d => d + "select").text(d => d);
             const divs = divsEnter.merge(divsUpdate);
@@ -683,7 +688,7 @@ function chart() {
             const extraDims = divsEnter.append('span').attr('id', d => d + 'dims').attr('class', "dims");
             divs.selectAll('.dims').each((prop, i, nodes) => {
                 const div = nodes[i];
-                const encoding = marker.encoding.get(prop);
+                const encoding = marker.encoding[prop];
                 const encSpace = encoding.data.space;
                 const dims = Vizabi.utils.relativeComplement(marker.data.space, encSpace).map(dim => ({ dim, encoding }));
                 const promises = dims.map(d => {
@@ -738,7 +743,7 @@ function chart() {
                 .attr('value', d => !d.value ? 'n/a' : d.value.concept + ' (' + d.key.join(',') + ')')
                 .property('selected', function(d) {
                     const encId = d3.select(this.parentNode).datum();
-                    const enc = marker.encoding.get(encId)
+                    const enc = marker.encoding[encId]
                     return d.value && d.value.concept == enc.data.concept && Vizabi.utils.arrayEquals(d.key, enc.data.space);
                 })
                 .text(d => !d.value ? 'n/a' : d.value.name + ' (' + d.key.join(',') + ') [' + d.source.path + ']')

@@ -87,24 +87,6 @@ const config = {
             }
         },
         */
-        "legend": {
-            data: {
-                ref: {
-                    path: "markers.bubble.encoding.color",
-                    root: "model",
-                    transform: "entityConcept",
-                }
-            },
-            encoding: {
-                color: {
-                    data: { concept: { ref: "markers.bubble.encoding.color.data.concept" } },
-                    scale: { ref: "markers.bubble.encoding.color.scale" }
-                },
-                name: { data: { concept: "name" } },
-                rank: { data: { concept: "rank" } },
-                map: { data: { concept: "shape_lores_svg" } }
-            }
-        },
         "bubble": {
             modelType: "bubble",
             data: {
@@ -127,6 +109,12 @@ const config = {
                 "selected": {
                     modelType: "selection",
                     data: { ref: "markers.bubble.encoding.trail.data" }
+                },
+                "highlighted": {
+                    modelType: "selection"
+                },
+                "superhighlighted": {
+                    modelType: "selection"
                 },
                 "x": {
                     data: {
@@ -196,6 +184,24 @@ const config = {
                     modelType: "trail",
                     groupDim: "time"
                 }
+            }
+        },
+        "legend": {
+            data: {
+                ref: {
+                    path: "markers.bubble.encoding.color",
+                    root: "model",
+                    transform: "entityConcept",
+                }
+            },
+            encoding: {
+                color: {
+                    data: { concept: { ref: "markers.bubble.encoding.color.data.concept" } },
+                    scale: { ref: "markers.bubble.encoding.color.scale" }
+                },
+                name: { data: { concept: "name" } },
+                rank: { data: { concept: "rank" } },
+                map: { data: { concept: "shape_lores_svg" } }
             }
         }
     }

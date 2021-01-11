@@ -1,28 +1,24 @@
-import { baseMarker } from './baseMarker';
-import { applyDefaults, renameProperty, assign } from '../utils';
-import { action } from 'mobx';
-import { encodingStore } from '../encoding/encodingStore';
-
-const defaultConfig = {
-    requiredEncodings: ["x", "y", "size"],
-    encoding: {
-        size: { scale: { modelType: "size" } }
-    }
-}
+import { marker } from './marker';
+import { renameProperty, assign } from '../utils';
+import { action, trace, observable } from 'mobx';
+import { applyDefaults } from '../config/config';
 
 export function bubble(config) {
-    const base = baseMarker(config);
+    return observable(bubble.nonObservable(config));
+}
 
-    applyDefaults(config, defaultConfig);
-    renameProperty(base, "encoding", "superEncoding");
+bubble.nonObservable = function(config) {
+
+    applyDefaults(config, {
+        requiredEncodings: ["x", "y", "size"],
+        encoding: {
+            size: { scale: { modelType: "size" } }
+        }
+    })
+
+    const base = marker.nonObservable(config);
 
     return assign(base, {
-        get encoding() {
-            const enc = this.superEncoding;
-            enc.set('highlighted', encodingStore.getByDefinition({ modelType: "selection" }));
-            enc.set('superhighlighted', encodingStore.getByDefinition({ modelType: "selection" }));
-            return enc;
-        },
         toggleSelection: action(function(d) {
             const trails = this.encoding.get('trail');
             if (!trails.data.filter.has(d)) {
@@ -35,4 +31,4 @@ export function bubble(config) {
 
 }
 
-bubble.decorate = baseMarker.decorate;
+bubble.decorate = marker.decorate;

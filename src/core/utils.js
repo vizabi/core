@@ -1,8 +1,10 @@
-import { utcMillisecond, utcSecond, utcMinute, utcHour, utcDay, utcWeek, utcMonth, utcYear } from "d3-time";
-import { utcParse, utcFormat } from "d3-time-format";
 import { fromPromise } from "mobx-utils";
+import { observable } from "mobx";
+import * as d3 from "d3-time-format";
+import * as d3Time from "d3-time";
+import { range as d3Range } from "d3-array";
+import { applyDefaults, getLayer } from "./config/config";
 
-const d3Intervals = { utcMillisecond, utcSecond,utcMinute, utcHour, utcDay, utcWeek, utcMonth, utcYear }
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -57,6 +59,7 @@ export function arrayEquals(a, b) {
 // https://www.webreflection.co.uk/blog/2015/10/06/how-to-copy-objects-in-javascript
 // rewrote for clarity and make sources overwrite target (mimic Object.assign)
 export function assign(target, ...sources) {
+    
     sources.forEach(source => {
         Object.keys(source).forEach(property => {
             Object.defineProperty(target, property, Object.getOwnPropertyDescriptor(source, property));
@@ -85,20 +88,26 @@ export function renameProperty(obj, oldProp, newProp) {
     moveProperty(obj, oldProp, obj, newProp)
 }
 
-export function fromPromiseAll(promiseArray) {
-    if (promiseArray.every(p.state == "fulfilled"))
-        return fromPromise.resolve(promiseArray);
+export function fromPromiseAll(promiseColl) {
+    const promiseArray = Array.isArray(promiseColl) ? promiseColl : Object.values(promiseColl);
+    if (promiseArray.every(p => p.state == "fulfilled"))
+        return fromPromise.resolve(promiseColl);
     if (promiseArray.some(p => p.state == "rejected"))
-        return fromPromise.reject(promiseArray);
+        return fromPromise.reject(promiseColl);
+    return fromPromise((res, rej) => { });
 }
 
 export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
     if (Array.isArray(functions)) functions = assign({}, ...functions);
-    const newType = function decorate(config, parent) {
+    const newType = function (config, parent, name) {
+        return observable(newType.nonObservable(config, parent, name));
+    }
+    newType.nonObservable = function(config, parent, name) {
         applyDefaults(config, defaultConfig);
         delete functions.config;
-        base = (base == null) ? (config, parent) => ({ config, parent }) : base;
-        return assign(base(config, parent), functions);
+        if (!base) base = (config, parent) => ({ config, parent });
+        const baseObj = base.nonObservable(config, parent, name);
+        return assign(baseObj, functions);
     }
     newType.decorate = base.decorate;
     return newType;
@@ -111,7 +120,7 @@ export function combineStates(states) {
 }
 
 // code from https://github.com/TehShrike/is-mergeable-object
-function isMergeableObject(value) {
+export function isMergeableObject(value) {
     return isNonNullObject(value) &&
         !isSpecial(value)
 }
@@ -205,23 +214,6 @@ export function deepclone(object) {
     return deepmerge({}, object);
 }
 
-export function applyDefaults(config, defaults) {
-    const defaultProps = Object.keys(defaults);
-    defaultProps.forEach(prop => {
-        if (!config.hasOwnProperty(prop))
-            if (isMergeableObject(defaults[prop]))
-                config[prop] = deepclone(defaults[prop]); // object
-            else
-                config[prop] = defaults[prop]; // non object, e.g. null
-        else if (isMergeableObject(defaults[prop]))
-            if (isMergeableObject(config[prop]))
-                applyDefaults(config[prop], defaults[prop]);
-            else
-                config[prop] = deepclone(defaults[prop]);
-    })
-    return config;
-}
-
 export function equals(a,b) {
     if (a instanceof Date && b instanceof Date) {
         return a.getTime() === b.getTime();
@@ -232,7 +224,7 @@ export function equals(a,b) {
 export function configValue(value, concept) {
     const { concept_type } = concept;
     if (concept_type == "time" && value instanceof Date) {
-        return concept.format ? utcFormat(concept.format)(value) : formatDate(value);
+        return concept.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
     }
     return value;
 }
@@ -240,8 +232,8 @@ export function configValue(value, concept) {
 
 export function range(start, stop, concept) {
     if (concept == "time") concept = "year";
-    const interval = d3['utc' + ucFirst(concept)];
-    const rangeFn = interval ? interval.range : d3.range;
+    const interval = d3Time['utc' + ucFirst(concept)];
+    const rangeFn = interval ? interval.range : d3Range;
     return rangeFn(start, stop);
 }
 
@@ -279,13 +271,14 @@ function tryParse(timeString, parsers) {
  * @param {Object} concept Concept object of which valueStr is a value
  */
 export function parseConfigValue(valueStr, concept) {
-    if (!isString(valueStr)) return valueStr;
 
     const { concept_type } = concept;
 
     if (concept_type === "time") {
+        if (valueStr instanceof Date)
+            return valueStr;
         let parsers = concept.format 
-            ? [utcParse(concept.format), ...defaultParsers]
+            ? [d3.utcParse(concept.format), ...defaultParsers]
             : defaultParsers;
         return tryParse(valueStr, parsers);
     }
@@ -339,11 +332,21 @@ export function pipe(...fns) {
     return fns.reduceRight(compose2);
 }
 
-
+/**
+ * Creates a stable, unique string representing the object, circumventing the unordered nature of object properties
+ * @param {Object} obj 
+ * @returns {String} Stable string representation of object
+ */
 export function stableStringifyObject(obj) { 
     return JSON.stringify(canonicalObject(obj));
 }
 
+/**
+ * Recursively replace any object by an array where each element is on of the object's properties, sorted by the property name.
+ * Can be used as stable input for hashing objects, circumventing the unordered nature of object properties.
+ * @param {Object} where 
+ * @returns {Array}
+ */
 function canonicalObject(where) {
     if (!isNonNullObject(where)) 
         return where;

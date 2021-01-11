@@ -14,6 +14,24 @@ export function LookupStorage(concepts, keyArr) {
         // i.e. a row can be returned for this key
         return true; //[...concepts.values()].some(lookups => keyArr.every(dim => dim in keyObj && lookups.has(dim)));
     }
+    /**
+     * Given a key like 
+     * { 
+     *      geo: 'swe', 
+     *      gender: 'fem' 
+     * } 
+     * Returns e.g. 
+     * { 
+     *      name: { 
+     *          geo: 'Sweden', 
+     *          gender: 'Female' 
+     *      }, 
+     *      description: { 
+     *          geo: 'foo', 
+     *          gender: 'bar' 
+     *      }
+     *  }
+     */
     storage.get = (keyObj) => {
         const row = {};
         concepts.forEach((lookups, concept) => {

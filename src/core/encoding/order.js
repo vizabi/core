@@ -1,19 +1,20 @@
-import { baseEncoding } from './baseEncoding';
+import { encoding } from './encoding';
 import { defaultDecorator, isString } from '../utils';
 
 const directions = {
     ascending: "ascending",
     descending: "descencding"
 }
-const defaults = {
+const defaultConfig = {
     direction: directions.ascending
 }
 
 export const order = defaultDecorator({
-    base: baseEncoding,
+    defaultConfig,
+    base: encoding,
     functions: {
         get direction() {
-            return this.data.config.direction || defaults.direction;
+            return this.config.direction;
         },
         order(df) {
             const name = this.name;

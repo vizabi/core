@@ -1,4 +1,4 @@
-import { baseEncoding } from './baseEncoding';
+import { encoding } from './encoding';
 import { defaultDecorator } from '../utils';
 
 const defaultConfig = {
@@ -8,6 +8,6 @@ const defaultConfig = {
 }
 
 export const selection = defaultDecorator({
-    base: baseEncoding,
+    base: encoding,
     defaultConfig
 });

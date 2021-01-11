@@ -1,17 +1,17 @@
-import { applyDefaults, assign } from "../utils";
+import { scaleSqrt } from "d3-scale";
+import { observable } from "mobx";
+import { assign } from "../utils";
 import { baseScale } from "./baseScale";
 
-const defaultConfig = {
-    type: "sqrt",
-    range: [0, 20]
+export function size(config, parent) {
+    return observable(size.nonObservable(config, parent));
 }
 
-export function size(config, parent) {
+size.nonObservable = function(config, parent) {
 
-    applyDefaults(config, defaultConfig);
-    const s = baseScale(config, parent);
+    const s = baseScale.nonObservable(config, parent);
 
-    return assign(s, {
+    return assign({ base: s }, s, {
         ordinalScale: "point",
         get range() {
             if (this.config.range != null)
@@ -19,6 +19,10 @@ export function size(config, parent) {
             if (this.type == "point")
                 return [1, 20];
             return [0, 20];
+        },
+        get d3Scale() {
+            const orig = this.base.d3Scale;
+            return orig; // scaleSqrt()
         }
     });
 }
