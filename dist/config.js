@@ -109,6 +109,13 @@ const config = {
             data: {
                 source: "gap",
                 space: ["country", "time"],
+                filter: {
+                    dimensions: {
+                        "country": {
+                            "un_state": true
+                        }
+                    }
+                }
                 /*filter: {
                     markers: {},
                     dimensions: {

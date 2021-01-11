@@ -254,7 +254,7 @@ export function dataConfig(config = {}, parent) {
 
             // where
             if (this.filter) {
-                query.where = this.filter.whereClause;
+                query.where = this.filter.whereClause(query.select.key);
             }
           
             if (this.locale) {

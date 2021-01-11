@@ -57,14 +57,20 @@ export function filter(config = {}, parent) {
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];
         },
-        get whereClause() {
+        whereClause(space) {
             let filter = {};
 
             // dimension filters
             const dimFilters = [];
-            this.parent.space.forEach(dim => {
+            space.forEach(dim => {
                 if (this.dimensions[dim]) {
-                    dimFilters.push(this.dimensions[dim]);
+                    for (let key in this.dimensions[dim]) {
+                        if (key == dim || space.length < 2) {
+                            dimFilters.push({ [key]: this.dimensions[dim][key] });
+                        } else { 
+                            dimFilters.push({ [dim + '.' + key]: this.dimensions[dim][key] });
+                        }
+                    }
                 }
             })
 
@@ -72,7 +78,7 @@ export function filter(config = {}, parent) {
             const markerFilters = [];
             for (let [key, payload] of this.markers) {
                 const markerSpace = Object.keys(key);
-                if (arrayEquals(markerSpace, this.parent.space)) {
+                if (arrayEquals(markerSpace, space)) {
                     markerFilters.push(key);
                 }
             }
