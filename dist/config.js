@@ -4,15 +4,16 @@ const config = {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
         },*/
-        /*gap: {
-            type: "waffle",
-            "path": "https://waffle-server.gapminder.org/api/ddf/ql",
-            "assetsPath": "https://import-waffle-server.gapminder.org/api/ddf/assets/"
-        },*/
+        gapbw: {
+            modelType: "bw",
+            service: 'https://big-waffle.gapminder.org', 
+            name: "sg-master"
+        },/*
         gap: {
             modelType: "ddfcsv",
             path: "./ddf--jheeffer--mdtest/"
         },
+        */
         /*
                 sg: {
                     type: "ddfcsv",
@@ -107,7 +108,7 @@ const config = {
         "bubble": {
             modelType: "bubble",
             data: {
-                source: "gap",
+                source: "gapbw",
                 space: ["country", "time"],
                 filter: {
                     dimensions: {
@@ -143,8 +144,8 @@ const config = {
                 },
                 "y": {
                     data: {
-                        concept: "life_expectancy",
-                        space: ["country", "gender", "time"],
+                        concept: 'life_expectancy_years', // concept: "life_expectancy",
+                        space: ['country', 'time'], //["country", "gender", "time"],
                         filter: {
                             dimensions: {
                                 gender: { gender: "male" }
@@ -193,7 +194,7 @@ const config = {
                     data: {
                         concept: "time"
                     },
-                    value: 2018,
+                    value: "2018",
                     interpolate: true,
                     speed: 100
                 },

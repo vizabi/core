@@ -108,7 +108,7 @@
         <script src="vizabi-ddfcsv-reader.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.min.js"></script>
         <script src="https://unpkg.com/mobx-utils/mobx-utils.umd.js"></script>
-        <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/preview/master/assets/vendor/js/vizabi-ws-reader/vizabi-ws-reader.js"></script>
+        <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/vizabi-ddfservice-reader/2.0.1/vizabi-ddfservice-reader.js"></script>
         <script src="Vizabi.js"></script>
         <script src="config.js"></script>
 
@@ -117,9 +117,9 @@
         // import { mobx.autorun, action, spy, mobx.observable } from 'mobx'
 
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
-//var waffle = new WsReader.WsReader.getReader();
+var ddfReader = DDFServiceReader.getReader();
 Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
-//Vizabi.stores.dataSources.createAndAddType('waffle', waffle);
+Vizabi.stores.dataSources.createAndAddType('bw', ddfReader);
 window.viz = Vizabi(config);
 window.Vizabi = Vizabi;
 window.autorun = mobx.autorun;
@@ -208,7 +208,7 @@ function chart() {
         playtoggle = timecontrol.select("#toggle")
             .on('click', function() { frameCfg.togglePlaying() })
         timeslider = timecontrol.select("#timeslider")
-            .on('input', function() { frameCfg.setIndexAndStop(this.value) });
+            .on('input', function() { frameCfg.setStepAndStop(this.value) });
         speedslider = timecontrol.select("#speedslider")
             .attr('min', 1)
             .attr('max', 1000)
@@ -312,8 +312,8 @@ function chart() {
             const [min, max] = frameCfg.scale.domain;
             d3.select("#timecontrol").select('.frameval').text(frameCfg.value.toISOString());
             timeslider.attr('min', 0)
-                .attr('max', frameCfg.stepArray.length - 1)
-                .property('value', frameCfg.index)
+                .attr('max', frameCfg.stepCount - 1)
+                .property('value', frameCfg.step)
                 .attr('step', 1);
 
             speedslider.property('value', frameCfg.speed);
@@ -624,7 +624,7 @@ function chart() {
 
     function drawEncoding() {
 
-        mobxUtils.fromPromise(viz.stores.dataSources.get('gap').metaDataPromise).case({
+        mobxUtils.fromPromise(viz.stores.dataSources.get('gapbw').metaDataPromise).case({
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
