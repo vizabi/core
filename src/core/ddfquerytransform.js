@@ -17,17 +17,20 @@ export function dotToJoin(query) {
             const [key, value] = s;
             const filter = where[p];
 
-            const joinid = "$" + key + i++;
+            const joinid = "$" + key;
             delete newq.where[p];
             newq.where[key] = joinid;
 
             if (!newq.join) newq.join = {};
-
-            newq.join[joinid] = {
-                key: key,
-                where: {
-                    [value]: filter
+            if (!newq.join[joinid]) {
+                newq.join[joinid] = {
+                    key,
+                    where: {
+                        [value]: filter
+                    }
                 }
+            } else {
+                newq.join[joinid].where[value] = filter;
             }
         }
     });
