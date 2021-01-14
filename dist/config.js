@@ -132,7 +132,7 @@ const config = {
             encoding: {
                 "selected": {
                     modelType: "selection",
-                    data: { ref: "markers.bubble.encoding.trail.data" }
+                    data: {  }
                 },
                 "x": {
                     data: {
@@ -145,12 +145,12 @@ const config = {
                 "y": {
                     data: {
                         concept: 'life_expectancy_years', // concept: "life_expectancy",
-                        space: ['country', 'time'], //["country", "gender", "time"],
-                        filter: {
+                        //space: ['country', 'time'], //["country", "gender", "time"],
+                        /*filter: {
                             dimensions: {
                                 gender: { gender: "male" }
                             }
-                        }
+                        }*/
                     },
                     scale: {
                         type: "linear",
@@ -160,7 +160,7 @@ const config = {
                 "order": {
                     modelType: "order",
                     data: {
-                        ref: "markers.bubble.encoding.size.data",
+                        concept: "population_total",
                         direction: "desc"
                     }
                 },
