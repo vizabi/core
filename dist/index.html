@@ -106,7 +106,7 @@
         </div>
         <script src="https://d3js.org/d3.v5.js"></script>
         <script src="vizabi-ddfcsv-reader.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.js"></script>
         <script src="https://unpkg.com/mobx-utils/mobx-utils.umd.js"></script>
         <script src="https://s3-eu-west-1.amazonaws.com/static.gapminderdev.org/vizabi-ddfservice-reader/2.0.1/vizabi-ddfservice-reader.js"></script>
         <script src="Vizabi.js"></script>
@@ -140,27 +140,31 @@ spy((event) => {
 })
 */
 
-function splashMarker(id, splashFilter) {
+function splash(id, splashFilter) {
     const marker = viz.stores.markers.get(id)
     let splashConfig = Vizabi.utils.deepclone(marker.config);
     filterMerge = { data: { filter: { dimensions: splashFilter } } }
     splashConfig = Vizabi.utils.deepmerge(splashConfig, filterMerge);
 
     splashMarker = Vizabi.marker(splashConfig);
+    let firstLoad = true;
 
     return new Proxy(marker, {
         get: function(target, prop, receiver) {
             
-            if (marker.state == 'fulfilled')
+            if (marker.state == 'fulfilled') {
+                firstLoad = false;
                 return Reflect.get(...arguments);
-            else if (splashMarker.state == 'fulfilled') {
+            } 
+            else if (firstLoad && splashMarker.state == 'fulfilled')  {
                 //console.log('getting ' + prop + ' from splash');
                 return Reflect.get(splashMarker, prop, receiver);
-            } else {
+            } 
+            else {
                 //console.log('Still loading, trying to get ' + prop + '. Returning from full marker');
                 return Reflect.get(...arguments);
             }
-            
+
         }
     })
 }
@@ -189,7 +193,7 @@ chart();
 
 function chart() {
 
-    const marker = splashMarker('bubble', { time: { time: 2017 } }); // viz.stores.markers.get("bubble");
+    const marker = splash('bubble', { time: { time: 2017 } }); // viz.stores.markers.get("bubble");
     const legendmarker = viz.stores.markers.get("legend");
 
     var xAxis = d3.axisBottom();
@@ -241,11 +245,12 @@ function chart() {
             .on('input', function() { frameCfg.setSpeed(this.value) });
     }
 
-    function start(marker, caseImpl) {
+    function start(marker, caseImpl, name) {
         autorun(() => {
+            mobx.trace();
             const state = marker.state;
             caseImpl[state]();
-        })
+        }, { name })
     }
     /*
         if (!Array.isArray(markers)) markers = [markers];
@@ -272,8 +277,8 @@ function chart() {
         var wrap = document.getElementById("wrapper");
         appLayout.wrapper.height = wrap.clientHeight;
         appLayout.wrapper.width = wrap.clientWidth;
-        marker.encoding.get('x').scale.range = [0,wrap.clientWidth];
-        marker.encoding.get('y').scale.range = [wrap.clientHeight,0];
+        marker.encoding.get('x').scale.range[1] = appLayout.width;
+        marker.encoding.get('y').scale.range[0] = appLayout.height;
     });
     window.addEventListener("resize", updateSize);
     updateSize();
@@ -310,7 +315,7 @@ function chart() {
             setTransform: mobx.action(function(t) {
                 this.t = t
             })
-        });
+        }, null, { name: 'zoomObj' });
 
         function zoomed() {
             zoomScales.setTransform(d3.event.transform);
@@ -359,7 +364,7 @@ function chart() {
             pending: showLoading,
             rejected: showError,
             fulfilled: showData
-        });
+        }, 'drawBubbles');
 
         function showLoading() {
             console.log("loading");
@@ -607,7 +612,7 @@ function chart() {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
-        });
+        }, 'drawChart');
 
         function showLoading() {
             console.log("loading");
@@ -621,9 +626,9 @@ function chart() {
             const xConfig = marker.encoding.get("x");
             const yConfig = marker.encoding.get("y");
 
-            chart.attr("width", appLayout.width + appLayout.margin.left + appLayout.margin.right)
-                .attr("height", appLayout.height + appLayout.margin.top + appLayout.margin.bottom)
-            svg.attr("transform", "translate(" + appLayout.margin.left + "," + appLayout.margin.top + ")");
+            chart.attr("width", appLayout.wrapper.width)
+                .attr("height", appLayout.wrapper.height)
+            svg.attr("transform", "translate(" + appLayout.margin.left + "," + appLayout.margin.top + ")")
 
             // var t = getTransition(frameConfig);
 
