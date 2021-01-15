@@ -26,6 +26,7 @@
         
         #wrapper {
             flex: 1;
+            overflow: hidden;
         }
         
         #encodingcontrol {
@@ -277,8 +278,13 @@ function chart() {
         var wrap = document.getElementById("wrapper");
         appLayout.wrapper.height = wrap.clientHeight;
         appLayout.wrapper.width = wrap.clientWidth;
-        marker.encoding.get('x').scale.range[1] = appLayout.width;
-        marker.encoding.get('y').scale.range[0] = appLayout.height;
+        console.log('updating size to ', mobx.toJS(appLayout.wrapper))
+        let xConfig = marker.encoding.get('x').scale.config;
+        let yConfig = marker.encoding.get('y').scale.config;
+        if (!xConfig.range) xConfig.range = [0,0];
+        if (!yConfig.range) yConfig.range = [0,0];
+        xConfig.range[1] = appLayout.width;
+        yConfig.range[0] = appLayout.height;
     });
     window.addEventListener("resize", updateSize);
     updateSize();
