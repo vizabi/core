@@ -2,7 +2,8 @@ import { applyDefaults, assign } from "../utils";
 import { baseScale } from "./baseScale";
 
 const defaultConfig = {
-    type: "sqrt",
+    fixBaseline: 0,
+    clamp: true,
     range: [0, 20]
 }
 

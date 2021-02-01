@@ -17,7 +17,9 @@ const defaultConfig = {
     domain: null,
     range: null,
     type: null,
-    zoomed: null
+    zoomed: null,
+    fixBaseline: null,
+    clamp: false
 }
 
 const defaults = {
@@ -27,6 +29,12 @@ const defaults = {
 export function baseScale(config = {}, parent) {
 
     applyDefaults(config, defaultConfig);
+  
+    function isArrayOneSided(array){
+        if (!array) return false;
+        if (array.length < 2) return true;
+        return !(d3.min(array) <= 0 && d3.max(array) >= 0);
+    }
 
     return {
         config,
@@ -54,7 +62,7 @@ export function baseScale(config = {}, parent) {
             else
                 scaleType = "linear";
             
-            if (scaleType == "log" && d3.min(this.domain) <= 0 && d3.max(this.domain) >= 0) {
+            if (scaleType == "log" && !isArrayOneSided(this.domain)) {
                 scaleType = "genericLog";
             }
 
@@ -77,9 +85,21 @@ export function baseScale(config = {}, parent) {
         },
         get domain() {
             trace();
-            return this.config.domain ? this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps))
-                : this.data.domain ? this.data.domain
-                : defaults.domain;
+            if (this.config.domain) {
+                return this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps));
+            } else if (this.data.domain) {   
+                //fixBaseline can override the domain if defined and if data domain is one-sided
+                //by replaceing the value closest to zero with the one provided in config
+                //use cases: forcing zero-based bar charts and bubble size
+                if (this.config.fixBaseline != null && isArrayOneSided(this.data.domain)){
+                  let closestToZero = d3.scan(this.data.domain.map(d => Math.abs(d)));
+                  return this.data.domain.map((d,i)=>(i == closestToZero ? this.config.fixBaseline : d));
+                } else {
+                  return this.data.domain;
+                }
+            } else {
+                return defaults.domain;
+            }      
         },
         set domain(domain) {
             this.config.domain = domain;
@@ -99,7 +119,7 @@ export function baseScale(config = {}, parent) {
                 //TODO
                 //scale.constant(limitsObj.minAbsNear0);
             }
-                
+            if(scale.clamp) scale.clamp(this.config.clamp);
             return scale.domain(this.domain).range(this.range);
         },
         get d3Scale() {
