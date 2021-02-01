@@ -63,7 +63,6 @@ let functions = {
     },
     get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
     get encoding() {
-        trace();
         if (Object.keys(this.config.encoding).length > 0)
             return encodingStore.getByDefinitions(this.config.encoding, this);
         
@@ -81,7 +80,6 @@ let functions = {
         }
     },
     get state() {
-        trace();
         const encodingStates= [...this.encoding.values()].map(enc => enc.data.state);
         const states = [this.data.source.state, ...encodingStates];
         return combineStates(states);
@@ -106,7 +104,6 @@ let functions = {
     },
     // computed to cache calculation
     get dataMapCache() {
-        trace();
         // prevent recalculating on each encoding data coming in
         if (this.state !== "fulfilled") 
             return DataFrame([], this.data.space);
@@ -228,7 +225,6 @@ let functions = {
     // currently all transformation steps are cached in computed values. Computeds are great to prevent recalculations
     // of previous steps when config of one step changes. However, it uses memory. We might want this more configurable.
     get transformedDataMaps() {
-        trace();
         // returns boxed computed, whose value can be reached by .get()
         // if we'd call .get() in here (returning the value), each change would lead to applying all transformations
         // because transformedDataMaps() would be observering all stepResults

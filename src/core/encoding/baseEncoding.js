@@ -13,7 +13,6 @@ const defaultConfig = {
 
 const functions = {
     get marker() {
-        //trace();
         const marker = markerStore.getMarkerForEncoding(this);
         if (marker == null) console.warn("Couldn't find marker model for encoding.", { encoding: this });
         return marker;
@@ -60,6 +59,6 @@ const functions = {
 
 export function baseEncoding(config, parent) {
     applyDefaults(config, defaultConfig);
-    console.log('creating new encoding', config);
+    //console.log('creating new encoding', config);
     return assign({}, functions, configurable, { config, parent });
 }

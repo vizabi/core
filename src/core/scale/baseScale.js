@@ -90,7 +90,6 @@ export function baseScale(config = {}, parent) {
             this.config.range = range;
         },
         get domain() {
-            trace();
             if (this.config.domain) {
                 return this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps));
             } else if (this.data.domain) {   

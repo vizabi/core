@@ -33,7 +33,6 @@ export function trail(config, parent) {
          * For each trailed marker, get the min-max of the trail. 
          */
         get limits() {
-            trace();
             const markers = this.data.filter.markers;
             // should not use ordered datamap but the actual groupMap we trailed
             const groupMap = this.marker.getTransformedDataMap("order.order");

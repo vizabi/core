@@ -38,7 +38,6 @@ const functions = {
         })
     },
     get concepts() {
-        trace();
         const empty = new Map();
         return this.conceptsPromise.case({
             fulfilled: v => DataFrame(v, ["concept"]),
@@ -98,7 +97,6 @@ const functions = {
         };
     },
     get availabilityPromise() {
-        trace();
         const collections = ["concepts", "entities", "datapoints"];
         const getCollAvailPromise = (collection) => this.query({
             select: {
@@ -112,7 +110,6 @@ const functions = {
             .then(this.buildAvailability));
     },
     get conceptsPromise() {
-        trace();
         return fromPromise(this.availabilityPromise.then(av => {
             const conceptKeyString = createKeyStr(["concept"]);
             const avConcepts = [...av.keyValueLookup.get(conceptKeyString).keys()];
@@ -164,7 +161,7 @@ const functions = {
         }
         query = dotToJoin(query);
         query = addExplicitAnd(query);
-        console.log('Adding to queue', query);
+        //console.log('Adding to queue', query);
         const queryPromise = this.enqueue(query);
         return fromPromise(queryPromise);
     },
@@ -229,7 +226,7 @@ const functions = {
     },
     sendQueries(queries) {
         return queries.map(({ query, resolves, rejects }) => {
-            console.log('Sending query to reader', query);
+            //console.log('Sending query to reader', query);
             const promise = this.reader.read(query);
             return {
                 query, resolves, rejects, promise

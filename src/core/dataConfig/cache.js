@@ -5,7 +5,7 @@ export function makeCache() {
 
     const makeKey = function(query) {
         if (query.select.value.length > 1) {
-            console.info('Cache can\'t handle query with more than one select value. Skipping query caching.', query);
+            //console.info('Cache can\'t handle query with more than one select value. Skipping query caching.', query);
             return undefined;
         }
         return stableStringifyObject(query);

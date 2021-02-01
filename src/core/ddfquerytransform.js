@@ -35,7 +35,7 @@ export function dotToJoin(query) {
         }
     });
 
-    console.log("Transformed query: ", query, newq);
+    //console.log("Transformed query: ", query, newq);
     return newq;
 }
 
@@ -56,6 +56,6 @@ export function addExplicitAnd(query) {
         })
     })
 
-    console.log("Transformed query: ", query, newq);
+    //console.log("Transformed query: ", query, newq);
     return newq;
 }

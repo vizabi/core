@@ -20,7 +20,6 @@ const defaults = {
 
 const functions = {
     get value() {
-        trace();
         let value;
 
         if (this.config.value != null) {

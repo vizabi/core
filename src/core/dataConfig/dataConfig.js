@@ -42,14 +42,12 @@ export function dataConfig(config = {}, parent) {
                 console.warn("One or more invariants not satisfied:",fails,this);
         },
         get source() {
-            trace();
             if (this.config.source)
                 return dataSourceStore.getByDefinition(this.config.source)
             else
                 return (this.parent.marker) ? this.parent.marker.data.source : null;
         },
         get space() {
-            //trace();
             if(!this.parent.marker) // only markers do space autoconfig
                 return this.configSolution.space;
             return this.config.space || (this.parent.marker ? this.parent.marker.data.space : defaults.space)
@@ -98,7 +96,6 @@ export function dataConfig(config = {}, parent) {
             return data;
         },
         get domain() {
-            trace();
             if (this.isConstant())
                 return isNumeric(this.constant) ? [this.constant, this.constant] : [this.constant];
 
@@ -203,7 +200,6 @@ export function dataConfig(config = {}, parent) {
             return this.source && this.concept && !this.conceptInSpace;
         },
         get promise() {
-            trace();
             // can't use .then on source because its execution won't be tracked by mobx (b/c async)
             if (this.source.state === FULFILLED) {
                 if (this.hasOwnData)
@@ -218,7 +214,6 @@ export function dataConfig(config = {}, parent) {
             return this.promise.state;
         },
         get response() {
-            trace();
             if (!this.source || !this.concept || this.conceptInSpace) {
                 if (this.conceptInSpace)
                     console.warn("Encoding " + this.parent.name + " was asked for data but it has no own data. Reason: Concept in space.");
@@ -232,7 +227,6 @@ export function dataConfig(config = {}, parent) {
             });
         },
         get responseMap() {
-            trace();
             if (isDataFrame(this.response))
                 return this.response;
             else
