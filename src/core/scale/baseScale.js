@@ -42,10 +42,10 @@ export function baseScale(config = {}, parent) {
         // ordinal, point or band
         ordinalScale: "ordinal",
         get zeroBaseline() {
-            return this.config.zeroBaseline != null ? this.config.zeroBaseline : defaults.zeroBaseline;
+            return this.config.zeroBaseline;
         },
         get clamp() {
-            return this.config.clamp != null ? this.config.clamp : defaults.clamp;
+            return this.config.clamp;
         },
         get data() {
             return this.parent.data;
