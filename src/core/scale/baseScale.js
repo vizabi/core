@@ -18,7 +18,7 @@ const defaultConfig = {
     range: null,
     type: null,
     zoomed: null,
-    fixBaseline: null,
+    zeroBaseline: null,
     clamp: false
 }
 
@@ -88,12 +88,14 @@ export function baseScale(config = {}, parent) {
             if (this.config.domain) {
                 return this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps));
             } else if (this.data.domain) {   
-                //fixBaseline can override the domain if defined and if data domain is one-sided
-                //by replaceing the value closest to zero with the one provided in config
+                //zeroBaseline can override the domain if defined and if data domain is one-sided
+                //by replaceing the value closest to zero with zero
                 //use cases: forcing zero-based bar charts and bubble size
-                if (this.config.fixBaseline != null && isArrayOneSided(this.data.domain)){
-                  let closestToZero = d3.scan(this.data.domain.map(d => Math.abs(d)));
-                  return this.data.domain.map((d,i)=>(i == closestToZero ? this.config.fixBaseline : d));
+                if (this.zeroBaseline && !this.isDiscrete() && isArrayOneSided(this.data.domain)){
+                  const domain = [...this.data.domain];
+                  const closestToZeroIdx = d3.scan(domain.map(Math.abs));
+                  domain[closestToZeroIdx] = 0;
+                  return domain;
                 } else {
                   return this.data.domain;
                 }
@@ -119,7 +121,7 @@ export function baseScale(config = {}, parent) {
                 //TODO
                 //scale.constant(limitsObj.minAbsNear0);
             }
-            if(scale.clamp) scale.clamp(this.config.clamp);
+            if(scale.clamp) scale.clamp(this.clamp);
             return scale.domain(this.domain).range(this.range);
         },
         get d3Scale() {

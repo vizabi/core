@@ -2,7 +2,7 @@ import { applyDefaults, assign } from "../utils";
 import { baseScale } from "./baseScale";
 
 const defaultConfig = {
-    fixBaseline: 0,
+    zeroBaseline: true,
     clamp: true,
     range: [0, 20]
 }
