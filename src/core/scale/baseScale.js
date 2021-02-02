@@ -18,7 +18,7 @@ const defaultConfig = {
     range: null,
     type: null,
     zoomed: null,
-    zeroBaseline: null,
+    zeroBaseline: false,
     clamp: false
 }
 
@@ -41,6 +41,12 @@ export function baseScale(config = {}, parent) {
         parent,
         // ordinal, point or band
         ordinalScale: "ordinal",
+        get zeroBaseline() {
+            return this.config.zeroBaseline != null ? this.config.zeroBaseline : defaults.zeroBaseline;
+        },
+        get clamp() {
+            return this.config.clamp != null ? this.config.clamp : defaults.clamp;
+        },
         get data() {
             return this.parent.data;
         },
