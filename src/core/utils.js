@@ -238,7 +238,7 @@ export function configValue(value, concept) {
 export function range(start, stop, concept) {
     if (concept == "time") concept = "year";
     const interval = d3['utc' + ucFirst(concept)];
-    const rangeFn = interval ? interval.range : d3.range;
+    const rangeFn = (interval && start instanceof Date && stop instanceof Date ) ? interval.range : d3.range;
     return rangeFn(start, stop);
 }
 
