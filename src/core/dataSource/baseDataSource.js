@@ -11,18 +11,21 @@ import { makeCache } from '../dataConfig/cache';
 
 const defaultConfig = {
     path: null,
+    sheet: null,
     values: null,
     transforms: []
 }
 
 const functions = {
     get path() { return this.config.path },
+    get sheet() { return this.config.sheet },
     get space() { return this.config.space },
+    get dtypes() { return this.config.dtypes },
     get reader() {
         if (this.values)
-            return inlineReader({ values: this.values });
+            return inlineReader({ values: this.values, dtypes: this.dtypes });
         else if (this.path)
-            return csvReader({ path: this.path });
+            return csvReader({ path: this.path, dtypes: this.dtypes });
         console.warn("No inline values or csv path found. Please set `values` or `path` property on dataSource.", this)
     },
     get values() { 
