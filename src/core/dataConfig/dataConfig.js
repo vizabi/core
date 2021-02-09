@@ -1,7 +1,7 @@
 import { resolveRef } from "../vizabi";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
-import { applyDefaults, intersect, isNumeric } from "../utils";
+import { applyDefaults, arrayEquals, intersect, isNumeric } from "../utils";
 import { filter } from "../filter";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { createFilterFn } from "../../dataframe/transforms/filter";
@@ -227,10 +227,11 @@ export function dataConfig(config = {}, parent) {
             });
         },
         get responseMap() {
-            if (isDataFrame(this.response))
+            //response.key is not equal to space when we read csv file and response.key is empty
+            if (isDataFrame(this.response) && arrayEquals(this.response.key, this.space))
                 return this.response;
-            else
-                return DataFrame(this.response, this.commonSpace);
+            else 
+                return DataFrame(this.response, this.commonSpace);            
         },
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);

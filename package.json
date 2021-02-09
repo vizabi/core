@@ -1,6 +1,6 @@
 {
   "name": "vizabi-reactive",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "Vizabi core for interactive animated charts. This version uses mobx for state and event mgmt",
   "main": "dist/Vizabi.js",
   "files": [
