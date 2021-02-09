@@ -10,6 +10,7 @@ export function entityPropertyDataConfig(cfg, parent) {
     return composeObj(base, {
 
         get promise() {
+            //trace();
             if (this.source.conceptsState !== "fulfilled") return fromPromise.resolve([]);
             const labelPromises = this.queries.map(query => this.source.query(query)
                 .then(data => ({ dim: query.select.key[0], data }))

@@ -50,7 +50,7 @@ function replace(str, ndl, repl) {
         start = 0,
         end = 0,
         l = ndl.length;
-    if (!str && str !== "" || str === undefined) debugger;
+    //if (!str && str !== "" || str === undefined) debugger;
     while ((end = str.indexOf(ndl, start)) > -1) {
         outstr += str.slice(start, end) + repl;
         start = end + l;

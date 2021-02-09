@@ -132,7 +132,7 @@ const config = {
             encoding: {
                 "selected": {
                     modelType: "selection",
-                    data: {  }
+                    data: { } // ref: "markers.bubble.encoding.trail.data" }
                 },
                 "x": {
                     data: {
@@ -145,8 +145,8 @@ const config = {
                 "y": {
                     data: {
                         concept: 'life_expectancy_years', // concept: "life_expectancy",
-                        //space: ['country', 'time'], //["country", "gender", "time"],
-                        /*filter: {
+                        /*space: ['country', 'time'], //["country", "gender", "time"],
+                        filter: {
                             dimensions: {
                                 gender: { gender: "male" }
                             }

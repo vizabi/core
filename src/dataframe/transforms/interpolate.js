@@ -1,4 +1,7 @@
-
+/**
+ * Interpolate within a dataframe. Fill missing values in rows
+ * @param {*} df 
+ */
 export function interpolate(df) {
     return interpolateAllFields(df);
 }
