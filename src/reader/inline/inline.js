@@ -1,5 +1,5 @@
-import { DataFrame } from "../dataframe/dataFrame";
-import { relativeComplement } from "../core/utils";
+import { DataFrame } from "../../dataFrame/dataFrame";
+import { relativeComplement } from "../../core/utils";
 
 
 export function inlineReader({ values = [], keyConcepts = [], dtypes }) {

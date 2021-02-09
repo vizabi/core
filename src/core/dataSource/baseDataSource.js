@@ -4,8 +4,8 @@ import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
-import { inlineReader } from '../../reader/inline';
-import { csvReader } from '../../reader/csv';
+import { inlineReader } from '../../reader/inline/inline';
+import { csvReader } from '../../reader/csv/csv';
 import { createKeyStr } from '../../dataframe/utils';
 import { makeCache } from '../dataConfig/cache';
 
