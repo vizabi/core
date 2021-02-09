@@ -1,5 +1,10 @@
 import { DataFrame } from "../dataFrame";
-
+/**
+ * Interplate between two DataFrames
+ * @param {*} from 
+ * @param {*} to 
+ * @param {*} mu 
+ */
 export function interpolateBetween(from, to, mu) {
     const df = DataFrame([], from.key);
     
