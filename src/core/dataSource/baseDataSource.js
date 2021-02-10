@@ -12,6 +12,7 @@ import { makeCache } from '../dataConfig/cache';
 const defaultConfig = {
     path: null,
     sheet: null,
+    keyConcepts: null,
     values: null,
     transforms: []
 }
@@ -19,13 +20,14 @@ const defaultConfig = {
 const functions = {
     get path() { return this.config.path },
     get sheet() { return this.config.sheet },
+    get keyConcepts() { return this.config.keyConcepts },
     get space() { return this.config.space },
     get dtypes() { return this.config.dtypes },
     get reader() {
         if (this.values)
-            return inlineReader({ values: this.values, dtypes: this.dtypes });
+            return inlineReader({ values: this.values, keyConcepts: this.keyConcepts, dtypes: this.dtypes });
         else if (this.path)
-            return csvReader({ path: this.path, dtypes: this.dtypes });
+            return csvReader({ path: this.path, keyConcepts: this.keyConcepts, dtypes: this.dtypes });
         console.warn("No inline values or csv path found. Please set `values` or `path` property on dataSource.", this)
     },
     get values() { 
