@@ -27,7 +27,7 @@ const functions = {
         if (this.values)
             return inlineReader({ values: this.values, keyConcepts: this.keyConcepts, dtypes: this.dtypes });
         else if (this.path)
-            return csvReader({ path: this.path, keyConcepts: this.keyConcepts, dtypes: this.dtypes });
+            return csvReader({ path: this.path, sheet: this.sheet, keyConcepts: this.keyConcepts, dtypes: this.dtypes });
         console.warn("No inline values or csv path found. Please set `values` or `path` property on dataSource.", this)
     },
     get values() { 
