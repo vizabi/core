@@ -14,8 +14,6 @@ const ERRORS = {
     REPEATED_KEYS: 'reader/error/repeatedKeys'
 };
 
-let cache = {};
-
 export function csvReader({ 
         path = "data.csv", 
         sheet = "", 
@@ -29,6 +27,7 @@ export function csvReader({
         dtypes 
     }) {
     
+    let cache = {};
     const cacheKey = path + sheet;
 
     path = _googleSpreadsheetURLAdaptor(path, sheet);
