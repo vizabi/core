@@ -41,7 +41,7 @@ export function inlineReader(argPromise) {
 }
 
 function parseValues({ values, dtypes, keyConcepts }) {
-    return DataFrame(parse(dtypes)(values), keyConcepts);
+    return DataFrame(makeParser(dtypes)(values), keyConcepts);
 }
 
 function isConceptQuery(query) {
@@ -85,10 +85,14 @@ function applyQuery(data, query) {
     if ("join" in query)
         console.warn('Inline reader does not handle joins as it handles only one table.', { query })
 
-    const result = data
+    let result = data
         .filter(where)
         .project(projection)
         .order(order_by);
+
+    if (!arrayEquals(result.key, select.key))
+        result = DataFrame(result, select.key);
+    
     return result;
 }
 
@@ -98,9 +102,9 @@ function applyQuery(data, query) {
     pop: number
 }
 */
-function parse(dtypes) {
+function makeParser(dtypes) {
     const parseRow = parserFromDtypes(dtypes);
-    return function(data) {
+    return function parseTable(data) {
         let row;
         for (row of data) {
             parseRow(row); // in place
@@ -112,6 +116,7 @@ function parse(dtypes) {
 const dtypeParsers = {
     string: d => d,
     number: d => +d,
+    boolean: d => d == '1' || d.toLowerCase() == 'true',
     auto: autoParse,
     year: d3.utcParse("%Y"),
     month: d3.utcParse("%Y-%m"),
@@ -174,7 +179,7 @@ function getTypes(data) {
     }
     // check if those types are consistent
     for (let [field, type] in types) {
-        if (!validateType(storage, field, type)) {
+        if (!validateType(data, field, type)) {
             console.warn("Field " + field + " is not consistently typed " + type);
             types.set(field, "mixed");
         }
@@ -182,8 +187,8 @@ function getTypes(data) {
     return types;
 }
 
-function validateType(storage, field, type) {
-    for (row of storage.values()) {
+function validateType(data, field, type) {
+    for (row of data.values()) {
         if (getType(row[field]) !== type)
             return false;
     }
