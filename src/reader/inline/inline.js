@@ -85,6 +85,9 @@ function applyQuery(data, query) {
     if ("join" in query)
         console.warn('Inline reader does not handle joins as it handles only one table.', { query })
 
+    if (relativeComplement([...data.fields], projection).length > 0)
+        console.error('Concepts found in query.select which are not in data', { query, dataFields: data.fields});
+
     let result = data
         .filter(where)
         .project(projection)
@@ -148,8 +151,9 @@ function parserFromDtypes(dtypes) {
     return (row) => {
         let parse, field;
         for (field in row) {
-            if (parse = parsers[field]) 
+            if (parse = parsers[field]) {
                 row[field] = parse(row[field]);
+            }
         }
     }
 }
@@ -195,14 +199,13 @@ function validateType(data, field, type) {
 }
 
 function getType(value) {
-    if (isDate(value))    return 'time';
-    if (isString(value))  return 'string';
-    if (isNumber(value))  return 'measure';
-    if (isBoolean(value)) return 'boolean';
+    if (isDate(value))     return 'time';
+    const type = typeof value;
+    if (type == "string")  return 'string';
+    if (type == "boolean") return 'boolean';
+    if (type == "number" || isNumber(value))  return 'measure';
     console.warn("Couldn't decide type of value.", { value });
 }
 
 const isDate = val => val instanceof Date
-const isNumber = val => typeof val === "number" || !!val && typeof val === "object" && Object.prototype.toString.call(val) === "[object Number]";
-const isString = val => typeof val === "string";
-const isBoolean = val => typeof val === "boolean";
+const isNumber = val => !!val && typeof val === "object" && Object.prototype.toString.call(val) === "[object Number]";
