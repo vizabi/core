@@ -32,12 +32,15 @@ export function csvReader({
 
     path = _googleSpreadsheetURLAdaptor(path, sheet);
 
-    return inlineReader(getValues().then(values => ({ 
+    return Object.assign(inlineReader(getValues().then(values => ({ 
             values,
             keyConcepts,
             dtypes
         })
-    ));
+    )), {
+        getDatasetInfo,
+        getAsset
+    });
 
     function getValues(){
         return cache[cacheKey] ? cache[cacheKey] : cache[cacheKey] = loadFile()
