@@ -1,28 +1,32 @@
 import { DataFrame } from "../../dataFrame/dataFrame";
-import { relativeComplement } from "../../core/utils";
+import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/utils";
 
+/**
+ * @param {*} argPromise promise resolving to object { values, keyConcepts, dtypes }
+ */
+export function inlineReader(argPromise) {
 
-export function inlineReader({ values = [], keyConcepts = [], dtypes }) {
-    const dataPromise = Promise.resolve(values)
-        .then(parse(dtypes))
-        .then(DataFrame);
+    argPromise = Promise.resolve(argPromise); // promisify plain object arg
+    const dataPromise = argPromise.then(parseValues);
+    const conceptPromise = dataPromise.then(data => DataFrame(getConcepts(data), ["concept"]));
 
     return {
         async read(query) {
-            let data = await dataPromise;
+            let table = await dataPromise;
 
             if (isConceptQuery(query))
-                data = DataFrame(getConcepts(data), ["concept"]);
+                table = await conceptPromise;
 
             if (isSchemaQuery(query))
-                data = DataFrame(getSchema(data, query, keyConcepts), ["key","value"]);
+                table = DataFrame(getSchema(table, query.from), ["key","value"])
 
-            return applyQuery(data, query);
+            return applyQuery(table, query);
         },
         getAsset(assetId) {
             console.warn('Inline reader does not support assets', { assetId })
         },
         async getDefaultEncoding() {
+            const { keyConcepts } = await argPromise;
             const data = await dataPromise;
             const encConfig = {};
             data.fields.forEach(concept => {
@@ -34,6 +38,10 @@ export function inlineReader({ values = [], keyConcepts = [], dtypes }) {
             return encConfig;
         }
     }
+}
+
+function parseValues({ values, dtypes, keyConcepts }) {
+    return DataFrame(parse(dtypes)(values), keyConcepts);
 }
 
 function isConceptQuery(query) {
@@ -52,11 +60,11 @@ function getConcepts(data) {
     }));
 }
 
-function getSchema(data, { from }, keyConcepts) {
+function getSchema(data, from) {
     if (from == "datapoints.schema") {
-        const indicatorConcepts = relativeComplement(keyConcepts, [...data.fields]);
+        const indicatorConcepts = relativeComplement(data.key, [...data.fields]);
         return indicatorConcepts.map(concept => ({
-            key: [...keyConcepts],
+            key: [...data.key],
             value: concept
         }));        
     }
