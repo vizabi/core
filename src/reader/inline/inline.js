@@ -141,10 +141,13 @@ function parserFromDtypes(dtypes) {
 
         let parser;
         if (dtype in dtypeParsers) parser = dtypeParsers[dtype];
-        if ("timeFormat" in dtype) parser = d3.timeParse(dtype.timeFormat);
+        if (isNonNullObject(dtype) && "timeFormat" in dtype) parser = d3.utcParse(dtype.timeFormat);
 
-        if (!parser) console.warn('Unknown date type given, fall back to identity parser.', dtype);
-        parsers[dtype] = parser || (d => d);
+        if (!parser) {
+            console.warn('Unknown data type given, fall back to identity parser.', dtype);
+            parser = d => d;
+        }
+        parsers[field] = parser;
     }
 
     // return row parser
