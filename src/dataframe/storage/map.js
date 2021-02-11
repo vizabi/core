@@ -21,7 +21,9 @@ function createEmptyMap() {
     storage.fields = new Set();
     storage.keyFn = rangeIndex(0);
     storage.setKey = newKey => {
-        key = normalizeKey(newKey); 
+        key.forEach(e => storage.fields.delete(e)); 
+        key = normalizeKey(newKey);
+        key.forEach(e => storage.fields.add(e)); 
         isRangeKey = key.length === 0; 
         storage.keyFn = isRangeKey ? rangeIndex(0) : createKeyFn(storage.key);
         storage.updateIndexes(storage);
