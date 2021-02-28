@@ -40,7 +40,7 @@ export function color(config, parent) {
         },
 
         get palette() {
-            const config = resolveRef(this.config.palette) || this.defaultConfig.palette;
+            const config = resolveRef(this.config.palette) || defaultConfig.palette;
             return observable(palette(config, this));
         },
 
