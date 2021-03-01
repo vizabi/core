@@ -1,5 +1,5 @@
 import { applyDefaults, parseConfigValue } from "../utils";
-import { trace } from "mobx";
+import { computed } from "mobx";
 
 const scales = {
     "linear": d3.scaleLinear,
@@ -142,4 +142,11 @@ export function baseScale(config = {}, parent) {
             return this.type == "ordinal" || this.type == "band" || this.type == "point";
         }
     }
+}
+
+baseScale.decorate = {
+    //allow setting an array to these properties, otherwise getting an infinite loop because values inside array won't be compared
+    range: computed.struct,
+    domain: computed.struct,
+    zoomed: computed.struct
 }
