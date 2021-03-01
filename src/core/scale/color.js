@@ -5,7 +5,6 @@ import { palette } from "../palette";
 import { resolveRef } from "../vizabi";
 
 const defaultConfig = {
-    palette: {}
 }
 
 const colors = {

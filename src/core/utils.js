@@ -205,16 +205,17 @@ export function deepclone(object) {
 export function applyDefaults(config, defaults) {
     const defaultProps = Object.keys(defaults);
     defaultProps.forEach(prop => {
-        if (!config.hasOwnProperty(prop))
+        if (!config.hasOwnProperty(prop)) {
             if (isMergeableObject(defaults[prop]))
                 config[prop] = deepclone(defaults[prop]); // object
             else
                 config[prop] = defaults[prop]; // non object, e.g. null
-        else if (isMergeableObject(defaults[prop]))
+        } else if (isMergeableObject(defaults[prop])) {
             if (isMergeableObject(config[prop]))
                 applyDefaults(config[prop], defaults[prop]);
             else
                 config[prop] = deepclone(defaults[prop]);
+        }
     })
     return config;
 }
