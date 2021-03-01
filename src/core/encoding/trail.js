@@ -34,8 +34,12 @@ export function trail(config, parent) {
          */
         get limits() {
             const markers = this.data.filter.markers;
-            // should not use ordered datamap but the actual groupMap we trailed
-            const groupMap = this.marker.getTransformedDataMap("order.order");
+
+            // get datamap that's also used as input for addTrails
+            const transformations = this.marker.transformations;
+            const addTrailName = this.name + ".addTrails";
+            const addTrailIndex = transformations.findIndex(tObj => tObj.name == addTrailName);
+            const groupMap = this.marker.getTransformedDataMap(transformations[addTrailIndex - 1].name);
 
             const limits = {};
             for (let key of markers.keys()) {
