@@ -50,7 +50,7 @@ export function baseScale(config = {}, parent) {
         get data() {
             return this.parent.data;
         },
-        get type() {
+        scaleTypeNoGenLog() {
             if (this.data.isConstant()) {
                 return this.ordinalScale;
             }
@@ -67,6 +67,12 @@ export function baseScale(config = {}, parent) {
                 scaleType = "time";
             else
                 scaleType = "linear";
+
+            return scaleType;
+        },
+        get type() {
+
+            let scaleType = this.scaleTypeNoGenLog();
             
             if (scaleType == "log" && !isArrayOneSided(this.domain)) {
                 scaleType = "genericLog";
@@ -139,7 +145,8 @@ export function baseScale(config = {}, parent) {
             this.config.zoomed = zoomed;
         },
         isDiscrete() {
-            return this.type == "ordinal" || this.type == "band" || this.type == "point";
+            const scaleType = this.scaleTypeNoGenLog();
+            return scaleType == "ordinal" || scaleType == "band" || scaleType == "point";
         }
     }
 }
