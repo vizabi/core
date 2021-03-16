@@ -25,8 +25,11 @@ const defaultConfig = {
 const defaults = {
     domain: [0,1]
 }
+export function baseScale(config, parent) {
+    return observable(baseScale.nonObservable(config, parent))
+}
 
-export function baseScale(config = {}, parent) {
+baseScale.nonObservable = function(config, parent) {
 
     applyDefaults(config, defaultConfig);
   
@@ -41,6 +44,7 @@ export function baseScale(config = {}, parent) {
         parent,
         // ordinal, point or band
         ordinalScale: "ordinal",
+        name: 'scale',
         get zeroBaseline() {
             return this.config.zeroBaseline;
         },
@@ -82,7 +86,7 @@ export function baseScale(config = {}, parent) {
         },
         get range() {
             if (this.config.range != null)
-                return this.config.range
+                return this.config.range;
 
             // default for constant is identity
             if (this.data.isConstant())

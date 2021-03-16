@@ -16,11 +16,13 @@ let config;
 const vizabi = function(cfg) {
     config = observable(cfg);
 
-    dataSourceStore.setMany(config.dataSources || {});
-    encodingStore.setMany(config.encodings || {});
-    markerStore.setMany(config.markers || {});
+    const models = {};
+    for (const storeName in stores) {
+        models[storeName] = stores[storeName].createMany(config[storeName] || {})
+    }
+    
+    return { stores, config, models };
 
-    return { stores, config };
 }
 vizabi.mobx = mobx;
 vizabi.utils = utils;
@@ -33,11 +35,15 @@ vizabi.dataSource = (cfg, id) =>{
         };
     }
 
-    return dataSourceStore.set(cfg, id);
+    return dataSourceStore.create(cfg, null, id);
 } 
 vizabi.marker = (cfg, id) => {
     cfg = observable(cfg);
-    return markerStore.set(cfg, id);
+    return markerStore.set(cfg, null, id);
+}
+vizabi.encoding = (cfg, id) => {
+    cfg = observable(cfg);
+    return encodingStore.create(cfg, null, id);
 }
 
 export default vizabi;
@@ -53,7 +59,7 @@ export function resolveRef(possibleRef) {
         return possibleRef
 
     // handle config shorthand
-    let ref = (utils.isString(possibleRef.ref)) ? { config: possibleRef.ref } : possibleRef.ref;
+    let ref = (utils.isString(possibleRef.ref)) ? { model: possibleRef.ref } : possibleRef.ref;
 
     // invalid ref
     if (!(ref.config || ref.model)) {
@@ -110,6 +116,7 @@ function transformModel(model, transform) {
             });
         default:
             // build new config based on model.config
+            return model;
             break;
     }
 }

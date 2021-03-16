@@ -6,7 +6,7 @@ import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline/inline';
 import { csvReader } from '../../reader/csv/csv';
-import { createKeyStr } from '../../dataframe/utils';
+import { createKeyStr } from '../../dataframe/dfutils';
 import { makeCache } from '../dataConfig/cache';
 
 const defaultConfig = {
@@ -282,6 +282,13 @@ const tryParseRow = d => {
 const parse = (val) => (val == '') ? null : +val || val;
 
 export function baseDataSource(config) {
+    return observable(
+        baseDataSource.nonObservable(observable(config)), 
+        baseDataSource.decorate
+    );
+}
+
+baseDataSource.nonObservable = function (config) {
     applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
 }

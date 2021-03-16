@@ -12,9 +12,13 @@ const defaults = {
 }
 
 export function size(config, parent) {
+    return observable(size.nonObservable(config, parent));
+}
+
+size.nonObservable = function(config, parent) {
 
     applyDefaults(config, defaultConfig);
-    const s = baseScale(config, parent);
+    const s = baseScale.nonObservable(config, parent);
 
     return assign(s, {
         ordinalScale: "point",

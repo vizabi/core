@@ -1,5 +1,5 @@
 import { copyColumn } from "./copycolumn";
-import { arrayEquals } from "../utils";
+import { arrayEquals } from "../dfutils";
 import { DataFrame } from "../dataFrame";
 
         // TODO: add check for non-marker space dimensions to contain only one value
@@ -34,7 +34,8 @@ export function leftJoin(left, rights) {
                 const rightRow = dataFrame[getFn](row, keyStr);
                 if (rightRow === undefined) continue;
                 for(let key in projection) {
-                    leftRow[projection[key]] = rightRow[key];
+                    for (field of projection[key]) 
+                        leftRow[field] = rightRow[key];
                 }
             //}
         }

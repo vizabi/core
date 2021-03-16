@@ -1,4 +1,4 @@
-import { normalizeKey, getIter, rangeIndex, createKeyFn } from "../utils";
+import { normalizeKey, getIter, rangeIndex, createKeyFn } from "../dfutils";
 
 export function MapStorage(data = [], keyArr = data.key || []) {
     

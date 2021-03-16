@@ -4,6 +4,7 @@ import { configurable } from '../configurable';
 import { markerStore } from '../marker/markerStore';
 import { dataConfigStore } from '../dataConfig/dataConfigStore';
 import { scaleStore } from '../scale/scaleStore';
+import { resolveRef } from '../vizabi';
 //import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
 
 const defaultConfig = {
@@ -13,18 +14,19 @@ const defaultConfig = {
 
 const functions = {
     get marker() {
-        const marker = markerStore.getMarkerForEncoding(this);
-        if (marker == null) console.warn("Couldn't find marker model for encoding.", { encoding: this });
-        return marker;
+        return this.parent;
     },
     get name() {
         return this.marker.getEncodingName(this);
     },
     get data() {
-        return dataConfigStore.getByDefinition(this.config.data, this);
+        const data = resolveRef(this.config.data);
+        return dataConfigStore.get(data, this);
     },
     get scale() {
-        return scaleStore.getByDefinition(this.config.scale, this);
+        // console.warn('recalculating scale', this.name);
+        const scale = resolveRef(this.config.scale);
+        return scaleStore.get(scale, this);
     },
     setWhich: action('setWhich', function(kv) {        
         if (kv.key) {
@@ -56,9 +58,15 @@ const functions = {
         return this.marker.getPropForEncoding(this);
     }
 }
+export function baseEncoding(config, parent, name) {
+    return observable(
+        baseEncoding.nonObservable(observable(config), parent, name),
+        { config: observable.ref }
+    );
+}
 
-export function baseEncoding(config, parent) {
+baseEncoding.nonObservable = function(config, parent, name) {
+    //console.warn('creating new encoding', name, config);
     applyDefaults(config, defaultConfig);
-    //console.log('creating new encoding', config);
     return assign({}, functions, configurable, { config, parent });
 }

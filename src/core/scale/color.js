@@ -12,9 +12,14 @@ const colors = {
 }
 
 export function color(config, parent) {
+    return observable(color.nonObservable(config, parent));
+}
 
+color.nonObservable = function(config, parent) {
+    
     applyDefaults(config, defaultConfig);
-    const s = baseScale(config, parent);
+
+    const s = baseScale.nonObservable(config, parent);
 
     return assign(s, {
         get range() {

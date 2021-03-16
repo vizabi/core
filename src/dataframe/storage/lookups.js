@@ -1,4 +1,4 @@
-import { normalizeKey } from "../utils";
+import { normalizeKey } from "../dfutils";
 
 /**
  * Virtual data frame storage based on lookups. A row is constructed on request from lookups for each dimension of requested key.
@@ -13,7 +13,25 @@ export function LookupStorage(concepts, keyArr) {
         // true if there is at least one concept which has a lookup for every dimension in key
         // i.e. a row can be returned for this key
         return true; //[...concepts.values()].some(lookups => keyArr.every(dim => dim in keyObj && lookups.has(dim)));
-    }
+    }    
+    /**
+    * Given a key like 
+    * { 
+    *      geo: 'swe', 
+    *      gender: 'fem' 
+    * } 
+    * Returns e.g. 
+    * { 
+    *      name: { 
+    *          geo: 'Sweden', 
+    *          gender: 'Female' 
+    *      }, 
+    *      description: { 
+    *          geo: 'foo', 
+    *          gender: 'bar' 
+    *      }
+    *  }
+    */
     storage.get = (keyObj) => {
         const row = {};
         concepts.forEach((lookups, concept) => {

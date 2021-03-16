@@ -82,20 +82,26 @@ export function renameProperty(obj, oldProp, newProp) {
     moveProperty(obj, oldProp, obj, newProp)
 }
 
-export function fromPromiseAll(promiseArray) {
-    if (promiseArray.every(p.state == "fulfilled"))
-        return fromPromise.resolve(promiseArray);
+export function fromPromiseAll(promiseColl) {
+    const promiseArray = Array.isArray(promiseColl) ? promiseColl : Object.values(promiseColl);
+    if (promiseArray.every(p => p.state == "fulfilled"))
+        return fromPromise.resolve(promiseColl);
     if (promiseArray.some(p => p.state == "rejected"))
-        return fromPromise.reject(promiseArray);
+        return fromPromise.reject(promiseColl);
+    return fromPromise((res, rej) => { });
 }
 
 export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
     if (Array.isArray(functions)) functions = assign({}, ...functions);
-    const newType = function decorate(config, parent) {
+    const newType = function (config, parent, name) {
+        return observable(newType.nonObservable(config, parent, name));
+    }
+    newType.nonObservable = function(config, parent, name) {
         applyDefaults(config, defaultConfig);
         delete functions.config;
-        base = (base == null) ? (config, parent) => ({ config, parent }) : base;
-        return assign(base(config, parent), functions);
+        if (!base) base = (config, parent) => ({ config, parent });
+        const baseObj = base.nonObservable(config, parent, name);
+        return assign(baseObj, functions);
     }
     newType.decorate = base.decorate;
     return newType;
@@ -108,7 +114,7 @@ export function combineStates(states) {
 }
 
 // code from https://github.com/TehShrike/is-mergeable-object
-function isMergeableObject(value) {
+export function isMergeableObject(value) {
     return isNonNullObject(value) &&
         !isSpecial(value)
 }
@@ -337,11 +343,21 @@ export function pipe(...fns) {
     return fns.reduceRight(compose2);
 }
 
-
+/**
+ * Creates a stable, unique string representing the object, circumventing the unordered nature of object properties
+ * @param {Object} obj 
+ * @returns {String} Stable string representation of object
+ */
 export function stableStringifyObject(obj) { 
     return JSON.stringify(canonicalObject(obj));
 }
 
+/**
+ * Recursively replace any object by an array where each element is on of the object's properties, sorted by the property name.
+ * Can be used as stable input for hashing objects, circumventing the unordered nature of object properties.
+ * @param {Object} where 
+ * @returns {Array}
+ */
 function canonicalObject(where) {
     if (!isNonNullObject(where)) 
         return where;

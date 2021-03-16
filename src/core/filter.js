@@ -1,4 +1,4 @@
-import { action, isObservableArray, toJS } from 'mobx';
+import { action, isObservableArray, observable, toJS } from 'mobx';
 import { isString, mapToObj, applyDefaults, deepmerge, arrayEquals } from './utils';
 import { resolveRef } from './vizabi';
 
@@ -11,7 +11,7 @@ export function filter(config = {}, parent) {
 
     applyDefaults(config, defaultConfig);
 
-    return {
+    return observable({
         config,
         parent,
         get markers() {
@@ -98,5 +98,5 @@ export function filter(config = {}, parent) {
 
             return filter;
         },
-    }
+    })
 };

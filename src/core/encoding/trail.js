@@ -3,7 +3,7 @@ import { action, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
-import { parseMarkerKey, createMarkerKey } from "../../dataframe/utils";
+import { parseMarkerKey, createMarkerKey } from "../../dataframe/dfutils";
 import { resolveRef } from "../vizabi";
 
 const defaultConfig = {
@@ -16,12 +16,15 @@ const defaults = {
     groupDim: null,
     starts: {}
 }
-
 export function trail(config, parent) {
+    return observable(trail.nonObservable(config, parent));
+}
+
+trail.nonObservable = function(config, parent) {
 
     applyDefaults(config, defaultConfig);
 
-    const base = baseEncoding(config, parent);
+    const base = baseEncoding.nonObservable(config, parent);
 
     return assign(base, {
         get show() { 

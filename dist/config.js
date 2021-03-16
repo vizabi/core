@@ -134,6 +134,14 @@ const config = {
                     modelType: "selection",
                     data: { } // ref: "markers.bubble.encoding.trail.data" }
                 },
+                "highlighted": {
+                    modelType: "selection",
+                    data: { }
+                },
+                "superhighlighted": {
+                    modelType: "selection",
+                    data: { } 
+                },
                 "x": {
                     data: {
                         concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
@@ -196,6 +204,7 @@ const config = {
                     },
                     value: "2018",
                     interpolate: true,
+                    extrapolate: "fill",
                     speed: 100
                 },
                 "trail": {

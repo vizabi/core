@@ -11,18 +11,16 @@ const defaultConfig = {
 }
 
 export function bubble(config) {
-    const base = baseMarker(config);
+    return observable(bubble.nonObservable(config));
+}
+
+bubble.nonObservable = function(config) {
+    const base = baseMarker.nonObservable(config);
 
     applyDefaults(config, defaultConfig);
     renameProperty(base, "encoding", "superEncoding");
 
     return assign(base, {
-        get encoding() {
-            const enc = this.superEncoding;
-            enc.set('highlighted', encodingStore.getByDefinition({ modelType: "selection" }));
-            enc.set('superhighlighted', encodingStore.getByDefinition({ modelType: "selection" }));
-            return enc;
-        },
         toggleSelection: action(function(d) {
             const trails = this.encoding.get('trail');
             if (!trails.data.filter.has(d)) {

@@ -4,14 +4,22 @@ import { trace, toJS } from 'mobx';
 import { fromPromise } from 'mobx-utils';
 import { DataFrame } from '../../dataframe/dataFrame';
 
-export function entityPropertyDataConfig(cfg, parent) {
-    const base = dataConfig(cfg, parent);
+export function entityPropertyDataConfig(config, parent) {
+    return observable(
+        entityPropertyDataConfig.nonObservable(observable(config), parent), {
+        config: observable.ref
+    });
+}
+
+entityPropertyDataConfig.nonObservable = function (cfg, parent) {
+    const base = dataConfig.nonObservable(cfg, parent);
 
     return composeObj(base, {
 
-        get promise() {
-            //trace();
-            if (this.source.conceptsState !== "fulfilled") return fromPromise.resolve([]);
+        get needsSource() {
+            return true;
+        },
+        sendQuery() {
             const labelPromises = this.queries.map(query => this.source.query(query)
                 .then(data => ({ dim: query.select.key[0], data }))
             );

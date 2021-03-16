@@ -3,10 +3,11 @@ import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, isProperSubset, combineStates } from "../utils";
-import { createMarkerKey } from '../../dataframe/utils';
+import { createMarkerKey } from '../../dataframe/dfutils';
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
+import { resolveRef } from '../vizabi';
 
 
 const defaultConfig = {
@@ -59,20 +60,41 @@ let functions = {
         return this.eventListeners.get(prop);
     },
     get data() {
-        return dataConfigStore.getByDefinition(this.config.data, this)
+        const datacfg = resolveRef(this.config.data);
+        return dataConfigStore.get(datacfg, this)
     },
     get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
+    get encodingCache() { return new Map() },
+    updateEncodingCache(encodingConfig) {
+        this.fillEncodingCache(encodingConfig);
+        this.purgeStaleEncodingCache(encodingConfig);
+        return this.encodingCache;
+    },
+    fillEncodingCache(encodingConfig) {
+        for (const prop in encodingConfig) {
+            if (!this.encodingCache.has(prop)) {
+                this.encodingCache.set(prop, encodingStore.get(encodingConfig[prop], this));
+            }
+        }
+    },
+    purgeStaleEncodingCache(encodingConfig) {
+        for (const prop of this.encodingCache.keys()) {
+            if (!(prop in encodingConfig)) {
+                this.encodingCache.delete(prop);
+            }
+        }
+    },
     get encoding() {
-        //trace();
-        if (Object.keys(this.config.encoding).length > 0)
-            return encodingStore.getByDefinitions(this.config.encoding, this);
-        
-        // get default encodings for data's data source
-        let defaultEnc;
-        if (defaultEnc = this.data.source.defaultEncoding)
-            return encodingStore.getByDefinitions(defaultEnc, this);
+        const validEncoding = config => config() && Object.keys(config()).length > 0
+        const configGetters = [
+            () => this.config.encoding, 
+            () => this.data.source.defaultEncoding
+        ];
+        const configGetter = configGetters.find(validEncoding)
+        if (!configGetter)
+            console.warn("No encoding found and marker data source has no default encodings");
 
-        console.warn("No encoding found and marker data source has no default encodings");
+        return this.updateEncodingCache(configGetter());
     },
     // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet 
     getEncodingName(encoding) {
@@ -159,7 +181,7 @@ let functions = {
     joinConfig(encoding, name) {
         return { 
             projection: { 
-                [encoding.data.concept]: name
+                [encoding.data.concept]: [ name ]
             },
             dataFrame: encoding.data.responseMap
         }
@@ -281,8 +303,13 @@ let functions = {
         }
     }
 }
-
 export function baseMarker(config) {
+    return observable(baseMarker.nonObservable(observable(config)), {
+        config: observable.ref
+    });
+}
+
+baseMarker.nonObservable = function(config) {
     applyDefaults(config, defaultConfig);
     return assign({}, functions, configurable, { config });
 }

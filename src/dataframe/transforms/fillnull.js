@@ -1,4 +1,4 @@
-import { isNonNullObject } from "../utils";
+import { isNonNullObject } from "../dfutils";
 
 export function fillNull(df, fillValues) {
     let concept, row;

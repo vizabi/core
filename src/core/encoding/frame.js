@@ -3,7 +3,7 @@ import { action, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
-import { createMarkerKey, parseMarkerKey } from '../../dataframe/utils';
+import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
 
 const defaultConfig = {
     modelType: "frame",
@@ -195,6 +195,15 @@ const functions = {
     get framesAround() {
         return this.stepsAround.map(this.stepScale);
     },
+    // should not be here, should be on dataconfig, overriding the default method
+    selectAutoCfgConcept({ concepts, dataConfig }) {
+        const spaceConcepts = concepts.filter(c => dataConfig.space.includes(c));
+        return findTimeOrMeasure(spaceConcepts) || findTimeOrMeasure(concepts) || spaceConcepts[spaceConcepts.length - 1];
+        
+        function findTimeOrMeasure (concepts) {
+            return concepts.find(c => c.concept_type == 'time') || concepts.find(c => c.concept_type == 'measure');
+        }
+    },
 
     /*
      * Compute the differential (stepwise differences) for the given field 
@@ -261,7 +270,13 @@ const functions = {
     }
 }
 
-export function frame(config) {
+export function frame(...args) {
+    const obs = observable(frame.nonObservable(...args));
+    obs.setUpReactions();
+    return obs;
+}
+
+frame.nonObservable = function(config, parent) {
     applyDefaults(config, defaultConfig);
-    return assign(baseEncoding(config), functions);
+    return assign(baseEncoding.nonObservable(config, parent), functions);
 }

@@ -7,7 +7,10 @@ export function fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {
             const baseParam = params.find(baseParam => baseParam.dataFrame === param.dataFrame);
             if (baseParam)
                 Object.keys(param.projection).forEach(key => {
-                    baseParam.projection[key] = param.projection[key];
+                    if (key in baseParam.projection) 
+                        baseParam.projection[key].push(param.projection[key]);
+                    else   
+                        baseParam.projection[key] = [ param.projection[key] ]
                 });
             else
                 params.push(param);
@@ -23,7 +26,7 @@ export function fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {
 /**
  * Full join. Impure: Modifies left df. Left key is join key. Right key must contain all join key fields (can't use regular fields for joining).
  * @param {DataFrame} left DataFrame used as base for join
- * @param {*} rightCfg { dataFrame: DataFrame, projection: { origField: projField } }
+ * @param {*} rightCfg { dataFrame: DataFrame, projection: { origField: [ projFields, ... ] } }
  */
 function _fullJoin(left, rightCfg) {
     // join or copy right rows onto result
@@ -40,20 +43,21 @@ function _fullJoin(left, rightCfg) {
         const leftRow = getOrCreateRow(left, joinKey, rightRow, keyStr)  
         // project with aliases        
         for(let key in projection) {
-            leftRow[projection[key]] = rightRow[key];
+            for (field of projection[key]) 
+                leftRow[field] = rightRow[key];
         }
     }
 
     return left;
 }
 
-// change array ["geo","year"] to { geo: "geo", year: "year" }
+// change array ["geo","year"] to { geo: [ "geo" ], year: [ "year" ] }
 function normalizeProjection(projection) {
     if (!Array.isArray(projection))
         return projection;
     
     return projection.reduce((obj, field) => {
-        obj[field] = field;
+        obj[field] = [ field ];
         return obj;
     }, {});
 }

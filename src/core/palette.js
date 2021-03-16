@@ -4,7 +4,6 @@ import { applyDefaults, deepclone, filterObject } from "./utils";
 const defaultConfig = {
     paletteHiddenKeys: [],
     palette: {},
-    paletteLabels: {}
 }
 
 const defaults = {

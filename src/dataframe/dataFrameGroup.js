@@ -1,5 +1,5 @@
 import { DataFrame } from "./dataFrame";
-import { parseMarkerKey, isDataFrame, createKeyFn } from "./utils";
+import { parseMarkerKey, isDataFrame, createKeyFn } from "./dfutils";
 import { interpolate } from "./transforms/interpolate";
 import { order } from "./transforms/order";
 import { reindex } from "./transforms/reindex";
