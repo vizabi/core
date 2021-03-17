@@ -181,7 +181,7 @@ dataConfig.nonObservable = function(config, parent) {
         findMarkerConfigForSpace(space) {
             let encodings = {};
 
-            let success = [...this.parent.encoding].every(([name, enc]) => {
+            let success = [...Object.entries(this.parent.encoding)].every(([name, enc]) => {
                  let usedConcepts = Object.values(encodings).map(r => r.concept);
                 let encResult = enc.data.encodingSolution(space, usedConcepts);
                 if (encResult) {

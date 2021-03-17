@@ -64,7 +64,7 @@ let functions = {
         return dataConfigStore.get(datacfg, this)
     },
     get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
-    get encodingCache() { return new Map() },
+    get encodingCache() { return {} },
     updateEncodingCache(encodingConfig) {
         this.fillEncodingCache(encodingConfig);
         this.purgeStaleEncodingCache(encodingConfig);
@@ -72,15 +72,15 @@ let functions = {
     },
     fillEncodingCache(encodingConfig) {
         for (const prop in encodingConfig) {
-            if (!this.encodingCache.has(prop)) {
-                this.encodingCache.set(prop, encodingStore.get(encodingConfig[prop], this));
+            if (!(prop in this.encodingCache)) {
+                this.encodingCache[prop] =  encodingStore.get(encodingConfig[prop], this);
             }
         }
     },
     purgeStaleEncodingCache(encodingConfig) {
-        for (const prop of this.encodingCache.keys()) {
+        for (const prop of Object.keys(this.encodingCache)) {
             if (!(prop in encodingConfig)) {
-                this.encodingCache.delete(prop);
+                delete this.encodingCache[prop];
             }
         }
     },
@@ -98,13 +98,13 @@ let functions = {
     },
     // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet 
     getEncodingName(encoding) {
-        for (let [name, enc] of this.encoding) {
+        for (let [name, enc] of Object.entries(this.encoding)) {
             if (enc == encoding) return name;
         }
     },
     get state() {
         //trace();
-        const encodingStates= [...this.encoding.values()].map(enc => enc.data.state);
+        const encodingStates= [...Object.values(this.encoding)].map(enc => enc.data.state);
         const states = [this.data.source.state, ...encodingStates];
         return combineStates(states);
     },
@@ -140,7 +140,7 @@ let functions = {
         const constantEncodings = [];
 
         // sort visual encodings by how they add data to markers
-        for (let [name, encoding] of this.encoding) {
+        for (let [name, encoding] of Object.entries(this.encoding)) {
 
             // no data or constant, no further processing (e.g. selections)
             if (encoding.data.concept === undefined && !encoding.data.isConstant())
@@ -196,8 +196,8 @@ let functions = {
             .filterGroups(group => group.size > 0);
     },
     differentiate(xField, data) {
-        const frame = this.encoding.get("frame")
-        return frame && this.encoding.get(xField) ? frame.differentiate(data, xField) : data
+        const frame = this.encoding.frame
+        return frame && this.encoding[xField] ? frame.differentiate(data, xField) : data
     },
     /**
      * transformationFns is an object 
@@ -210,7 +210,7 @@ let functions = {
             "filterRequired": this.filterRequired.bind(this)
         };
         // encoding transformations
-        for (let [name, enc] of this.encoding) {
+        for (let [name, enc] of Object.entries(this.encoding)) {
             if (enc.transformationFns)
                 for (let [tName, t] of Object.entries(enc.transformationFns))
                     transformations[name + '.' + tName] = t;
