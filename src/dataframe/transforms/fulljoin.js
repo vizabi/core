@@ -43,7 +43,7 @@ function _fullJoin(left, rightCfg) {
         const leftRow = getOrCreateRow(left, joinKey, rightRow, keyStr)  
         // project with aliases        
         for(let key in projection) {
-            for (field of projection[key]) 
+            for (let field of projection[key]) 
                 leftRow[field] = rightRow[key];
         }
     }

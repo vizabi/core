@@ -34,7 +34,7 @@ export function leftJoin(left, rights) {
                 const rightRow = dataFrame[getFn](row, keyStr);
                 if (rightRow === undefined) continue;
                 for(let key in projection) {
-                    for (field of projection[key]) 
+                    for (let field of projection[key]) 
                         leftRow[field] = rightRow[key];
                 }
             //}
