@@ -226,7 +226,7 @@ const functions = {
     tryCache({ query, resolves }) {
         let response;
         if (response = this.cache.get(query)) {
-            console.warn('Resolving query from cache.', query);
+            //console.warn('Resolving query from cache.', query);
             resolves.forEach(resolve => resolve(response));
             return true;
         }
