@@ -1,5 +1,8 @@
-import { autorun } from "mobx";
+import * as d3 from "d3-time-format";
+import * as d3Time from "d3-time";
+import { range as d3Range } from "d3-array";
 import { fromPromise } from "mobx-utils";
+import { isObservableArray } from "mobx";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -128,6 +131,7 @@ function isSpecial(value) {
 
     return stringValue === '[object RegExp]' ||
         stringValue === '[object Date]' ||
+        isObservableArray(value) ||
         isReactElement(value)
 }
 
@@ -215,12 +219,10 @@ export function applyDefaults(config, defaults) {
             if (isMergeableObject(defaults[prop]))
                 config[prop] = deepclone(defaults[prop]); // object
             else
-                config[prop] = defaults[prop]; // non object, e.g. null
+                config[prop] = defaults[prop]; // non object, i.e. value
         } else if (isMergeableObject(defaults[prop])) {
             if (isMergeableObject(config[prop]))
                 applyDefaults(config[prop], defaults[prop]);
-            else
-                config[prop] = deepclone(defaults[prop]);
         }
     })
     return config;
@@ -244,8 +246,8 @@ export function configValue(value, concept) {
 
 export function range(start, stop, concept) {
     if (concept == "time") concept = "year";
-    const interval = d3['utc' + ucFirst(concept)];
-    const rangeFn = (interval && start instanceof Date && stop instanceof Date ) ? interval.range : d3.range;
+    const interval = d3Time['utc' + ucFirst(concept)];
+    const rangeFn = (interval && start instanceof Date && stop instanceof Date ) ? interval.range : d3Range;
     return rangeFn(start, stop);
 }
 

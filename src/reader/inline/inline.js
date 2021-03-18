@@ -1,5 +1,7 @@
-import { DataFrame } from "../../dataFrame/dataFrame";
+import { DataFrame } from "../../dataframe/dataFrame";
 import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/utils";
+import { utcParse } from "d3-time-format";
+import { autoType } from 'd3-dsv';
 
 /**
  * @param {*} argPromise promise resolving to object { values, keyConcepts, dtypes }
@@ -121,16 +123,16 @@ const dtypeParsers = {
     number: d => +d,
     boolean: d => d == '1' || d.toLowerCase() == 'true',
     auto: autoParse,
-    year: d3.utcParse("%Y"),
-    month: d3.utcParse("%Y-%m"),
-    day: d3.utcParse("%Y-%m-%d"),
-    week: d3.utcParse("%Yw%V")
+    year: utcParse("%Y"),
+    month: utcParse("%Y-%m"),
+    day: utcParse("%Y-%m-%d"),
+    week: utcParse("%Yw%V")
 }
 
 function parserFromDtypes(dtypes) {
 
     if (dtypes == "auto") 
-        return d3.autoType;
+        return autoType;
 
     // create field parsers
     const parsers = {};
