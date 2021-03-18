@@ -19,7 +19,8 @@ const defaultConfig = {
     type: null,
     zoomed: null,
     zeroBaseline: false,
-    clamp: false
+    clamp: false,
+    allowedTypes: null
 }
 
 const defaults = {
@@ -74,15 +75,22 @@ baseScale.nonObservable = function(config, parent) {
 
             return scaleType;
         },
+        get allowedTypes() {
+            return this.config.allowedTypes;
+        },
         get type() {
 
             let scaleType = this.scaleTypeNoGenLog();
+            let allowedTypes = this.allowedTypes;
             
             if (scaleType == "log" && !isArrayOneSided(this.domain)) {
                 scaleType = "genericLog";
             }
 
-            return scaleType;
+            if (!allowedTypes || allowedTypes.includes(scaleType))                
+                return scaleType;
+            
+            console.warn('Scale type not in allowedTypes, please change scale type.', { scaleType, allowedTypes })
         },
         get range() {
             if (this.config.range != null)
@@ -159,5 +167,6 @@ baseScale.decorate = {
     //allow setting an array to these properties, otherwise getting an infinite loop because values inside array won't be compared
     range: computed.struct,
     domain: computed.struct,
-    zoomed: computed.struct
+    zoomed: computed.struct,
+    allowedTypes: computed.struct
 }
