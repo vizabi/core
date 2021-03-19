@@ -5,7 +5,6 @@ import { palette } from "../palette";
 import { resolveRef } from "../vizabi";
 
 const defaultConfig = {
-    allowedTypes: ["linear", "log", "genericLog", "time", "pow", "ordinal", "point"]
 }
 
 const colors = {
