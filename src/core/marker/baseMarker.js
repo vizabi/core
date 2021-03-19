@@ -286,7 +286,7 @@ let functions = {
         return this.dataMap.toJSON();
     },
     getDataMapByFrameValue(value) {
-        const frame = this.encoding.get("frame");
+        const frame = this.encoding.frame;
         if (!frame) return this.dataMap;
 
         const frameKey = createMarkerKey({ [frame.name]: value }, [frame.name]);

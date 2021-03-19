@@ -110,7 +110,7 @@ Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
 //function draw(data) {
 //  d3.select('#container').select("button").text(data[0].text);
 //}
-//d3.select('#container').append("button").on("click", () => marker.encoding.get("frame").togglePlaying());
+//d3.select('#container').append("button").on("click", () => marker.encoding.frame.togglePlaying());
   
   
   
@@ -153,13 +153,13 @@ Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
 //  .y(d => yScale(d.y));
 //  
 //function draw() {
-//  const t = marker.encoding.get("frame").value;
+//  const t = marker.encoding.frame.value;
 //  data = [...marker.dataMapCache.order(["x"]).values()].slice(0, t);
 //  
 //  path.datum(data) 
 //    .attr("d", line);  
 //}
-//d3.select('#container').append("button").text("Play").on("click", () => marker.encoding.get("frame").togglePlaying());
+//d3.select('#container').append("button").text("Play").on("click", () => marker.encoding.frame.togglePlaying());
   
   
 
