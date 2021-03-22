@@ -12,7 +12,7 @@ import { makeCache } from '../dataConfig/cache';
 const defaultConfig = {
     path: null,
     sheet: null,
-    keyConcepts: null,
+    keyConcepts: [],
     values: null,
     transforms: []
 }
@@ -173,7 +173,6 @@ const functions = {
         const queryPromise = this.enqueue(query);
         return fromPromise(queryPromise);
     },
-    //queue: [],
     get queue() {
         return [];
     },

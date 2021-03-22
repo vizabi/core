@@ -1,4 +1,4 @@
-import { resolveRef } from "../vizabi";
+import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
 import { applyDefaults, arrayEquals, fromPromiseAll, intersect, isNonNullObject, isNumeric } from "../utils";
@@ -19,7 +19,6 @@ const defaults = {
     concept: undefined,
     space: null,
     value: null,
-    filter: null,
     locale: null,
     source: null,
     domain: [0, 1],
@@ -80,7 +79,7 @@ dataConfig.nonObservable = function(config, parent) {
             console.warn('Cannot get data.commonSpace of Marker.data. Only meaningful on Encoding.data.')
         },
         get filter() {
-            const config = this.config.filter || (this.hasEncodingMarker ? this.parent.marker.data.config.filter : defaults.filter);
+            const config = this.config.filter || (this.hasEncodingMarker ? this.parent.marker.data.config.filter : {});
             return filter(config, this);
         },
         get locale() {
@@ -343,7 +342,6 @@ dataConfig.nonObservable = function(config, parent) {
             }
         },
         get state() {
-            fromPromise.FULFILLED
             return this.promise.state;
         },
         get response() {

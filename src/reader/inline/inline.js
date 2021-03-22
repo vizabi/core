@@ -42,7 +42,7 @@ export function inlineReader(argPromise) {
     }
 }
 
-function parseValues({ values, dtypes, keyConcepts }) {
+function parseValues({ values, dtypes, keyConcepts = [] }) {
     return DataFrame(makeParser(dtypes)(values), keyConcepts);
 }
 
@@ -143,7 +143,7 @@ function parserFromDtypes(dtypes) {
 
         let parser;
         if (dtype in dtypeParsers) parser = dtypeParsers[dtype];
-        if (isNonNullObject(dtype) && "timeFormat" in dtype) parser = d3.utcParse(dtype.timeFormat);
+        if (isNonNullObject(dtype) && "timeFormat" in dtype) parser = utcParse(dtype.timeFormat);
 
         if (!parser) {
             console.warn('Unknown data type given, fall back to identity parser.', dtype);

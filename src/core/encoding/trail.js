@@ -4,7 +4,7 @@ import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { parseMarkerKey, createMarkerKey } from "../../dataframe/dfutils";
-import { resolveRef } from "../vizabi";
+import { resolveRef } from "../config";
 
 const defaultConfig = {
     starts: {},

@@ -15,9 +15,8 @@
     "build": "npx rollup -c",
     "start": "webpack-dev-server -d --open",
     "rollup": "rollup -c",
-    "test": "node node_modules/.bin/jest dataconfig.test.js --runInBand --watch --no-cache",
-    "debug": "jest --no-cache --runInBand",
-    "test-inspect": "node --inspect-brk node_modules/.bin/jest --runInBand /filter.test.js"
+    "test": "jest",
+    "debug": "node node_modules/.bin/jest encoding/*.test.js --runInBand --watch --no-cache"
   },
   "author": "Jasper Heeffer and others at Gapminder Foundation",
   "license": "BSD-3-Clause",

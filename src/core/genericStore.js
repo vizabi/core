@@ -1,6 +1,5 @@
 import { observable, action, toJS, isObservableObject } from 'mobx'
 import { isString, isNonNullObject } from './utils'
-import { resolveRef } from './vizabi';
 
 const defaultType = config => observable({ config });
 defaultType.nonObservable = config => ({ config })

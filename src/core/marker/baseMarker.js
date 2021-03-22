@@ -7,7 +7,7 @@ import { createMarkerKey } from '../../dataframe/dfutils';
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
-import { resolveRef } from '../vizabi';
+import { resolveRef } from '../config';
 
 
 const defaultConfig = {

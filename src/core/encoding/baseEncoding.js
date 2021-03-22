@@ -1,10 +1,10 @@
-import { action, trace } from 'mobx';
-import { assign, applyDefaults } from "../utils";
+import { action, observable, trace } from 'mobx';
+import { assign, applyDefaults, isNonNullObject } from "../utils";
 import { configurable } from '../configurable';
 import { markerStore } from '../marker/markerStore';
 import { dataConfigStore } from '../dataConfig/dataConfigStore';
 import { scaleStore } from '../scale/scaleStore';
-import { resolveRef } from '../vizabi';
+import { resolveRef } from '../config';
 //import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
 
 const defaultConfig = {
@@ -17,7 +17,10 @@ const functions = {
         return this.parent;
     },
     get name() {
-        return this.marker.getEncodingName(this);
+        if (this.marker)
+            return this.marker.getEncodingName(this);
+        else 
+            return 'Unnamed'
     },
     get data() {
         const data = resolveRef(this.config.data);
@@ -28,19 +31,26 @@ const functions = {
         const scale = resolveRef(this.config.scale);
         return scaleStore.get(scale, this);
     },
+    get state() {
+        return this.data.state;
+    },
     setWhich: action('setWhich', function(kv) {        
+        const concept = isNonNullObject(kv.value) ? kv.value.concept : kv.value;
+        
         if (kv.key) {
             //check ds
-            const markerDS = this.marker.config.data.source;
-            if (kv.value.dataSource == markerDS) {
-                delete this.config.data.source;
-            } else {
-                this.config.data.source = kv.value.dataSource;
+            if (isNonNullObject(kv.value)) {
+                if (this.marker) {
+                    const markerDS = this.marker.config.data.source;
+                    if (kv.value.dataSource == markerDS) {
+                        delete this.config.data.source;
+                    } 
+                } else {
+                    this.config.data.source = kv.value.dataSource;
+                }
             }
 
-            const concept = this.data.source.getConcept(kv.value.concept);
-
-            this.config.data.concept = concept.concept;        
+            this.config.data.concept = concept;
             this.config.data.space = kv.key;
             delete this.config.data.constant;
         } else {
