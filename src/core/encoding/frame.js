@@ -4,6 +4,8 @@ import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
 import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
+import { scaleLinear } from 'd3-scale';
+import { range as d3range } from 'd3-array';
 
 const defaultConfig = {
     modelType: "frame",
@@ -45,7 +47,7 @@ const functions = {
         const frameValues = [];
         domainData.each(group => frameValues.push(group.values().next().value[this.name]));
         // use (possible) dates in range so no need for separate utcScale on time concepts
-        return d3.scaleLinear(d3.range(0, this.stepCount), frameValues); 
+        return scaleLinear(d3range(0, this.stepCount), frameValues); 
     },
     get stepCount() {
         return this.data.domainData.size
@@ -251,10 +253,17 @@ const functions = {
         }
         return result;
     },
+    destruct() {
+        for (const destruct of this.destructers) {
+            destruct();
+        }
+        clearInterval(this.playInterval);
+    },
+    get destructers() { return [] },
     setUpReactions() {
         // need reaction for timer as it has to set frame value
         // not allowed to call action (which changes state) from inside observable/computed, thus reaction needed
-        const controlTimer = reaction(
+        const destruct = reaction(
             // mention all observables (state & computed) which you want to be tracked
             // if not tracked, they will always be recomputed, their values are not cached
             () => { return { playing: this.playing, speed: this.speed } },
@@ -267,6 +276,7 @@ const functions = {
             }, 
             { name: "frame playback timer" }
         );
+        this.destructers.push(destruct);
     }
 }
 
