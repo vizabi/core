@@ -40,11 +40,8 @@ const functions = {
         if (kv.key) {
             //check ds
             if (isNonNullObject(kv.value)) {
-                if (this.marker) {
-                    const markerDS = this.marker.config.data.source;
-                    if (kv.value.dataSource == markerDS) {
-                        delete this.config.data.source;
-                    } 
+                if (this.marker && kv.value.dataSource == this.marker.config.data.source) {
+                    delete this.config.data.source;
                 } else {
                     this.config.data.source = kv.value.dataSource;
                 }
