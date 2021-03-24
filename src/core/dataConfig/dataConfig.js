@@ -17,7 +17,7 @@ const defaults = {
     filter: null,
     constant: null,
     concept: undefined,
-    space: null,
+    space: { autoconfig: true },
     value: null,
     locale: null,
     source: null,
@@ -51,7 +51,6 @@ dataConfig.nonObservable = function(config, parent) {
                 console.warn("One or more invariants not satisfied:",fails,this);
         },
         get source() {
-            //trace();
             const source = resolveRef(this.config.source);
             if (source)
                 return dataSourceStore.get(source, this)
@@ -162,9 +161,9 @@ dataConfig.nonObservable = function(config, parent) {
             let spaceCfg = resolveRef(this.config.space) || fallbackSpaceCfg || defaults.space;
             let conceptCfg = resolveRef(this.config.concept);
 
-            if (this.needsSpaceAutoCfg) {
+            if (spaceCfg.autoconfig) {
                 result = this.findSpaceAndConcept(spaceCfg, conceptCfg, avoidConcepts);
-            } else if (this.needsConceptAutoCfg) {
+            } else if (conceptCfg.autoconfig) {
                 const plainArraySpace = spaceCfg.slice(0);
                 result = this.findConceptForSpace(plainArraySpace, conceptCfg, avoidConcepts);
             } else {
@@ -296,7 +295,7 @@ dataConfig.nonObservable = function(config, parent) {
             return this.source && this.concept && !this.conceptInSpace;
         },
         get needsSpaceAutoCfg() {
-            return this.config.space && this.config.space.autoconfig;
+            return this.config.space && this.config.space.autoconfig || (!this.hasEncodingMarker && defaults.space.autoconfig);
         },
         get needsConceptAutoCfg() {
             return this.config.concept && this.config.concept.autoconfig;
@@ -331,14 +330,14 @@ dataConfig.nonObservable = function(config, parent) {
             if (this.isConstant()) { return fromPromise.resolve() }
             if (this.needsSource) { sourcePromises.push(this.source.metaDataPromise) }
             if (this.needsMarkerSource) { sourcePromises.push(this.marker.data.source.metaDataPromise); }
-            if (sourcePromises.length > 0) {
-                const combined = fromPromiseAll(sourcePromises);
+            const combined = fromPromiseAll(sourcePromises);
+            if (this.hasOwnData) {
                 return combined.case({ 
                     fulfilled: () => this.sendQuery(),
                     pending: () => combined,
                 })
             } else {
-                return this.sendQuery();
+                return combined;
             }
         },
         get state() {

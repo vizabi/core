@@ -4,7 +4,7 @@ import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import { _resetGlobalState, configure, autorun } from "mobx"
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
 
-console.log = jest.fn()
+//console.log = jest.fn()
 
 function check(model, propPath) {
     let destruct;
@@ -19,6 +19,28 @@ function check(model, propPath) {
     });
     return promise.then(resp => (destruct(), resp));
 }
+
+
+function multiCheck(model, propPath, fns) {
+    return new Promise((resolve, reject) => {
+        let { check, action } = fns.shift();
+        const destruct = autorun(() => {
+            if (model.state == 'fulfilled') {
+                let value = model;
+                for (let step of propPath.split('.')) value = value[step];
+                check(value); 
+                if (fns.length > 0) {
+                    ({ check, action } = fns.shift());
+                    action();
+                } else {
+                    destruct();
+                    resolve();
+                }
+            }
+        });
+    });
+}
+
 
 describe('create stand alone data configs', () => {
 
@@ -114,6 +136,29 @@ describe('create stand alone data configs', () => {
             concept: 'x'
         });
         return check(data, 'response').then(response => expect(response.get(1).x).toBe(5));
+    })
+
+    it.only('set dataconfig source', () => {
+        const data = dataConfig({
+            source: {
+                values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
+            },
+            concept: 'x'
+        });
+
+        return multiCheck(data, 'response', [
+            {
+                check: map => expect(map.get(0).x).toBe(1),
+            }, 
+            { 
+                action: () => {
+                    data.config.source = {
+                        values: [{ x: 3, y: 2}]
+                    }
+                },
+                check: map => expect(map.get(0).x).toBe(3)
+            }
+        ])
     })
 })
 

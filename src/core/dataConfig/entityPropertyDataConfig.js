@@ -1,6 +1,6 @@
 import { dataConfig } from './dataConfig';
 import { composeObj, renameProperty } from '../utils';
-import { trace, toJS } from 'mobx';
+import { trace, toJS, observable } from 'mobx';
 import { fromPromise } from 'mobx-utils';
 import { DataFrame } from '../../dataframe/dataFrame';
 

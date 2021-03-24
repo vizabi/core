@@ -103,9 +103,8 @@ let functions = {
         }
     },
     get state() {
-        //trace();
         const encodingStates= [...Object.values(this.encoding)].map(enc => enc.data.state);
-        const states = [this.data.source.state, ...encodingStates];
+        const states = [this.data.state, ...encodingStates];
         return combineStates(states);
     },
     get availability() {
