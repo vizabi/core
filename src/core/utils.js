@@ -1,6 +1,3 @@
-import * as d3 from "d3-time-format";
-import * as d3Time from "d3-time";
-import { range as d3Range } from "d3-array";
 import { fromPromise } from "mobx-utils";
 import { isObservableArray } from "mobx";
 
@@ -246,8 +243,8 @@ export function configValue(value, concept) {
 
 export function range(start, stop, concept) {
     if (concept == "time") concept = "year";
-    const interval = d3Time['utc' + ucFirst(concept)];
-    const rangeFn = (interval && start instanceof Date && stop instanceof Date ) ? interval.range : d3Range;
+    const interval = d3['utc' + ucFirst(concept)];
+    const rangeFn = (interval && start instanceof Date && stop instanceof Date ) ? interval.range : d3.range;
     return rangeFn(start, stop);
 }
 

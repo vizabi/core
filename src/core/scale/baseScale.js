@@ -1,8 +1,5 @@
 import { applyDefaults, parseConfigValue } from "../utils";
 import { computed } from "mobx";
-import * as d3 from "d3-scale";
-import * as d3Array from "d3-array";
-import { schemeCategory10 } from "d3-scale-chromatic";
 
 const scales = {
     "linear": d3.scaleLinear,
@@ -40,7 +37,7 @@ baseScale.nonObservable = function(config, parent) {
     function isArrayOneSided(array){
         if (!array) return false;
         if (array.length < 2) return true;
-        return !(d3Array.min(array) <= 0 && d3Array.max(array) >= 0);
+        return !(d3.min(array) <= 0 && d3.max(array) >= 0);
     }
 
     return {
@@ -105,7 +102,7 @@ baseScale.nonObservable = function(config, parent) {
 
             // default
             return (this.type == "ordinal") ?
-                schemeCategory10 : [0, 1];
+                d3.schemeCategory10 : [0, 1];
         },
         set range(range) {
             this.config.range = range;
@@ -119,7 +116,7 @@ baseScale.nonObservable = function(config, parent) {
                 //use cases: forcing zero-based bar charts and bubble size
                 if (this.zeroBaseline && !this.isDiscrete() && isArrayOneSided(this.data.domain)){
                   const domain = [...this.data.domain];
-                  const closestToZeroIdx = d3Array.scan(domain.map(Math.abs));
+                  const closestToZeroIdx = d3.scan(domain.map(Math.abs));
                   domain[closestToZeroIdx] = 0;
                   return domain;
                 } else {

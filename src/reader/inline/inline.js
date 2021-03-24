@@ -1,7 +1,5 @@
 import { DataFrame } from "../../dataframe/dataFrame";
 import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/utils";
-import { utcParse } from "d3-time-format";
-import { autoType } from 'd3-dsv';
 
 /**
  * @param {*} argPromise promise resolving to object { values, keyConcepts, dtypes }
@@ -123,16 +121,16 @@ const dtypeParsers = {
     number: d => +d,
     boolean: d => d == '1' || d.toLowerCase() == 'true',
     auto: autoParse,
-    year: utcParse("%Y"),
-    month: utcParse("%Y-%m"),
-    day: utcParse("%Y-%m-%d"),
-    week: utcParse("%Yw%V")
+    year: d3.utcParse("%Y"),
+    month: d3.utcParse("%Y-%m"),
+    day: d3.utcParse("%Y-%m-%d"),
+    week: d3.utcParse("%Yw%V")
 }
 
 function parserFromDtypes(dtypes) {
 
     if (dtypes == "auto") 
-        return autoType;
+        return d3.autoType;
 
     // create field parsers
     const parsers = {};
@@ -143,7 +141,7 @@ function parserFromDtypes(dtypes) {
 
         let parser;
         if (dtype in dtypeParsers) parser = dtypeParsers[dtype];
-        if (isNonNullObject(dtype) && "timeFormat" in dtype) parser = utcParse(dtype.timeFormat);
+        if (isNonNullObject(dtype) && "timeFormat" in dtype) parser = d3.utcParse(dtype.timeFormat);
 
         if (!parser) {
             console.warn('Unknown data type given, fall back to identity parser.', dtype);

@@ -1,0 +1,1 @@
+global.d3 = require('./lib/d3.js');

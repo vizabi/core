@@ -16,7 +16,7 @@
     "start": "webpack-dev-server -d --open",
     "rollup": "rollup -c",
     "test": "jest",
-    "debug": "node node_modules/.bin/jest frame.test.js --runInBand --watch --no-cache"
+    "debug": "node node_modules/.bin/jest scale.test.js --runInBand --watch --no-cache"
   },
   "author": "Jasper Heeffer and others at Gapminder Foundation",
   "license": "BSD-3-Clause",
@@ -29,17 +29,11 @@
   },
   "homepage": "http://vizabi.org",
   "dependencies": {
-    "d3-array": "^2.8.0",
-    "d3-dsv": "^2.0.0",
-    "d3-interpolate": "^2.0.1",
-    "d3-scale": "^3.2.1",
-    "d3-scale-chromatic": "^1.5.0",
-    "d3-time": "^2.0.0",
-    "d3-time-format": "^2.2.3",
     "mobx": "^5.15.7"
   },
   "peerDependencies": {
-    "mobx": "^5.15.7"
+    "mobx": "^5.15.7",
+    "d3": "^6.6.0"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
@@ -70,6 +64,11 @@
           }
         }
       ]
+    ]
+  },
+  "jest": {
+    "setupFiles": [
+      "<rootDir>/test/jest/setup.js"
     ]
   }
 }

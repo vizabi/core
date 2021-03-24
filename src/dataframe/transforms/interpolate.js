@@ -1,5 +1,3 @@
-import { interpolate as d3Interpolate } from 'd3-interpolate';
-
 /**
  * Interpolate within a dataframe. Fill missing values in rows
  * @param {*} df 
@@ -34,7 +32,7 @@ function interpolateField(df, field) {
 }
 
 function interpolateGap(gapRows, startVal, endVal, field) {
-    const int = d3Interpolate(startVal, endVal);
+    const int = d3.interpolate(startVal, endVal);
     const delta = 1 / (gapRows.length+1);
     let mu = 0;
     for (let gapRow of gapRows) {

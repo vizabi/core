@@ -4,8 +4,6 @@ import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
 import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
-import { scaleLinear } from 'd3-scale';
-import { range as d3range } from 'd3-array';
 
 const defaultConfig = {
     modelType: "frame",
@@ -47,7 +45,7 @@ const functions = {
         const frameValues = [];
         domainData.each(group => frameValues.push(group.values().next().value[this.name]));
         // use (possible) dates in range so no need for separate utcScale on time concepts
-        return scaleLinear(d3range(0, this.stepCount), frameValues); 
+        return d3.scaleLinear(d3.range(0, this.stepCount), frameValues); 
     },
     get stepCount() {
         return this.data.domainData.size
