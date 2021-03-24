@@ -16,7 +16,7 @@
     "start": "webpack-dev-server -d --open",
     "rollup": "rollup -c",
     "test": "jest",
-    "debug": "node node_modules/.bin/jest scale.test.js --runInBand --watch --no-cache"
+    "debug": "node node_modules/.bin/jest ./*/dataConfig.test.js --runInBand --watch --no-cache"
   },
   "author": "Jasper Heeffer and others at Gapminder Foundation",
   "license": "BSD-3-Clause",

@@ -161,9 +161,9 @@ dataConfig.nonObservable = function(config, parent) {
             let spaceCfg = resolveRef(this.config.space) || fallbackSpaceCfg || defaults.space;
             let conceptCfg = resolveRef(this.config.concept);
 
-            if (spaceCfg.autoconfig) {
+            if (this.needsSpaceAutoCfg) {
                 result = this.findSpaceAndConcept(spaceCfg, conceptCfg, avoidConcepts);
-            } else if (conceptCfg.autoconfig) {
+            } else if (this.needsConceptAutoCfg) {
                 const plainArraySpace = spaceCfg.slice(0);
                 result = this.findConceptForSpace(plainArraySpace, conceptCfg, avoidConcepts);
             } else {
@@ -295,7 +295,7 @@ dataConfig.nonObservable = function(config, parent) {
             return this.source && this.concept && !this.conceptInSpace;
         },
         get needsSpaceAutoCfg() {
-            return this.config.space && this.config.space.autoconfig || (!this.hasEncodingMarker && defaults.space.autoconfig);
+            return (this.config.space && this.config.space.autoconfig) || (!this.hasEncodingMarker && defaults.space.autoconfig && !this.config.space);
         },
         get needsConceptAutoCfg() {
             return this.config.concept && this.config.concept.autoconfig;
@@ -331,14 +331,10 @@ dataConfig.nonObservable = function(config, parent) {
             if (this.needsSource) { sourcePromises.push(this.source.metaDataPromise) }
             if (this.needsMarkerSource) { sourcePromises.push(this.marker.data.source.metaDataPromise); }
             const combined = fromPromiseAll(sourcePromises);
-            if (this.hasOwnData) {
-                return combined.case({ 
-                    fulfilled: () => this.sendQuery(),
-                    pending: () => combined,
-                })
-            } else {
-                return combined;
-            }
+            return combined.case({ 
+                fulfilled: () => this.hasOwnData ? this.sendQuery() : fromPromise.resolve(),
+                pending: () => combined,
+            })
         },
         get state() {
             return this.promise.state;
