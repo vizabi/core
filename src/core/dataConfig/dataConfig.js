@@ -16,7 +16,7 @@ const defaultConfig = {
 const defaults = {
     filter: null,
     constant: null,
-    concept: undefined,
+    concept: { autoconfig: { concept_type: "measure" } },
     space: { autoconfig: true },
     value: null,
     locale: null,
@@ -159,7 +159,7 @@ dataConfig.nonObservable = function(config, parent) {
             let result;
             // const [userSpace, defaultSpace] = splitConfig(this.config, 'space');
             let spaceCfg = resolveRef(this.config.space) || fallbackSpaceCfg || defaults.space;
-            let conceptCfg = resolveRef(this.config.concept);
+            let conceptCfg = resolveRef(this.config.concept) || defaults.concept;
 
             if (this.needsSpaceAutoCfg) {
                 result = this.findSpaceAndConcept(spaceCfg, conceptCfg, avoidConcepts);
@@ -298,7 +298,8 @@ dataConfig.nonObservable = function(config, parent) {
             return (this.config.space && this.config.space.autoconfig) || (!this.hasEncodingMarker && defaults.space.autoconfig && !this.config.space);
         },
         get needsConceptAutoCfg() {
-            return this.config.concept && this.config.concept.autoconfig;
+            return this.config.concept && this.config.concept.autoconfig 
+                || ((this.hasEncodingMarker || !this.marker) && !this.config.concept && defaults.concept && defaults.concept.autoconfig);
         },
         get needsAutoConfig() {
             return this.needsSpaceAutoCfg || this.needsConceptAutoCfg

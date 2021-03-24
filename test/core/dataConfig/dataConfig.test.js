@@ -12,7 +12,9 @@ function check(model, propPath) {
         destruct = autorun(() => {
             if (model.state == 'fulfilled') {
                 let value = model;
-                for (let step of propPath.split('.')) value = value[step];
+                if (propPath) {
+                    for (let step of propPath.split('.')) value = value[step];
+                }
                 resolve(value);
             }
         });
@@ -27,7 +29,9 @@ function multiCheck(model, propPath, fns) {
         const destruct = autorun(() => {
             if (model.state == 'fulfilled') {
                 let value = model;
-                for (let step of propPath.split('.')) value = value[step];
+                if (propPath) {
+                    for (let step of propPath.split('.')) value = value[step];
+                }
                 check(value); 
                 if (fns.length > 0) {
                     ({ check, action } = fns.shift());
@@ -134,6 +138,25 @@ describe('create stand alone data configs', () => {
                 values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
             },
             concept: 'x'
+        });
+        return check(data, 'response').then(response => expect(response.get(1).x).toBe(5));
+    })
+
+    it('use default concept autoconfig', () => {
+        const data = dataConfig({
+            source: {
+                values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
+            },
+            space: []
+        });
+        return check(data, 'response').then(response => expect(response.get(1).x).toBe(5));
+    })
+
+    it('use default space & concept autoconfig', () => {
+        const data = dataConfig({
+            source: {
+                values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
+            }
         });
         return check(data, 'response').then(response => expect(response.get(1).x).toBe(5));
     })
