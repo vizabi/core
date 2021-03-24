@@ -77,6 +77,9 @@ const functions = {
         speed = Math.max(0, speed);
         this.config.speed = speed;
     }),
+    parse(value){
+        return parseConfigValue(value, this.data.conceptProps);
+    },
     setValue: action('setValue', function setValue(value) {
         const concept = this.data.conceptProps;
         let parsed = parseConfigValue(value, concept);
