@@ -139,15 +139,14 @@ dataConfig.nonObservable = function(config, parent) {
             }
             return undefined;
         },
-        configSolver: configSolver(),
         get configSolution() {
-            return this.configSolver.configSolution(this);
+            return configSolver.configSolution(this);
         },
         get hasOwnData() {
             return this.source && this.concept && !this.conceptInSpace;
         },
         get needsSource() {
-            return this.configSolver.needsAutoConfig(this);
+            return configSolver.needsAutoConfig(this);
         },
         get needsMarkerSource() {
             // const [userSpace, defaultSpace] = splitConfig(this.config, 'space');
