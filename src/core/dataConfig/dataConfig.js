@@ -30,8 +30,8 @@ dataConfig.nonObservable = function(config, parent) {
         defaults: {
             filter: null,
             constant: null,
-            concept: { autoconfig: { concept_type: "measure" } },
-            space: { autoconfig: true },
+            concept: { filter: { concept_type: "measure" } },
+            space: { /* solve from data */ },
             value: null,
             locale: null,
             source: null,
@@ -145,17 +145,6 @@ dataConfig.nonObservable = function(config, parent) {
         get hasOwnData() {
             return this.source && this.concept && !this.conceptInSpace;
         },
-        get needsSource() {
-            return configSolver.needsAutoConfig(this);
-        },
-        get needsMarkerSource() {
-            // const [userSpace, defaultSpace] = splitConfig(this.config, 'space');
-            return !this.config.space && this.marker && this.marker.data.needsSource 
-                || (!this.config.source && this.needsSource);
-        },
-        resolveOrSend() {
-
-        },
         sendQuery() {
             if (!this.source || !this.concept) {
                 console.warn("Encoding " + this.parent.name + " was asked for data but source and/or concept is not set.");
@@ -168,10 +157,10 @@ dataConfig.nonObservable = function(config, parent) {
             }
         },
         get promise() {
-            const sourcePromises = [];
             if (this.isConstant()) { return fromPromise.resolve() }
-            if (this.needsSource) { sourcePromises.push(this.source.metaDataPromise) }
-            if (this.needsMarkerSource) { sourcePromises.push(this.marker.data.source.metaDataPromise); }
+
+            const sourcePromises = configSolver.dataConfigPromisesBeforeSolving(this);
+            if (this.source) { sourcePromises.push(this.source.conceptsPromise) } // conceptPromise needed for calcDomain()
             const combined = fromPromiseAll(sourcePromises);
             return combined.case({ 
                 fulfilled: () => this.hasOwnData ? this.sendQuery() : fromPromise.resolve(),

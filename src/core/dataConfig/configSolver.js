@@ -1,6 +1,7 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
 import { resolveRef } from "../config";
+import { fromPromiseAll, isNonNullObject } from "../utils";
 
 /**
  * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
@@ -13,7 +14,9 @@ export const configSolver = {
     },
     configSolution,
     needsAutoConfig,
-    encodingSolution
+    encodingSolution,
+    markerPromiseBeforeSolving,
+    dataConfigPromisesBeforeSolving
 }
 
 function configSolution(dataConfig) {     
@@ -52,12 +55,13 @@ function encodingSolution(dataConfig, fallbackSpaceCfg, avoidConcepts = []) {
 
 function findMarkerConfigForSpace(markerDataConfig, space) {
     let encodings = {};
+    let usedConcepts = [];
 
     let success = [...Object.entries(markerDataConfig.parent.encoding)].every(([name, enc]) => {
-            let usedConcepts = Object.values(encodings).map(r => r.concept);
         let encResult = encodingSolution(enc.data, space, usedConcepts);
         if (encResult) {
             encodings[name] = encResult;
+            usedConcepts.push(encResult.concept);
             return true;
         }
         return false;
@@ -72,7 +76,7 @@ function markerSolution(dataConfig) {
     if (!dataConfig.parent.encoding)
         console.warn(`Can't get marker solution for a non-marker dataconfig.`)
 
-    if (cfg.space && cfg.space.autoconfig) {
+    if (needsSpaceAutoCfg(dataConfig)) {
 
         if (!dataConfig.source) {
             console.warn(`Can't autoconfigure marker space without a source defined.`)
@@ -88,8 +92,8 @@ function markerSolution(dataConfig) {
 
 function autoConfigSpace(dataConfig, getFurtherResult) {
 
-    const spaceAutoCfg = (dataConfig.config.space && dataConfig.config.space.autoconfig) || (dataConfig.defaults.space && dataConfig.defaults.space.autoconfig);
-    const satisfiesSpaceAutoCfg = createFilterFn(spaceAutoCfg);
+    const spaceFilter = (dataConfig.config.space && dataConfig.config.space.filter) || (dataConfig.defaults.space && dataConfig.defaults.space.filter);
+    const satisfiesSpaceFilter = createFilterFn(spaceFilter);
     const spaces = [...dataConfig.source.availability.keyLookup.values()]
         .sort((a, b) => a.length - b.length); // smallest spaces first
 
@@ -98,7 +102,7 @@ function autoConfigSpace(dataConfig, getFurtherResult) {
         if (!space.includes("concept") 
             && space
                 .map(c => dataConfig.source.getConcept(c))
-                .every(satisfiesSpaceAutoCfg)
+                .every(satisfiesSpaceFilter)
             && (result = getFurtherResult(space))
         ) {
             return result
@@ -123,6 +127,10 @@ function isConceptAvailableForSpace(availability, space, concept) {
     return availability.keyValueLookup.get(keyStr).has(concept);
 }
 
+function needsSolving(config) {
+    return isNonNullObject(config) && !Array.isArray(config);
+}
+
 /**
  * Tries to find encoding concept for a given space, encoding and partial solution which contains concepts to avoid.  
  * Should be called with encoding.data as `this`. 
@@ -138,10 +146,10 @@ function findConceptForSpace(space, dataConfig, usedConcepts = []) {
     const dataSource = dataConfig.source;
     const availability = dataSource.availability;
 
-    if (conceptCfg && conceptCfg.autoconfig) {
-        const satisfiesAutoCfg = conceptCfg.autoconfig === true 
-            ? () => true
-            : createFilterFn(conceptCfg.autoconfig);
+    if (needsSolving(conceptCfg)) {
+        const satisfiesFilter = conceptCfg.filter 
+            ? createFilterFn(conceptCfg.filter)
+            : () => true;
 
         const filteredConcepts =  [...availability.keyValueLookup.get(createKeyStr(space)).keys()]
             // should be able to show space concepts (e.g. time)
@@ -151,11 +159,11 @@ function findConceptForSpace(space, dataConfig, usedConcepts = []) {
             // get concept objects
             .map(dataSource.getConcept.bind(dataSource))
             // configurable filter
-            .filter(satisfiesAutoCfg);
+            .filter(satisfiesFilter);
         
-        const selectMethod = methods[conceptCfg.autoconfig.selectMethod] || selectUnusedConcept;
-        concept = selectMethod({ concepts: filteredConcepts, dataConfig, usedConcepts }).concept
-            || undefined;                                
+        const selectMethod = methods[conceptCfg.selectMethod] || selectUnusedConcept;
+        concept = selectMethod({ concepts: filteredConcepts, dataConfig, usedConcepts, space }).concept
+            || undefined;
         
     } else if (isConceptAvailableForSpace(availability, space, conceptCfg)) {
         concept = conceptCfg;
@@ -177,17 +185,37 @@ function selectUnusedConcept({ concepts, usedConcepts }) {
 function needsSpaceAutoCfg(dataConfig) {
     const cfg = dataConfig.config;
     const defaults = dataConfig.defaults;
-    return (cfg.space && cfg.space.autoconfig) 
-        || (!dataConfig.hasEncodingMarker && defaults.space.autoconfig && !cfg.space);
+    const isMarkerOrStandaloneDataConfig = !dataConfig.hasEncodingMarker;
+    const usesDefaultAutoConfig = !cfg.space && needsSolving(defaults.space);
+    return needsSolving(cfg.space) 
+        || (isMarkerOrStandaloneDataConfig && usesDefaultAutoConfig);
 }
 
 function needsConceptAutoCfg(dataConfig) {
     const cfg = dataConfig.config;
     const defaults = dataConfig.defaults;
-    return cfg.concept && cfg.concept.autoconfig 
-        || ((dataConfig.hasEncodingMarker || !dataConfig.marker) && !cfg.concept && defaults.concept && defaults.concept.autoconfig);
+    const isStandAloneDataConfig = !dataConfig.marker;
+    const isNotMarkerDataConfig = dataConfig.hasEncodingMarker;
+    const usesDefaultSolving = !cfg.concept && needsSolving(defaults.concept);
+    return needsSolving(cfg.concept)
+        || ((isNotMarkerDataConfig || isStandAloneDataConfig) && usesDefaultSolving);
 }
 
 function needsAutoConfig(dataConfig) {
     return needsSpaceAutoCfg(dataConfig) || needsConceptAutoCfg(dataConfig);
+}
+
+function dataConfigPromisesBeforeSolving(dataConfig) {
+    if (needsAutoConfig(dataConfig))
+        return [dataConfig.source.metaDataPromise];
+    else 
+        return [];
+}
+
+function markerPromiseBeforeSolving(marker) {
+    const dataConfigs = [marker.data];
+    for (const enc of Object.values(marker.encoding)) { dataConfigs.push(enc.data) };
+    const promises = dataConfigs.flatMap(dataConfigPromisesBeforeSolving);
+    const uniquePromises = [...new Set(promises)];
+    return fromPromiseAll(uniquePromises);
 }

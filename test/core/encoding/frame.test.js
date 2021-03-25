@@ -75,4 +75,54 @@ describe('frame encoding', () => {
             }
         ])
     })
+
+
+    it('default autoconfig frame to time concept in space', () => {
+        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
+        dataSourceStore.createAndAddType('ddf', DDFReadObject);
+        const mrk = baseMarker({
+            data: {
+                source: {
+                    path: 'test/ddf--jheeffer--mdtest',
+                    modelType: 'ddf'
+                },
+                space: ['geo','gender','time']
+            },
+            encoding: {
+                x: { data: { concept: 'population_total' } },
+                y: { data: { concept: 'life_expectancy' } },
+                frame: { 
+                    modelType: 'frame'
+                }
+            }
+        })
+        return multiCheck(mrk, 'dataMap', [
+            {
+                check: map => {
+                    expect(map.get({ 
+                        gender: 'male',
+                        geo: 'prk'
+                    })).toEqual({
+                        gender: 'male', geo: 'prk', time: new Date(Date.UTC(1960)),
+                        x: 5279170, y: 48.424, frame: new Date(Date.UTC(1960)), 
+                        [Symbol.for('key')]: 'gender-male-geo-prk'
+                    })
+                }
+            }, 
+            { 
+                action: () => mrk.encoding.frame.startPlaying(),
+                check: map => expect(map.get({ 
+                    gender: 'male',
+                    geo: 'prk'
+                })).toEqual({
+                    gender: 'male', geo: 'prk', time: new Date(Date.UTC(1961)),
+                    x: 5403447, y: 48.708, frame: new Date(Date.UTC(1961)),
+                    [Symbol.for('key')]: 'gender-male-geo-prk'
+                })
+            },
+            { 
+                action: () => mrk.encoding.frame.destruct()
+            }
+        ])
+    })
 })

@@ -8,6 +8,7 @@ import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
+import { configSolver } from '../dataConfig/configSolver';
 
 
 const defaultConfig = {
@@ -103,8 +104,9 @@ let functions = {
         }
     },
     get state() {
-        const encodingStates= [...Object.values(this.encoding)].map(enc => enc.data.state);
-        const states = [this.data.state, ...encodingStates];
+        const dataConfigSolverState = configSolver.markerPromiseBeforeSolving(this).state;
+        const encodingStates = [...Object.values(this.encoding)].map(enc => enc.state);
+        const states = [dataConfigSolverState, ...encodingStates];
         return combineStates(states);
     },
     get availability() {

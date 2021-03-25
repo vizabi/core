@@ -1,14 +1,20 @@
 import { baseEncoding } from './baseEncoding';
 import { action, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange, combineStates } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
 import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
+import { configSolver } from '../dataConfig/configSolver';
 
 const defaultConfig = {
     modelType: "frame",
     value: null,
-    loop: false
+    loop: false,
+    data: {
+        concept: {
+            selectMethod: "selectFrameConcept"
+        }
+    }
 }
 
 const defaults = {
@@ -195,15 +201,6 @@ const functions = {
     get framesAround() {
         return this.stepsAround.map(this.stepScale);
     },
-    // should not be here, should be on dataconfig, overriding the default method
-    selectAutoCfgConcept({ concepts, dataConfig }) {
-        const spaceConcepts = concepts.filter(c => dataConfig.space.includes(c));
-        return findTimeOrMeasure(spaceConcepts) || findTimeOrMeasure(concepts) || spaceConcepts[spaceConcepts.length - 1];
-        
-        function findTimeOrMeasure (concepts) {
-            return concepts.find(c => c.concept_type == 'time') || concepts.find(c => c.concept_type == 'measure');
-        }
-    },
 
     /*
      * Compute the differential (stepwise differences) for the given field 
@@ -286,5 +283,16 @@ export function frame(...args) {
 
 frame.nonObservable = function(config, parent) {
     applyDefaults(config, defaultConfig);
+
+    configSolver.addSelectMethod(
+        function selectFrameConcept({ concepts, space }) {
+            const spaceConcepts = concepts.filter(c => space.includes(c.concept));
+            return findTimeOrMeasure(spaceConcepts) || findTimeOrMeasure(concepts) || spaceConcepts[spaceConcepts.length - 1];
+            
+            function findTimeOrMeasure (concepts) {
+                return concepts.find(c => c.concept_type == 'time') || concepts.find(c => c.concept_type == 'measure');
+            }
+        }
+    )
     return assign(baseEncoding.nonObservable(config, parent), functions);
 }

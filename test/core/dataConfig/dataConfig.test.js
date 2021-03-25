@@ -95,7 +95,7 @@ describe('create stand alone data configs', () => {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
                 },
                 space: [],
-                concept: { autoconfig: {
+                concept: { filter: {
                     concept: { '$eq': 'y' }
                 }}
         });
@@ -110,7 +110,7 @@ describe('create stand alone data configs', () => {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
                 },
                 concept: 'x',
-                space: { autoconfig: {
+                space: { filter: {
                     concept: { '$nin': ['geo','time'] }
                 }}
         });
@@ -122,10 +122,10 @@ describe('create stand alone data configs', () => {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
                 },
-                concept: { autoconfig: {
+                concept: { filter: {
                     concept: { '$eq': 'y' }
                 }},
-                space: { autoconfig: {
+                space: { filter: {
                     concept: { '$nin': ['geo','time'] }
                 }}
         });
@@ -254,7 +254,7 @@ describe('create marker with encoding dataconfigs', () => {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
                 },
                 space: { 
-                    autoconfig: {
+                    filter: {
                         concept: { '$nin': ['geo','time'] }
                     }
                 }
@@ -280,7 +280,7 @@ describe('create marker with encoding dataconfigs', () => {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
                 },
                 space: { 
-                    autoconfig: {
+                    filter: {
                         concept: { '$nin': ['geo','time'] }
                     }
                 }
@@ -288,7 +288,7 @@ describe('create marker with encoding dataconfigs', () => {
             encoding: {
                 x: {
                     data: {
-                        concept: { autoconfig: {
+                        concept: { filter: {
                             concept: { $eq: 'x' }
                         } }
                     },
