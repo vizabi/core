@@ -147,23 +147,27 @@ function splash(id, splashFilter) {
     filterMerge = { data: { filter: { dimensions: splashFilter } } }
     splashConfig = Vizabi.utils.deepmerge(splashConfig, filterMerge);
 
-    splashMarker = Vizabi.marker(splashConfig);
+    let splashMarker = Vizabi.marker(splashConfig);
     let firstLoad = true;
 
     return new Proxy(marker, {
         get: function(target, prop, receiver) {
             
             if (marker.state == 'fulfilled') {
-                firstLoad = false;
-                return Reflect.get(...arguments);
+                if (firstLoad) {
+                    firstLoad = false;
+                    splashMarker.destruct();
+                    splashMarker = undefined;
+                }
+                return target[prop];
             } 
             else if (firstLoad && splashMarker.state == 'fulfilled')  {
                 //console.log('getting ' + prop + ' from splash');
-                return Reflect.get(splashMarker, prop, receiver);
+                return splashMarker[prop];
             } 
             else {
                 //console.log('Still loading, trying to get ' + prop + '. Returning from full marker');
-                return Reflect.get(...arguments);
+                return target[prop];
             }
 
         }
@@ -233,12 +237,19 @@ function chart() {
     function setupTimecontrol() {
 
         const frameCfg = marker.encoding.frame;
+        const trailCfg = marker.encoding.trail;
+        let dragging = false;
 
         const timecontrol = d3.select("#timecontrol");
         playtoggle = timecontrol.select("#toggle")
             .on('click', function() { frameCfg.togglePlaying() })
         timeslider = timecontrol.select("#timeslider")
-            .on('input', function() { frameCfg.setStepAndStop(this.value) });
+            .on('input', function() { 
+                trailCfg.config.updateStarts = !dragging || this.value > frameCfg.step;
+                frameCfg.setStepAndStop(this.value);
+            })
+            .on('mousedown', () => dragging = true)
+            .on('mouseup', () => { dragging = false; trailCfg.config.updateStarts = true });
         speedslider = timecontrol.select("#speedslider")
             .attr('min', 1)
             .attr('max', 1000)
@@ -246,9 +257,14 @@ function chart() {
             .on('input', function() { frameCfg.setSpeed(this.value) });
     }
 
+    autorun(() => {
+        const trailCfg = marker.encoding.trail; 
+        console.log(trailCfg.config.updateStarts)
+    });
+
     function start(marker, caseImpl, name) {
         autorun(() => {
-            mobx.trace();
+            //mobx.trace();
             const state = marker.state;
             caseImpl[state]();
         }, { name })
@@ -268,7 +284,7 @@ function chart() {
             })
         })
         if (dataPromises.length == markers.length) {
-            if (dataPromises.some(p => p.state == "rejeted")) rejected();
+            if (dataPromises.some(p => p.state == "rejected")) rejected();
             else if (dataPromises.every(p => p.state == "fulfilled")) fulfilled();
             else pending();
         }
@@ -334,7 +350,7 @@ function chart() {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
-        });
+        }, 'drawTimeControl');
 
         function showLoading() {
             console.log("loading");
@@ -360,11 +376,6 @@ function chart() {
     }
 
     function drawBubbles() {
-
-        mobx.reaction(
-            () => marker.encoding.frame.value, 
-            (value) => marker.encoding.trail.updateTrailStart(value)
-        );
 
         start(marker, {
             pending: showLoading,
@@ -494,7 +505,14 @@ function chart() {
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
                 if (trailMdl.data.filter.has(key)) {
                     if (trailMdl.show) {
-                        const trailStart = trailMdl.starts[key];
+                        let trailStart;
+                        const start = trailMdl.starts[key];
+                        const limit = trailMdl.limits[key];
+                        if (!start || start > frameConfig.value) {
+                            trailStart = limit[0] > frameConfig.value ? limit[0] : frameConfig.value;
+                        } else {
+                            trailStart = start;
+                        }
                         // if this bubble is trail start bubble
                         if (Vizabi.utils.equals(trailStart, d[trailConcept]))
                             labelStr = labelAll(d);
