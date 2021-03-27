@@ -35,8 +35,8 @@ function configSolution(dataConfig) {
 function encodingSolution(dataConfig, fallbackSpaceCfg, avoidConcepts = []) {
     let result;
     // const [userSpace, defaultSpace] = splitConfig(this.config, 'space');
-    let spaceCfg = resolveRef(dataConfig.config.space) || fallbackSpaceCfg || dataConfig.defaults.space;
-    let conceptCfg = resolveRef(dataConfig.config.concept) || dataConfig.defaults.concept;
+    let spaceCfg = "space" in dataConfig.config ? resolveRef(dataConfig.config.space) : fallbackSpaceCfg || dataConfig.defaults.space;
+    let conceptCfg = "concept" in dataConfig.config ? resolveRef(dataConfig.config.concept) : dataConfig.defaults.concept;
 
     if (needsSpaceAutoCfg(dataConfig)) {
         result = findSpaceAndConcept(dataConfig, avoidConcepts);
@@ -196,7 +196,7 @@ function needsConceptAutoCfg(dataConfig) {
     const defaults = dataConfig.defaults;
     const isStandAloneDataConfig = !dataConfig.marker;
     const isNotMarkerDataConfig = dataConfig.hasEncodingMarker;
-    const usesDefaultSolving = !cfg.concept && needsSolving(defaults.concept);
+    const usesDefaultSolving = !("concept" in cfg) && needsSolving(defaults.concept);
     return needsSolving(cfg.concept)
         || ((isNotMarkerDataConfig || isStandAloneDataConfig) && usesDefaultSolving);
 }

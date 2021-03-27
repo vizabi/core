@@ -232,6 +232,16 @@ export function equals(a,b) {
     return a === b;
 }
 
+export function clamp(value, min, max) {
+    if (Array.isArray(min))
+        [min, max] = min;
+    if (value > max)
+        return max;
+    if (value < min)
+        return min;
+    return value;
+}
+
 export function configValue(value, concept) {
     const { concept_type } = concept;
     if (concept_type == "time" && value instanceof Date) {

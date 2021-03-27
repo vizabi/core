@@ -27,7 +27,7 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
                 Object.assign(modelType.decorate || {}, { config: observable.ref }), 
                 { name: modelType.name || config.modelType || 'base' }
             );
-            if (model.setUpReactions) model.setUpReactions();
+            if (model.onCreate) model.onCreate();
             if (id) this.set(id, model);
             return model;
         }),

@@ -18,7 +18,6 @@ bubble.nonObservable = function(config) {
     const base = baseMarker.nonObservable(config);
 
     applyDefaults(config, defaultConfig);
-    renameProperty(base, "encoding", "superEncoding");
 
     return assign(base, {
         toggleSelection: action(function(d) {
@@ -30,7 +29,6 @@ bubble.nonObservable = function(config) {
             }
         })
     })
-
 }
 
 bubble.decorate = baseMarker.decorate;

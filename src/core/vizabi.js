@@ -11,10 +11,8 @@ export const stores = {
     encodings: encodingStore
 }
 
-let config;
-
 const vizabi = function(cfg) {
-    config = observable(cfg);
+    const config = observable(cfg);
 
     const models = {};
     for (const storeName in stores) {
@@ -39,7 +37,7 @@ vizabi.dataSource = (cfg, id) =>{
 } 
 vizabi.marker = (cfg, id) => {
     cfg = observable(cfg);
-    return markerStore.set(cfg, null, id);
+    return markerStore.create(cfg, null, id);
 }
 vizabi.encoding = (cfg, id) => {
     cfg = observable(cfg);

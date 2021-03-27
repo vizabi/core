@@ -248,14 +248,7 @@ const functions = {
         }
         return result;
     },
-    destruct() {
-        for (const destruct of this.destructers) {
-            destruct();
-        }
-        clearInterval(this.playInterval);
-    },
-    get destructers() { return [] },
-    setUpReactions() {
+    onCreate() {
         // need reaction for timer as it has to set frame value
         // not allowed to call action (which changes state) from inside observable/computed, thus reaction needed
         const destruct = reaction(
@@ -272,6 +265,9 @@ const functions = {
             { name: "frame playback timer" }
         );
         this.destructers.push(destruct);
+        this.destructers.push(() => {
+            clearInterval(this.playInterval.bind(this));
+        })
     }
 }
 

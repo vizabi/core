@@ -1,5 +1,6 @@
 import { observable } from "mobx";
 import { isString } from "./utils";
+import { stores } from "./vizabi";
 
 /**
  * 
@@ -15,18 +16,13 @@ import { isString } from "./utils";
     let ref = (isString(possibleRef.ref)) ? { model: possibleRef.ref } : possibleRef.ref;
 
     // invalid ref
-    if (!(ref.config || ref.model)) {
-        console.warn("Invalid reference, expected string reference in ref, ref.model or ref.config", possibleRef);
+    if (!ref.model) {
+        console.warn("Invalid reference, expected string reference in ref or ref.model", possibleRef);
     }
 
-    if (ref.config) {
-        // user set config only
-        return resolveTreeRef(ref.config, config);
-    } else {
-        // model ref includes resolved defaults
-        const model = resolveTreeRef(ref.model, stores);
-        return transformModel(model, ref.transform);
-    }
+    // model ref includes resolved defaults
+    const model = resolveTreeRef(ref.model, stores);
+    return transformModel(model, ref.transform);
 }
 
 function resolveTreeRef(refStr, tree) {
