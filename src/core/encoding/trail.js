@@ -1,20 +1,25 @@
-import { assign, applyDefaults, isString, configValue, parseConfigValue } from "../utils";
-import { action, trace } from "mobx";
+import { assign, applyDefaults, isString, configValue, parseConfigValue, clamp } from "../utils";
+import { action, computed, observable, reaction, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { parseMarkerKey, createMarkerKey } from "../../dataframe/dfutils";
-import { resolveRef } from "../vizabi";
+import { resolveRef } from "../config";
 
 const defaultConfig = {
     starts: {},
-    data: { filter: { markers: {} } }
+    data: {
+        concept: undefined,
+        space: undefined,
+        filter: { markers: {} } 
+    }
 }
 
 const defaults = {
     show: true,
-    groupDim: null,
-    starts: {}
+    updateStarts: true,
+    starts: {},
+    frameEncoding: "frame"
 }
 export function trail(config, parent) {
     return observable(trail.nonObservable(config, parent));
@@ -25,17 +30,23 @@ trail.nonObservable = function(config, parent) {
     applyDefaults(config, defaultConfig);
 
     const base = baseEncoding.nonObservable(config, parent);
+    let oldStarts = {};
 
     return assign(base, {
         get show() { 
             return this.config.show || (typeof this.config.show === "undefined" && defaults.show) },
         get groupDim() {
-            return resolveRef(this.config.groupDim) || defaults.groupDim;
+            return this.frameEncoding.data.concept;
+        },
+        get frameEncoding() {
+            const frameEncoding = this.config.frameEncoding || defaults.frameEncoding;
+            return this.marker.encoding[frameEncoding];
         },
         /**
          * For each trailed marker, get the min-max of the trail. 
          */
         get limits() {
+            trace();
             const markers = this.data.filter.markers;
 
             // get datamap that's also used as input for addTrails
@@ -75,40 +86,58 @@ trail.nonObservable = function(config, parent) {
          * Set trail start of every bubble to `value` if value is lower than current trail start.
          * Should also include check for trail limit but action won't observe limits observable and thus not memoize it.
          */
-        updateTrailStart: action('update trail start', function updateTrailStart(value) {
+        updateTrailStarts: action('update trail start', function updateTrailStarts(value) {
             for (let key in this.config.starts) {
                 const start = this.starts[key];
                 const minLimit = this.limits[key][0];
-                const newStart = start < value ? start : value < minLimit ? start : value;
-                if (start != newStart) {
-                    this.config.starts[key] = configValue(newStart, this.data.source.getConcept(this.groupDim));
-                }
+                const newStart = clamp(value, minLimit, start);
+                this.config.starts[key] = configValue(newStart, this.data.source.getConcept(this.groupDim));
             }
         }),
         /**
          * Object of trail starts from config, clamped to trail lower limits
+         * Clamping is redundant since updateTrailStart action already clamps, but kept here
+         * as observing limits here makes them memoized.
          */
         get starts() {
+            if (!this.updateStarts) return oldStarts;
             const starts = {};
-            for (let key in this.limits) {
-                const start = parseConfigValue(this.config.starts[key], this.data.source.getConcept(this.groupDim));
-                const minLimit = this.limits[key][0];
-                starts[key] = start > minLimit ? start : minLimit;
+            this.limits; // observing this.limits so it gets memoized as the updateTrailStart action won't
+            for (let key in this.config.starts) {
+                starts[key] = parseConfigValue(this.config.starts[key], this.data.source.getConcept(this.groupDim));
             }
-            return starts;
+            return oldStarts = starts;
+            for (let key in this.limits) {
+                const curValue = key in oldStarts ? oldStarts[key] : Infinity;
+                const lowerLimit = this.limits[key][0];
+                const frameValue = this.frameEncoding.value;
+                starts[key] = lowerLimit < frameValue && frameValue < curValue ? frameValue : curValue;
+            }
+            return oldStarts = starts;
+        },
+        /**
+         * Can be set to false if frame value is likely to decrease frequently (e.g. dragging a timeslider).
+         * Will temporarily not update starts and thus not trigger expensive addTrails operation.
+         */
+        get updateStarts() {
+            return typeof this.config.updateStarts == 'boolean' ?  this.config.updateStarts : defaults.updateStarts;
+        },
+        get addTrailStarts() {
+            if (this.updateStarts) return starts;
         },
         setShow: action(function(show) {
             this.config.show = show;
-            if (show === false) this.config.starts = defaults.starts;
+            if (show === false) this.data.filter.clear();
         }),
         setTrail: action(function(d) {
             const key = this.getKey(d);
-            this.config.starts[key] = configValue(d[this.groupDim], this.data.source.getConcept(this.groupDim)); // group key
+            this.config.starts[key] = configValue(d[this.groupDim], this.data.source.getConcept(this.groupDim));
             this.data.filter.set(d);
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
-            delete this.config.starts[key]; // group key
+            delete oldStarts[key];
+            delete this.config.starts[key];
             this.data.filter.delete(d);
         }),
         getKey(d) {
@@ -120,6 +149,12 @@ trail.nonObservable = function(config, parent) {
                 'addTrails': this.addTrails.bind(this)
             }
         },
+        /**
+         * Trails are all sorted together at the position of their head.
+         * So we first add heads, then we can order markers and then we can add the rest of the trail
+         * @param {*} groupMap 
+         * @returns 
+         */
         addPreviousTrailHeads(groupMap) {
             const trailMarkers = this.data.filter.markers;
             if (trailMarkers.size == 0 || !this.show)
@@ -212,6 +247,20 @@ trail.nonObservable = function(config, parent) {
                 newGroupMap.set(id, newGroup);
             }
             return newGroupMap;
+        },
+        onCreate() {
+            const destruct = reaction(
+                () => this.frameEncoding.state == 'fulfilled' ? this.frameEncoding.value : undefined,
+                value => { 
+                    if (value) this.updateTrailStarts(value)
+                }, 
+                { name: "updateTrailStart on frame value change" }
+            );
+            this.destructers.push(destruct);
         }
     });
+}
+
+trail.decorate = {
+    starts: computed.struct
 }

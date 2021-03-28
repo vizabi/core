@@ -1,6 +1,5 @@
 import { observable, action, toJS, isObservableObject } from 'mobx'
 import { isString, isNonNullObject } from './utils'
-import { resolveRef } from './vizabi';
 
 const defaultType = config => observable({ config });
 defaultType.nonObservable = config => ({ config })
@@ -28,7 +27,7 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
                 Object.assign(modelType.decorate || {}, { config: observable.ref }), 
                 { name: modelType.name || config.modelType || 'base' }
             );
-            if (model.setUpReactions) model.setUpReactions();
+            if (model.onCreate) model.onCreate();
             if (id) this.set(id, model);
             return model;
         }),

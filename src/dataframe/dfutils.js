@@ -28,7 +28,7 @@ export function normalizeKey(key) {
     return key.slice(0).sort();
 }
 
-export const createKeyStr = (key) => key.map(esc).join('-');
+export const createKeyStr = (key) => normalizeKey(key).map(esc).join('-');
 
 export const createKey2 = (space, row) => space.map(dim => row[dim]).join('-');
 // micro-optimizations below as this is code that runs for each row in data to create key to the row

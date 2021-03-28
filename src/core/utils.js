@@ -1,5 +1,5 @@
-import { autorun } from "mobx";
 import { fromPromise } from "mobx-utils";
+import { isObservableArray } from "mobx";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -128,6 +128,7 @@ function isSpecial(value) {
 
     return stringValue === '[object RegExp]' ||
         stringValue === '[object Date]' ||
+        isObservableArray(value) ||
         isReactElement(value)
 }
 
@@ -215,12 +216,10 @@ export function applyDefaults(config, defaults) {
             if (isMergeableObject(defaults[prop]))
                 config[prop] = deepclone(defaults[prop]); // object
             else
-                config[prop] = defaults[prop]; // non object, e.g. null
+                config[prop] = defaults[prop]; // non object, i.e. value
         } else if (isMergeableObject(defaults[prop])) {
             if (isMergeableObject(config[prop]))
                 applyDefaults(config[prop], defaults[prop]);
-            else
-                config[prop] = deepclone(defaults[prop]);
         }
     })
     return config;
@@ -231,6 +230,16 @@ export function equals(a,b) {
         return a.getTime() === b.getTime();
     }
     return a === b;
+}
+
+export function clamp(value, min, max) {
+    if (Array.isArray(min))
+        [min, max] = min;
+    if (value > max)
+        return max;
+    if (value < min)
+        return min;
+    return value;
 }
 
 export function configValue(value, concept) {

@@ -1,4 +1,4 @@
-import { normalizeKey, getIter, rangeIndex, createKeyFn } from "../dfutils";
+import { normalizeKey, getIter, rangeIndex, createKeyFn, isNonNullObject } from "../dfutils";
 
 export function MapStorage(data = [], keyArr = data.key || []) {
     
@@ -11,7 +11,7 @@ export function MapStorage(data = [], keyArr = data.key || []) {
 
 function createEmptyMap() {
     const storage = new Map();
-    let key = [], isRangeKey;
+    let key = [];
 
     // local references to functions which will be decorated
     const has = storage.has.bind(storage);
@@ -19,26 +19,32 @@ function createEmptyMap() {
     const set = storage.set.bind(storage);
 
     storage.fields = new Set();
-    storage.keyFn = rangeIndex(0);
     storage.setKey = newKey => {
         key.forEach(e => storage.fields.delete(e)); 
         key = normalizeKey(newKey);
         key.forEach(e => storage.fields.add(e)); 
-        isRangeKey = key.length === 0; 
-        storage.keyFn = isRangeKey ? rangeIndex(0) : createKeyFn(storage.key);
-        storage.updateIndexes(storage);
+        storage.incrementIndex = storage.key.length === 0; 
+        storage.keyFn = storage.incrementIndex ? () => storage.size : createKeyFn(storage.key);
+        storage.updateIndexes();
     }
     Object.defineProperty(storage, 'key', { 
         set: storage.setKey,
         get: () => key
-    });
-    storage.has = keyObj => isRangeKey ? false     : has(storage.keyFn(keyObj));
-    storage.get = keyObj => isRangeKey ? undefined : get(storage.keyFn(keyObj));
+    });    
+    storage.has = keyObj => storage.incrementIndex ? has(keyObj) : has(storage.keyFn(keyObj));
+    storage.get = keyObj => {
+        if (!storage.incrementIndex && !isNonNullObject(keyObj))
+            throw(new Error('Dataframe key is not an object: ' + JSON.stringify(keyObj)))
+        const key = storage.incrementIndex ? keyObj : storage.keyFn(keyObj)
+        if (!has(key))
+            throw(new Error('Key not found in dataframe: ' + JSON.stringify(keyObj)))
+        return get(key);
+    }
     storage.set = (row, keyStr) => {
         // passing keyStr is optimization to circumvent keyStr generation (TODO: check performance impact)
         // if keyStr set, we assume it's correct. Only use when you know keyStr fits with current key dims
-        if (keyStr === undefined || isRangeKey)
-            keyStr = storage.keyFn(row, key);
+        if (keyStr === undefined || storage.incrementIndex)
+            keyStr = storage.keyFn(row);
         checkFields(storage.fields, row);
         row[Symbol.for('key')] = keyStr;
         set(keyStr, row);
@@ -48,6 +54,8 @@ function createEmptyMap() {
     storage.batchSet = rowIter => batchSet(storage, rowIter);
     storage.rows = storage.values;
     storage.updateIndexes = () => updateIndexes(storage);
+
+    storage.setKey([]);
     return storage;
 }
 
@@ -66,10 +74,14 @@ function batchSet(storage, rowIter) {
 
     let keyStr;
     for (let row of rowIter) {
-        keyStr = storage.keyFn(row);
-        if (storage.hasByObjOrStr(null, keyStr))
-            duplicates.push({ keyStr, orig: storage.getByObjOrStr(null, keyStr), new: row})
-        storage.set(row, keyStr);
+        if (!storage.incrementIndex) {
+            keyStr = storage.keyFn(row);
+            if (storage.hasByObjOrStr(null, keyStr))
+                duplicates.push({ keyStr, orig: storage.getByObjOrStr(null, keyStr), new: row})
+            storage.set(row, keyStr);
+        } else {
+            storage.set(row);
+        }
     }
 
     if (duplicates.length > 0)

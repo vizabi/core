@@ -1,4 +1,4 @@
-import { DataFrame } from "../../dataFrame/dataFrame";
+import { DataFrame } from "../../dataframe/dataFrame";
 import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/utils";
 
 /**
@@ -40,7 +40,7 @@ export function inlineReader(argPromise) {
     }
 }
 
-function parseValues({ values, dtypes, keyConcepts }) {
+function parseValues({ values, dtypes, keyConcepts = [] }) {
     return DataFrame(makeParser(dtypes)(values), keyConcepts);
 }
 

@@ -2,7 +2,7 @@ import { applyDefaults, assign, isString } from "../utils";
 import { observable } from "mobx";
 import { baseScale } from "./baseScale";
 import { palette } from "../palette";
-import { resolveRef } from "../vizabi";
+import { resolveRef } from "../config";
 
 const defaultConfig = {
 }
