@@ -89,7 +89,7 @@ trail.nonObservable = function(config, parent) {
          * Set trail start of every bubble to `value` if value is lower than current trail start.
          * Should also include check for trail limit but action won't observe limits observable and thus not memoize it.
          */
-        updateTrailStarts: action('update trail start', function updateTrailStarts(value) {
+        updateTrailStart: action('update trail start', function updateTrailStart(value) {
             for (let key in this.config.starts) {
                 const start = this.starts[key];
                 const minLimit = this.limits[key][0];
@@ -253,9 +253,10 @@ trail.nonObservable = function(config, parent) {
         },
         onCreate() {
             const destruct = reaction(
-                () => this.frameEncoding.state == 'fulfilled' ? this.frameEncoding.value : undefined,
+                // wait for marker state, as we need transformeddatamaps for limits
+                () => this.marker.state == 'fulfilled' ? this.frameEncoding.value : undefined,
                 value => { 
-                    if (value) this.updateTrailStarts(value)
+                    if (value) this.updateTrailStart(value)
                 }, 
                 { name: "updateTrailStart on frame value change" }
             );

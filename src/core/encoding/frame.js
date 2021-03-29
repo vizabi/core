@@ -251,6 +251,10 @@ const functions = {
         }
         return result;
     },
+    get state() {
+        const states = [this.data.state, this.data.source.conceptsPromise.state];
+        return combineStates(states);
+    },
     onCreate() {
         // need reaction for timer as it has to set frame value
         // not allowed to call action (which changes state) from inside observable/computed, thus reaction needed
