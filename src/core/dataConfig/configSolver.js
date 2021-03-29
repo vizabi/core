@@ -128,6 +128,7 @@ function isConceptAvailableForSpace(availability, space, concept) {
 }
 
 function needsSolving(config) {
+    config = resolveRef(config);
     return isNonNullObject(config) && !Array.isArray(config);
 }
 
