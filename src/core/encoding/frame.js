@@ -273,7 +273,7 @@ const functions = {
         );
         this.destructers.push(destruct);
         this.destructers.push(() => {
-            clearInterval(this.playInterval.bind(this));
+            clearInterval(this.playInterval);
         })
     }
 }
