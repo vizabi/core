@@ -57,10 +57,7 @@ trail.nonObservable = function(config, parent) {
 
             const limits = {};
             for (let key of markers.keys()) {
-                if (groupMap.size)
-                    limits[key] = this.groupMapExtent(groupMap, key);
-                else
-                    limits[key] = [this.marker.encoding.frame.value, this.marker.encoding.frame.value];
+                limits[key] = this.groupMapExtent(groupMap, key);
             }
             return limits;
         },
