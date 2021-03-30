@@ -108,6 +108,9 @@ const functions = {
     snap: action('snap', function snap() {
         this.setStep(Math.round(this.step));
     }),
+    ceilKeyFrame() {
+        return this.stepScale(Math.ceil(this.step));
+    },
     nextStep: action('update to next frame value', function nextStep() {
         if (this.playing && this.marker.state === FULFILLED) {
             let nxt = this.step + this.playbackSteps;

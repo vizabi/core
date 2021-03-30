@@ -46,8 +46,7 @@ trail.nonObservable = function(config, parent) {
          * For each trailed marker, get the min-max of the trail. 
          */
         get limits() {
-            trace();
-            const markers = this.data.filter.markers;
+            const markers = this.starts;
 
             // get datamap that's also used as input for addTrails
             const transformations = this.marker.transformations;
@@ -56,7 +55,7 @@ trail.nonObservable = function(config, parent) {
             const groupMap = this.marker.getTransformedDataMap(transformations[addTrailIndex - 1].name);
 
             const limits = {};
-            for (let key of markers.keys()) {
+            for (let key in markers) {
                 limits[key] = this.groupMapExtent(groupMap, key);
             }
             return limits;
@@ -83,35 +82,25 @@ trail.nonObservable = function(config, parent) {
             return [min, max].map(group => group.getByObjOrStr(null, markerKey)[this.groupDim]);
         },
         /**
-         * Set trail start of every bubble to `value` if value is lower than current trail start.
-         * Should also include check for trail limit but action won't observe limits observable and thus not memoize it.
+         * Set trail start of every bubble to `value` if value is lower than current trail start and higher than frame-availability (limit) of that bubble
          */
-        updateTrailStart: action('update trail start', function updateTrailStart(value) {
+        updateTrailStart: action('update trail start', 
+        function updateTrailStart({ value, limits } = { value: this.frameEncoding.value, limits: this.limits }) {
             for (let key in this.config.starts) {
-                const start = this.starts[key];
-                const minLimit = this.limits[key][0];
-                const newStart = clamp(value, minLimit, start);
+                const minLimit = limits[key][0];
+                const maxLimit = limits[key][1] < this.starts[key] ? limits[key][1] : this.starts[key]; // Math.min accepting dates
+                const newStart = clamp(value, minLimit, maxLimit);
                 this.config.starts[key] = configValue(newStart, this.data.source.getConcept(this.groupDim));
             }
         }),
         /**
-         * Object of trail starts from config, clamped to trail lower limits
-         * Clamping is redundant since updateTrailStart action already clamps, but kept here
-         * as observing limits here makes them memoized.
+         * Object of parsed trail starts from config
          */
         get starts() {
             if (!this.updateStarts) return oldStarts;
             const starts = {};
-            this.limits; // observing this.limits so it gets memoized as the updateTrailStart action won't
             for (let key in this.config.starts) {
                 starts[key] = parseConfigValue(this.config.starts[key], this.data.source.getConcept(this.groupDim));
-            }
-            return oldStarts = starts;
-            for (let key in this.limits) {
-                const curValue = key in oldStarts ? oldStarts[key] : Infinity;
-                const lowerLimit = this.limits[key][0];
-                const frameValue = this.frameEncoding.value;
-                starts[key] = lowerLimit < frameValue && frameValue < curValue ? frameValue : curValue;
             }
             return oldStarts = starts;
         },
@@ -122,23 +111,22 @@ trail.nonObservable = function(config, parent) {
         get updateStarts() {
             return typeof this.config.updateStarts == 'boolean' ?  this.config.updateStarts : defaults.updateStarts;
         },
-        get addTrailStarts() {
-            if (this.updateStarts) return starts;
-        },
         setShow: action(function(show) {
             this.config.show = show;
-            if (show === false) this.data.filter.clear();
+            if (show === true) {
+                for (let key in this.config.starts) 
+                    this.config.starts[key] = Infinity;
+                this.updateTrailStart();
+            }
         }),
         setTrail: action(function(d) {
             const key = this.getKey(d);
             this.config.starts[key] = configValue(d[this.groupDim], this.data.source.getConcept(this.groupDim));
-            this.data.filter.set(d);
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
             delete oldStarts[key];
             delete this.config.starts[key];
-            this.data.filter.delete(d);
         }),
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];
@@ -156,15 +144,15 @@ trail.nonObservable = function(config, parent) {
          * @returns 
          */
         addPreviousTrailHeads(groupMap) {
-            const trailMarkers = this.data.filter.markers;
-            if (trailMarkers.size == 0 || !this.show)
+            const trailMarkerKeys = Object.keys(this.starts);
+            if (trailMarkerKeys.length == 0 || !this.show)
                 return groupMap;
 
             const newGroupMap = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
             const trailHeads = new Map();
             for (let [id, group] of groupMap) {
                 const historicalTrails = new Set();
-                for (let trailMarkerKey of trailMarkers.keys()) {
+                for (let trailMarkerKey of trailMarkerKeys) {
                     // current group doesn't have a head for this trail that has already passed
                     if (!group.hasByObjOrStr(null, trailMarkerKey)) {
                         if (trailHeads.has(trailMarkerKey)) {
@@ -195,14 +183,14 @@ trail.nonObservable = function(config, parent) {
 
             // can't use this.groupDim because circular dep this.marker.transformedDataMap
             const groupDim = groupMap.key[0]; // supports only 1 dimensional grouping
-            const markers = this.data.filter.markers;
+            const markerKeys = Object.keys(this.starts);
 
-            if (markers.size == 0 || !this.show)
+            if (markerKeys.length == 0 || !this.show)
                 return groupMap;
 
             // create trails
             const trails = new Map();
-            for (let key of markers.keys()) {
+            for (let key of markerKeys) {
                 const trail = new Map();
                 trails.set(key, trail);
                 for (let [i, group] of groupMap) {
@@ -249,15 +237,13 @@ trail.nonObservable = function(config, parent) {
             return newGroupMap;
         },
         onCreate() {
-            const destruct = reaction(
+            const updateTrailDestruct = reaction(
                 // wait for marker state, as we need transformeddatamaps for limits
-                () => this.marker.state == 'fulfilled' ? this.frameEncoding.value : undefined,
-                value => { 
-                    if (value) this.updateTrailStart(value)
-                }, 
+                () => this.marker.state == 'fulfilled' ? { value: this.frameEncoding.ceilKeyFrame(), limits: this.limits } : {},
+                ({ value, limits }) => { if (value) this.updateTrailStart({ value, limits }) }, 
                 { name: "updateTrailStart on frame value change" }
             );
-            this.destructers.push(destruct);
+            this.destructers.push(updateTrailDestruct);
         }
     });
 }
