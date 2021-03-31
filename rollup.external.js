@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 const path = require('path');
 const meta = require("./package.json");
-const resolve = require("rollup-plugin-node-resolve");
+const resolve = require("@rollup/plugin-node-resolve").default;
 
 const copyright = `// ${meta.homepage} v${meta.version} Copyright ${(new Date).getFullYear()} ${meta.author.name}`;
 
