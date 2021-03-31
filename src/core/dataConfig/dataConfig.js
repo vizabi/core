@@ -85,7 +85,7 @@ dataConfig.nonObservable = function(config, parent) {
             if (this.config.locale)
                 return typeof this.config.locale == "string" ? this.config.locale : this.config.locale.id;
             else
-                return this.hasEncodingMarker ? this.parent.marker.data.locale : null;              
+                return this.hasEncodingMarker ? this.parent.marker.data.locale || this.source.locale : this.source.locale;              
         },
         get concept() { 
             return this.configSolution.concept;

@@ -51,6 +51,7 @@ baseDataSource.nonObservable = function (config) {
         get sheet() { return this.config.sheet },
         get keyConcepts() { return this.config.keyConcepts },
         get space() { return this.config.space },
+        get locale() { return this.config.locale },
         get dtypes() { return this.config.dtypes },
         get reader() {
             if (this.values)
@@ -157,7 +158,11 @@ baseDataSource.nonObservable = function (config) {
                         value: avConcepts
                     },
                     from: "concepts"
-                };           
+                };         
+                  
+                if (this.locale) {
+                    query.language = this.locale; 
+                }
     
                 return this.query(query);
             }));
