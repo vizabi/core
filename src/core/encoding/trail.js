@@ -3,8 +3,7 @@ import { action, computed, observable, reaction, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
-import { parseMarkerKey, createMarkerKey } from "../../dataframe/dfutils";
-import { resolveRef } from "../config";
+import { createMarkerKey } from "../../dataframe/dfutils";
 
 const defaultConfig = {
     starts: {},
@@ -34,7 +33,8 @@ trail.nonObservable = function(config, parent) {
 
     return assign(base, {
         get show() { 
-            return this.config.show || (typeof this.config.show === "undefined" && defaults.show) },
+            return typeof this.config.show == 'boolean' ? this.config.show : defaults.show
+        },
         get groupDim() {
             return this.frameEncoding.data.concept;
         },
@@ -125,7 +125,6 @@ trail.nonObservable = function(config, parent) {
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
-            delete oldStarts[key];
             delete this.config.starts[key];
         }),
         getKey(d) {
