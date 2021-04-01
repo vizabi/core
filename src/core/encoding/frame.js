@@ -127,6 +127,16 @@ const functions = {
         }
     }),
 
+    /**
+     * Given an array of normalized marker-key strings, gives the extent/domain of each in the frameMap
+     * @param {[string]} markerKeys
+     * @returns 
+     */
+    markerLimits(markerKeys) {
+        const frameMap = this.dataMapBeforeTransform("currentFrame");
+        return frameMap.extentOfGroupMapKeyPerMarker(markerKeys)
+    },
+
     // TRANSFORMS
     get transformationFns() {
         return {

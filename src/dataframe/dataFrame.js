@@ -49,7 +49,7 @@ function constructDataFrame(storage) {
             differentiate: (xField) => differentiate(df, xField),
     
             // info
-            extent: (concept) => extent(df, concept),
+            extent: (concept, groupBy, groupSubset) => extent(df, concept, groupBy, groupSubset),
             unique: (concept) => unique(df, concept),
         
             // export

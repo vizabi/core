@@ -46,40 +46,9 @@ trail.nonObservable = function(config, parent) {
          * For each trailed marker, get the min-max of the trail. 
          */
         get limits() {
-            const markers = this.starts;
-
             // get datamap that's also used as input for addTrails
-            const transformations = this.marker.transformations;
-            const addTrailName = this.name + ".addTrails";
-            const addTrailIndex = transformations.findIndex(tObj => tObj.name == addTrailName);
-            const groupMap = this.marker.getTransformedDataMap(transformations[addTrailIndex - 1].name);
-
-            const limits = {};
-            for (let key in markers) {
-                limits[key] = this.groupMapExtent(groupMap, key);
-            }
-            return limits;
-        },
-        /**
-         * Given a sorted and gapless `groupMap`, gives min and max groups in which `markerKey` is present
-         * @param {*} groupMap groupMap sorted by key
-         * @param {*} markerKey key whose groupKey-extent is to be found in groupMap
-         * @returns {array} Array ([min,max]) of group keys in given `groupMap` for given `markerKey`
-         */
-        groupMapExtent(groupMap, markerKey) {
-            let min, max, groupKey, group;
-            for ([groupKey, group] of groupMap) {
-                if (group.hasByObjOrStr(null, markerKey)) {
-                    if (min === undefined) {
-                        min = group;
-                    }
-                    max = group;
-                } else if (min) {
-                    break;
-                }
-            }
-            // should not rely on groupDim but use groupKey because group might itself be a groupMap
-            return [min, max].map(group => group.getByObjOrStr(null, markerKey)[this.groupDim]);
+            const groupMap = this.dataMapBeforeTransform("addTrails");
+            return groupMap.extentOfGroupMapKeyPerMarker(Object.keys(this.starts))
         },
         /**
          * Set trail start of every bubble to `value` if value is lower than current trail start and higher than frame-availability (limit) of that bubble

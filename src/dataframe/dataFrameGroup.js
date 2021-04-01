@@ -1,9 +1,6 @@
 import { DataFrame } from "./dataFrame";
 import { parseMarkerKey, isDataFrame, createKeyFn } from "./dfutils";
-import { interpolate } from "./transforms/interpolate";
-import { order } from "./transforms/order";
-import { reindex } from "./transforms/reindex";
-import { filter } from "./transforms/filter";
+import { extent, extentOfGroupMapKeyPerMarker } from "./info/extent";
 
 /**
  * 
@@ -42,6 +39,8 @@ function createGroupMap(key, descendantKeys) {
     groupMap.order = mapCall(groupMap, "order");
     groupMap.reindex = mapCall(groupMap, "reindex");
     groupMap.flatten = (key) => flatten(groupMap, key);
+    groupMap.extent = (concept, groupBy, groupSubset) => extent(groupMap, concept, groupBy, groupSubset),
+    groupMap.extentOfGroupMapKeyPerMarker = (groupSubset) => extentOfGroupMapKeyPerMarker(groupMap, groupSubset),
     groupMap.groupBy = (key) => {
         for (let group of groupMap.values()) {
             const newGroup = group.groupBy(key);

@@ -8,6 +8,10 @@ export function isDataFrame(data) {
     return "hasByObjOrStr" in data && typeof data.hasByObjOrStr === "function";
 }
 
+export function isGroupedDataFrame(data) {
+    return "descendantKeys" in data && Array.isArray(data.descendantKeys);
+}
+
 // returns true if a and b are identical, regardless of order (i.e. like sets)
 export function arrayEquals(a, b) {
     const overlap = intersect(a, b);
