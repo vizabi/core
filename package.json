@@ -13,7 +13,7 @@
   "scripts": {
     "prepublishOnly": "npm run build",
     "build": "npx rollup -c",
-    "start": "webpack-dev-server -d --open",
+    "dev": "NODE_ENV=devserver rollup -c --watch",
     "rollup": "rollup -c",
     "test": "jest",
     "debug": "node node_modules/.bin/jest ./*/dataConfig.test.js --runInBand --watch --no-cache"
@@ -36,18 +36,15 @@
     "d3": "^6.6.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.3",
-    "@babel/preset-env": "^7.12.1",
+    "@rollup/plugin-node-resolve": "^9.0.0",
     "install-peers": "^1.0.3",
     "jest": "^24.7.1",
     "jest-cli": "^26.6.3",
-    "mobx-utils": "^5.5.2",
     "mobx-formatters": "^1.0.2",
-    "webpack": "^4.29.4",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.2.1",
+    "mobx-utils": "^5.5.2",
     "rollup": "^2.18.1",
-    "@rollup/plugin-node-resolve": "^9.0.0",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-serve": "^1.1.0",
     "vizabi-ddfcsv-reader": "^4.0.1"
   },
   "serve": {
