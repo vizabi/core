@@ -291,7 +291,7 @@ baseMarker.nonObservable = function(config) {
             return this.transformedDataMaps.get('final').get();
         },
         get dataArray() {
-            return this.dataMap.toJSON();
+            return this?.dataMap.toJSON();
         },
         getDataMapByFrameValue(value) {
             const frame = this.encoding.frame;

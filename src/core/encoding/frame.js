@@ -29,12 +29,15 @@ const functions = {
         let value;
 
         if (this.config.value != null) {
-            value = parseConfigValue(this.config.value, this.data.conceptProps);
+            value = this.parseValue(this.config.value);
             value = this.scale.clampToDomain(value);
         } else {
             value = this.scale.domain[0];
         }
         return value;
+    },
+    parseValue(value){
+        return parseConfigValue(value, this.data.conceptProps);
     },
     get step() { return this.stepScale.invert(this.value); },
     
@@ -84,8 +87,8 @@ const functions = {
         this.config.speed = speed;
     }),
     setValue: action('setValue', function setValue(value) {
-        const concept = this.data.conceptProps;
-        let parsed = parseConfigValue(value, concept);
+        let concept = this.data.conceptProps;
+        let parsed = this.parseValue(value);
         if (parsed != null) {
             parsed = this.scale.clampToDomain(parsed);
         }

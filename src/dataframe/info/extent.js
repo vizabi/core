@@ -41,7 +41,7 @@ function combineResults(one, two) {
 function extentIterable(iter, concept, groupby, groupSubset) {
     iter = getIter(iter);
     groupSubset = groupSubset ? Array.from(groupSubset) : groupSubset;
-    
+
     let min, max, value, row, group;
     let groups = {};
     for (row of iter) {
@@ -111,7 +111,7 @@ function extentIterable(iter, concept, groupby, groupSubset) {
             }
         }
 
-        extents[groupValue] = [min, max].map(group => group.getByObjOrStr(null, groupValue)[concept]);
+        extents[groupValue] = [min, max].map(group => group?.getByObjOrStr(null, groupValue)[concept]);
     }
     return extents;
 }
