@@ -51,15 +51,15 @@ trail.nonObservable = function(config, parent) {
             return groupMap.extentOfGroupMapKeyPerMarker(Object.keys(this.starts))
         },
         /**
-         * Set trail start of every bubble to `value` if value is lower than current trail start and higher than frame-availability (limit) of that bubble
+         * Set trail start of every bubble to `value` if value is lower than current trail start
          */
         updateTrailStart: action('update trail start', 
-        function updateTrailStart({ value, limits } = { value: this.frameEncoding.value, limits: this.limits }) {
-            for (let key in this.config.starts) {
-                const minLimit = limits[key][0];
-                const maxLimit = limits[key][1] < this.starts[key] ? limits[key][1] : this.starts[key]; // Math.min accepting dates
-                const newStart = clamp(value, minLimit, maxLimit);
-                this.config.starts[key] = configValue(newStart, this.data.source.getConcept(this.groupDim));
+        function updateTrailStart(value = this.frameEncoding.value, limits = this.limits) {
+            let key, min, max;
+            for (key in this.config.starts) {
+                [min, max] = limits[key];
+                max = d3.min([max, this.starts[key]]);
+                this.setTrail(key, value, [min, max]);
             }
         }),
         /**
@@ -84,13 +84,22 @@ trail.nonObservable = function(config, parent) {
             this.config.show = show;
             if (show === true) {
                 for (let key in this.config.starts) 
-                    this.config.starts[key] = Infinity;
-                this.updateTrailStart();
+                    this.setTrail(key)
             }
         }),
-        setTrail: action(function(d) {
+        setTrail: action(function(
+            d, 
+            value = d[this.groupDim] || this.frameEncoding.value, 
+            limit = this.limits[this.getKey(d)]
+        ) {
             const key = this.getKey(d);
-            this.config.starts[key] = configValue(d[this.groupDim], this.data.source.getConcept(this.groupDim));
+            if (!(key in this.config.starts) && !limit) {
+                // add unclamped to starts so limits computed gets recalculated (saves redundant one-off limit calc for this key)
+                this.config.starts[key] = configValue(value, this.data.source.getConcept(this.groupDim));
+                limit = this.limits[key]; 
+            }
+            const clamped = clamp(value, limit[0], limit[1]);
+            this.config.starts[key] = configValue(clamped, this.data.source.getConcept(this.groupDim));
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
@@ -208,7 +217,7 @@ trail.nonObservable = function(config, parent) {
             const updateTrailDestruct = reaction(
                 // wait for marker state, as we need transformeddatamaps for limits
                 () => this.marker.state == 'fulfilled' ? { value: this.frameEncoding.ceilKeyFrame(), limits: this.limits } : {},
-                ({ value, limits }) => { if (value) this.updateTrailStart({ value, limits }) }, 
+                ({ value, limits }) => { if (value) this.updateTrailStart(value, limits) }, 
                 { name: "updateTrailStart on frame value change" }
             );
             this.destructers.push(updateTrailDestruct);
