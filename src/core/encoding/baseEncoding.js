@@ -44,6 +44,14 @@ baseEncoding.nonObservable = function(config, parent, name) {
         get state() {
             return this.data.state;
         },
+
+        dataMapBeforeTransform(transformName) {
+            const transformations = this.marker.transformations;
+            const fullTransformName = this.name + "." + transformName;
+            const transformIndex = transformations.findIndex(tObj => tObj.name == fullTransformName);
+            return this.marker.getTransformedDataMap(transformations[transformIndex - 1].name);
+        },
+        
         setWhich: action('setWhich', function(kv) {        
             const concept = isNonNullObject(kv.value) ? kv.value.concept : kv.value;
             
@@ -78,6 +86,7 @@ baseEncoding.nonObservable = function(config, parent, name) {
             this.data.destruct();
         },
         destructers: [],
+        
     }
 
     return assign({}, functions, configurable, { config, parent });

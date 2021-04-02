@@ -29,12 +29,15 @@ const functions = {
         let value;
 
         if (this.config.value != null) {
-            value = parseConfigValue(this.config.value, this.data.conceptProps);
+            value = this.parseValue(this.config.value);
             value = this.scale.clampToDomain(value);
         } else {
             value = this.scale.domain[0];
         }
         return value;
+    },
+    parseValue(value){
+        return parseConfigValue(value, this.data.conceptProps);
     },
     get step() { return this.stepScale.invert(this.value); },
     
@@ -83,12 +86,9 @@ const functions = {
         speed = Math.max(0, speed);
         this.config.speed = speed;
     }),
-    parse(value){
-        return parseConfigValue(value, this.data.conceptProps);
-    },
     setValue: action('setValue', function setValue(value) {
-        const concept = this.data.conceptProps;
-        let parsed = parseConfigValue(value, concept);
+        let concept = this.data.conceptProps;
+        let parsed = this.parseValue(value);
         if (parsed != null) {
             parsed = this.scale.clampToDomain(parsed);
         }
@@ -129,6 +129,16 @@ const functions = {
             }
         }
     }),
+
+    /**
+     * Given an array of normalized marker-key strings, gives the extent/domain of each in the frameMap
+     * @param {[string]} markerKeys
+     * @returns 
+     */
+    markerLimits(markerKeys) {
+        const frameMap = this.dataMapBeforeTransform("currentFrame");
+        return frameMap.extentOfGroupMapKeyPerMarker(markerKeys)
+    },
 
     // TRANSFORMS
     get transformationFns() {

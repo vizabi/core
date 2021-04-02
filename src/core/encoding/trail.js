@@ -3,8 +3,7 @@ import { action, computed, observable, reaction, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
-import { parseMarkerKey, createMarkerKey } from "../../dataframe/dfutils";
-import { resolveRef } from "../config";
+import { createMarkerKey } from "../../dataframe/dfutils";
 
 const defaultConfig = {
     starts: {},
@@ -34,7 +33,8 @@ trail.nonObservable = function(config, parent) {
 
     return assign(base, {
         get show() { 
-            return this.config.show || (typeof this.config.show === "undefined" && defaults.show) },
+            return typeof this.config.show == 'boolean' ? this.config.show : defaults.show
+        },
         get groupDim() {
             return this.frameEncoding.data.concept;
         },
@@ -46,51 +46,20 @@ trail.nonObservable = function(config, parent) {
          * For each trailed marker, get the min-max of the trail. 
          */
         get limits() {
-            const markers = this.starts;
-
             // get datamap that's also used as input for addTrails
-            const transformations = this.marker.transformations;
-            const addTrailName = this.name + ".addTrails";
-            const addTrailIndex = transformations.findIndex(tObj => tObj.name == addTrailName);
-            const groupMap = this.marker.getTransformedDataMap(transformations[addTrailIndex - 1].name);
-
-            const limits = {};
-            for (let key in markers) {
-                limits[key] = this.groupMapExtent(groupMap, key);
-            }
-            return limits;
+            const groupMap = this.dataMapBeforeTransform("addTrails");
+            return groupMap.extentOfGroupMapKeyPerMarker(Object.keys(this.starts))
         },
         /**
-         * Given a sorted and gapless `groupMap`, gives min and max groups in which `markerKey` is present
-         * @param {*} groupMap groupMap sorted by key
-         * @param {*} markerKey key whose groupKey-extent is to be found in groupMap
-         * @returns {array} Array ([min,max]) of group keys in given `groupMap` for given `markerKey`
-         */
-        groupMapExtent(groupMap, markerKey) {
-            let min, max, groupKey, group;
-            for ([groupKey, group] of groupMap) {
-                if (group.hasByObjOrStr(null, markerKey)) {
-                    if (min === undefined) {
-                        min = group;
-                    }
-                    max = group;
-                } else if (min) {
-                    break;
-                }
-            }
-            // should not rely on groupDim but use groupKey because group might itself be a groupMap
-            return [min, max].map(group => group.getByObjOrStr(null, markerKey)[this.groupDim]);
-        },
-        /**
-         * Set trail start of every bubble to `value` if value is lower than current trail start and higher than frame-availability (limit) of that bubble
+         * Set trail start of every bubble to `value` if value is lower than current trail start
          */
         updateTrailStart: action('update trail start', 
-        function updateTrailStart({ value, limits } = { value: this.frameEncoding.value, limits: this.limits }) {
-            for (let key in this.config.starts) {
-                const minLimit = limits[key][0];
-                const maxLimit = limits[key][1] < this.starts[key] ? limits[key][1] : this.starts[key]; // Math.min accepting dates
-                const newStart = clamp(value, minLimit, maxLimit);
-                this.config.starts[key] = configValue(newStart, this.data.source.getConcept(this.groupDim));
+        function updateTrailStart(value = this.frameEncoding.value, limits = this.limits) {
+            let key, min, max;
+            for (key in this.config.starts) {
+                [min, max] = limits[key];
+                max = d3.min([max, this.starts[key]]);
+                this.setTrail(key, value, [min, max]);
             }
         }),
         /**
@@ -115,17 +84,25 @@ trail.nonObservable = function(config, parent) {
             this.config.show = show;
             if (show === true) {
                 for (let key in this.config.starts) 
-                    this.config.starts[key] = Infinity;
-                this.updateTrailStart();
+                    this.setTrail(key)
             }
         }),
-        setTrail: action(function(d) {
+        setTrail: action(function(
+            d, 
+            value = d[this.groupDim] || this.frameEncoding.value, 
+            limit = this.limits[this.getKey(d)]
+        ) {
             const key = this.getKey(d);
-            this.config.starts[key] = configValue(d[this.groupDim], this.data.source.getConcept(this.groupDim));
+            if (!(key in this.config.starts) && !limit) {
+                // add unclamped to starts so limits computed gets recalculated (saves redundant one-off limit calc for this key)
+                this.config.starts[key] = configValue(value, this.data.source.getConcept(this.groupDim));
+                limit = this.limits[key]; 
+            }
+            const clamped = clamp(value, limit[0], limit[1]);
+            this.config.starts[key] = configValue(clamped, this.data.source.getConcept(this.groupDim));
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
-            delete oldStarts[key];
             delete this.config.starts[key];
         }),
         getKey(d) {
@@ -240,7 +217,7 @@ trail.nonObservable = function(config, parent) {
             const updateTrailDestruct = reaction(
                 // wait for marker state, as we need transformeddatamaps for limits
                 () => this.marker.state == 'fulfilled' ? { value: this.frameEncoding.ceilKeyFrame(), limits: this.limits } : {},
-                ({ value, limits }) => { if (value) this.updateTrailStart({ value, limits }) }, 
+                ({ value, limits }) => { if (value) this.updateTrailStart(value, limits) }, 
                 { name: "updateTrailStart on frame value change" }
             );
             this.destructers.push(updateTrailDestruct);

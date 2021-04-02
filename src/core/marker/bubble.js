@@ -22,7 +22,7 @@ bubble.nonObservable = function(config) {
     return assign(base, {
         toggleSelection: action(function(d) {
             const trails = this.encoding.trail;
-            if (!trails.data.filter.has(d)) {
+            if (!(d[Symbol.for('key')] in trails.starts)) {
                 trails.setTrail(d);
             } else {
                 trails.deleteTrail(d);

@@ -423,12 +423,6 @@ function chart() {
                 .append("circle")
                 .attr("class", "dot")
                 .attr("id", d => d[Symbol.for('key')])
-                .on("click", d => {
-                    if (!d[Symbol.for('trailHeadKey')]) marker.toggleSelection(d);
-                    highlightFilter.delete(d);
-                })
-                .on("mouseover", d => highlightFilter.set(d))
-                .on("mouseout", d => highlightFilter.delete(d));
 
             // remove old bubbles
             const exit = update.exit().remove();
@@ -465,6 +459,13 @@ function chart() {
                     .attr("r", d => {
                         return sizeScale(d.size);
                     })
+                    // must have these on every draw so they don't get stuck on splash marker's enter selection
+                    .on("click", d => {
+                        if (!d[Symbol.for('trailHeadKey')]) marker.toggleSelection(d);
+                        highlightFilter.delete(d);
+                    })
+                    .on("mouseover", d => highlightFilter.set(d))
+                    .on("mouseout", d => highlightFilter.delete(d))
                     .each(drawLabel);
 
             })
@@ -503,7 +504,7 @@ function chart() {
 
                 // if trail, put label at trail start
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
-                if (trailMdl.data.filter.has(key)) {
+                if (key in trailMdl.starts) {
                     if (trailMdl.show) {
                         let trailStart;
                         const start = trailMdl.starts[key];

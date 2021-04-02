@@ -1,4 +1,4 @@
-import DataFrame from "../../../src/dataframe/dataFrame";
+import { DataFrame } from "../../../src/dataframe/dataFrame";
 import { filter } from "../../../src/dataframe/transforms/filter";
 
 const df = DataFrame([
