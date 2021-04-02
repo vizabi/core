@@ -1,7 +1,7 @@
 import { baseEncoding } from './baseEncoding';
 import { action, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange, combineStates } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, ucFirst, stepGeneratorFunction, inclusiveRange, combineStates, equals } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
 import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
@@ -271,7 +271,7 @@ const functions = {
     onCreate() {
         // need reaction for timer as it has to set frame value
         // not allowed to call action (which changes state) from inside observable/computed, thus reaction needed
-        const destruct = reaction(
+        const playbackDestruct = reaction(
             // mention all observables (state & computed) which you want to be tracked
             // if not tracked, they will always be recomputed, their values are not cached
             () => { return { playing: this.playing, speed: this.speed } },
@@ -284,7 +284,20 @@ const functions = {
             }, 
             { name: "frame playback timer" }
         );
-        this.destructers.push(destruct);
+        this.destructers.push(playbackDestruct);
+        const configLoopbackDestruct = reaction(
+            () => { 
+                const waitFor = this.marker || this;
+                if (waitFor.state == 'fulfilled') return this.value 
+            },
+            (value) => {
+                if (value && "value" in this.config && !equals(this.config.value, value)) {
+                    this.config.value = configValue(value, this.data.conceptProps);
+                }
+            },
+            { name: "config loopback" }
+        );
+        this.destructers.push(configLoopbackDestruct);
         this.destructers.push(() => {
             clearInterval(this.playInterval);
         })
