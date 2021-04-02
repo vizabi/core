@@ -49,6 +49,13 @@ describe('dataframe extent', () => {
         })
     });
 
+    it('returns grouped extent with subset non-array iterable', () => {
+        const map = new Map([['geo-ger', 'foo']]);
+        expect(extent(df, 'pop', ['geo'], map.keys())).toEqual({ 
+            'geo-ger': [4, 4]
+        })
+    });
+
     it('returns standard extent of group', () => {
         expect(extent(grouped, 'pop')).toEqual([2, 8])
     });
@@ -87,8 +94,15 @@ describe('dataframe extent', () => {
         })
     });
 
-    it('returns special case: grouped extent of grouping by key of group', () => {
+    it('returns special case: grouped extent of grouping by key of group, multidimensional', () => {
         expect(extentOfGroupMapKeyPerMarker(grouped2, ['gender-female-geo-swe'], 'time', ['geo', 'gender'])).toEqual({ 
+            'gender-female-geo-swe': [2011, 2013]
+        })
+    });
+
+    it('returns special case: grouped extent of grouping by key of group, iterator for group subsets', () => {
+        const map = new Map([['gender-female-geo-swe', 'foo']])
+        expect(extentOfGroupMapKeyPerMarker(grouped2, map.keys(), 'time', ['geo', 'gender'])).toEqual({ 
             'gender-female-geo-swe': [2011, 2013]
         })
     });

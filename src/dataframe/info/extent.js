@@ -1,4 +1,4 @@
-import { arrayEquals, createMarkerKey, getIter, isGroupedDataFrame } from "../dfutils";
+import { arrayEquals, createMarkerKey, getIter, isGroupedDataFrame, isIterable } from "../dfutils";
 
 /**
  * Get extent (i.e. domain) of a property in an iterable of objects or an iterable nested in a dataFrameGroup. Possibly grouped by a certain other property value, which can be limited to a subset.
@@ -40,6 +40,8 @@ function combineResults(one, two) {
 // in the style of d3.extent
 function extentIterable(iter, concept, groupby, groupSubset) {
     iter = getIter(iter);
+    groupSubset = groupSubset ? Array.from(groupSubset) : groupSubset;
+    
     let min, max, value, row, group;
     let groups = {};
     for (row of iter) {
@@ -90,7 +92,7 @@ function extentIterable(iter, concept, groupby, groupSubset) {
     if (!arrayEquals(groups.key, [concept])) throw("Special case but grouping is not by given concept");
     if (descKeys.length != 1) throw("Special case but grouping is more than 1 level deep");
     if (!arrayEquals(descKeys[0], groupBy)) throw("Special case but grouping members keys is not same as `groupBy`");
-    if (!Array.isArray(groupSubset)) throw("Special case but groupSubset array not given.");
+    if (!isIterable(groupSubset)) throw("Special case but groupSubset iterable not given.");
     // can't O(1) check ordering & interpolation requirements
 
     const extents = {};
