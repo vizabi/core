@@ -64,11 +64,14 @@ export function filter(config = {}, parent) {
             const dimFilters = [];
             space.forEach(dim => {
                 if (this.dimensions[dim]) {
-                    for (let key in this.dimensions[dim]) {
-                        if (key == dim || space.length < 2) {
-                            dimFilters.push({ [key]: this.dimensions[dim][key] });
+                    for (let prop in this.dimensions[dim]) {
+                        if (prop == dim || space.length < 2) {
+                            // don't include properties which are entity concepts in filter of entity query
+                            // https://github.com/Gapminder/big-waffle/issues/52
+                            if (prop != dim && !this.parent.source.isEntityConcept(prop))
+                                dimFilters.push({ [prop]: this.dimensions[dim][prop] });
                         } else { 
-                            dimFilters.push({ [dim + '.' + key]: this.dimensions[dim][key] });
+                            dimFilters.push({ [dim + '.' + prop]: this.dimensions[dim][prop] });
                         }
                     }
                 }
