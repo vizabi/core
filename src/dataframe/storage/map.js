@@ -36,8 +36,8 @@ function createEmptyMap() {
         if (!storage.incrementIndex && !isNonNullObject(keyObj))
             throw(new Error('Dataframe key is not an object: ' + JSON.stringify(keyObj)))
         const key = storage.incrementIndex ? keyObj : storage.keyFn(keyObj)
-        if (!has(key))
-            throw(new Error('Key not found in dataframe: ' + JSON.stringify(keyObj)))
+        //if (!has(key))
+        //    throw(new Error('Key not found in dataframe: ' + JSON.stringify(keyObj)))
         return get(key);
     }
     storage.set = (row, keyStr) => {

@@ -181,13 +181,21 @@ dataConfig.nonObservable = function(config, parent) {
                 fulfilled: (res) => latestResponse = res
             });
         },
-        get responseMap() {
-            //trace();
+        normalizeResponse(response) {
             //response.key is not equal to space when we read csv file and response.key is empty
-            if (isDataFrame(this.response) && arrayEquals(this.response.key, this.space))
-                return this.response;
-            else 
-                return DataFrame(this.response, this.commonSpace);            
+            if (isDataFrame(response) && arrayEquals(response.key, this.space))
+                return response;
+            else {
+                // to handle faulty bw/ddfservice reader response
+                // https://github.com/Gapminder/big-waffle/issues/53
+                if (response.length == 1 && Object.keys(response[0]).length == 0) {
+                    response.pop();
+                }
+                return DataFrame(response, this.commonSpace);      
+            }
+        },
+        get responseMap() {
+            return this.normalizeResponse(this.response);  
         },
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
