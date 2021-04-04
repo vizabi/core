@@ -1,5 +1,6 @@
 import { fromPromise } from "mobx-utils";
 import { isObservableArray } from "mobx";
+import { type as sourceType } from "./dataSource/baseDataSource";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -9,6 +10,14 @@ export function isString(value) {
 
 export function isEntityConcept(concept) {
     return ["entity_set", "entity_domain"].includes(concept.concept_type);
+}
+
+export function isModel(model) {
+    return isNonNullObject(model) && "config" in model;
+}
+
+export function isDataSource(model) {
+    return isModel(model) && model.type == sourceType;
 }
 
 export function mapToObj(map) {

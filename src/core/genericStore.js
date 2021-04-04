@@ -1,5 +1,5 @@
-import { observable, action, toJS, isObservableObject } from 'mobx'
-import { isString, isNonNullObject } from './utils'
+import { observable, action } from 'mobx'
+import { isDataSource, isModel, isString } from './utils'
 
 const defaultType = config => observable({ config });
 defaultType.nonObservable = config => ({ config })
@@ -20,7 +20,6 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
             this.modelTypes.all[modelType] = modelConstructor;
         },    
         create: action('create', function(config, parent, id) {
-            if (config.config) config = config.config; // get config from model
             let modelType = this.modelTypes.all[config.modelType] || this.modelTypes.base;
             let model = observable(
                 modelType.nonObservable(config, parent, id), 
@@ -41,11 +40,16 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
         has: function(id) {
             return this.named.has(id);
         },   
-        get(idOrConfig, parent) {
-            if (isString(idOrConfig))
-                return this.named.get(idOrConfig) // id
-            else
-                return this.create(idOrConfig, parent) // config
+        get(reference, parent) {
+            if (isString(reference)) {
+                return this.named.get(reference) // id
+            } else if (isDataSource(reference)) {
+                return reference;
+            } else if (isModel(reference)) {
+                return this.create(reference.config, parent)
+            } else {
+                return this.create(reference, parent)
+            }
         },
         getAll: function() {
             return [...this.named.values() ];

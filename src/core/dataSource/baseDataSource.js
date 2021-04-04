@@ -17,6 +17,7 @@ const defaultConfig = {
     transforms: []
 }
 
+export const type = "dataSource"
 
 const tryParse = data => {
     for (let row of data) {
@@ -35,14 +36,14 @@ const tryParseRow = d => {
 
 const parse = (val) => (val == '') ? null : +val || val;
 
-export function baseDataSource(config) {
+export function baseDataSource(config, parent, id) {
     return observable(
-        baseDataSource.nonObservable(observable(config)), 
+        baseDataSource.nonObservable(observable(config), parent, id), 
         baseDataSource.decorate
     );
 }
 
-baseDataSource.nonObservable = function (config) {
+baseDataSource.nonObservable = function (config, parent, id) {
     applyDefaults(config, defaultConfig);
 
 
@@ -297,7 +298,7 @@ baseDataSource.nonObservable = function (config) {
         }
     }
 
-    return assign({}, functions, configurable, { config });
+    return assign({}, functions, configurable, { config, id, type });
 }
 
 baseDataSource.decorate = {

@@ -14,14 +14,14 @@ import { configSolver } from "./configSolver";
 const defaultConfig = {
 }
 
-export function dataConfig(config = {}, parent) {
+export function dataConfig(config = {}, parent, id) {
     return observable(
-        dataConfig.nonObservable(observable(config), parent),
+        dataConfig.nonObservable(observable(config), parent, id),
         { config: observable.ref }, 
     );
 }
 
-dataConfig.nonObservable = function(config, parent) {
+dataConfig.nonObservable = function(config, parent, id) {
 
     applyDefaults(config, defaultConfig);
     let latestResponse = [];
@@ -40,6 +40,7 @@ dataConfig.nonObservable = function(config, parent) {
         },
         config,
         parent,
+        id,
         get hasEncodingMarker() {
             return this.parent && this.parent.marker;
         },

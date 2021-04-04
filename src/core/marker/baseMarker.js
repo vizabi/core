@@ -31,13 +31,13 @@ const defaults = {
     ]
 }
 
-export function baseMarker(config) {
-    return observable(baseMarker.nonObservable(observable(config)), {
+export function baseMarker(config, parent, id) {
+    return observable(baseMarker.nonObservable(observable(config), parent, id), {
         config: observable.ref
     });
 }
 
-baseMarker.nonObservable = function(config) {
+baseMarker.nonObservable = function(config, parent, id) {
     applyDefaults(config, defaultConfig);
 
     let functions = {
@@ -110,8 +110,11 @@ baseMarker.nonObservable = function(config) {
                 if (enc == encoding) return name;
             }
         },
+        get promise() {
+            return configSolver.markerPromiseBeforeSolving(this);
+        },
         get state() {
-            const dataConfigSolverState = configSolver.markerPromiseBeforeSolving(this).state;
+            const dataConfigSolverState = this.promise.state;
             const encodingStates = [...Object.values(this.encoding)].map(enc => enc.state);
             const states = [dataConfigSolverState, ...encodingStates];
             return combineStates(states);
@@ -270,7 +273,9 @@ baseMarker.nonObservable = function(config) {
             this.transformations.forEach(({name, fn}) => {
                 let prevResult = stepResult; // local reference for closure of computed
                 stepResult = computed(
-                    () => fn(prevResult.get()), 
+                    () => {
+                        return fn(prevResult.get())
+                    }, 
                     { name }
                 );
                 results.set(name, stepResult);
@@ -318,5 +323,5 @@ baseMarker.nonObservable = function(config) {
         }
     }
 
-    return assign({}, functions, configurable, { config });
+    return assign({}, functions, configurable, { config, id });
 }

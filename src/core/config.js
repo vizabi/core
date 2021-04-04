@@ -64,7 +64,6 @@ function transformModel(model, transform) {
                 locale: model.data.locale
             });
         default:
-            // build new config based on model.config
             return model;
             break;
     }
