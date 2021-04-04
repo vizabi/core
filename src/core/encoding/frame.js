@@ -5,6 +5,7 @@ import { assign, applyDefaults, relativeComplement, configValue, parseConfigValu
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
 import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
+import { DataFrame } from '../../dataframe/dataFrame';
 
 const defaultConfig = {
     modelType: "frame",
@@ -192,21 +193,19 @@ const functions = {
 
     // CURRENTFRAME TRANSFORM
     currentFrame(data) {
+        if (data.size == 0) 
+            return DataFrame([], data.descendantKeys[0]);
+
         return data.has(this.frameKey) ? 
             data.get(this.frameKey)
             :
             this.getInterpolatedFrame(data, this.step, this.stepsAround);
-        // else {
-        //     console.warn("Frame value not found in frame map", this)
-        //     return new Map();
-        // }
 
     },
     get frameKey() {
         return createMarkerKey({ [this.name]: this.value });
     },
     getInterpolatedFrame(df, step, stepsAround) {
-        if (!df.size) return;
         const keys = Array.from(df.keys());
         const [before, after] = stepsAround.map(step => df.get(keys[step]));
         return before.interpolateTowards(after, step % 1);
