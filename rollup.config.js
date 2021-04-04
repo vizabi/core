@@ -26,7 +26,7 @@ const plugins = () => [
     resolve(),
     __DEVSERVER__ && serve({
         contentBase: ["dist"],
-        port: 4201,
+        port: 9000,
         verbose: true
     }),
     __DEVSERVER__ && livereload("dist/"),
