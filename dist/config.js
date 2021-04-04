@@ -132,7 +132,11 @@ const config = {
             encoding: {
                 "selected": {
                     modelType: "selection",
-                    data: { } // ref: "markers.bubble.encoding.trail.data" }
+                    data: { 
+                        filter: { 
+                            ref: "markers.bubble.encoding.trail.data.filter"
+                        }
+                    } // ref:  }
                 },
                 "highlighted": {
                     modelType: "selection",

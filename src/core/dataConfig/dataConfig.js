@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
-import { applyDefaults, arrayEquals, fromPromiseAll, intersect, isNonNullObject, isNumeric } from "../utils";
+import { applyDefaults, arrayEquals, fromPromiseAll, intersect, isModel, isNonNullObject, isNumeric } from "../utils";
 import { filter } from "../filter";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { createFilterFn } from "../../dataframe/transforms/filter";
@@ -79,7 +79,9 @@ dataConfig.nonObservable = function(config, parent, id) {
             console.warn('Cannot get data.commonSpace of Marker.data. Only meaningful on Encoding.data.')
         },
         get filter() {
-            const config = this.config.filter || (this.hasEncodingMarker ? this.parent.marker.data.config.filter : {});
+            trace();
+            let config = resolveRef(this.config.filter) || (this.hasEncodingMarker ? this.parent.marker.data.config.filter : {});
+            if (isModel(config)) return config;
             return filter(config, this);
         },
         get locale() {

@@ -6,18 +6,19 @@ import { DataFrame } from "../../dataframe/dataFrame";
 import { createMarkerKey } from "../../dataframe/dfutils";
 
 const defaultConfig = {
-    starts: {},
     data: {
         concept: undefined,
         space: undefined,
-        filter: { markers: {} } 
+        filter: { 
+            markers: {}, 
+            payload: { ref: ".^.^.frameEncoding.value" }
+        } 
     }
 }
 
 const defaults = {
     show: true,
     updateStarts: true,
-    starts: {},
     frameEncoding: "frame"
 }
 export function trail(config, parent) {
@@ -47,16 +48,18 @@ trail.nonObservable = function(config, parent) {
          */
         get limits() {
             // get datamap that's also used as input for addTrails
-            const groupMap = this.dataMapBeforeTransform("addTrails");
-            return groupMap.extentOfGroupMapKeyPerMarker(Object.keys(this.starts))
+            const groupMap = this.dataMapBeforeTransform("addPreviousTrailHeads");
+            return groupMap.extentOfGroupMapKeyPerMarker(this.data.filter.markers.keys())
         },
         /**
          * Set trail start of every bubble to `value` if value is lower than current trail start
          */
-        updateTrailStart: action('update trail start', 
-        function updateTrailStart(value = this.frameEncoding.value, limits = this.limits) {
+        updateTrailStart: action('update trail start', function updateTrailStart(
+            value = this.frameEncoding.value, 
+            limits = this.limits
+        ) {
             let key, min, max;
-            for (key in this.config.starts) {
+            for (key of this.data.filter.markers.keys()) {
                 [min, max] = limits[key];
                 max = d3.min([max, this.starts[key]]);
                 this.setTrail(key, value, [min, max]);
@@ -68,8 +71,14 @@ trail.nonObservable = function(config, parent) {
         get starts() {
             if (!this.updateStarts) return oldStarts;
             const starts = {};
-            for (let key in this.config.starts) {
-                starts[key] = parseConfigValue(this.config.starts[key], this.data.source.getConcept(this.groupDim));
+            for (let key of this.data.filter.markers.keys()) {
+                // need to clamp here too because starts may be invalid in initial config or when switching data
+                const limits = this.limits[key];
+                if (limits.some(n => n == undefined))
+                    continue; // skip starts that aren't even in data
+                const configValue = this.data.filter.markers.get(key);
+                const value = clamp(configValue, ...limits);
+                starts[key] = parseConfigValue(value, this.data.source.getConcept(this.groupDim));
             }
             return oldStarts = starts;
         },
@@ -83,7 +92,7 @@ trail.nonObservable = function(config, parent) {
         setShow: action(function(show) {
             this.config.show = show;
             if (show === true) {
-                for (let key in this.config.starts) 
+                for (let key of this.data.filter.markers.keys()) 
                     this.setTrail(key)
             }
         }),
@@ -93,17 +102,24 @@ trail.nonObservable = function(config, parent) {
             limit = this.limits[this.getKey(d)]
         ) {
             const key = this.getKey(d);
-            if (!(key in this.config.starts) && !limit) {
+            if (!this.data.filter.has(key) && !limit) {
                 // add unclamped to starts so limits computed gets recalculated (saves redundant one-off limit calc for this key)
-                this.config.starts[key] = configValue(value, this.data.source.getConcept(this.groupDim));
+                this.data.filter.set(key, configValue(value, this.data.source.getConcept(this.groupDim)));
                 limit = this.limits[key]; 
             }
             const clamped = clamp(value, limit[0], limit[1]);
-            this.config.starts[key] = configValue(clamped, this.data.source.getConcept(this.groupDim));
+            this.data.filter.set(key, configValue(clamped, this.data.source.getConcept(this.groupDim)));
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
-            delete this.config.starts[key];
+            this.data.filter.delete(key);
+        }),
+        toggleTrail: action(function(d) {
+            const key = this.getKey(d);
+            if (this.data.filter.has(key)) 
+                this.deleteTrail(d);
+            else   
+                this.setTrail(d);
         }),
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];
@@ -216,8 +232,8 @@ trail.nonObservable = function(config, parent) {
         onCreate() {
             const updateTrailDestruct = reaction(
                 // wait for marker state, as we need transformeddatamaps for limits
-                () => this.marker.state == 'fulfilled' ? { value: this.frameEncoding.ceilKeyFrame(), limits: this.limits } : {},
-                ({ value, limits }) => { if (value) this.updateTrailStart(value, limits) }, 
+                () => this.marker.state == 'fulfilled' ? this.frameEncoding.ceilKeyFrame() : false,
+                (value) => { if (value) this.updateTrailStart(value) }, 
                 { name: "updateTrailStart on frame value change" }
             );
             this.destructers.push(updateTrailDestruct);
@@ -226,5 +242,6 @@ trail.nonObservable = function(config, parent) {
 }
 
 trail.decorate = {
-    starts: computed.struct
+    starts: computed.struct,
+    limits: computed.struct
 }

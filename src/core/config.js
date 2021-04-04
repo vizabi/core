@@ -7,7 +7,7 @@ import { stores } from "./vizabi";
  * @param {*} possibleRef 
  * @returns config Config object as described in reference config
  */
- export function resolveRef(possibleRef) {
+ export function resolveRef(possibleRef, self) {
     // no ref
     if (!possibleRef || typeof possibleRef.ref === "undefined")
         return possibleRef
@@ -15,13 +15,19 @@ import { stores } from "./vizabi";
     // handle config shorthand
     let ref = (isString(possibleRef.ref)) ? { model: possibleRef.ref } : possibleRef.ref;
 
+    let firstNode = stores;
+    if (ref.model.startsWith('.')) {
+        firstNode = self;
+        ref.model = ref.model.substring(1);
+    }
+
     // invalid ref
     if (!ref.model) {
         console.warn("Invalid reference, expected string reference in ref or ref.model", possibleRef);
     }
 
     // model ref includes resolved defaults
-    const model = resolveTreeRef(ref.model, stores);
+    const model = resolveTreeRef(ref.model, firstNode);
     return transformModel(model, ref.transform);
 }
 
@@ -29,15 +35,18 @@ function resolveTreeRef(refStr, tree) {
     const ref = refStr.split('.');
     let node = tree;
     for (let i = 0; i < ref.length; i++) {
-        let child = ref[i];
         if (typeof node == "undefined") {
             console.warn("Couldn't resolve reference " + refStr);
             return null;
         }
-        if (typeof node.get == "function")
-            node = node.get(child);
+
+        let step = ref[i];
+        if (step == '^') {
+            node = node.parent; 
+        } else if (typeof node.get == "function")
+            node = node.get(step);
         else
-            node = node[child];
+            node = node[step];
     }
     return node;
 }

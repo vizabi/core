@@ -1,4 +1,4 @@
-import { action, isObservableArray, observable, toJS } from 'mobx';
+import { action, isObservableArray, observable, toJS, trace } from 'mobx';
 import { isString, mapToObj, applyDefaults, deepmerge, arrayEquals } from './utils';
 import { resolveRef } from './config';
 
@@ -9,20 +9,21 @@ const defaultConfig = {
 
 export function filter(config = {}, parent) {
 
-    applyDefaults(config, defaultConfig);
+    //applyDefaults(config, defaultConfig);
 
     return observable({
         config,
         parent,
         get markers() {
-            const cfg = resolveRef(this.config.markers);
+            //trace(true);
+            const cfg = resolveRef(this.config.markers || defaultConfig.markers);
             const markers = (isObservableArray(cfg)) ?
                 cfg.map(m => [m, true]) :
                 Object.entries(cfg);
             return new Map(markers);
         },
         get dimensions() {
-            return toJS(this.config.dimensions);
+            return toJS(this.config.dimensions || defaultConfig.dimensions);
         },
         has(d) {
             return this.markers.has(this.getKey(d));
@@ -33,10 +34,15 @@ export function filter(config = {}, parent) {
         getPayload(d) {
             return this.markers.get(this.getKey(d));
         },
-        set: action("setFilter", function(d, payLoad = true) {
+        makePayload(d) {
+            return resolveRef(this.config.payload, this)
+                || d[resolveRef(this.config.payloadProperty, this)]
+                || true;
+        },
+        set: action("setFilter", function(d, payload = this.makePayload(d)) {
             if (Array.isArray(d)) d.forEach(this.set.bind(this))
             const key = this.getKey(d);
-            this.config.markers = mapToObj(this.markers.set(key, payLoad));
+            this.config.markers = mapToObj(this.markers.set(key, payload));
         }),
         delete: action("deleteFilter", function(d) {
             if (Array.isArray(d)) d.forEach(this.delete.bind(this))
@@ -49,9 +55,8 @@ export function filter(config = {}, parent) {
             this.config.markers = {};
         }),
         toggle: action("toggleFilter", function(d) {
-            const key = this.getKey(d);
-            const del = this.delete(key);
-            if (!del) this.set(key);
+            const del = this.delete(d);
+            if (!del) this.set(d);
             return !del;
         }),
         getKey(d) {
