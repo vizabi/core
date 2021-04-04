@@ -1,6 +1,9 @@
 # Config and Model
 
-Config is what you write to, model is what you read from. Config properties are a subset of model properties. So every config property is available on the model, albeit processed. On top of that, most models will have more properties depending on their features.
+Config is what you write to, model is what you read from. Config properties are a subset of model properties. So every config property is available on the model, albeit processed. On top of that, most models will have more properties depending on their features. 
+
+For example, a marker model and marker config both have a `data` property. `marker.config.data` is just an object but `marker.data` is a full `DataConfig` model, built based on the `marker.config.data`. You can read from the `DataConfig` model (`marker.data`) and you can change the model by writing to the config (`marker.data.config` or `marker.config.data`).
+Moreover, only the marker model, not the config, has a `dataMap` property. This is a DataFrame with the marker's encoding data joined together and transformed according to their specific encoding configs.
 
 ## Hierarchy of models
 ```
