@@ -59,7 +59,7 @@ trail.nonObservable = function(config, parent) {
             limits = this.limits
         ) {
             let key, min, max;
-            for (key of this.data.filter.markers.keys()) {
+            for (key in this.starts) {
                 [min, max] = limits[key];
                 max = d3.min([max, this.starts[key]]);
                 this.setTrail(key, value, [min, max]);
@@ -237,6 +237,14 @@ trail.nonObservable = function(config, parent) {
                 { name: "updateTrailStart on frame value change" }
             );
             this.destructers.push(updateTrailDestruct);
+            const configLoopbackDestruct = reaction(
+                () => this.state == 'fulfilled' ? this.starts : undefined,
+                (starts) => {
+                    if (starts) this.data.filter.config.markers = starts;
+                },
+                { name: "config loopback" }
+            );
+            this.destructers.push(configLoopbackDestruct);
         }
     });
 }
