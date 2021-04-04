@@ -151,7 +151,7 @@ const functions = {
     // FRAMEMAP TRANSFORM
     get interpolate() { return this.config.interpolate || defaults.interpolate },
     frameMap(data) {
-        if (this.interpolate) 
+        if (data.size > 0 && this.interpolate) 
             data = this.interpolateData(data);
         return data.groupBy(this.name, this.rowKeyDims);
     },
