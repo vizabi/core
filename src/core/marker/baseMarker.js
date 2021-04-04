@@ -1,4 +1,4 @@
-import { trace, reaction, computed, observable, isComputed, isBoxedObservable } from 'mobx';
+import { trace, reaction, computed, observable, isComputed, isBoxedObservable, when } from 'mobx';
 import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
@@ -316,10 +316,14 @@ baseMarker.nonObservable = function(config, parent, id) {
             }
         },
         destruct() {
-            this.data.destruct();
-            for (let enc of Object.values(this.encoding)) {
-                enc.destruct();
-            }
+            // Should not need to destruct as long as reactions only reference locally. Not some long-lasting observable outside its own model.
+            // https://mobx.js.org/reactions.html#mem-leak-example
+            /*
+                    this.data.destruct();
+                    for (let enc of Object.values(this.encoding)) {
+                        enc.destruct();
+                    }
+            */
         }
     }
 
