@@ -1,29 +1,40 @@
 import { action, isObservableArray, observable, toJS, trace } from 'mobx';
-import { isString, mapToObj, applyDefaults, deepmerge, arrayEquals } from './utils';
-import { resolveRef } from './config';
+import { isString, mapToObj, applyDefaults, deepmerge, arrayEquals, configValue, deepclone } from '../utils';
+import { resolveRef } from '../config';
 
 const defaultConfig = {
     markers: {},
     dimensions: {}
 }
 
-export function filter(config = {}, parent) {
+export const type = 'filter';
 
-    //applyDefaults(config, defaultConfig);
+export function filter(config, parent, id) {
+    return observable(
+        filter.nonObservable(observable(config), parent, id), 
+        filter.decorate
+    );
+}
 
-    return observable({
+filter.nonObservable = function (config, parent, id) {
+
+    if (!"markers" in config) config.markers = {};
+    if (!"dimensions" in config) config.dimensions = {};
+
+    return {
+        id,
         config,
         parent,
+        type,
         get markers() {
-            //trace(true);
-            const cfg = resolveRef(this.config.markers || defaultConfig.markers);
+            const cfg = resolveRef(this.config.markers) || {};
             const markers = (isObservableArray(cfg)) ?
                 cfg.map(m => [m, true]) :
                 Object.entries(cfg);
             return new Map(markers);
         },
         get dimensions() {
-            return toJS(this.config.dimensions || defaultConfig.dimensions);
+            return toJS(this.config.dimensions) || {};
         },
         has(d) {
             return this.markers.has(this.getKey(d));
@@ -34,15 +45,10 @@ export function filter(config = {}, parent) {
         getPayload(d) {
             return this.markers.get(this.getKey(d));
         },
-        makePayload(d) {
-            return resolveRef(this.config.payload, this)
-                || d[resolveRef(this.config.payloadProperty, this)]
-                || true;
-        },
-        set: action("setFilter", function(d, payload = this.makePayload(d)) {
+        set: action("setFilter", function(d, payload) {
             if (Array.isArray(d)) d.forEach(this.set.bind(this))
             const key = this.getKey(d);
-            this.config.markers = mapToObj(this.markers.set(key, payload));
+            this.config.markers = mapToObj(this.markers.set(key, configValue(payload)));
         }),
         delete: action("deleteFilter", function(d) {
             if (Array.isArray(d)) d.forEach(this.delete.bind(this))
@@ -106,5 +112,5 @@ export function filter(config = {}, parent) {
 
             return filter;
         },
-    })
+    }
 };

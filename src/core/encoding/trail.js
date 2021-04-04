@@ -1,4 +1,4 @@
-import { assign, applyDefaults, isString, configValue, parseConfigValue, clamp } from "../utils";
+import { assign, applyDefaults, isString, configValue, parseConfigValue, clamp, equals, mapToObj } from "../utils";
 import { action, computed, observable, reaction, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
@@ -10,8 +10,8 @@ const defaultConfig = {
         concept: undefined,
         space: undefined,
         filter: { 
+            modelType: "trailFilter",
             markers: {}, 
-            payload: { ref: ".^.^.frameEncoding.value" }
         } 
     }
 }
@@ -71,14 +71,13 @@ trail.nonObservable = function(config, parent) {
         get starts() {
             if (!this.updateStarts) return oldStarts;
             const starts = {};
-            for (let key of this.data.filter.markers.keys()) {
+            for (let [key, payload] of this.data.filter.markers) {
                 // need to clamp here too because starts may be invalid in initial config or when switching data
                 const limits = this.limits[key];
                 if (limits.some(n => n == undefined))
                     continue; // skip starts that aren't even in data
-                const configValue = this.data.filter.markers.get(key);
-                const value = clamp(configValue, ...limits);
-                starts[key] = parseConfigValue(value, this.data.source.getConcept(this.groupDim));
+                const configValue = this.frameEncoding.parseValue(payload);
+                starts[key] = clamp(configValue, ...limits);
             }
             return oldStarts = starts;
         },
@@ -101,14 +100,16 @@ trail.nonObservable = function(config, parent) {
             value = d[this.groupDim] || this.frameEncoding.value, 
             limit = this.limits[this.getKey(d)]
         ) {
+            const filter = this.data.filter;
             const key = this.getKey(d);
             if (!this.data.filter.has(key) && !limit) {
                 // add unclamped to starts so limits computed gets recalculated (saves redundant one-off limit calc for this key)
-                this.data.filter.set(key, configValue(value, this.data.source.getConcept(this.groupDim)));
+                filter.config.markers = mapToObj(filter.markers.set(key, configValue(value)));
                 limit = this.limits[key]; 
             }
-            const clamped = clamp(value, limit[0], limit[1]);
-            this.data.filter.set(key, configValue(clamped, this.data.source.getConcept(this.groupDim)));
+            // set again if clamped is different from current
+            const clamped = configValue(clamp(value, limit[0], limit[1]));
+            filter.config.markers = mapToObj(filter.markers.set(key, clamped));
         }),
         deleteTrail: action(function(d) {
             const key = this.getKey(d);
@@ -238,9 +239,15 @@ trail.nonObservable = function(config, parent) {
             );
             this.destructers.push(updateTrailDestruct);
             const configLoopbackDestruct = reaction(
-                () => this.state == 'fulfilled' ? this.starts : undefined,
+                () => this.marker.state == 'fulfilled' ? this.starts : undefined,
                 (starts) => {
-                    if (starts) this.data.filter.config.markers = starts;
+                    if (starts) {
+                        const filterMarkers = this.data.filter.config.markers;
+                        for (let key in filterMarkers) {
+                            if (!(key in starts))
+                                delete filterMarkers[key];
+                        }
+                    }
                 },
                 { name: "config loopback" }
             );

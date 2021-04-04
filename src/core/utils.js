@@ -1,6 +1,7 @@
 import { fromPromise } from "mobx-utils";
 import { isObservableArray } from "mobx";
 import { type as sourceType } from "./dataSource/baseDataSource";
+import { type as filterType } from "./filter/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -18,6 +19,10 @@ export function isModel(model) {
 
 export function isDataSource(model) {
     return isModel(model) && model.type == sourceType;
+}
+
+export function isFilter(model) {
+    return isModel(model) && model.type == filterType;
 }
 
 export function mapToObj(map) {
@@ -252,11 +257,10 @@ export function clamp(value, min, max) {
 }
 
 export function configValue(value, concept) {
-    const { concept_type } = concept;
-    if (concept_type == "time" && value instanceof Date) {
-        return concept.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
+    if (value instanceof Date) {
+        return concept?.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
     }
-    return value;
+    return ""+value;
 }
 
 

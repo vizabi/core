@@ -2,7 +2,7 @@ import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
 import { applyDefaults, arrayEquals, fromPromiseAll, intersect, isModel, isNonNullObject, isNumeric } from "../utils";
-import { filter } from "../filter";
+import { filter } from "../filter/filter";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { createFilterFn } from "../../dataframe/transforms/filter";
 import { fromPromise, FULFILLED } from "mobx-utils";
@@ -10,6 +10,7 @@ import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
 import { createKeyStr, isDataFrame } from "../../dataframe/dfutils";
 import { configSolver } from "./configSolver";
+import { filterStore } from "../filter/filterStore";
 
 const defaultConfig = {
 }
@@ -79,10 +80,8 @@ dataConfig.nonObservable = function(config, parent, id) {
             console.warn('Cannot get data.commonSpace of Marker.data. Only meaningful on Encoding.data.')
         },
         get filter() {
-            trace();
-            let config = resolveRef(this.config.filter) || (this.hasEncodingMarker ? this.parent.marker.data.config.filter : {});
-            if (isModel(config)) return config;
-            return filter(config, this);
+            const filter = resolveRef(this.config.filter) || (this.hasEncodingMarker ? this.parent.marker.data.filter : {});
+            return filterStore.get(filter, this);
         },
         get locale() {
             if (this.config.locale)
