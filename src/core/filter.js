@@ -68,7 +68,7 @@ export function filter(config = {}, parent) {
                         if (prop == dim || space.length < 2) {
                             // don't include properties which are entity concepts in filter of entity query
                             // https://github.com/Gapminder/big-waffle/issues/52
-                            if (prop != dim && !this.parent.source.isEntityConcept(prop))
+                            if (space.length > 1 || !this.parent.source.isEntityConcept(prop))
                                 dimFilters.push({ [prop]: this.dimensions[dim][prop] });
                         } else { 
                             dimFilters.push({ [dim + '.' + prop]: this.dimensions[dim][prop] });
