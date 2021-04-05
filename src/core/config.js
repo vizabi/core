@@ -1,5 +1,5 @@
 import { observable } from "mobx";
-import { isString } from "./utils";
+import { isNonNullObject, isString } from "./utils";
 import { stores } from "./vizabi";
 
 /**
@@ -9,7 +9,7 @@ import { stores } from "./vizabi";
  */
  export function resolveRef(possibleRef, self) {
     // no ref
-    if (!possibleRef || typeof possibleRef.ref === "undefined")
+    if (!isReference(possibleRef))
         return possibleRef
 
     // handle config shorthand
@@ -29,6 +29,10 @@ import { stores } from "./vizabi";
     // model ref includes resolved defaults
     const model = resolveTreeRef(ref.model, firstNode);
     return transformModel(model, ref.transform);
+}
+
+export function isReference(possibleRef) {
+    return isNonNullObject(possibleRef) && typeof possibleRef.ref != "undefined"
 }
 
 function resolveTreeRef(refStr, tree) {

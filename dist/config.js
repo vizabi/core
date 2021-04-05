@@ -172,7 +172,9 @@ const config = {
                 "order": {
                     modelType: "order",
                     data: {
-                        concept: "population_total",
+                        concept: { 
+                            ref: "markers.bubble.encoding.size.data.concept"
+                        },
                         direction: "desc"
                     }
                 },

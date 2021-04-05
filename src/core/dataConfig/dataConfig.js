@@ -1,14 +1,12 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
-import { applyDefaults, arrayEquals, fromPromiseAll, intersect, isModel, isNonNullObject, isNumeric } from "../utils";
-import { filter } from "../filter/filter";
+import { applyDefaults, arrayEquals, fromPromiseAll, intersect, isNumeric } from "../utils";
 import { DataFrame } from "../../dataframe/dataFrame";
-import { createFilterFn } from "../../dataframe/transforms/filter";
 import { fromPromise, FULFILLED } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
-import { createKeyStr, isDataFrame } from "../../dataframe/dfutils";
+import { isDataFrame } from "../../dataframe/dfutils";
 import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
 
@@ -90,7 +88,7 @@ dataConfig.nonObservable = function(config, parent, id) {
                 return this.hasEncodingMarker ? this.parent.marker.data.locale || this.source.locale : this.source.locale;              
         },
         get concept() { 
-            return this.configSolution.concept;
+            return resolveRef(this.configSolution.concept);
         },
         get conceptProps() { return this.concept && this.source.getConcept(this.concept) },
         get availability() { return this.source.availability.data.map(kv => this.source.getConcept(kv.value)) },

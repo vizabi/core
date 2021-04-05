@@ -1,6 +1,6 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
-import { resolveRef } from "../config";
+import { isReference, resolveRef } from "../config";
 import { fromPromiseAll, isNonNullObject } from "../utils";
 
 /**
@@ -36,7 +36,7 @@ function encodingSolution(dataConfig, fallbackSpaceCfg, avoidConcepts = []) {
     let result;
     // const [userSpace, defaultSpace] = splitConfig(this.config, 'space');
     let spaceCfg = "space" in dataConfig.config ? resolveRef(dataConfig.config.space) : fallbackSpaceCfg || dataConfig.defaults.space;
-    let conceptCfg = "concept" in dataConfig.config ? resolveRef(dataConfig.config.concept) : dataConfig.defaults.concept;
+    let conceptCfg = "concept" in dataConfig.config ? dataConfig.config.concept : dataConfig.defaults.concept;
 
     if (needsSpaceAutoCfg(dataConfig)) {
         result = findSpaceAndConcept(dataConfig, avoidConcepts);
@@ -200,8 +200,8 @@ function needsConceptAutoCfg(dataConfig) {
     const isStandAloneDataConfig = !dataConfig.marker;
     const isNotMarkerDataConfig = dataConfig.hasEncodingMarker;
     const usesDefaultSolving = !("concept" in cfg) && needsSolving(defaults.concept);
-    return needsSolving(cfg.concept)
-        || ((isNotMarkerDataConfig || isStandAloneDataConfig) && usesDefaultSolving);
+    return !isReference(dataConfig.config.concept) && (needsSolving(cfg.concept)
+        || ((isNotMarkerDataConfig || isStandAloneDataConfig) && usesDefaultSolving));
 }
 
 function needsAutoConfig(dataConfig) {
