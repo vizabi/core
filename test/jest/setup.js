@@ -1,1 +1,1 @@
-global.d3 = require('./lib/d3.js');
+import * as d3 from './lib/d3.js';

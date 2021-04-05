@@ -3,6 +3,7 @@
   "version": "1.4.0",
   "description": "Vizabi core for interactive animated charts. This version uses mobx for state and event mgmt",
   "main": "dist/Vizabi.js",
+  "type": "module",
   "files": [
     "dist/Vizabi.js",
     "dist/Vizabi.js.map",
@@ -16,7 +17,7 @@
     "dev": "NODE_ENV=devserver rollup -c --watch",
     "rollup": "rollup -c",
     "test": "jest",
-    "debug": "node node_modules/.bin/jest ./*/dataConfig.test.js --runInBand --watch --no-cache"
+    "debug": "node --experimental-vm-modules node_modules/.bin/jest ./*/dataConfig.test.js --runInBand --watch --no-cache"
   },
   "author": "Jasper Heeffer and others at Gapminder Foundation",
   "license": "BSD-3-Clause",
@@ -38,7 +39,7 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^9.0.0",
     "install-peers": "^1.0.3",
-    "jest": "^24.7.1",
+    "jest": "^27.0.0-next.7",
     "jest-cli": "^26.6.3",
     "mobx-formatters": "^1.0.2",
     "mobx-utils": "^5.5.2",
@@ -50,22 +51,5 @@
   "serve": {
     "content": "./dist",
     "hot": false
-  },
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": "current"
-          }
-        }
-      ]
-    ]
-  },
-  "jest": {
-    "setupFiles": [
-      "<rootDir>/test/jest/setup.js"
-    ]
   }
 }
