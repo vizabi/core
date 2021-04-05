@@ -147,7 +147,9 @@ function findConceptForSpace(space, dataConfig, usedConcepts = []) {
     const dataSource = dataConfig.source;
     const availability = dataSource.availability;
 
-    if (needsSolving(conceptCfg)) {
+    if (dataConfig.isConstant()) {
+        return { concept: undefined, space };
+    } else if (needsSolving(conceptCfg)) {
         const satisfiesFilter = conceptCfg.filter 
             ? createFilterFn(conceptCfg.filter)
             : () => true;
