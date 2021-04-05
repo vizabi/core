@@ -461,7 +461,7 @@ function chart() {
                     })
                     // must have these on every draw so they don't get stuck on splash marker's enter selection
                     .on("click", d => {
-                        if (!d[Symbol.for('trailHeadKey')]) marker.toggleSelection(d);
+                        if (!d[Symbol.for('trailHeadKey')]) selectedConfig.data.filter.toggle(d);
                         highlightFilter.delete(d);
                     })
                     .on("mouseover", d => highlightFilter.set(d))

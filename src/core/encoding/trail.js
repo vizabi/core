@@ -62,7 +62,7 @@ trail.nonObservable = function(config, parent) {
             for (key in this.starts) {
                 [min, max] = limits[key];
                 max = d3.min([max, this.starts[key]]);
-                this.setTrail(key, value, [min, max]);
+                this.data.filter.set(key, value, [min, max]);
             }
         }),
         /**
@@ -72,7 +72,7 @@ trail.nonObservable = function(config, parent) {
             if (!this.updateStarts) return oldStarts;
             const starts = {};
             for (let [key, payload] of this.data.filter.markers) {
-                // need to clamp here too because starts may be invalid in initial config or when switching data
+                // need to clamp here too because starts may be invalid in user config or when switching data
                 const limits = this.limits[key];
                 if (limits.some(n => n == undefined))
                     continue; // skip starts that aren't even in data
@@ -92,39 +92,9 @@ trail.nonObservable = function(config, parent) {
             this.config.show = show;
             if (show === true) {
                 for (let key of this.data.filter.markers.keys()) 
-                    this.setTrail(key)
+                    this.data.filter.set(key)
             }
         }),
-        setTrail: action(function(
-            d, 
-            value = d[this.groupDim] || this.frameEncoding.value, 
-            limit = this.limits[this.getKey(d)]
-        ) {
-            const filter = this.data.filter;
-            const key = this.getKey(d);
-            if (!this.data.filter.has(key) && !limit) {
-                // add unclamped to starts so limits computed gets recalculated (saves redundant one-off limit calc for this key)
-                filter.config.markers = mapToObj(filter.markers.set(key, configValue(value)));
-                limit = this.limits[key]; 
-            }
-            // set again if clamped is different from current
-            const clamped = configValue(clamp(value, limit[0], limit[1]));
-            filter.config.markers = mapToObj(filter.markers.set(key, clamped));
-        }),
-        deleteTrail: action(function(d) {
-            const key = this.getKey(d);
-            this.data.filter.delete(key);
-        }),
-        toggleTrail: action(function(d) {
-            const key = this.getKey(d);
-            if (this.data.filter.has(key)) 
-                this.deleteTrail(d);
-            else   
-                this.setTrail(d);
-        }),
-        getKey(d) {
-            return isString(d) ? d : d[Symbol.for('key')];
-        },
         get transformationFns() {
             return {
                 'addPreviousTrailHeads': this.addPreviousTrailHeads.bind(this),
@@ -241,6 +211,9 @@ trail.nonObservable = function(config, parent) {
             const configLoopbackDestruct = reaction(
                 () => this.marker.state == 'fulfilled' ? this.starts : undefined,
                 (starts) => {
+                    // this.starts may have excluded configured markers because they're not
+                    // available in data. This loops that data-informed exclusion back to 
+                    // config.
                     if (starts) {
                         const filterMarkers = this.data.filter.config.markers;
                         for (let key in filterMarkers) {

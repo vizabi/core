@@ -13,22 +13,9 @@ const defaultConfig = {
 export function bubble(config) {
     return observable(bubble.nonObservable(config));
 }
-
 bubble.nonObservable = function(config) {
-    const base = baseMarker.nonObservable(config);
-
     applyDefaults(config, defaultConfig);
 
-    return assign(base, {
-        toggleSelection: action(function(d) {
-            const trails = this.encoding.trail;
-            if (!(d[Symbol.for('key')] in trails.starts)) {
-                trails.setTrail(d);
-            } else {
-                trails.deleteTrail(d);
-            }
-        })
-    })
+    return baseMarker.nonObservable(config);
 }
-
 bubble.decorate = baseMarker.decorate;
