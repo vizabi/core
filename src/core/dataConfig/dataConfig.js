@@ -40,6 +40,39 @@ dataConfig.nonObservable = function(config, parent, id) {
         config,
         parent,
         id,
+        getConceptsDetails(concepts, source, maxDepth) {
+            const promises = [];
+            const result = {}
+            for (const conceptId of concepts) {
+                const concept = source.getConcept(conceptId);
+                result[conceptId] = {
+                    concept
+                };
+                if (source.isEntityConcept(conceptId)) {
+                    const entityQuery = {
+                        select: { 
+                            key: [conceptId],
+                            value: ["name", "rank"]
+                        },
+                        from: "entities"
+                    }
+                    promises.push(source.query(entityQuery).then(response => {
+                        result[conceptId]['entities'] = response;
+                    }));
+                    if (maxDepth && maxDepth > 0) {
+                        const props = source.availability.keyValueLookup.get(conceptId).keys();
+                        const propDetails = this.getConceptsDetails(props, source, maxDepth - 1);
+                        promises.push(propDetails.then(response => {
+                            result[conceptId]['properties'] = response;
+                        }));
+                    }
+                }
+            }
+            return Promise.all(promises).then(() => result);
+        },
+        get filterOptions() {
+            return this.getConceptsDetails(this.space, this.source, 1);
+        },
         get hasEncodingMarker() {
             return this.parent && this.parent.marker;
         },
