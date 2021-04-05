@@ -149,7 +149,10 @@ baseDataSource.nonObservable = function (config, parent, id) {
         },
         get conceptsPromise() {
             //trace();
+            const locale = this.locale
             return fromPromise(this.availabilityPromise.then(av => {
+                if (locale != this.locale)
+                    return; // abort since there's a newer locale and thus a new conceptPromise
                 const conceptKeyString = createKeyStr(["concept"]);
                 const avConcepts = [...av.keyValueLookup.get(conceptKeyString).keys()];
         
@@ -161,8 +164,8 @@ baseDataSource.nonObservable = function (config, parent, id) {
                     from: "concepts"
                 };         
                   
-                if (this.locale) {
-                    query.language = this.locale; 
+                if (locale) {
+                    query.language = locale; 
                 }
     
                 return this.query(query);
