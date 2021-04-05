@@ -1,5 +1,5 @@
 import { action } from "mobx";
-import { clamp, configValue, defaultDecorator, mapToObj } from "../utils";
+import { clamp, configValue, defaultDecorator } from "../utils";
 import { filter } from "./filter";
 
 export const trailFilter = defaultDecorator({
@@ -16,12 +16,12 @@ export const trailFilter = defaultDecorator({
             const key = this.getKey(d);
             if (!this.has(key) && !limit) {
                 // add unclamped to starts so limits computed gets recalculated (saves redundant one-off limit calc for this key)
-                this.config.markers = mapToObj(this.markers.set(key, configValue(value)));
+                this.config.markers[key] = configValue(value); 
                 limit = this.encoding.limits[key]; 
             }
             // set again if clamped is different from current
-            const clamped = configValue(clamp(value, limit[0], limit[1]));
-            this.config.markers = mapToObj(this.markers.set(key, clamped));
+            const clamped = clamp(value, limit[0], limit[1]);
+            this.config.markers[key] = configValue(clamped);
         })
     }
 });

@@ -1,5 +1,5 @@
 import { action, isObservableArray, observable, toJS, trace } from 'mobx';
-import { isString, mapToObj, applyDefaults, deepmerge, arrayEquals, configValue, deepclone } from '../utils';
+import { isString, deepmerge, arrayEquals, configValue } from '../utils';
 import { resolveRef } from '../config';
 
 const defaultConfig = {
@@ -18,8 +18,8 @@ export function filter(config, parent, id) {
 
 filter.nonObservable = function (config, parent, id) {
 
-    if (!"markers" in config) config.markers = {};
-    if (!"dimensions" in config) config.dimensions = {};
+    if (!("markers" in config)) config.markers = {};
+    if (!("dimensions" in config)) config.dimensions = {};
 
     return {
         id,
@@ -48,14 +48,12 @@ filter.nonObservable = function (config, parent, id) {
         set: action("setFilter", function(d, payload) {
             if (Array.isArray(d)) d.forEach(this.set.bind(this))
             const key = this.getKey(d);
-            this.config.markers = mapToObj(this.markers.set(key, configValue(payload)));
+            this.config.markers[key] = configValue(payload);
         }),
         delete: action("deleteFilter", function(d) {
             if (Array.isArray(d)) d.forEach(this.delete.bind(this))
             const key = this.getKey(d);
-            const success = this.markers.delete(key)
-            this.config.markers = mapToObj(this.markers);
-            return success;
+            delete this.config.markers[key];
         }),
         clear: action("clearFilter", function() {
             this.config.markers = {};
