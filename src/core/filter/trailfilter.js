@@ -13,6 +13,7 @@ export const trailFilter = defaultDecorator({
             value = d[this.encoding.groupDim] || this.encoding.frameEncoding.value, 
             limit = this.encoding.limits[this.getKey(d)]
         ) {
+            if (Array.isArray(d)) d.forEach(this.set.bind(this));
             const key = this.getKey(d);
             if (!this.has(key) && !limit) {
                 // add unclamped to starts so limits computed gets recalculated (saves redundant one-off limit calc for this key)
