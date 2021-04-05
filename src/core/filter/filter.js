@@ -45,23 +45,31 @@ filter.nonObservable = function (config, parent, id) {
         getPayload(d) {
             return this.markers.get(this.getKey(d));
         },
-        set: action("setFilter", function(d, payload) {
-            if (Array.isArray(d)) d.forEach(this.set.bind(this))
-            const key = this.getKey(d);
+        set: action("setFilter", function(marker, payload) {
+            if (Array.isArray(marker)) {
+                for (el of marker) this.set(el);
+                return;
+            }
+            const key = this.getKey(marker);
             this.config.markers[key] = configValue(payload);
         }),
-        delete: action("deleteFilter", function(d) {
-            if (Array.isArray(d)) d.forEach(this.delete.bind(this))
-            const key = this.getKey(d);
+        delete: action("deleteFilter", function(marker) {
+            if (Array.isArray(marker)) {
+                for (el of marker) this.delete(el)
+                return;
+            }
+            const key = this.getKey(marker);
             delete this.config.markers[key];
+            return !(key in this.config.markers);
         }),
         clear: action("clearFilter", function() {
             this.config.markers = {};
         }),
-        toggle: action("toggleFilter", function(d) {
-            const del = this.delete(d);
-            if (!del) this.set(d);
-            return !del;
+        toggle: action("toggleFilter", function(marker) {
+            if (this.has(marker))
+                return this.delete(marker);
+            else 
+                return this.set(marker);
         }),
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];

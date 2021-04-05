@@ -257,11 +257,6 @@ function chart() {
             .on('input', function() { frameCfg.setSpeed(this.value) });
     }
 
-    autorun(() => {
-        const trailCfg = marker.encoding.trail; 
-        console.log(trailCfg.config.updateStarts)
-    });
-
     function start(marker, caseImpl, name) {
         autorun(() => {
             //mobx.trace();
