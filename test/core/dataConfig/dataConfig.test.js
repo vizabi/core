@@ -185,7 +185,7 @@ describe('create stand alone data configs', () => {
     })
 
 
-    it.only('returns filterOptions for current source/space', () => {
+    it.only('returns spaceCatalog for current source/space', () => {
         const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
         dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const data = dataConfig({
@@ -196,7 +196,7 @@ describe('create stand alone data configs', () => {
             concept: 'population_total',
             space: ['geo', 'gender', 'time']
         });
-        return check(data, 'filterOptions').then(response => {
+        return check(data, 'spaceCatalog').then(response => {
             expect(Object.keys(response)).toEqual(data.space)
         });
     })
