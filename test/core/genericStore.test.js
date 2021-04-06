@@ -1,5 +1,4 @@
 import { createStore } from '../../src/core/genericStore';
-import { markerStore } from '../../src/core/marker/markerStore';
 import { autorun, observable } from 'mobx'
 
 const config = observable({ foo: "bar" })

@@ -13,7 +13,7 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
                 ...extendedTypes
             }
         },
-        named: new Map(),
+        models: {},
         addType: function(modelType, modelConstructor) {
             if (this.modelTypes[modelType])
                 console.warn("Adding model type " + modelType + " failed. Type already exists", this);
@@ -38,11 +38,11 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
             return models;
         },
         has: function(id) {
-            return this.named.has(id);
+            return id in this.models;
         },   
         get(reference, parent) {
             if (isString(reference)) {
-                return this.named.get(reference) // id
+                return this.models[reference] // id
             } else if (isDataSource(reference) || isFilter(reference)) {
                 return reference;
             } else if (isModel(reference)) {
@@ -52,12 +52,12 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
             }
         },
         getAll: function() {
-            return [...this.named.values() ];
+            return Object.values(this.models);
         }, 
         set: action('set', function(id, model) { 
-            return this.named.set(id, model);
+            return this.models[id] = model;
         })
     }, {
-        named: observable.shallow
+        models: observable.shallow
     });
 }

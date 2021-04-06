@@ -52,7 +52,10 @@ baseDataSource.nonObservable = function (config, parent, id) {
         get sheet() { return this.config.sheet },
         get keyConcepts() { return this.config.keyConcepts },
         get space() { return this.config.space },
-        get locale() { return this.config.locale },
+        get locale() { 
+            if (this.config.locale)
+                return typeof this.config.locale == "string" ? this.config.locale : this.config.locale.id; 
+        },
         get dtypes() { return this.config.dtypes },
         get reader() {
             if (this.values)

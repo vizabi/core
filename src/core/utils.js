@@ -1,7 +1,5 @@
 import { fromPromise } from "mobx-utils";
 import { isObservableArray } from "mobx";
-import { type as sourceType } from "./dataSource/baseDataSource";
-import { type as filterType } from "./filter/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -18,11 +16,11 @@ export function isModel(model) {
 }
 
 export function isDataSource(model) {
-    return isModel(model) && model.type == sourceType;
+    return isModel(model) && model.type == "dataSource";
 }
 
 export function isFilter(model) {
-    return isModel(model) && model.type == filterType;
+    return isModel(model) && model.type == "filter";
 }
 
 export function mapToObj(map) {

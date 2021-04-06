@@ -1,7 +1,6 @@
 import { action, observable, trace } from 'mobx';
 import { assign, applyDefaults, isNonNullObject } from "../utils";
 import { configurable } from '../configurable';
-import { markerStore } from '../marker/markerStore';
 import { dataConfigStore } from '../dataConfig/dataConfigStore';
 import { scaleStore } from '../scale/scaleStore';
 import { resolveRef } from '../config';

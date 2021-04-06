@@ -142,7 +142,7 @@ spy((event) => {
 */
 
 function splash(id, splashFilter) {
-    const marker = viz.stores.markers.get(id)
+    const marker = viz.markers[id]
     let splashConfig = Vizabi.utils.deepclone(marker.config);
     filterMerge = { data: { filter: { dimensions: splashFilter } } }
     splashConfig = Vizabi.utils.deepmerge(splashConfig, filterMerge);
@@ -198,8 +198,8 @@ chart();
 
 function chart() {
 
-    const marker = splash('bubble', { time: { time: 2017 } }); // viz.stores.markers.get("bubble");
-    const legendmarker = viz.stores.markers.get("legend");
+    const marker = splash('bubble', { time: { time: 2017 } }); // Vizabi.stores.markers.bubble;
+    const legendmarker = viz.markers.legend;
 
     var xAxis = d3.axisBottom();
     var yAxis = d3.axisLeft();
@@ -677,7 +677,7 @@ function chart() {
 
     function drawEncoding() {
 
-        mobxUtils.fromPromise(viz.stores.dataSources.get('gapbw').metaDataPromise).case({
+        mobxUtils.fromPromise(viz.dataSources.gapbw.metaDataPromise).case({
             pending: showLoading,
             rejected: showError,
             fulfilled: draw

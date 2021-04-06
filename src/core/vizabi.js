@@ -15,11 +15,16 @@ const vizabi = function(cfg) {
     const config = observable(cfg);
 
     const models = {};
-    for (const storeName in stores) {
-        models[storeName] = stores[storeName].createMany(config[storeName] || {})
+    for (const storeName in config) {
+        if (storeName in stores) {
+            models[storeName] = stores[storeName].createMany(config[storeName])
+        } else {
+            console.warn('Vizabi() was given an unknown store name: ', storeName);
+        }
     }
+    models.config = config;
     
-    return { stores, config, models };
+    return models;
 
 }
 vizabi.mobx = mobx;
