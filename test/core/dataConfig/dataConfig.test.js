@@ -185,7 +185,7 @@ describe('create stand alone data configs', () => {
     })
 
 
-    it.only('returns spaceCatalog for current source/space', () => {
+    it('returns spaceCatalog for current source/space', () => {
         const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
         dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const data = dataConfig({
