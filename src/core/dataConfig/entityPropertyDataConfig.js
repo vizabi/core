@@ -27,13 +27,25 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
         },
         get queries() {
             const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));
-            return entityDims.map(dim => ({
-                select: {
-                    key: [dim],
-                    value: [this.concept]
-                },
-                from: "entities"
-            }));
+            return entityDims.map(dim => {
+                const query = {
+                    select: {
+                        key: [dim],
+                        value: [this.concept]
+                    },
+                    from: "entities"
+                }
+
+                if (this.filter) {
+                    query.where = this.filter.whereClause(query.select.key);
+                }
+
+                if (this.locale) {
+                    query.language = this.locale; 
+                }
+
+                return query;
+            });
         },
         get lookups() {
             const concept = this.concept;
