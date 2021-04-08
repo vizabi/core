@@ -141,39 +141,6 @@ spy((event) => {
 })
 */
 
-function splash(id, splashFilter) {
-    const marker = viz.markers[id]
-    let splashConfig = Vizabi.utils.deepclone(marker.config);
-    filterMerge = { data: { filter: { dimensions: splashFilter } } }
-    splashConfig = Vizabi.utils.deepmerge(splashConfig, filterMerge);
-
-    let splashMarker = Vizabi.marker(splashConfig);
-    let firstLoad = true;
-
-    return new Proxy(marker, {
-        get: function(target, prop, receiver) {
-            
-            if (marker.state == 'fulfilled') {
-                if (firstLoad) {
-                    firstLoad = false;
-                    splashMarker.destruct();
-                    splashMarker = undefined;
-                }
-                return target[prop];
-            } 
-            else if (firstLoad && splashMarker.state == 'fulfilled')  {
-                //console.log('getting ' + prop + ' from splash');
-                return splashMarker[prop];
-            } 
-            else {
-                //console.log('Still loading, trying to get ' + prop + '. Returning from full marker');
-                return target[prop];
-            }
-
-        }
-    })
-}
-
 const appLayout = mobx.observable({
     margin: {
         top: 20,
@@ -198,7 +165,7 @@ chart();
 
 function chart() {
 
-    const marker = splash('bubble', { time: { time: 2017 } }); // Vizabi.stores.markers.bubble;
+    const marker = viz.markers.bubble.encoding.frame.splash.marker; // Vizabi.stores.markers.bubble;
     const legendmarker = viz.markers.legend;
 
     var xAxis = d3.axisBottom();

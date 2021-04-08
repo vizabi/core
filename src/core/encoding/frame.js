@@ -1,11 +1,12 @@
 import { baseEncoding } from './baseEncoding';
-import { action, reaction, trace } from 'mobx'
+import { action, observable, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
 import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
+import { resolveRef } from '../config';
 
 const defaultConfig = {
     modelType: "frame",
@@ -22,7 +23,8 @@ const defaults = {
     interpolate: true,
     loop: false,
     playbackSteps: 1,
-    speed: 100
+    speed: 100,
+    splash: { show: false }
 }
 
 const functions = {
@@ -300,6 +302,61 @@ const functions = {
         this.destructers.push(() => {
             clearInterval(this.playInterval);
         })
+    },
+    get splash() {
+        return observable({
+            parent: this,
+            config: this.config.splash || {},
+            get show() {
+                return this.config.show || defaults.splash.show;
+            },
+            get marker() {
+                let marker = this.parent.marker;
+                let splashMarker = this.currentValueMarker;
+                let firstLoad = true;
+                return new Proxy(marker, {
+                    get: function(target, prop, receiver) {
+                        
+                        if (marker.state == 'fulfilled') {
+                            if (firstLoad) {
+                                firstLoad = false;
+                                splashMarker.destruct();
+                                splashMarker = undefined;
+                            }
+                            return target[prop];
+                        } 
+                        else if (firstLoad && splashMarker.state == 'fulfilled')  {
+                            return splashMarker[prop];
+                        } 
+                        else {
+                            return target[prop];
+                        }
+            
+                    }
+                })
+
+            },
+            get currentValueMarker() {
+                const marker = this.parent.marker;
+                if (this.show) {
+                    const concept = resolveRef(this.parent.data.config.concept);
+                    if (typeof concept == "string") {
+                        let splashConfig = Vizabi.utils.deepclone(marker.config);
+                        const filterMerge = { data: { filter: { dimensions: { [concept]: { [concept]: 
+                            marker.config.encoding.frame.value 
+                        } } } } }
+                        splashConfig = Vizabi.utils.deepmerge(splashConfig, filterMerge);
+                    
+                        return Vizabi.marker(splashConfig);
+                    } else {
+                        console.warn("Frame splash does not work with autoconfig concept. Please set frame.data.concept or disable splash.")
+                        return marker;
+                    }
+                } else {
+                    return marker;
+                }
+            }
+        });
     }
 }
 
