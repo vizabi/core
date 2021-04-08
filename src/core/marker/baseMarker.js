@@ -12,10 +12,7 @@ import { configSolver } from '../dataConfig/configSolver';
 
 
 const defaultConfig = {
-    data: {
-        space: [],
-        filter: {}
-    },
+    data: { },
     encoding: {},
 };
 

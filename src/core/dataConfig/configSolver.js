@@ -1,22 +1,24 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
 import { isReference, resolveRef } from "../config";
-import { fromPromiseAll, isNonNullObject } from "../utils";
+import { fromPromiseAll, isNonNullObject, mode } from "../utils";
 
 /**
  * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
  */
-const methods = {}
+const solveMethods = {}
 
 export const configSolver = {
-    addSelectMethod(fn, name = fn.name) {
-        methods[name] = fn;
-    },
+    addSolveMethod,
     configSolution,
     needsAutoConfig,
     encodingSolution,
     markerPromiseBeforeSolving,
     dataConfigPromisesBeforeSolving
+}
+
+function addSolveMethod(fn, name = fn.name) {
+    solveMethods[name] = fn;
 }
 
 function configSolution(dataConfig) {     
@@ -94,8 +96,9 @@ function autoConfigSpace(dataConfig, getFurtherResult) {
 
     const spaceFilter = (dataConfig.config.space && dataConfig.config.space.filter) || (dataConfig.defaults.space && dataConfig.defaults.space.filter);
     const satisfiesSpaceFilter = createFilterFn(spaceFilter);
-    const spaces = [...dataConfig.source.availability.keyLookup.values()]
-        .sort((a, b) => a.length - b.length); // smallest spaces first
+    const spaces = sortSpacesByPreference(
+        [...dataConfig.source.availability.keyLookup.values()] 
+    );
 
     for (let space of spaces) {
         let result;
@@ -114,6 +117,10 @@ function autoConfigSpace(dataConfig, getFurtherResult) {
     return false;
 }
 
+function sortSpacesByPreference(spaces) {
+    return spaces.sort((a, b) => a.length > 1 && b.length > 1 ? a.length - b.length : b.length - a.length); // 1-dim in back, rest smallest spaces first
+}
+
 function findSpaceAndConcept(dataConfig, avoidConcepts) {
 
     return autoConfigSpace(dataConfig, space => {
@@ -122,15 +129,20 @@ function findSpaceAndConcept(dataConfig, avoidConcepts) {
 
 }
 
-function isConceptAvailableForSpace(availability, space, concept) {
+function isConceptAvailableForSpace(dataConfig, space, concept) {
     const keyStr = createKeyStr(space);
-    return availability.keyValueLookup.get(keyStr).has(concept);
+    return dataConfig.source.availability.keyValueLookup.get(keyStr).has(concept);
 }
 
 function needsSolving(config) {
     config = resolveRef(config);
     return isNonNullObject(config) && !Array.isArray(config);
 }
+
+// Add preconfigured often used solver methods 
+addSolveMethod(defaultConceptSolver);
+addSolveMethod(mostCommonDimensionProperty);
+addSolveMethod(selectUnusedConcept);
 
 /**
  * Tries to find encoding concept for a given space, encoding and partial solution which contains concepts to avoid.  
@@ -144,31 +156,13 @@ function needsSolving(config) {
 function findConceptForSpace(space, dataConfig, usedConcepts = []) {
     let concept;
     const conceptCfg = dataConfig.config.concept || dataConfig.defaults.concept;
-    const dataSource = dataConfig.source;
-    const availability = dataSource.availability;
 
     if (dataConfig.isConstant()) {
         return { concept: undefined, space };
     } else if (needsSolving(conceptCfg)) {
-        const satisfiesFilter = conceptCfg.filter 
-            ? createFilterFn(conceptCfg.filter)
-            : () => true;
-
-        const filteredConcepts =  [...availability.keyValueLookup.get(createKeyStr(space)).keys()]
-            // should be able to show space concepts (e.g. time)
-            .concat(space)
-            // exclude the ones such as "is--country", they won't get resolved
-            .filter(concept => concept.substr(0,4) !== "is--")
-            // get concept objects
-            .map(dataSource.getConcept.bind(dataSource))
-            // configurable filter
-            .filter(satisfiesFilter);
-        
-        const selectMethod = methods[conceptCfg.selectMethod] || selectUnusedConcept;
-        concept = selectMethod({ concepts: filteredConcepts, dataConfig, usedConcepts, space }).concept
-            || undefined;
-        
-    } else if (isConceptAvailableForSpace(availability, space, conceptCfg)) {
+        const solveConcept = solveMethods[conceptCfg.solveMethod || 'defaultConceptSolver'];
+        concept = solveConcept(space, dataConfig, usedConcepts)
+    } else if (isConceptAvailableForSpace(dataConfig, space, conceptCfg)) {
         concept = conceptCfg;
     } 
 
@@ -180,9 +174,47 @@ function findConceptForSpace(space, dataConfig, usedConcepts = []) {
     return { concept, space };
 }
 
+function defaultConceptSolver(space, dataConfig, usedConcepts) {
+
+    const dataSource = dataConfig.source;
+    const availability = dataSource.availability;
+    const conceptCfg = dataConfig.config.concept || dataConfig.defaults.concept;
+
+    const satisfiesFilter = conceptCfg.filter 
+        ? createFilterFn(conceptCfg.filter)
+        : () => true;
+
+    const filteredConcepts = [...availability.keyValueLookup.get(createKeyStr(space)).keys()]
+        // should be able to show space concepts (e.g. time)
+        .concat(space)
+        // exclude the ones such as "is--country", they won't get resolved
+        .filter(concept => concept.substr(0,4) !== "is--")
+        // get concept objects
+        .map(dataSource.getConcept.bind(dataSource))
+        // configurable filter
+        .filter(satisfiesFilter);
+
+    const selectMethod = solveMethods[conceptCfg.selectMethod] || selectUnusedConcept;
+    return selectMethod({ concepts: filteredConcepts, dataConfig, usedConcepts, space }).concept
+        || undefined;
+}
+
+function mostCommonDimensionProperty(space, dataConfig, usedConcepts) {
+    const dataSource = dataConfig.source;
+    const availability = dataSource.availability;
+    const entitySpace = space.filter(dim => dataSource.isEntityConcept(dim));
+    const candidates = [];
+    for (let dim of entitySpace) {
+        const concepts = availability.keyValueLookup.get(createKeyStr([dim])).keys();
+        candidates.push(...concepts);
+    }
+    return mode(candidates);
+}
+
+
 function selectUnusedConcept({ concepts, usedConcepts }) {
     // first try unused concepts, otherwise, use already used concept
-    return concepts.find(concept => !usedConcepts.includes(concept)) || concepts[0];
+    return concepts.find(concept => !usedConcepts.includes(concept.concept)) || concepts[0];
 }
 
 function needsSpaceAutoCfg(dataConfig) {

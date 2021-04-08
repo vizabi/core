@@ -3,6 +3,7 @@ import { composeObj, renameProperty } from '../utils';
 import { trace, toJS, observable } from 'mobx';
 import { fromPromise } from 'mobx-utils';
 import { DataFrame } from '../../dataframe/dataFrame';
+import { configSolver } from './configSolver';
 
 export function entityPropertyDataConfig(config, parent) {
     return observable(
@@ -12,6 +13,9 @@ export function entityPropertyDataConfig(config, parent) {
 }
 
 entityPropertyDataConfig.nonObservable = function (cfg, parent) {
+
+    if (!("concept" in cfg)) cfg.concept = { solveMethod:'mostCommonDimensionProperty' }
+
     const base = dataConfig.nonObservable(cfg, parent);
 
     return composeObj(base, {

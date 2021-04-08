@@ -29,6 +29,14 @@ export function mapToObj(map) {
     return obj;
 }
 
+export function mode(arr = []) {
+    return arr.reduce( ( acc, el ) => {
+        acc.c[el] = acc.c[el] ? acc.c[el] + 1 : 1
+        acc.max = acc.max ? acc.max < acc.c[el] ? el : acc.max : el
+        return acc  
+    }, { c:{} }).max
+}
+
 // intersect of two arrays (representing sets)
 // i.e. everything in A which is also in B
 export function intersect(a, b) {

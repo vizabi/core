@@ -105,6 +105,40 @@ const config = {
                 map: { data: { concept: "shape_lores_svg" } }
             }
         },
+        "bubble-configless": {
+            modelType: "bubble",
+            data: { source: "gapbw" },
+            encoding: {
+                "selected": {
+                    modelType: "selection",
+                    data: { 
+                        filter: { 
+                            ref: "markers.bubble.encoding.trail.data.filter"
+                        }
+                    }
+                },
+                "highlighted": { modelType: "selection" },
+                "superhighlighted": { modelType: "selection" },
+                "x": { },
+                "y": { },
+                "order": { modelType: "order",
+                    data: { concept: { 
+                        ref: "markers.bubble.encoding.size.data.concept"
+                    } }
+                },
+                "size": { modelType: "size",
+                    scale: {
+                        type: "sqrt",
+                        range: [0, 50]
+                    }
+                },
+                "color": { },
+                "label": { data: { modelType: "entityPropertyDataConfig" } },
+                "frame": { modelType: "frame" },
+                "trail": { modelType: "trail" }                
+            }
+
+        },
         "bubble": {
             modelType: "bubble",
             data: {
@@ -208,6 +242,7 @@ const config = {
                     data: {
                         concept: "time"
                     },
+                    splash: true,
                     value: "2018",
                     interpolate: true,
                     extrapolate: "fill",

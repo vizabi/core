@@ -1,5 +1,5 @@
 import { autorun } from 'mobx';
-import { marker } from '../../../src/core/marker/marker';
+import { baseMarker } from '../../../src/core/marker/baseMarker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
 
@@ -40,7 +40,7 @@ describe('create marker', () => {
     it('create a new marker and get dataMap', async () => {
         const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
         dataSourceStore.createAndAddType('ddf', DDFReadObject);
-        const mrk = marker({
+        const mrk = baseMarker({
             data: {   
                 source: { 
                     path: 'test/ddf--jheeffer--mdtest',
@@ -72,7 +72,40 @@ describe('create marker', () => {
             x: 43308,
             label: { gender: 'Male', geo: 'Sweden', time: new Date(Date.UTC(2012)) },
             [Symbol.for('key')]: 'gender-male-geo-swe-time-2012\\-01\\-01T00:00:00.000Z'
-          })
+        })
     })
 
+    it('create a new marker with just dataset and encodings', async () => {
+
+        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
+        dataSourceStore.createAndAddType('ddf', DDFReadObject);
+        const mrk = baseMarker({
+            data: {   
+                source: { 
+                    path: 'test/ddf--jheeffer--mdtest',
+                    modelType: 'ddf'
+                }
+            },
+            encoding: {
+                size: { },
+                y: { },
+                x: { },
+                label: { data: { modelType: 'entityPropertyDataConfig' } },
+                frame: { modelType: 'frame' }
+            }
+        });
+        const dataMap = await check(mrk, 'dataMap');
+        //console.log(dataMap.get({geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))}));
+        expect(dataMap.get({geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))})).toEqual({
+            gender: 'male',
+            geo: 'swe',
+            time: new Date(Date.UTC(2012)),
+            size: 4748680,
+            y: 79.9,
+            x: 43308,
+            label: { gender: 'Male', geo: 'Sweden', time: new Date(Date.UTC(2012)) },
+            [Symbol.for('key')]: 'gender-male-geo-swe-time-2012\\-01\\-01T00:00:00.000Z'
+        })
+    })
 })
+
