@@ -201,14 +201,23 @@ function defaultConceptSolver(space, dataConfig, usedConcepts) {
 
 function mostCommonDimensionProperty(space, dataConfig, usedConcepts) {
     const dataSource = dataConfig.source;
-    const availability = dataSource.availability;
+    const kvLookup = dataSource.availability.keyValueLookup;
     const entitySpace = space.filter(dim => dataSource.isEntityConcept(dim));
-    const candidates = [];
+    
+    const conceptCfg = dataConfig.config.concept || dataConfig.defaults.concept;
+    const allowedProperties = conceptCfg.allowedProperties;
+
+    const occurences = [];
     for (let dim of entitySpace) {
-        const concepts = availability.keyValueLookup.get(createKeyStr([dim])).keys();
-        candidates.push(...concepts);
+        let concepts;
+        if (allowedProperties) {
+            concepts = allowedProperties.slice(0).filter(c => kvLookup.get(dim).has(c));
+        } else {
+            concepts = kvLookup.get(createKeyStr([dim])).keys();
+        }
+        occurences.push(...concepts);
     }
-    return mode(candidates);
+    return mode(occurences);
 }
 
 

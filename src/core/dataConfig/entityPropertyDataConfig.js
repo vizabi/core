@@ -14,7 +14,10 @@ export function entityPropertyDataConfig(config, parent) {
 
 entityPropertyDataConfig.nonObservable = function (cfg, parent) {
 
-    if (!("concept" in cfg)) cfg.concept = { solveMethod:'mostCommonDimensionProperty' }
+    if (!("concept" in cfg)) cfg.concept = { 
+        solveMethod: 'mostCommonDimensionProperty', 
+        allowedProperties: ['name', 'title']
+    }
 
     const base = dataConfig.nonObservable(cfg, parent);
 
@@ -31,25 +34,28 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
         },
         get queries() {
             const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));
-            return entityDims.map(dim => {
-                const query = {
-                    select: {
-                        key: [dim],
-                        value: [this.concept]
-                    },
-                    from: "entities"
-                }
+            const kvLookup = this.source.availability.keyValueLookup;
+            return entityDims
+                .filter(dim => kvLookup.get(dim).has(this.concept))
+                .map(dim => {
+                    const query = {
+                        select: {
+                            key: [dim],
+                            value: [this.concept]
+                        },
+                        from: "entities"
+                    }
 
-                if (this.filter) {
-                    query.where = this.filter.whereClause(query.select.key);
-                }
+                    if (this.filter) {
+                        query.where = this.filter.whereClause(query.select.key);
+                    }
 
-                if (this.locale) {
-                    query.language = this.locale; 
-                }
+                    if (this.locale) {
+                        query.language = this.locale; 
+                    }
 
-                return query;
-            });
+                    return query;
+                });
         },
         get lookups() {
             const concept = this.concept;

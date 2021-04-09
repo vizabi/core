@@ -38,7 +38,7 @@ export function LookupStorage(concepts, keyArr) {
             const entityProps = {};
             keyArr.forEach(dim => {
                 if (lookups.has(dim))
-                    entityProps[dim] = lookups.get(dim).get(keyObj[dim]);
+                    entityProps[dim] = lookups.get(dim).get(keyObj[dim]) ?? keyObj[dim];
                 else
                     entityProps[dim] = keyObj[dim];
             });

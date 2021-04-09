@@ -106,7 +106,7 @@ const config = {
             }
         },
         "bubble": {
-            modelType: "bubble",
+            requiredEncodings: ["x", "y", "size"],
             data: { source: "gapbw" },
             encoding: {
                 "selected": {
@@ -137,10 +137,8 @@ const config = {
                 "frame": { modelType: "frame" },
                 "trail": { modelType: "trail" }                
             }
-
         },
         "bubble-config": {
-            modelType: "bubble",
             data: {
                 source: "gapbw",
                 space: ["country", "time"],
@@ -163,6 +161,7 @@ const config = {
                     }
                 }*/
             },
+            requiredEncodings: ["x", "y", "size"],
             encoding: {
                 "selected": {
                     modelType: "selection",
@@ -213,12 +212,11 @@ const config = {
                     }
                 },
                 "size": {
-                    modelType: "size",
                     data: {
                         concept: "population_total"
                     },
                     scale: {
-                        type: "sqrt",
+                        modelType: "size",
                         range: [0, 50]
                     }
                 },
