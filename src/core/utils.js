@@ -328,6 +328,13 @@ export function parseConfigValue(valueStr, concept) {
 
     return ""+valueStr;
 }
+
+export function autoFormat(o) {
+    if (o instanceof Date)
+        return formatDate(o)
+    return ""+o;
+}
+
 function formatDate(date) {
     var month = date.getUTCMonth(),
         day = date.getUTCDate(),

@@ -325,7 +325,7 @@ function chart() {
         function draw() {
             const frameCfg = marker.encoding.frame;
             const [min, max] = frameCfg.scale.domain;
-            d3.select("#timecontrol").select('.frameval').text(frameCfg.value.toISOString());
+            d3.select("#timecontrol").select('.frameval').text(Vizabi.utils.autoFormat(frameCfg.value));
             timeslider.attr('min', 0)
                 .attr('max', frameCfg.stepCount - 1)
                 .property('value', frameCfg.step)
@@ -457,13 +457,14 @@ function chart() {
                 return selectedFilter.has(key) && highlightFilter.has(d)
             }
 
-
             function drawLabel(d) {
                 let labelStr;
 
-                const labelWithoutFrame = (d) => marker.data.space.filter(dim => trailConcept !== dim).map(dim => d.label[dim]).join(', ')
-                const labelAll = (d) => marker.data.space.map(dim => d.label[dim]).join(', ');
-                const labelOnlyFrame = (d) => d[trailConcept];
+                const format = Vizabi.utils.autoFormat;
+
+                const labelWithoutFrame = (d) => marker.data.space.filter(dim => trailConcept !== dim).map(dim => format(d.label[dim])).join(', ')
+                const labelAll = (d) => marker.data.space.map(dim => format(d.label[dim])).join(', ');
+                const labelOnlyFrame = (d) => format(d[trailConcept]);
 
                 // if trail, put label at trail start
                 const key = d[Symbol.for('trailHeadKey')] || d[Symbol.for('key')];
