@@ -357,6 +357,7 @@ function chart() {
             const data = marker.dataArray;
             const sizeConfig = marker.encoding.size;
             const sizeScale = sizeConfig.scale.d3Scale;
+            const bubbleSurfaceScale = d3.scaleSqrt().domain(sizeScale.range()).range(sizeScale.range());
             const colorConfig = marker.encoding.color;
             const colorScale = colorConfig.scale.d3Scale;
             const xConfig = marker.encoding.x;
@@ -419,7 +420,7 @@ function chart() {
                     .style('stroke-opacity', getOpacity)
                     .style('opacity', getOpacity)
                     .attr("r", d => {
-                        return sizeScale(d.size);
+                        return bubbleSurfaceScale(sizeScale(d.size));
                     })
                     // must have these on every draw so they don't get stuck on splash marker's enter selection
                     .on("click", d => {

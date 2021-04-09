@@ -105,7 +105,7 @@ const config = {
                 map: { data: { concept: "shape_lores_svg" } }
             }
         },
-        "bubble-configless": {
+        "bubble": {
             modelType: "bubble",
             data: { source: "gapbw" },
             encoding: {
@@ -126,20 +126,20 @@ const config = {
                         ref: "markers.bubble.encoding.size.data.concept"
                     } }
                 },
-                "size": { modelType: "size",
+                "size": {
                     scale: {
-                        type: "sqrt",
+                        modelType: 'size',
                         range: [0, 50]
                     }
                 },
-                "color": { },
+                "color": { scale: { modelType: "color" } },
                 "label": { data: { modelType: "entityPropertyDataConfig" } },
                 "frame": { modelType: "frame" },
                 "trail": { modelType: "trail" }                
             }
 
         },
-        "bubble": {
+        "bubble-config": {
             modelType: "bubble",
             data: {
                 source: "gapbw",
