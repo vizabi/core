@@ -54,6 +54,13 @@ export function isProperSubset(a, b) {
     return intersection.length == a.length && intersection.length != b.length;
 }
 
+export function subsets(array) { 
+    return array.reduce(
+        (subsets, value) => [...subsets.map(set => [...set, value]), ...subsets],
+        [[]]
+    )
+}
+
 /**
  * Relative complement (difference, B\A) of A with respect to B
  * Everything in B which is not in A. A=[geo,year], B=[geo,year,gender], B\A = [gender]

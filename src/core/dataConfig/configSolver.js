@@ -1,7 +1,7 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
 import { isReference, resolveRef } from "../config";
-import { fromPromiseAll, isNonNullObject, mode } from "../utils";
+import { fromPromiseAll, isNonNullObject, mode, subsets } from "../utils";
 
 /**
  * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
@@ -24,7 +24,10 @@ function addSolveMethod(fn, name = fn.name) {
 function configSolution(dataConfig) {     
     if (dataConfig.marker) {
         if (dataConfig.hasEncodingMarker) {
-            return dataConfig.marker.data.configSolution.encodings[dataConfig.parent.name];
+            if (dataConfig.marker.data.configSolution)
+                return dataConfig.marker.data.configSolution.encodings[dataConfig.parent.name];
+            else 
+                return { concept: undefined, space: undefined };
         } else {
             return markerSolution(dataConfig);
         }
@@ -34,17 +37,17 @@ function configSolution(dataConfig) {
     }
 }
 
-function encodingSolution(dataConfig, fallbackSpaceCfg, avoidConcepts = []) {
+function encodingSolution(dataConfig, markerSpaceCfg, usedConcepts = []) {
     let result;
     // const [userSpace, defaultSpace] = splitConfig(this.config, 'space');
-    let spaceCfg = "space" in dataConfig.config ? resolveRef(dataConfig.config.space) : fallbackSpaceCfg || dataConfig.defaults.space;
+    let spaceCfg = "space" in dataConfig.config ? resolveRef(dataConfig.config.space) : markerSpaceCfg || dataConfig.defaults.space;
     let conceptCfg = "concept" in dataConfig.config ? dataConfig.config.concept : dataConfig.defaults.concept;
 
     if (needsSpaceAutoCfg(dataConfig)) {
-        result = findSpaceAndConcept(dataConfig, avoidConcepts);
+        result = findSpaceAndConcept(dataConfig, { usedConcepts, markerSpaceCfg });
     } else if (needsConceptAutoCfg(dataConfig)) {
         const plainArraySpace = spaceCfg.slice(0);
-        result = findConceptForSpace(plainArraySpace, dataConfig, avoidConcepts);
+        result = findConceptForSpace(plainArraySpace, dataConfig, { usedConcepts });
     } else {
         result = {
             space: spaceCfg,
@@ -85,20 +88,27 @@ function markerSolution(dataConfig) {
             return;
         }
 
-        return autoConfigSpace(dataConfig, space => findMarkerConfigForSpace(dataConfig, space))
+        return autoConfigSpace(dataConfig, undefined, space => findMarkerConfigForSpace(dataConfig, space))
 
     } else {
         return findMarkerConfigForSpace(dataConfig, cfg.space);
     }
 }
 
-function autoConfigSpace(dataConfig, getFurtherResult) {
+function autoConfigSpace(dataConfig, extraOptions = {}, getFurtherResult) {
+
+    const { markerSpaceCfg } = extraOptions;
+    let availableSpaces;
+    if (dataConfig.hasEncodingMarker && markerSpaceCfg) {
+        availableSpaces = subsets(markerSpaceCfg)
+            .filter(space => dataConfig.source.availability.keyLookup.has(createKeyStr(space)))
+    } else {
+        availableSpaces = Array.from(dataConfig.source.availability.keyLookup.values());
+    }
 
     const spaceFilter = (dataConfig.config.space && dataConfig.config.space.filter) || (dataConfig.defaults.space && dataConfig.defaults.space.filter);
     const satisfiesSpaceFilter = createFilterFn(spaceFilter);
-    const spaces = sortSpacesByPreference(
-        [...dataConfig.source.availability.keyLookup.values()] 
-    );
+    const spaces = sortSpacesByPreference(availableSpaces);
 
     for (let space of spaces) {
         let result;
@@ -121,10 +131,10 @@ function sortSpacesByPreference(spaces) {
     return spaces.sort((a, b) => a.length > 1 && b.length > 1 ? a.length - b.length : b.length - a.length); // 1-dim in back, rest smallest spaces first
 }
 
-function findSpaceAndConcept(dataConfig, avoidConcepts) {
+function findSpaceAndConcept(dataConfig, extraOptions) {
 
-    return autoConfigSpace(dataConfig, space => {
-        return findConceptForSpace(space, dataConfig, avoidConcepts)
+    return autoConfigSpace(dataConfig, extraOptions, space => {
+        return findConceptForSpace(space, dataConfig, extraOptions)
     })
 
 }
@@ -150,10 +160,10 @@ addSolveMethod(selectUnusedConcept);
  * Returns concept id which satisfies encoding definition (incl autoconfig) and does not overlap with partial solution.
  * @param {*} space 
  * @param {*} conceptCfg
- * @param {*} avoidConcepts array of concept ids to avoid in finding autoconfig solution
+ * @param {*} extraOptions.usedConcepts: array of concept ids to avoid in finding autoconfig solution
  * @returns {string} concept id
  */
-function findConceptForSpace(space, dataConfig, usedConcepts = []) {
+function findConceptForSpace(space, dataConfig, { usedConcepts = [] }) {
     let concept;
     const conceptCfg = dataConfig.config.concept || dataConfig.defaults.concept;
 
@@ -167,7 +177,7 @@ function findConceptForSpace(space, dataConfig, usedConcepts = []) {
     } 
 
     if (!concept) {
-        console.warn("Could not autoconfig concept for given space.", { dataconfig: this, space });
+        console.warn("Could not autoconfig concept for given space.", { dataConfig, space });
         return false;
     } 
 
@@ -195,11 +205,17 @@ function defaultConceptSolver(space, dataConfig, usedConcepts) {
         .filter(satisfiesFilter);
 
     const selectMethod = solveMethods[conceptCfg.selectMethod] || selectUnusedConcept;
-    return selectMethod({ concepts: filteredConcepts, dataConfig, usedConcepts, space }).concept
-        || undefined;
+    return selectMethod({ concepts: filteredConcepts, dataConfig, usedConcepts, space })?.concept;
 }
 
-function mostCommonDimensionProperty(space, dataConfig, usedConcepts) {
+/**
+ * Get the property that exists on most entity concepts in space.
+ * Possibly limited by `allowedProperties` in the concept solving options.
+ * @param {*} space 
+ * @param {*} dataConfig 
+ * @returns 
+ */
+function mostCommonDimensionProperty(space, dataConfig) {
     const dataSource = dataConfig.source;
     const kvLookup = dataSource.availability.keyValueLookup;
     const entitySpace = space.filter(dim => dataSource.isEntityConcept(dim));
@@ -210,10 +226,11 @@ function mostCommonDimensionProperty(space, dataConfig, usedConcepts) {
     const occurences = [];
     for (let dim of entitySpace) {
         let concepts;
+        let allProperties = kvLookup.get(createKeyStr([dim]));
         if (allowedProperties) {
-            concepts = allowedProperties.slice(0).filter(c => kvLookup.get(dim).has(c));
+            concepts = allowedProperties.filter(c => allProperties.has(c));
         } else {
-            concepts = kvLookup.get(createKeyStr([dim])).keys();
+            concepts = allProperties.keys();
         }
         occurences.push(...concepts);
     }
