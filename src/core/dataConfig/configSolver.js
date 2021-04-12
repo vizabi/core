@@ -195,8 +195,6 @@ function defaultConceptSolver(space, dataConfig, usedConcepts) {
         : () => true;
 
     const filteredConcepts = [...availability.keyValueLookup.get(createKeyStr(space)).keys()]
-        // should be able to show space concepts (e.g. time)
-        .concat(space)
         // exclude the ones such as "is--country", they won't get resolved
         .filter(concept => concept.substr(0,4) !== "is--")
         // get concept objects

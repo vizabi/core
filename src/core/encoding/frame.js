@@ -370,8 +370,8 @@ frame.nonObservable = function(config, parent) {
     applyDefaults(config, defaultConfig);
 
     configSolver.addSolveMethod(
-        function selectFrameConcept({ concepts, space }) {
-            const spaceConcepts = concepts.filter(c => space.includes(c.concept));
+        function selectFrameConcept({ concepts, space, dataConfig }) {
+            const spaceConcepts = space.map(dim => dataConfig.source.getConcept(dim));
             return findTimeOrMeasure(spaceConcepts) || findTimeOrMeasure(concepts) || spaceConcepts[spaceConcepts.length - 1];
             
             function findTimeOrMeasure (concepts) {

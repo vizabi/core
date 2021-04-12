@@ -39,10 +39,6 @@ function resolveTreeRef(refStr, tree) {
     const ref = refStr.split('.');
     let node = tree;
     for (let i = 0; i < ref.length; i++) {
-        if (typeof node == "undefined") {
-            console.warn("Couldn't resolve reference " + refStr);
-            return null;
-        }
 
         let step = ref[i];
         if (step == '^') {
@@ -51,6 +47,11 @@ function resolveTreeRef(refStr, tree) {
             node = node.get(step);
         else
             node = node[step];
+
+        if (typeof node == "undefined") {
+            console.warn("Couldn't resolve reference " + refStr);
+            return null;
+        }
     }
     return node;
 }
