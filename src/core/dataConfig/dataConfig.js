@@ -22,6 +22,10 @@ export function dataConfig(config = {}, parent, id) {
 
 dataConfig.nonObservable = function(config, parent, id) {
 
+    if (parent.config.encoding) {
+        if (!("filter" in config)) config.filter = {};
+    }
+
     applyDefaults(config, defaultConfig);
     let latestResponse = [];
 
