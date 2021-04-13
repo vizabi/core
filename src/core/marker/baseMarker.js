@@ -326,3 +326,7 @@ baseMarker.nonObservable = function(config, parent, id) {
 
     return assign({}, functions, configurable, { config, id });
 }
+
+baseMarker.decorate = {
+    encodingCache: observable.ref
+}

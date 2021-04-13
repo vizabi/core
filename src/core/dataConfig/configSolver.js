@@ -1,6 +1,6 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
-import { isReference, resolveRef } from "../config";
+import { isReference } from "../config";
 import { createSpaceFilterFn, fromPromiseAll, isNonNullObject, mode, subsets } from "../utils";
 
 /**
@@ -38,20 +38,18 @@ function configSolution(dataConfig) {
 }
 
 function encodingSolution(dataConfig, markerSpaceCfg, usedConcepts = []) {
-    let result;
-    // const [userSpace, defaultSpace] = splitConfig(this.config, 'space');
-    let spaceCfg = "space" in dataConfig.config ? resolveRef(dataConfig.config.space) : markerSpaceCfg || dataConfig.defaults.space;
-    let conceptCfg = "concept" in dataConfig.config ? dataConfig.config.concept : dataConfig.defaults.concept;
+    let result;    
 
-    if (needsSpaceAutoCfg(dataConfig)) {
+    if (dataConfig.isConstant()) {
+        result = { concept: undefined, space: undefined };
+    } else if (needsSpaceAutoCfg(dataConfig)) {
         result = findSpaceAndConcept(dataConfig, { usedConcepts, markerSpaceCfg });
     } else if (needsConceptAutoCfg(dataConfig)) {
-        const plainArraySpace = spaceCfg.slice(0);
-        result = findConceptForSpace(plainArraySpace, dataConfig, { usedConcepts });
+        result = findConceptForSpace(dataConfig, { usedConcepts });
     } else {
         result = {
-            space: spaceCfg,
-            concept: conceptCfg
+            space: "space" in dataConfig.config ? dataConfig.config.space : dataConfig.defaults.space,
+            concept: "concept" in dataConfig.config ? dataConfig.config.concept : dataConfig.defaults.concept
         }
     }
 
@@ -134,18 +132,12 @@ function sortSpacesByPreference(spaces) {
 function findSpaceAndConcept(dataConfig, extraOptions) {
 
     return autoConfigSpace(dataConfig, extraOptions, space => {
-        return findConceptForSpace(space, dataConfig, extraOptions)
+        return findConceptForSpace(dataConfig, extraOptions, space)
     })
 
 }
 
-function isConceptAvailableForSpace(dataConfig, space, concept) {
-    const keyStr = createKeyStr(space);
-    return dataConfig.source.availability.keyValueLookup.get(keyStr).has(concept);
-}
-
 function needsSolving(config) {
-    config = resolveRef(config);
     return isNonNullObject(config) && !Array.isArray(config);
 }
 
@@ -163,21 +155,20 @@ addSolveMethod(selectUnusedConcept);
  * @param {*} extraOptions.usedConcepts: array of concept ids to avoid in finding autoconfig solution
  * @returns {string} concept id
  */
-function findConceptForSpace(space, dataConfig, { usedConcepts = [] }) {
+function findConceptForSpace(dataConfig, { usedConcepts = [] }, space) {
     let concept;
     const conceptCfg = dataConfig.config.concept || dataConfig.defaults.concept;
+    const spaceCfg = space || dataConfig.config.space || dataConfig.defaults.space;
 
-    if (dataConfig.isConstant()) {
-        return { concept: undefined, space };
-    } else if (needsSolving(conceptCfg)) {
-        const solveConcept = solveMethods[conceptCfg.solveMethod || 'defaultConceptSolver'];
-        concept = solveConcept(space, dataConfig, usedConcepts)
-    } else if (isConceptAvailableForSpace(dataConfig, space, conceptCfg)) {
+    if (needsConceptAutoCfg(dataConfig)) {
+        const solveConcept = solveMethods[conceptCfg.solveMethod] || defaultConceptSolver;
+        concept = solveConcept(spaceCfg, dataConfig, usedConcepts)
+    } else {
         concept = conceptCfg;
     } 
 
     if (!concept) {
-        console.warn("Could not autoconfig concept for given space.", { dataConfig, space });
+        console.warn("Could not autoconfig concept for given space.", { dataConfig, spaceCfg });
         return false;
     } 
 
@@ -244,19 +235,20 @@ function selectUnusedConcept({ concepts, usedConcepts }) {
 function needsSpaceAutoCfg(dataConfig) {
     const cfg = dataConfig.config;
     const defaults = dataConfig.defaults;
-    const isMarkerOrStandaloneDataConfig = !dataConfig.hasEncodingMarker;
+    const explicitNoSpace = "space" in cfg && !cfg.space;
     const usesDefaultAutoConfig = !cfg.space && needsSolving(defaults.space);
-    return needsSolving(cfg.space) 
-        || (isMarkerOrStandaloneDataConfig && usesDefaultAutoConfig);
+    return !explicitNoSpace 
+        && (needsSolving(cfg.space) || usesDefaultAutoConfig)
 }
 
 function needsConceptAutoCfg(dataConfig) {
     const cfg = dataConfig.config;
     const defaults = dataConfig.defaults;
     const isStandAloneDataConfig = !dataConfig.marker;
+    const explicitNoConcept = "concept" in cfg && !cfg.concept;
     const isNotMarkerDataConfig = dataConfig.hasEncodingMarker;
     const usesDefaultSolving = !("concept" in cfg) && needsSolving(defaults.concept);
-    return !isReference(dataConfig.config.concept) && (needsSolving(cfg.concept)
+    return !isReference(dataConfig.config.concept) && !explicitNoConcept && (needsSolving(cfg.concept)
         || ((isNotMarkerDataConfig || isStandAloneDataConfig) && usesDefaultSolving));
 }
 
