@@ -1,7 +1,7 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
 import { isReference, resolveRef } from "../config";
-import { fromPromiseAll, isNonNullObject, mode, subsets } from "../utils";
+import { createSpaceFilterFn, fromPromiseAll, isNonNullObject, mode, subsets } from "../utils";
 
 /**
  * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
@@ -106,23 +106,23 @@ function autoConfigSpace(dataConfig, extraOptions = {}, getFurtherResult) {
         availableSpaces = Array.from(dataConfig.source.availability.keyLookup.values());
     }
 
-    const spaceFilter = (dataConfig.config.space && dataConfig.config.space.filter) || (dataConfig.defaults.space && dataConfig.defaults.space.filter);
-    const satisfiesSpaceFilter = createFilterFn(spaceFilter);
+    const solveFilterSpec = dataConfig.config.space?.filter || dataConfig.defaults.space?.filter;
+    const solveFilter = createSpaceFilterFn(solveFilterSpec, dataConfig);
+    const allowFilter = dataConfig.allow.space?.filter || (() => true);
     const spaces = sortSpacesByPreference(availableSpaces);
 
     for (let space of spaces) {
         let result;
         if (!space.includes("concept") 
-            && space
-                .map(c => dataConfig.source.getConcept(c))
-                .every(satisfiesSpaceFilter)
+            && solveFilter(space)
+            && allowFilter(space)
             && (result = getFurtherResult(space))
         ) {
             return result
         }
     }
     
-    console.warn("Could not autoconfig to a space which also satisfies further results.", { dataConfig, spaceCfg });
+    console.warn("Could not autoconfig to a space which also satisfies further results.", { dataConfig, spaceCfg: dataConfig.config.space || dataConfig.defaults.space  });
 
     return false;
 }

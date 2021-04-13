@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
-import { applyDefaults, arrayEquals, fromPromiseAll, intersect, isNumeric } from "../utils";
+import { applyDefaults, arrayEquals, createSpaceFilterFn, fromPromiseAll, intersect, isNumeric } from "../utils";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { fromPromise, FULFILLED } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
@@ -11,6 +11,7 @@ import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
 
 const defaultConfig = {
+    allow: {}
 }
 
 export function dataConfig(config = {}, parent, id) {
@@ -44,6 +45,23 @@ dataConfig.nonObservable = function(config, parent, id) {
         config,
         parent,
         id,
+        get allow() {
+            return observable({
+                config: this.config.allow,
+                parent: this,
+                get space() {
+                    return { 
+                        filter: createSpaceFilterFn(this.config.space?.filter, this.parent)
+                    }
+                },
+                get concept() {
+                    return this.config.concept;
+                },
+                get source() {
+                    return this.config.source;
+                }
+            })
+        },
         getConceptsCatalog(concepts, dataConfig, maxDepth) {
             const promises = [];
             const result = {}

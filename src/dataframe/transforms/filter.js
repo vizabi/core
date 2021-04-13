@@ -39,9 +39,14 @@ export function applyFilterRow(row, filter) {
     // implicit $and in filter object handled by .every()
     return Object.keys(filter).every(filterKey => {
         let operator;
-        if (operator = operators.get(filterKey)) {
-            // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
-            return operator(row, filter[filterKey]);
+        if (filterKey.startsWith('$')) {
+            if (operator = operators.get(filterKey)) {
+                // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
+                return operator(row, filter[filterKey]);
+            } else {
+                console.warn('Unknown operator: ', { operator: filterKey, filter, row });
+                return true;
+            }
         } else if(typeof filter[filterKey] != "object") { // assuming values are primitives not Number/Boolean/String objects
             // { <field>: <value> } is shorthand for { <field>: { $eq: <value> }} 
             return operators.get("$eq")(row[filterKey], filter[filterKey]);

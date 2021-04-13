@@ -1,5 +1,6 @@
 import { fromPromise } from "mobx-utils";
 import { isObservableArray } from "mobx";
+import { createFilterFn } from "../dataframe/transforms/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
 
@@ -439,4 +440,17 @@ export function filterObject(obj, filter) {
     }
 
     return result;
+}
+
+export function createSpaceFilterFn(filterSpec = {}, dataConfig) {
+    if (Object.keys(filterSpec) == 0) {
+        return () => true;
+    }
+    const filterFn = createFilterFn(filterSpec);
+    const source = dataConfig.source;
+    return function filter(spaceArray) {
+        return spaceArray
+            .map(dim => typeof dim != 'object' ? source.getConcept(dim) : dim)
+            .every(filterFn);
+    }
 }
