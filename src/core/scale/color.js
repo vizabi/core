@@ -51,7 +51,7 @@ color.nonObservable = function(config, parent) {
         get d3Scale() {
             const scaleDomain = this.domain;
             const domain = this.palette.paletteType == "_continuous" ? 
-                this.palette.paletteDomain.map(m => scaleDomain[0] + m / 100 * (scaleDomain[1] - scaleDomain[0]))
+                this.palette.paletteDomain.map(m => +scaleDomain[0] + m / 100 * (scaleDomain[1] - scaleDomain[0]))
                 :
                 scaleDomain;
 
