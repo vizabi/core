@@ -16,10 +16,7 @@ export function dotToJoin(query) {
         if (s.length > 1) {
             const [key, value] = s;
             const filter = where[p];
-
             const joinid = "$" + key;
-            delete newq.where[p];
-            newq.where[key] = joinid;
 
             if (!newq.join) newq.join = {};
             if (!newq.join[joinid]) {
@@ -29,9 +26,14 @@ export function dotToJoin(query) {
                         [value]: filter
                     }
                 }
+                if (newq.where[key]) {
+                    newq.join[joinid].where[key] = newq.where[key];
+                }
+                newq.where[key] = joinid;
             } else {
                 newq.join[joinid].where[value] = filter;
             }
+            delete newq.where[p];
         }
     });
 
