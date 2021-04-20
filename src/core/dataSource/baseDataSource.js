@@ -87,9 +87,9 @@ baseDataSource.nonObservable = function (config, parent, id) {
         },
         get defaultEncodingPromise() {
             if ("getDefaultEncoding" in this.reader)
-                return this.reader.getDefaultEncoding();
+                return fromPromise(this.reader.getDefaultEncoding());
             else    
-                return Promise.resolve({});
+                return fromPromise.resolve({});
         },
         get defaultEncoding() {
             const empty = {};
