@@ -95,9 +95,11 @@ baseMarker.nonObservable = function(config, parent, id) {
                 () => this.config.encoding, 
                 () => this.data.source.defaultEncoding
             ];
-            const configGetter = configGetters.find(validEncoding)
-            if (!configGetter)
+            let configGetter = configGetters.find(validEncoding)
+            if (!configGetter) {
                 console.warn("No encoding found and marker data source has no default encodings");
+                configGetter = () => ({});
+            }
     
             return this.updateEncodingCache(configGetter());
         },
