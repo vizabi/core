@@ -10,5 +10,11 @@ export const repeat = defaultDecorator({
         get column() {
             return this.config.column;
         }
+    },
+    defaultConfig: {
+        data: {
+            concept: undefined,
+            space: undefined
+        }
     }
 });
