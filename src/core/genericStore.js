@@ -30,13 +30,13 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
             if (id) this.set(id, model);
             return model;
         }),
-        createMany: function(configs) {
+        createMany: action('createMany', function(configs) {
             const models = {};
             for (let id in configs) {
                 models[id] = this.create(configs[id], null, id);
             }
             return models;
-        },
+        }),
         has: function(id) {
             return id in this.models;
         },   

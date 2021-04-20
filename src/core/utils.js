@@ -1,5 +1,5 @@
 import { fromPromise } from "mobx-utils";
-import { isObservableArray } from "mobx";
+import { action, isObservableArray } from "mobx";
 import { createFilterFn } from "../dataframe/transforms/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
@@ -237,7 +237,7 @@ export function deepclone(object) {
     return deepmerge({}, object);
 }
 
-export function applyDefaults(config, defaults) {
+export const applyDefaults = action('applyDefaults', function applyDefaults(config, defaults) {
     const defaultProps = Object.keys(defaults);
     defaultProps.forEach(prop => {
         if (!config.hasOwnProperty(prop)) {
@@ -251,7 +251,7 @@ export function applyDefaults(config, defaults) {
         }
     })
     return config;
-}
+})
 
 export function equals(a,b) {
     if (a instanceof Date && b instanceof Date) {
