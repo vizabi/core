@@ -60,7 +60,7 @@ function findMarkerConfigForSpace(markerDataConfig, space) {
     let encodings = {};
     let usedConcepts = [];
 
-    let success = [...Object.entries(markerDataConfig.parent.encoding)].every(([name, enc]) => {
+    let success = sortedEncodingEntries(markerDataConfig.parent.encoding).every(([name, enc]) => {
         let encResult = encodingSolution(enc.data, space, usedConcepts);
         if (encResult) {
             encodings[name] = encResult;
@@ -71,6 +71,13 @@ function findMarkerConfigForSpace(markerDataConfig, space) {
     });
 
     return success ? { encodings, space } : undefined;
+}
+
+function sortedEncodingEntries(encodingObject) {
+    return [...Object.entries(encodingObject)]
+        .sort(
+            (a, b) => a[0].localeCompare(b[0])
+        );
 }
 
 function markerSolution(dataConfig) {
