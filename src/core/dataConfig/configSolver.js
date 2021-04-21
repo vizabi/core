@@ -58,13 +58,20 @@ function encodingSolution(dataConfig, markerSpaceCfg, usedConcepts = []) {
 
 function findMarkerConfigForSpace(markerDataConfig, space) {
     let encodings = {};
-    let usedConcepts = [];
+    let usedConcepts = new Set();
+    let dataConfigResults = new Map(); 
 
     let success = sortedEncodingEntries(markerDataConfig.parent.encoding).every(([name, enc]) => {
-        let encResult = encodingSolution(enc.data, space, usedConcepts);
+
+        // only one result per dataConfig, multiple encodings can have the same dataConfig (e.g. by reference)
+        let encResult = dataConfigResults.get(enc.data) 
+            ? dataConfigResults.get(enc.data)
+            : encodingSolution(enc.data, space, [...usedConcepts]);
+
         if (encResult) {
+            dataConfigResults.set(enc.data, encResult);
             encodings[name] = encResult;
-            usedConcepts.push(encResult.concept);
+            usedConcepts.add(encResult.concept);
             return true;
         }
         return false;

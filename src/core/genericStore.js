@@ -1,5 +1,5 @@
 import { observable, action } from 'mobx'
-import { isDataSource, isFilter, isModel, isString } from './utils'
+import { isDataConfig, isDataSource, isFilter, isModel, isString } from './utils'
 
 const defaultType = config => observable({ config });
 defaultType.nonObservable = config => ({ config })
@@ -40,7 +40,7 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
         get(reference, parent) {
             if (isString(reference)) {
                 return this.models[reference] // id
-            } else if (isDataSource(reference) || isFilter(reference)) {
+            } else if (isDataSource(reference) || isFilter(reference) || isDataConfig(reference)) {
                 return reference;
             } else if (isModel(reference)) {
                 return this.create(reference.config, parent)

@@ -20,6 +20,10 @@ export function isDataSource(model) {
     return isModel(model) && model.type == "dataSource";
 }
 
+export function isDataConfig(model) {
+    return isModel(model) && model.type == "dataConfig";
+}
+
 export function isFilter(model) {
     return isModel(model) && model.type == "filter";
 }

@@ -45,6 +45,7 @@ dataConfig.nonObservable = function(config, parent, id) {
         config,
         parent,
         id,
+        type: 'dataConfig',
         get allow() {
             return observable({
                 config: this.config.allow,
