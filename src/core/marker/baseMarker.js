@@ -37,6 +37,8 @@ export function baseMarker(config, parent, id) {
 baseMarker.nonObservable = function(config, parent, id) {
     applyDefaults(config, defaultConfig);
 
+    let currentDataConfig;
+
     let functions = {
         on: function(prop, fn) {
             if (this.validProp(prop) && typeof fn == "function") {
@@ -66,7 +68,11 @@ baseMarker.nonObservable = function(config, parent, id) {
         },
         get data() {
             const datacfg = resolveRef(this.config.data);
-            return dataConfigStore.get(datacfg, this)
+            const dataConfig = dataConfigStore.get(datacfg, this);
+            if (currentDataConfig && dataConfig != currentDataConfig) {
+                currentDataConfig.dispose();
+            }
+            return currentDataConfig = dataConfig;
         },
         get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
         encodingCache: {},
@@ -85,6 +91,7 @@ baseMarker.nonObservable = function(config, parent, id) {
         purgeStaleEncodingCache(encodingConfig) {
             for (const prop of Object.keys(this.encodingCache)) {
                 if (!(prop in encodingConfig)) {
+                    this.encodingCache[prop].dispose();
                     delete this.encodingCache[prop];
                 }
             }
@@ -314,15 +321,13 @@ baseMarker.nonObservable = function(config, parent, id) {
                 return frame.getInterpolatedFrame(data, step, stepsAround);
             }
         },
-        destruct() {
-            // Should not need to destruct as long as reactions only reference locally. Not some long-lasting observable outside its own model.
+        dispose() {
+            // Need to dispose because reactions may not observe only locally. Through state -> dataConfig -> resolveRef they can indirectly observe stores.
             // https://mobx.js.org/reactions.html#mem-leak-example
-            /*
-                    this.data.destruct();
-                    for (let enc of Object.values(this.encoding)) {
-                        enc.destruct();
-                    }
-            */
+            this.data.dispose();
+            for (let enc of Object.values(this.encoding)) {
+                enc.dispose();
+            }
         }
     }
 

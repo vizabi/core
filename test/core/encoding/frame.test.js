@@ -71,7 +71,7 @@ describe('frame encoding', () => {
                 })
             },
             { 
-                action: () => mrk.encoding.frame.destruct()
+                action: () => mrk.encoding.frame.dispose()
             }
         ])
     })
@@ -121,7 +121,7 @@ describe('frame encoding', () => {
                 })
             },
             { 
-                action: () => mrk.encoding.frame.destruct()
+                action: () => mrk.encoding.frame.dispose()
             }
         ])
     })

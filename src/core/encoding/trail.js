@@ -222,7 +222,7 @@ trail.nonObservable = function(config, parent) {
                         }
                     }
                 },
-                { name: "config loopback" }
+                { name: "trail config loopback" }
             );
             this.destructers.push(configLoopbackDestruct);
         }

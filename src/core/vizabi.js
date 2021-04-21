@@ -48,5 +48,10 @@ vizabi.encoding = (cfg, id) => {
     cfg = observable(cfg);
     return encodingStore.create(cfg, null, id);
 }
+vizabi.disposeAll = () => {
+    for (let storeName in stores) {
+        stores[storeName].disposeAll();
+    }
+}
 
 export default vizabi;

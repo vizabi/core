@@ -21,6 +21,8 @@ baseEncoding.nonObservable = function(config, parent, name) {
     //console.warn('creating new encoding', name, config);
     applyDefaults(config, defaultConfig);
 
+    let currentDataConfig;
+
     const functions = {
         get marker() {
             return this.parent;
@@ -32,8 +34,12 @@ baseEncoding.nonObservable = function(config, parent, name) {
                 return 'Unnamed'
         },
         get data() {
-            const data = resolveRef(this.config.data);
-            return dataConfigStore.get(data, this);
+            const config = resolveRef(this.config.data);
+            const dataConfig = dataConfigStore.get(config, this)
+            if (currentDataConfig && dataConfig != currentDataConfig) {
+                currentDataConfig.dispose();
+            }
+            return currentDataConfig = dataConfig;
         },
         get scale() {
             // console.warn('recalculating scale', this.name);
@@ -78,11 +84,11 @@ baseEncoding.nonObservable = function(config, parent, name) {
             this.config.scale.zoomed = null;
             this.config.scale.palette = {};
         }),
-        destruct() {
-            for (const destruct of this.destructers) {
-                destruct();
+        dispose() {
+            for (const dispose of this.destructers) {
+                dispose();
             }
-            this.data.destruct();
+            this.data.dispose();
         },
         destructers: [],
         

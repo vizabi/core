@@ -279,6 +279,6 @@ dataConfig.nonObservable = function(config, parent, id) {
           
             return query;
         },
-        destruct() { }
+        dispose() { }
     };
 }

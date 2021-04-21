@@ -7,20 +7,17 @@ defaultType.nonObservable = config => ({ config })
 export const createStore = function(baseType = defaultType, extendedTypes = {}) {
     return observable({
         modelTypes: {
-            base: baseType,
-            all: {
-                baseType,
-                ...extendedTypes
-            }
+            baseType,
+            ...extendedTypes
         },
         models: {},
         addType: function(modelType, modelConstructor) {
             if (this.modelTypes[modelType])
                 console.warn("Adding model type " + modelType + " failed. Type already exists", this);
-            this.modelTypes.all[modelType] = modelConstructor;
+            this.modelTypes[modelType] = modelConstructor;
         },    
         create: action('create', function(config, parent, id) {
-            let modelType = this.modelTypes.all[config.modelType] || this.modelTypes.base;
+            let modelType = this.modelTypes[config.modelType] || this.modelTypes.baseType;
             let model = observable(
                 modelType.nonObservable(config, parent, id), 
                 Object.assign(modelType.decorate || {}, { config: observable.ref }), 
@@ -56,6 +53,19 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
         }, 
         set: action('set', function(id, model) { 
             return this.models[id] = model;
+        }),
+        dispose: action('dispose', function(id) {
+            this.models[id].dispose();
+            delete this.models[id];
+        }),
+        disposeAll: action('disposeAll', function() {
+            // first dispose all then delete, so that any models build through references to these markers can be reached for disposal
+            for (let id in this.models) {
+                this.models[id].dispose();
+            }
+            for (let id in this.models) {
+                delete this.models[id];
+            }
         })
     }, {
         models: observable.shallow

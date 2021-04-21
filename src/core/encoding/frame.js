@@ -24,7 +24,7 @@ const defaults = {
     loop: false,
     playbackSteps: 1,
     speed: 100,
-    splash: { show: false }
+    splash: false
 }
 
 const functions = {
@@ -296,88 +296,85 @@ const functions = {
                     this.config.value = configValue(value, this.data.conceptProps);
                 }
             },
-            { name: "config loopback" }
+            { name: "frame config loopback" }
         );
         this.destructers.push(configLoopbackDestruct);
         this.destructers.push(() => {
             clearInterval(this.playInterval);
         })
     },
-    get splash() {
-        return observable({
-            parent: this,
-            config: this.config.splash || {},
-            get show() {
-                return this.config.show || defaults.splash.show;
-            },
-            get marker() {
-                let marker = this.parent.marker;
-                let splashMarker = this.currentValueMarker;
-                let firstLoad = true;
-                return new Proxy(marker, {
-                    get: function(target, prop, receiver) {
-                        
-                        if (marker.state == 'fulfilled') {
-                            if (firstLoad) {
-                                firstLoad = false;
-                                splashMarker.destruct();
-                                splashMarker = undefined;
-                            }
-                            return target[prop];
-                        } 
-                        else if (firstLoad && splashMarker.state == 'fulfilled')  {
-                            return splashMarker[prop];
-                        } 
-                        else {
-                            return target[prop];
-                        }
-            
-                    }
-                })
-
-            },
-            get currentValueMarker() {
-                const marker = this.parent.marker;
-                if (this.show) {
-                    const concept = resolveRef(this.parent.data.config.concept);
-                    if (typeof concept == "string") {
-                        let splashConfig = Vizabi.utils.deepclone(marker.config);
-                        const filterMerge = { data: { filter: { dimensions: { [concept]: { [concept]: 
-                            marker.config.encoding.frame.value 
-                        } } } } }
-                        splashConfig = Vizabi.utils.deepmerge(splashConfig, filterMerge);
-                    
-                        return Vizabi.marker(splashConfig);
-                    } else {
-                        console.warn("Frame splash does not work with autoconfig concept. Please set frame.data.concept or disable splash.")
-                        return marker;
-                    }
-                } else {
-                    return marker;
-                }
-            }
-        });
+    get splash() { 
+        return this.config.splash || defaults.splash;
     }
 }
 
 export function frame(...args) {
     const obs = observable(frame.nonObservable(...args));
-    obs.setUpReactions();
+    obs.onCreate();
     return obs;
 }
 
 frame.nonObservable = function(config, parent) {
     applyDefaults(config, defaultConfig);
-
-    configSolver.addSolveMethod(
-        function selectFrameConcept({ concepts, space, dataConfig }) {
-            const spaceConcepts = space.map(dim => dataConfig.source.getConcept(dim));
-            return findTimeOrMeasure(spaceConcepts) || findTimeOrMeasure(concepts) || spaceConcepts[spaceConcepts.length - 1];
-            
-            function findTimeOrMeasure (concepts) {
-                return concepts.find(c => c.concept_type == 'time') || concepts.find(c => c.concept_type == 'measure');
-            }
-        }
-    )
+    
     return assign(baseEncoding.nonObservable(config, parent), functions);
 }
+
+frame.splashMarker = function splashMarker(marker) {
+    const frame = marker.encoding.frame;
+    if (frame?.splash) {
+        const concept = resolveRef(frame.config.data.concept);
+        if (typeof concept == "string") {
+            let splashConfig = Vizabi.utils.deepclone(marker.config);
+            const filterMerge = { data: { filter: { dimensions: { [concept]: { [concept]: 
+                frame.config.value 
+            } } } } }
+            splashConfig = Vizabi.utils.deepmerge(splashConfig, filterMerge);
+            
+            let splashMarker = Vizabi.marker(splashConfig, marker.id + '-splash');
+            let proxiedMarker = markerWithFallback(marker, splashMarker);
+
+            return { marker: proxiedMarker, splashMarker }
+        } else {
+            console.warn("Frame splash does not work with autoconfig concept. Please set frame.data.concept or disable splash.")
+            return { marker };
+        }
+    } else {
+        return { marker };
+    }
+}
+
+function markerWithFallback(marker, fallback) {
+    let firstLoad = true;
+    return new Proxy(marker, {
+        get: function(target, prop, receiver) {
+            
+            if (marker.state == 'fulfilled') {
+                if (firstLoad) {
+                    firstLoad = false;
+                    fallback.dispose();
+                    fallback = undefined;
+                }
+                return target[prop];
+            } 
+            else if (firstLoad && fallback.state == 'fulfilled')  {
+                return fallback[prop];
+            } 
+            else {
+                return target[prop];
+            }
+
+        }
+    })
+}
+
+configSolver.addSolveMethod(
+    function selectFrameConcept({ concepts, space, dataConfig }) {
+        const spaceConcepts = space.map(dim => dataConfig.source.getConcept(dim));
+        return findTimeOrMeasure(spaceConcepts) || findTimeOrMeasure(concepts) || spaceConcepts[spaceConcepts.length - 1];
+        
+        function findTimeOrMeasure (concepts) {
+            return concepts.find(c => c.concept_type == 'time') || concepts.find(c => c.concept_type == 'measure');
+        }
+    }
+)
