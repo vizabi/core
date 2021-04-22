@@ -48,16 +48,19 @@ const functions = {
      * Scale with frame values (e.g. years) as domain and step number (e.g. 0-15) as range.
      * @returns D3 scale
      */
-    // this scale uses binary search to find which subsection of scale to work on. Could be optimized
-    // using knowledge frames are equidistant. Using e.g. time interval offset.
     // can't use 2 point linear scale as time is not completely linear (leap year/second etc)
     get stepScale() {
         // default domain data is after filtering, so empty frames are dropped, so steps doesn't include those
         const domainData = this.data.domainData; 
         const frameValues = [];
         domainData.each(group => frameValues.push(group.values().next().value[this.name]));
-        // use (possible) dates in range so no need for separate utcScale on time concepts
-        return d3.scaleLinear(d3.range(0, this.stepCount), frameValues); 
+        const scaleType = (this.stepCount == 1) ? d3.scaleOrdinal : d3.scaleLinear;
+        // use frameValues in range so no need for separate utcScale for time concepts
+        const scale = scaleType(d3.range(0, this.stepCount), frameValues); 
+        // fake clamped invert for ordinal scale
+        // https://github.com/d3/d3/issues/3022#issuecomment-260254895
+        if (!scale.invert) scale.invert = () => scale.domain()[0];
+        return scale;
     },
     get stepCount() {
         return this.data.domainData.size
