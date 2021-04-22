@@ -288,7 +288,16 @@ export function range(start, stop, concept) {
     return rangeFn(start, stop);
 }
 
-export function interval(concept) {
+export function offset(concept) {
+    const intrvl = interval(concept);
+    if (intrvl) {
+        return intrvl.offset
+    } else {
+        return (n, d) => isNumeric(n) && isNumeric(d) ? n + d : console.error("Can't offset using non-numeric values", { n, d });
+    }
+}
+
+function interval(concept) {
     if (concept == "time") concept = "year";
     return d3['utc' + ucFirst(concept)];
 }
