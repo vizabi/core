@@ -283,10 +283,14 @@ export function configValue(value, concept) {
 
 
 export function range(start, stop, concept) {
-    if (concept == "time") concept = "year";
-    const interval = d3['utc' + ucFirst(concept)];
-    const rangeFn = (interval && start instanceof Date && stop instanceof Date ) ? interval.range : d3.range;
+    const intrvl = interval(concept);
+    const rangeFn = (intrvl && start instanceof Date && stop instanceof Date ) ? intrvl.range : d3.range;
     return rangeFn(start, stop);
+}
+
+export function interval(concept) {
+    if (concept == "time") concept = "year";
+    return d3['utc' + ucFirst(concept)];
 }
 
 export function inclusiveRange(start, stop, concept) {
