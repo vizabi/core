@@ -42,28 +42,39 @@ const functions = {
     parseValue(value){
         return parseConfigValue(value, this.data.conceptProps);
     },
-    get step() { return this.stepScale.invert(this.value); },
+    get step() { return this.stepScale(this.value); },
     
     /**
      * Scale with frame values (e.g. years) as domain and step number (e.g. 0-15) as range.
+     * Can't use 2 point linear scale as time is not completely linear (leap year/second etc)
      * @returns D3 scale
      */
-    // can't use 2 point linear scale as time is not completely linear (leap year/second etc)
     get stepScale() {
-        // default domain data is after filtering, so empty frames are dropped, so steps doesn't include those
-        const domainData = this.data.domainData; 
-        const frameValues = [];
-        domainData.each(group => frameValues.push(group.values().next().value[this.name]));
-        const scaleType = (this.stepCount == 1) ? d3.scaleOrdinal : d3.scaleLinear;
-        // use frameValues in range so no need for separate utcScale for time concepts
-        const scale = scaleType(d3.range(0, this.stepCount), frameValues); 
+        const range = d3.range(0, this.stepCount);
+        const scale = this.scale.d3Type(this.domainValues, range); 
+
         // fake clamped invert for ordinal scale
         // https://github.com/d3/d3/issues/3022#issuecomment-260254895
-        if (!scale.invert) scale.invert = () => scale.domain()[0];
+        if (!scale.invert) scale.invert = step => this.domainValues[step];
+
         return scale;
     },
+    /**
+     * Key frame values limited to scale domain
+     **/ 
+    get domainValues() {
+        let frameValues = [];
+        // default domain data is after filtering, so empty frames are dropped, so steps doesn't include those
+        for (let [key, group] of this.data.domainData) {
+            const frameValue = group.values().next().value[this.name];
+            if (this.scale.domainIncludes(frameValue)) {
+                frameValues.push(frameValue);
+            } 
+        }
+        return frameValues
+    },
     get stepCount() {
-        return this.data.domainData.size
+        return this.domainValues.length;
     },
 
     // PLAYBACK
@@ -101,7 +112,7 @@ const functions = {
         this.config.value = configValue(parsed, concept);
     }),
     setStep: action('setStep', function setStep(step) {
-        this.setValue(this.stepScale(step));
+        this.setValue(this.stepScale.invert(step));
     }),
     setValueAndStop: action('setValueAndStop', function setValueAndStop(value) {
         this.stopPlaying();
@@ -115,7 +126,7 @@ const functions = {
         this.setStep(Math.round(this.step));
     }),
     ceilKeyFrame() {
-        return this.stepScale(Math.ceil(this.step));
+        return this.stepScale.invert(Math.ceil(this.step));
     },
     nextStep: action('update to next frame value', function nextStep() {
         if (this.playing && this.marker.state === FULFILLED) {
@@ -219,7 +230,7 @@ const functions = {
         return [Math.floor(this.step), Math.ceil(this.step)];
     },
     get framesAround() {
-        return this.stepsAround.map(this.stepScale);
+        return this.stepsAround.map(this.stepScale.invert);
     },
 
     /*

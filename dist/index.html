@@ -165,7 +165,11 @@ chart();
 
 function chart() {
 
-    const marker = viz.markers.bubble.encoding.frame.splash.marker; // Vizabi.stores.markers.bubble;
+
+    const frameType = Vizabi.stores.encodings.modelTypes.frame;
+    const { marker, splashMarker } = frameType.splashMarker(Vizabi.stores.markers.get('bubble'));
+
+    //const marker = Vizabi.stores.encodings.viz.markers.bubble.encoding.frame.splash.marker; // Vizabi.stores.markers.bubble;
     const legendmarker = viz.markers.legend;
 
     var xAxis = d3.axisBottom();

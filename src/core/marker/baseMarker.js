@@ -316,7 +316,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 getInterpolatedFrame(frame, data, value);
     
             function getInterpolatedFrame(frame, data, value) {
-                const step = frame.stepScale.invert(value);
+                const step = frame.stepScale(value);
                 const stepsAround = [Math.floor(step), Math.ceil(step)];
                 return frame.getInterpolatedFrame(data, step, stepsAround);
             }

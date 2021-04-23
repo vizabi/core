@@ -283,23 +283,18 @@ export function configValue(value, concept) {
 
 
 export function range(start, stop, concept) {
-    const intrvl = interval(concept);
-    const rangeFn = (intrvl && start instanceof Date && stop instanceof Date ) ? intrvl.range : d3.range;
-    return rangeFn(start, stop);
+    return interval(concept).range(start, stop);
 }
 
-export function offset(concept) {
-    const intrvl = interval(concept);
-    if (intrvl) {
-        return intrvl.offset
-    } else {
-        return (n, d) => isNumeric(n) && isNumeric(d) ? n + d : console.error("Can't offset using non-numeric values", { n, d });
-    }
-}
-
-function interval(concept) {
+export function interval(concept) {
     if (concept == "time") concept = "year";
-    return d3['utc' + ucFirst(concept)];
+    return d3['utc' + ucFirst(concept)] || {
+        offset: (n, d) => isNumeric(n) && isNumeric(d) ? n + d : console.error("Can't offset using non-numeric values", { n, d }),
+        range: d3.range,
+        floor: Math.floor,
+        ceil: Math.ceil,
+        round: Math.round
+    };
 }
 
 export function inclusiveRange(start, stop, concept) {

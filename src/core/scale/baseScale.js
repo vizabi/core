@@ -66,7 +66,7 @@ baseScale.nonObservable = function(config, parent) {
                 scaleType = this.config.type;
             else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale])
                 scaleType = scale;
-            else if (concept && ["entity_domain", "entity_set", "string"].includes(concept.concept_type))
+            else if (concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type))
                 scaleType = this.ordinalScale;
             else if (concept && ["time"].includes(concept.concept_type))
                 scaleType = "time";
@@ -87,10 +87,15 @@ baseScale.nonObservable = function(config, parent) {
                 scaleType = "genericLog";
             }
 
-            if (!allowedTypes || allowedTypes.includes(scaleType))                
-                return scaleType;
-            
-            console.warn('Scale type not in allowedTypes, please change scale type.', { scaleType, allowedTypes })
+            if (allowedTypes && !allowedTypes.includes(scaleType)) {
+                console.warn('Scale type not in allowedTypes, please change scale type.', { scaleType, allowedTypes })
+                return;
+            }
+                
+            return scaleType;    
+        },
+        get d3Type() {
+            return scales[this.type];
         },
         get range() {
             if (this.config.range != null)
@@ -159,6 +164,14 @@ baseScale.nonObservable = function(config, parent) {
         isDiscrete() {
             const scaleType = this.scaleTypeNoGenLog();
             return scaleType == "ordinal" || scaleType == "band" || scaleType == "point";
+        },
+        domainIncludes(value) {
+            if ([d3.scaleLinear, d3.scaleLog, d3.scaleSymlog, d3.scaleSqrt, d3.scaleUtc].includes(this.d3Type)) {
+                const [min, max] = this.domain;
+                return min <= value && value <= max;
+            } else {
+                return this.domain.includes(value);
+            }
         }
     }
 }
