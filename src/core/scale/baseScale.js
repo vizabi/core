@@ -24,6 +24,7 @@ const defaultConfig = {
 }
 
 const defaults = {
+    clampToData: false,
     domain: [0,1]
 }
 export function baseScale(config, parent) {
@@ -55,24 +56,27 @@ baseScale.nonObservable = function(config, parent) {
         get data() {
             return this.parent.data;
         },
-        scaleTypeNoGenLog() {
+        scaleTypeNoGenLog(domain = this.domain) {
             if (this.data.isConstant()) {
                 return this.ordinalScale;
             }
             const concept = this.data.conceptProps;
             let scaleType = null;
             let scale;
-            if (scales[this.config.type])
+            if (scales[this.config.type]) {
                 scaleType = this.config.type;
-            else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale])
+            } else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale]) {
                 scaleType = scale;
-            else if (concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type))
+            } else if (
+                concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)
+                || domain.length == 1
+            ) {
                 scaleType = this.ordinalScale;
-            else if (concept && ["time"].includes(concept.concept_type))
+            } else if (concept && ["time"].includes(concept.concept_type)) {
                 scaleType = "time";
-            else
+            } else {
                 scaleType = "linear";
-
+            }
             return scaleType;
         },
         get allowedTypes() {
@@ -112,14 +116,17 @@ baseScale.nonObservable = function(config, parent) {
         set range(range) {
             this.config.range = range;
         },
+        get clampToData() { return this.config.clampToData ?? defaults.clampToData },
         get domain() {
             if (this.config.domain) {
-                return this.config.domain.map(c => parseConfigValue(c, this.data.conceptProps));
+                return this.config.domain
+                    .map(v => parseConfigValue(v, this.data.conceptProps))
+                    .map(v => this.clampToData ? this.clampToDomain(v, this.data.domain) : v);
             } else if (this.data.domain) {   
-                //zeroBaseline can override the domain if defined and if data domain is one-sided
-                //by replaceing the value closest to zero with zero
-                //use cases: forcing zero-based bar charts and bubble size
-                if (this.zeroBaseline && !this.isDiscrete() && isArrayOneSided(this.data.domain)){
+                // zeroBaseline can override the domain if defined and if data domain is one-sided
+                // by replaceing the value closest to zero with zero
+                // use cases: forcing zero-based bar charts and bubble size
+                if (this.zeroBaseline && !this.isDiscrete(this.data.domain) && isArrayOneSided(this.data.domain)){
                   const domain = [...this.data.domain];
                   const closestToZeroIdx = d3.scan(domain.map(Math.abs));
                   domain[closestToZeroIdx] = 0;
@@ -134,9 +141,8 @@ baseScale.nonObservable = function(config, parent) {
         set domain(domain) {
             this.config.domain = domain;
         },
-        clampToDomain(val) {
-            const domain = this.domain;
-            if (this.isDiscrete())
+        clampToDomain(val, domain = this.domain) {
+            if (this.isDiscrete(domain))
                 return domain.includes(val) ? val : undefined;
             
             if (val < domain[0]) return domain[0];
@@ -161,8 +167,8 @@ baseScale.nonObservable = function(config, parent) {
         set zoomed(zoomed) {
             this.config.zoomed = zoomed;
         },
-        isDiscrete() {
-            const scaleType = this.scaleTypeNoGenLog();
+        isDiscrete(domain) {
+            const scaleType = this.scaleTypeNoGenLog(domain);
             return scaleType == "ordinal" || scaleType == "band" || scaleType == "point";
         },
         domainIncludes(value) {
@@ -172,12 +178,19 @@ baseScale.nonObservable = function(config, parent) {
             } else {
                 return this.domain.includes(value);
             }
+        },
+        disposers: [],
+        onCreate() { },
+        dispose() {
+            for (let disposer of this.disposers) {
+                disposer();
+            }
         }
     }
 }
 
 baseScale.decorate = {
-    //allow setting an array to these properties, otherwise getting an infinite loop because values inside array won't be compared
+    // allow setting an array to these properties, otherwise getting an infinite loop because values inside array won't be compared
     range: computed.struct,
     domain: computed.struct,
     zoomed: computed.struct,

@@ -16,6 +16,9 @@ const defaultConfig = {
         concept: {
             selectMethod: "selectFrameConcept"
         }
+    },
+    scale: {
+        clampToData: true
     }
 }
 
@@ -33,7 +36,7 @@ const functions = {
 
         if (this.config.value != null) {
             value = this.parseValue(this.config.value);
-            value = this.scale.clampToDomain(value);
+            value = this.scale.clampToDomain(value) //, this.data.domain);
         } else {
             value = this.scale.domain[0];
         }
@@ -41,6 +44,9 @@ const functions = {
     },
     parseValue(value){
         return parseConfigValue(value, this.data.conceptProps);
+    },
+    formatValue(value){
+        return configValue(value, this.data.conceptProps);
     },
     get step() { return this.stepScale(this.value); },
     

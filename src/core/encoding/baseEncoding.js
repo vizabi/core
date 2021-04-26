@@ -89,6 +89,7 @@ baseEncoding.nonObservable = function(config, parent, name) {
                 dispose();
             }
             this.data.dispose();
+            this.scale.dispose();
         },
         destructers: [],
         
