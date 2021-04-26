@@ -27,6 +27,7 @@ const vizabi = function(cfg) {
     return models;
 
 }
+vizabi.versionInfo = { version: __VERSION, build: __BUILD };
 vizabi.mobx = mobx;
 vizabi.utils = utils;
 vizabi.stores = stores;

@@ -1,9 +1,10 @@
 
 /* eslint-disable no-undef */
 const path = require('path');
+const meta = require('./package.json');
 
-import * as meta from "./package.json";
 import resolve from "@rollup/plugin-node-resolve";
+import replace from "rollup-plugin-replace";
 import serve from "rollup-plugin-serve";
 import livereload from "rollup-plugin-livereload";
 
@@ -24,6 +25,10 @@ const output = (name, output) => ({
 const external = ["mobx"];
 const plugins = () => [
     resolve(),
+    replace({
+        __VERSION: JSON.stringify(meta.version),
+        __BUILD: +(new Date())
+      }),
     __DEVSERVER__ && serve({
         contentBase: ["dist"],
         port: 9000,
