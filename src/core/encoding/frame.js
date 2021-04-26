@@ -36,7 +36,7 @@ const functions = {
 
         if (this.config.value != null) {
             value = this.parseValue(this.config.value);
-            value = this.scale.clampToDomain(value) //, this.data.domain);
+            value = this.scale.clampToDomain(value);
         } else {
             value = this.scale.domain[0];
         }
