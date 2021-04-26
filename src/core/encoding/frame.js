@@ -218,10 +218,11 @@ const functions = {
         if (data.size == 0) 
             return DataFrame([], data.descendantKeys[0]);
 
-        return data.has(this.frameKey) ? 
-            data.get(this.frameKey)
-            :
-            this.getInterpolatedFrame(data, this.step, this.stepsAround);
+        return data.has(this.frameKey) 
+            ? data.get(this.frameKey)
+            : this.scale.domainIncludes(this.value, this.data.domain)
+                ? this.getInterpolatedFrame(data, this.step, this.stepsAround)
+                : DataFrame([], data.descendantKeys[0]);
 
     },
     get frameKey() {

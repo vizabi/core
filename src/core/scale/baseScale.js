@@ -171,12 +171,12 @@ baseScale.nonObservable = function(config, parent) {
             const scaleType = this.scaleTypeNoGenLog(domain);
             return scaleType == "ordinal" || scaleType == "band" || scaleType == "point";
         },
-        domainIncludes(value) {
+        domainIncludes(value, domain = this.domain) {
             if ([d3.scaleLinear, d3.scaleLog, d3.scaleSymlog, d3.scaleSqrt, d3.scaleUtc].includes(this.d3Type)) {
-                const [min, max] = this.domain;
+                const [min, max] = domain;
                 return min <= value && value <= max;
             } else {
-                return this.domain.includes(value);
+                return domain.includes(value);
             }
         },
         disposers: [],
