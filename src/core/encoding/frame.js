@@ -94,12 +94,12 @@ frame.nonObservable = function(config, parent) {
     
         // PLAYBACK
         get speed() { 
-            if (this.looping) return 0;
+            if (this.immediate) return 0;
             return this.config.speed || defaults.speed 
         },
         get loop() { return this.config.loop || defaults.loop },
         get playbackSteps() { return this.config.playbackSteps || defaults.playbackSteps },
-        looping: false,
+        immediate: false,
         playing: false,
         togglePlaying() {
             this.playing ?
@@ -112,12 +112,17 @@ frame.nonObservable = function(config, parent) {
         stopPlaying: action('stopPlaying', function stopPlaying() {
             this.setPlaying(false);
         }),
+        jumpToFirstFrame: action('jumpToFirstFrame', function jumpToFirstFrame() {
+            this.setStep(0);
+            this.immediate = this.playing;
+        }),
         setPlaying: action('setPlaying', function setPlaying(playing) {
             this.playing = playing;
             if (playing) {
-                if (this.step >= this.stepCount - 1) {
-                    this.setStep(0); 
-                    this.looping = true;
+                if (this.step == this.stepCount - 1) {
+                    this.jumpToFirstFrame();
+                } else {
+                    this.nextStep()
                 }
             }
         }),
@@ -152,15 +157,14 @@ frame.nonObservable = function(config, parent) {
         },
         nextStep: action('update to next frame value', function nextStep() {
             if (this.playing && this.marker.state === FULFILLED) {
-                this.looping = false;
+                this.immediate = false;
                 let nxt = this.step + this.playbackSteps;
                 if (nxt < this.stepCount) {
                     this.setStep(nxt);
                 } else if (this.step == this.stepCount - 1) {
                     // on last frame
                     if (this.loop) {
-                        this.looping = true;
-                        this.setStep(0);          
+                        this.jumpToFirstFrame();
                     } else {
                         this.stopPlaying();
                     }
