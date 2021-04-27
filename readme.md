@@ -1,4 +1,5 @@
-
+# Vizabi core
+A data layer for interactive animated charts. This version uses mobx for state and event mgmt
 # Run the demo  
 clone, run `npm install`, then `npm start`  
 

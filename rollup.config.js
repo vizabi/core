@@ -27,7 +27,12 @@ const plugins = () => [
     resolve(),
     replace({
         __VERSION: JSON.stringify(meta.version),
-        __BUILD: +(new Date())
+        __BUILD: +(new Date()),
+        __PACKAGE_JSON_FIELDS: JSON.stringify({
+          homepage: meta.homepage,
+          name: meta.name,
+          description: meta.description
+        })
       }),
     __DEVSERVER__ && serve({
         contentBase: ["dist"],
