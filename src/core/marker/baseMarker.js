@@ -107,8 +107,8 @@ baseMarker.nonObservable = function(config, parent, id) {
                 console.warn("No encoding found and marker data source has no default encodings");
                 configGetter = () => ({});
             }
-    
-            return this.updateEncodingCache(configGetter());
+            // clone cache so computed is invalidated
+            return Object.assign({}, this.updateEncodingCache(configGetter()));
         },
         // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet 
         getEncodingName(encoding) {
