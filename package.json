@@ -1,6 +1,6 @@
 {
   "name": "vizabi-reactive",
-  "version": "1.7.10",
+  "version": "1.7.11",
   "description": "Vizabi core (data layer)",
   "main": "dist/Vizabi.js",
   "type": "module",
@@ -19,8 +19,30 @@
     "test": "jest",
     "debug": "node --experimental-vm-modules node_modules/.bin/jest ./*/dataConfig.test.js --runInBand --watch --no-cache"
   },
-  "author": "Jasper Heeffer and others at Gapminder Foundation",
-  "license": "BSD-3-Clause",
+  "author": {
+    "name": "Jasper Heeffer and others at Gapminder Foundation",
+    "url": "https://www.gapminder.org",
+    "email": "info@gapminder.org"
+  },
+  "contributors": [
+    {
+      "name": "Jasper",
+      "url": "https://github.com/jheeffer"
+    },
+    {
+      "name": "Angie",
+      "url": "https://github.com/angieskazka"
+    },
+    {
+      "name": "Dima",
+      "url": "https://github.com/dab2000"
+    },
+    {
+      "name": "Ola",
+      "url": "https://github.com/olarosling"
+    }
+  ],
+  "license": "CC-BY-4.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/vizabi/vizabi-reactive"
