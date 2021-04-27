@@ -38,23 +38,8 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
             return entityDims
                 .filter(dim => kvLookup.get(dim).has(this.concept))
                 .map(dim => {
-                    const query = {
-                        select: {
-                            key: [dim],
-                            value: [this.concept]
-                        },
-                        from: "entities"
-                    }
-
-                    if (this.filter) {
-                        query.where = this.filter.whereClause(query.select.key);
-                    }
-
-                    if (this.locale) {
-                        query.language = this.locale; 
-                    }
-
-                    return query;
+                    const { concept, filter, locale } = this;
+                    return this.createQuery({ concept, space: [dim], filter, locale });
                 });
         },
         get lookups() {

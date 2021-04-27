@@ -73,14 +73,11 @@ dataConfig.nonObservable = function(config, parent, id) {
                     concept
                 };
                 if (source.isEntityConcept(conceptId)) {
-                    const entityQuery = {
-                        select: { 
-                            key: [conceptId],
-                            value: ["name", "rank"]
-                        },
-                        from: "entities",
-                        language: dataConfig.locale
-                    }
+                    const entityQuery = dataConfig.createQuery({ 
+                        space: [conceptId],  
+                        concept: ["name", "rank"],
+                        locale: dataConfig.locale
+                    })
                     promises.push(source.query(entityQuery).then(response => {
                         result[conceptId]['entities'] = response;
                     }));
@@ -258,27 +255,25 @@ dataConfig.nonObservable = function(config, parent, id) {
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
         },
-        get ddfQuery() {
+        createQuery({ space, concept, filter, locale } = this) {
             const query = {};
-            // select
+            
             query.select = {
-                key: this.space.slice(), // slice to make sure it's a normal array (not mobx)
-                value: [this.concept]
+                key: space.slice(), // slice to make sure it's a normal array (not mobx)
+                value: Array.isArray(concept) ? concept : [concept]
             }
-
-            // from
-            query.from = (this.space.length === 1) ? "entities" : "datapoints";
-
-            // where
-            if (this.filter) {
-                query.where = this.filter.whereClause(query.select.key);
+            query.from = (space.length === 1) ? "entities" : "datapoints";
+            if (filter) {
+                query.where = filter.whereClause(query.select.key);
             }
-          
-            if (this.locale) {
-                query.language = this.locale; 
+            if (locale) {
+                query.language = locale; 
             }
           
             return query;
+        },
+        get ddfQuery() {    
+            return this.createQuery();
         },
         dispose() { }
     };
