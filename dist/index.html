@@ -167,7 +167,7 @@ function chart() {
 
 
     const frameType = Vizabi.stores.encodings.modelTypes.frame;
-    const { marker, splashMarker } = frameType.splashMarker(Vizabi.stores.markers.get('bubble'));
+    const { marker } = frameType.splashMarker(Vizabi.stores.markers.get('bubble'));
 
     //const marker = Vizabi.stores.encodings.viz.markers.bubble.encoding.frame.splash.marker; // Vizabi.stores.markers.bubble;
     const legendmarker = viz.markers.legend;
@@ -381,7 +381,8 @@ function chart() {
             // data join
             let update = bubbles.selectAll(".dot")
                 .data(
-                    data,
+                    // exclude trail head duplicate
+                    data.filter(row => !(row[Symbol.for('trailHeadKey')] && Vizabi.utils.equals(row.frame, frameConfig.value))),
                     d => d[Symbol.for('key')]
                 );
 
@@ -390,6 +391,15 @@ function chart() {
                 .append("circle")
                 .attr("class", "dot")
                 .attr("id", d => d[Symbol.for('key')])
+                // must start with marker here, not use refs above so they don't keep referring to splash marker after full load
+                .on("click", d => {
+                    const selectedConfig = marker.encoding.selected;
+                    const highlightFilter = marker.encoding.highlighted.data.filter;
+                    if (!d[Symbol.for('trailHeadKey')]) selectedConfig.data.filter.toggle(d);
+                    highlightFilter.delete(d);
+                })
+                .on("mouseover", d =>  marker.encoding.highlighted.data.filter.set(d))
+                .on("mouseout", d =>  marker.encoding.highlighted.data.filter.delete(d))
 
             // remove old bubbles
             const exit = update.exit().remove();
@@ -426,13 +436,6 @@ function chart() {
                     .attr("r", d => {
                         return bubbleSurfaceScale(sizeScale(d.size));
                     })
-                    // must have these on every draw so they don't get stuck on splash marker's enter selection
-                    .on("click", d => {
-                        if (!d[Symbol.for('trailHeadKey')]) selectedConfig.data.filter.toggle(d);
-                        highlightFilter.delete(d);
-                    })
-                    .on("mouseover", d => highlightFilter.set(d))
-                    .on("mouseout", d => highlightFilter.delete(d))
                     .each(drawLabel);
 
             })
