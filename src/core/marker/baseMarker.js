@@ -39,7 +39,8 @@ baseMarker.nonObservable = function(config, parent, id) {
 
     let currentDataConfig;
 
-    let functions = {
+    const marker = { config, id };
+    const functions = {
         on: function(prop, fn) {
             if (this.validProp(prop) && typeof fn == "function") {
                 const disposer = reaction(
@@ -75,7 +76,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             return currentDataConfig = dataConfig;
         },
         get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
-        encodingCache: encodingCache(),
+        encodingCache: encodingCache(marker),
         get encoding() {
             const validEncoding = config => config() && Object.keys(config()).length > 0
             const configGetters = [
@@ -311,7 +312,7 @@ baseMarker.nonObservable = function(config, parent, id) {
         }
     }
 
-    return assign({}, functions, configurable, { config, id });
+    return assign(marker, functions, configurable);
 }
 
 baseMarker.decorate = {

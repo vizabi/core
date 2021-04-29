@@ -1,29 +1,27 @@
 import { encodingStore } from "../encoding/encodingStore";
 
-export function encodingCache() {
+export function encodingCache(marker) {
     const cache = {};
-    function fill(cache, cfg) {
+    function fill(cfg) {
         for (const prop in cfg) {
             if (!(prop in cache)) {
-                cache[prop] = encodingStore.get(cfg[prop], this);
+                cache[prop] = encodingStore.get(cfg[prop], marker);
             }
         }
-        return cache;
     }
-    function purge(cache, cfg) {
+    function purge(cfg) {
         for (const prop of Object.keys(cache)) {
             if (!(prop in cfg)) {
                 cache[prop].dispose();
                 delete cache[prop];
             }
         }
-        return cache;
     }
     return { 
         cache,
         update(cfg) {
-            fill(cache, cfg);
-            purge(cache, cfg);
+            fill(cfg);
+            purge(cfg);
             return cache;
         }
     }
