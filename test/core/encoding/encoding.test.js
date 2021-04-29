@@ -33,7 +33,7 @@ describe('tests', () => {
                 space: []
             }
         });
-        return multiCheck(enc, 'data.responseMap', [
+        return multiCheck(enc, 'data.response', [
             {
                 check: map => expect(map.get(0).x).toBe(1),
             }, 
@@ -61,7 +61,7 @@ describe('tests', () => {
             }
         });
 
-        return multiCheck(marker, 'encoding.x.data.responseMap', [
+        return multiCheck(marker, 'encoding.x.data.response', [
             {
                 check: map => expect(map.get(0).x).toBe(1),
             }, 
@@ -94,7 +94,7 @@ describe('tests', () => {
             }
         });
 
-        return multiCheck(marker, 'encoding.x.data.responseMap', [
+        return multiCheck(marker, 'encoding.x.data.response', [
             {
                 check: map => expect(map.get(0).x).toBe(1),
             }, 

@@ -23,9 +23,6 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
 
     return composeObj(base, {
 
-        get needsSource() {
-            return true;
-        },
         sendQuery() {
             const labelPromises = this.queries.map(query => this.source.query(query)
                 .then(data => ({ dim: query.select.key[0], data }))
@@ -42,36 +39,22 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
                     return this.createQuery({ concept, space: [dim], filter, locale });
                 });
         },
-        get lookups() {
-            const concept = this.concept;
+        lookups(response, concept) {
             const lookups = new Map();
-            this.response.forEach(response => {
-                const { dim, data } = response;
+            response.forEach(dimResponse => {
+                const { dim, data } = dimResponse;
                 const lookup = new Map();
                 lookups.set(dim, lookup);
                 data.forEach(row => {
                     lookup.set(row[dim], row[concept]);
                 })
             });
-            return new Map([[this.concept, lookups]]);
+            return new Map([[concept, lookups]]);
         },
-        get responseMap() {
-            return DataFrame.fromLookups(this.lookups, this.commonSpace)
-        },
-        addLabels(markers, encName) {
-            // reduce lookups
-            const space = toJS(this.space);
-            const lookups = this.lookups;
-            markers.forEach((marker, key) => {
-                const label = {};
-                space.forEach(dim => {
-                    if (lookups.has(dim))
-                        label[dim] = lookups.get(dim).get(marker[dim]);
-                    else
-                        label[dim] = marker[dim];
-                });
-                marker[encName] = label;
-            });
+        get response() {
+            const response = this.promise.value;
+            const lookups = this.lookups(response, this.concept);
+            return DataFrame.fromLookups(lookups, this.commonSpace)
         }
     })
 }

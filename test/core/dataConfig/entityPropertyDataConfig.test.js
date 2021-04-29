@@ -25,7 +25,7 @@ describe('create stand alone data configs', () => {
             concept: 'name',
             space: ['geo', 'gender', 'time']
         })
-        return check(data, 'responseMap').then(response => expect(response.get({geo: 'swe'}).name.geo).toBe('Sweden'));
+        return check(data, 'response').then(response => expect(response.get({geo: 'swe'}).name.geo).toBe('Sweden'));
     })
 
 })

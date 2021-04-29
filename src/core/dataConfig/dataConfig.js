@@ -158,10 +158,10 @@ dataConfig.nonObservable = function(config, parent, id) {
         },
         get domainData() {
             const source = this.domainDataSource;
-            const data = source === 'self' ? this.responseMap
+            const data = source === 'self' ? this.response
                 : this.hasEncodingMarker && this.parent.marker.transformedDataMaps.has(source) ? this.parent.marker.transformedDataMaps.get(source).get()
                 : source === 'markers' ? this.parent.marker.dataMap  
-                : this.responseMap;
+                : this.response;
 
             return data;
         },
@@ -233,7 +233,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.promise.case({
                 pending: () => latestResponse,
                 rejected: e => latestResponse,
-                fulfilled: (res) => latestResponse = res
+                fulfilled: (res) => latestResponse = this.normalizeResponse(res)
             });
         },
         normalizeResponse(response) {
@@ -248,9 +248,6 @@ dataConfig.nonObservable = function(config, parent, id) {
                 }
                 return DataFrame(response, this.commonSpace);      
             }
-        },
-        get responseMap() {
-            return this.normalizeResponse(this.response);  
         },
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
@@ -277,4 +274,10 @@ dataConfig.nonObservable = function(config, parent, id) {
         },
         dispose() { }
     };
+}
+
+dataConfig.decorate = {
+//    response: observable.ref,
+//    space: computed.struct,
+//    commonSpace: computed.struct
 }

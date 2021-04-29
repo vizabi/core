@@ -84,7 +84,7 @@ describe('create stand alone data configs', () => {
             concept: 'population_total',
             space: ['geo', 'gender', 'time']
         });
-        return check(data, 'responseMap', response => {
+        return check(data, 'response', response => {
             expect(response.get({ geo: 'swe', gender: 'male', time: new Date(Date.UTC(2016)) }).population_total).toBe(4962865)
         });
     })

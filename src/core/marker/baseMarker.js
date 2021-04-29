@@ -181,7 +181,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 projection: { 
                     [encoding.data.concept]: [ name ]
                 },
-                dataFrame: encoding.data.responseMap
+                dataFrame: encoding.data.response
             }
         },
         isRequired(name) {
