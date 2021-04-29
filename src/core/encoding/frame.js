@@ -378,25 +378,17 @@ frame.splashMarker = function splashMarker(marker) {
 }
 
 function markerWithFallback(marker, fallback) {
-    let firstLoad = true;
     return new Proxy(marker, {
         get: function(target, prop, receiver) {
-            
-            if (marker.state == 'fulfilled') {
-                if (firstLoad) {
-                    firstLoad = false;
-                    fallback.dispose();
-                    fallback = undefined;
-                }
-                return target[prop];
-            } 
-            else if (firstLoad && fallback.state == 'fulfilled')  {
-                return fallback[prop];
-            } 
-            else {
-                return target[prop];
+
+            if (fallback && target.state == 'fulfilled') {
+                fallback.dispose();
+                fallback = undefined;
             }
 
+            return fallback
+                ? fallback[prop]
+                : target[prop];
         }
     })
 }
