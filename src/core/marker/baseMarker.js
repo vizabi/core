@@ -1,5 +1,4 @@
 import { trace, reaction, computed, observable, isComputed, isBoxedObservable, when } from 'mobx';
-import { encodingStore } from '../encoding/encodingStore'
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, isProperSubset, combineStates } from "../utils";
@@ -9,6 +8,7 @@ import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
 import { configSolver } from '../dataConfig/configSolver';
+import { encodingCache } from './encodingCache';
 
 
 const defaultConfig = {
@@ -75,27 +75,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             return currentDataConfig = dataConfig;
         },
         get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
-        encodingCache: {},
-        updateEncodingCache(encodingConfig) {
-            this.fillEncodingCache(encodingConfig);
-            this.purgeStaleEncodingCache(encodingConfig);
-            return this.encodingCache;
-        },
-        fillEncodingCache(encodingConfig) {
-            for (const prop in encodingConfig) {
-                if (!(prop in this.encodingCache)) {
-                    this.encodingCache[prop] =  encodingStore.get(encodingConfig[prop], this);
-                }
-            }
-        },
-        purgeStaleEncodingCache(encodingConfig) {
-            for (const prop of Object.keys(this.encodingCache)) {
-                if (!(prop in encodingConfig)) {
-                    this.encodingCache[prop].dispose();
-                    delete this.encodingCache[prop];
-                }
-            }
-        },
+        encodingCache: encodingCache(),
         get encoding() {
             const validEncoding = config => config() && Object.keys(config()).length > 0
             const configGetters = [
@@ -108,7 +88,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 configGetter = () => ({});
             }
             // clone cache so computed is invalidated
-            return Object.assign({}, this.updateEncodingCache(configGetter()));
+            return Object.assign({}, this.encodingCache.update(configGetter()));
         },
         // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet 
         getEncodingName(encoding) {
