@@ -6,7 +6,7 @@ import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline/inline';
 import { csvReader } from '../../reader/csv/csv';
-import { createKeyStr } from '../../dataframe/dfutils';
+import { arrayEquals, createKeyStr, isDataFrame } from '../../dataframe/dfutils';
 import { makeCache } from '../dataConfig/cache';
 
 const defaultConfig = {
@@ -80,7 +80,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             //trace();
             const empty = new Map();
             return this.conceptsPromise.case({
-                fulfilled: v => DataFrame(v, ["concept"]),
+                fulfilled: v => v,
                 pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
                 error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
             })
@@ -203,6 +203,19 @@ baseDataSource.nonObservable = function (config, parent, id) {
         isEntityConcept(conceptId) {
             return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
         },
+        normalizeResponse(response, query) {
+            //response.key is not equal to space when we read csv file and response.key is empty
+            if (isDataFrame(response) && arrayEquals(response.key, query.select.key))
+                return response;
+            else {
+                // to handle faulty bw/ddfservice reader response
+                // https://github.com/Gapminder/big-waffle/issues/53
+                if (response.length == 1 && Object.keys(response[0]).length == 0) {
+                    response.pop();
+                }
+                return DataFrame(response, query.select.key);      
+            }
+        },
         query(query) {
             //return [];
             if (!query._id) {
@@ -275,7 +288,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
         sendQueries(queries) {
             return queries.map(({ query, resolves, rejects }) => {
                 //console.log('Sending query to reader', query);
-                const promise = this.reader.read(query);
+                const promise = this.reader.read(query).then(response => this.normalizeResponse(response, query));
                 return {
                     query, resolves, rejects, promise
                 };
