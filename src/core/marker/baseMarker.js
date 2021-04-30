@@ -76,7 +76,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             return currentDataConfig = dataConfig;
         },
         get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
-        encodingCache: encodingCache(marker),
+        encodingCache: encodingCache(),
         get encoding() {
             const validEncoding = config => config() && Object.keys(config()).length > 0
             const configGetters = [
@@ -89,7 +89,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 configGetter = () => ({});
             }
             // clone cache so computed is invalidated
-            return Object.assign({}, this.encodingCache.update(configGetter()));
+            return Object.assign({}, this.encodingCache.update(configGetter(), this));
         },
         // TODO: encodings should know the property they encode to themselves; not sure how to pass generically yet 
         getEncodingName(encoding) {

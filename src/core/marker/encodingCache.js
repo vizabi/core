@@ -1,8 +1,8 @@
 import { encodingStore } from "../encoding/encodingStore";
 
-export function encodingCache(marker) {
+export function encodingCache() {
     const cache = {};
-    function fill(cfg) {
+    function fill(cfg, marker) {
         for (const prop in cfg) {
             if (!(prop in cache)) {
                 cache[prop] = encodingStore.get(cfg[prop], marker);
@@ -19,8 +19,8 @@ export function encodingCache(marker) {
     }
     return { 
         cache,
-        update(cfg) {
-            fill(cfg);
+        update(cfg, marker) {
+            fill(cfg, marker);
             purge(cfg);
             return cache;
         }
