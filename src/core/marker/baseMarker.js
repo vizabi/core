@@ -133,7 +133,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 return DataFrame([], this.data.space);
     
             const markerDefiningEncodings = [];
-            const markerAmmendingEncodings = [];
+            let markerAmmendingEncodings = [];
             const spaceEncodings = [];
             const constantEncodings = [];
     
@@ -158,9 +158,19 @@ baseMarker.nonObservable = function(config, parent, id) {
     
                 // own data, superspace (includes identical space) and required defining markers
                 else
-                    markerDefiningEncodings.push(this.joinConfig(encoding, name));    
+                    markerDefiningEncodings.push(this.joinConfig(encoding, name));
     
             }
+                   
+            // optimization: if ammending is not required but does share response with defining just let fullJoin handle it
+            const definingDFs = markerDefiningEncodings.map(defJC => defJC.dataFrame);
+            markerAmmendingEncodings = markerAmmendingEncodings.filter(ammending => {
+                if (definingDFs.includes(ammending.dataFrame)) {
+                    markerDefiningEncodings.push(ammending);
+                    return false;
+                }
+                return true;
+            });
     
             // define markers (full join encoding data)
             let dataMap = fullJoin(markerDefiningEncodings, this.data.space);
