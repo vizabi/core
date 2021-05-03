@@ -9,6 +9,8 @@ import { csvReader } from '../../reader/csv/csv';
 import { arrayEquals, createKeyStr, isDataFrame } from '../../dataframe/dfutils';
 import { makeCache } from '../dataConfig/cache';
 
+let normalizingTime = 0;
+
 const defaultConfig = {
     path: null,
     sheet: null,
@@ -213,7 +215,11 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 if (response.length == 1 && Object.keys(response[0]).length == 0) {
                     response.pop();
                 }
-                return DataFrame(response, query.select.key);      
+                const t0 = performance.now();
+                const df = DataFrame(response, query.select.key);      
+                normalizingTime += performance.now() - t0;
+                console.log('normalized: ', performance.now() - t0, 'total: ' + normalizingTime)
+                return df;
             }
         },
         query(query) {

@@ -37,6 +37,7 @@ export function baseMarker(config, parent, id) {
 baseMarker.nonObservable = function(config, parent, id) {
     applyDefaults(config, defaultConfig);
 
+    let pipelineTime = 0;
     let currentDataConfig;
 
     const marker = { config, id };
@@ -127,7 +128,7 @@ baseMarker.nonObservable = function(config, parent, id) {
         // computed to cache calculation
         get dataMapCache() {
             //trace();
-            //console.time('dataMapCache');
+            console.time('dataMapCache');
             // prevent recalculating on each encoding data coming in
             if (this.state !== "fulfilled") 
                 return DataFrame([], this.data.space);
@@ -183,7 +184,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 const concept = encoding.data.concept;
                 dataMap = dataMap.addColumn(name, row => row[concept]);
             });
-            //console.timeEnd('dataMapCache');
+            console.timeEnd('dataMapCache');
             return dataMap;
         },
         joinConfig(encoding, name) {
@@ -271,7 +272,12 @@ baseMarker.nonObservable = function(config, parent, id) {
                 let prevResult = stepResult; // local reference for closure of computed
                 stepResult = computed(
                     () => {
-                        return fn(prevResult.get())
+                        const t0 = performance.now();
+                        const result = fn(prevResult.get())
+                        const t1 = performance.now();
+                        pipelineTime += t1 - t0;
+                        console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
+                        return result;
                     }, 
                     { name }
                 );
