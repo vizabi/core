@@ -1,4 +1,4 @@
-import { assign, applyDefaults, isString, configValue, parseConfigValue, clamp, equals, mapToObj } from "../utils";
+import { assign, applyDefaults, clamp } from "../utils";
 import { action, computed, observable, reaction, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";

@@ -97,11 +97,10 @@ export function esc (str) {
 }
 
 export const createKeyFn = (space) => {
-    //const spaceEsc = space.map(esc);
+    const l = space.length;
     return (row) => {
         const parts = [];
         let i, j;
-        const l = space.length;
         for (i = j = 0; i < l; i++, j+=2) {
             parts[j] = esc(space[i]); 
             parts[j+1] = esc(row[space[i]]);
