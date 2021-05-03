@@ -105,7 +105,7 @@ const config = {
                 map: { data: { concept: "shape_lores_svg" } }
             }
         },
-        "bubble": {
+        "bubble-noconfig": {
             requiredEncodings: ["x", "y", "size"],
             data: { source: "gapbw" },
             encoding: {
@@ -138,7 +138,7 @@ const config = {
                 "trail": { modelType: "trail" }                
             }
         },
-        "bubble-config": {
+        "bubble": {
             data: {
                 source: "gapbw",
                 space: ["country", "time"],
