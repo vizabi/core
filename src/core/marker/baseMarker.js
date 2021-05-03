@@ -279,8 +279,9 @@ baseMarker.nonObservable = function(config, parent, id) {
                 let prevResult = stepResult; // local reference for closure of computed
                 stepResult = computed(
                     () => {
+                        const previous = prevResult.get();
                         const t0 = performance.now();
-                        const result = fn(prevResult.get())
+                        const result = fn(previous)
                         const t1 = performance.now();
                         pipelineTime += t1 - t0;
                         console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
