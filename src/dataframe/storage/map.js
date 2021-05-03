@@ -18,11 +18,11 @@ function createEmptyMap() {
     const get = storage.get.bind(storage);
     const set = storage.set.bind(storage);
 
-    storage.fields = new Set();
+    Object.defineProperty(storage, 'fields', { 
+        get: () => Object.keys(storage.values().next().value) || []
+    });  
     storage.setKey = newKey => {
-        key.forEach(e => storage.fields.delete(e)); 
         key = normalizeKey(newKey);
-        key.forEach(e => storage.fields.add(e)); 
         storage.incrementIndex = storage.key.length === 0; 
         storage.keyFn = storage.incrementIndex ? () => storage.size : createKeyFn(storage.key);
         storage.updateIndexes();
@@ -45,7 +45,6 @@ function createEmptyMap() {
         // if keyStr set, we assume it's correct. Only use when you know keyStr fits with current key dims
         if (keyStr === undefined || storage.incrementIndex)
             keyStr = storage.keyFn(row);
-        checkFields(storage.fields, row);
         row[Symbol.for('key')] = keyStr;
         set(keyStr, row);
     }
@@ -57,14 +56,6 @@ function createEmptyMap() {
 
     storage.setKey([]);
     return storage;
-}
-
-function checkFields(fields, row) {
-    for (let field in row) {
-        if (!fields.has(field)) {
-            fields.add(field);
-        }
-    }
 }
 
 function batchSet(storage, rowIter) {
