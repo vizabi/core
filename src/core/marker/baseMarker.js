@@ -2,13 +2,13 @@ import { trace, reaction, computed, observable, isComputed, isBoxedObservable, w
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, isProperSubset, combineStates } from "../utils";
-import { createMarkerKey } from '../../dataframe/dfutils';
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
 import { configSolver } from '../dataConfig/configSolver';
 import { encodingCache } from './encodingCache';
+import { createKeyFn } from '../../dataframe/dfutils';
 
 
 const defaultConfig = {
@@ -305,7 +305,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             const frame = this.encoding.frame;
             if (!frame) return this.dataMap;
     
-            const frameKey = createMarkerKey({ [frame.name]: value }, [frame.name]);
+            const frameKey = createKeyFn([frame.name])({ [frame.name]: value });
             const data = this.getTransformedDataMap('filterRequired');
             return data.has(frameKey) ? 
                 data.get(frameKey)

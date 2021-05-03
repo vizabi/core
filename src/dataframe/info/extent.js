@@ -1,4 +1,4 @@
-import { arrayEquals, createMarkerKey, getIter, isGroupedDataFrame, isIterable } from "../dfutils";
+import { arrayEquals, createKeyFn, getIter, isGroupedDataFrame, isIterable } from "../dfutils";
 
 /**
  * Get extent (i.e. domain) of a property in an iterable of objects or an iterable nested in a dataFrameGroup. Possibly grouped by a certain other property value, which can be limited to a subset.
@@ -44,8 +44,9 @@ function extentIterable(iter, concept, groupby, groupSubset) {
 
     let min, max, value, row, group;
     let groups = {};
+    let keyFn = groupby ? createKeyFn(groupby) : () => undefined;
     for (row of iter) {
-        group = groupby ? createMarkerKey(row, groupby) : undefined;
+        group = keyFn(row);
         if (groupSubset && !groupSubset.includes(group))
             continue;
         if (!groups[group]) groups[group] = [];

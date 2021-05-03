@@ -3,7 +3,7 @@ import { action, observable, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals } from '../utils';
 import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
-import { createMarkerKey, parseMarkerKey } from '../../dataframe/dfutils';
+import { createKeyFn, parseMarkerKey } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
@@ -248,7 +248,7 @@ frame.nonObservable = function(config, parent) {
     
         },
         get frameKey() {
-            return createMarkerKey({ [this.name]: this.value });
+            return createKeyFn([this.name])({ [this.name]: this.value }) // ({ [this.name]: this.value });
         },
         getInterpolatedFrame(df, step, stepsAround) {
             const keys = Array.from(df.keys());

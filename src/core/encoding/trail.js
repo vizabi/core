@@ -3,7 +3,7 @@ import { action, computed, observable, reaction, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
 import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
-import { createMarkerKey } from "../../dataframe/dfutils";
+import { createKeyFn } from "../../dataframe/dfutils";
 
 const defaultConfig = {
     data: {
@@ -167,6 +167,7 @@ trail.nonObservable = function(config, parent) {
             const prop = groupDim;
             const newGroupMap = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
             const trailKeyDims = [...groupMap.descendantKeys[0], prop];
+            const trailKeyFn = createKeyFn(trailKeyDims);
             for (let [id, group] of groupMap) {
                 const newGroup = DataFrame([], group.key);
                 for (let [markerKey, markerData] of group) {
@@ -185,7 +186,7 @@ trail.nonObservable = function(config, parent) {
                             // Another solution would be to allow multiple keys per datapoint (e.g. geo-swe-frame-2000 AND geo-swe)
                             // and make interpolation interpolate for both keys.
                             if (idx > trailEnd) break;
-                            const newKey = createMarkerKey(trailMarker, trailKeyDims);
+                            const newKey = trailKeyFn(trailMarker);
                             const newData = Object.assign(trailMarker, {
                                 [Symbol.for('key')]: newKey,
                                 [Symbol.for('trailHeadKey')]: markerKey

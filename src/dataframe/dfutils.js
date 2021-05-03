@@ -76,54 +76,48 @@ function isString(str) {
 
 // precalc strings for optimization
 const escapechar = "\\";
-const joinchar = "-";
+const joinchar = "¬";
 const dblescape = escapechar + escapechar;
 const joinescape = escapechar + joinchar;
-export var esc = str => {
-    if (str instanceof Date) str = str.toISOString();
-    if (isNumeric(str)) return str;
-    return replace(replace(str, escapechar, dblescape), joinchar, joinescape);
-}
 
-// jsperf of key-creation options. Simple concat hash + escaping wins: https://jsperf.com/shallow-hash-of-object
-// for loop is faster than keys.map().join('-');
-// but in Edge, json.stringify is faster
-// pre-escaped space would add extra performance
-const createDimKeyStr = (dim, dimVal) => {
-    if (dimVal instanceof Date) dimVal = dimVal.toISOString();
-    //if (!dim || !dimVal) debugger;
-    return esc(dim) + joinchar + esc(dimVal);
-}
-export const createMarkerKey = (row, space = Object.keys(row).sort()) => {
-    const l = space.length;
-
-/*    if (l===1)
-        return createDimKeyStr(space[0],row[space[0]]+"";
-*/
-
-    // space.map(c => createDimKeyStr(row[c]))).join(joinchar);
-    var res = (l > 0) ? createDimKeyStr(space[0], row[space[0]]) : '';
-    for (var i = 1; i < l; i++) {
-        res += joinchar + createDimKeyStr(space[i], row[space[i]]);
+const dateCache = new Map();
+function dateToCachedString(d) {
+    let int = d.getTime();
+    if (!dateCache.has(int)) {
+        dateCache.set(int, d.toISOString())
     }
-    return res
+    return dateCache.get(int);
+}
+
+export function esc (str) {  
+    if (str instanceof Date) return dateToCachedString(str); // .getTime();
+    //if (isNumeric(str)) return str;
+    //return replace(replace(str, escapechar, dblescape), joinchar, joinescape);
+    return str; 
 }
 
 export const createKeyFn = (space) => {
-    const spaceEsc = space.map(esc);
-    const l = space.length;
+    //const spaceEsc = space.map(esc);
     return (row) => {
         const parts = [];
-        let field, i, j;
+        let i, j;
+        const l = space.length;
         for (i = j = 0; i < l; i++, j+=2) {
-            parts[j] = field = spaceEsc[i]; 
-            parts[j+1] = esc(row[field]);
+            parts[j] = esc(space[i]); 
+            parts[j+1] = esc(row[space[i]]);
         }
         return parts.join(joinchar);
     }
 }
 
+
 export function parseMarkerKey(str) {
+
+    var values = str.split(joinchar);
+
+    /*
+     * Commented code is when escaping joinchar in key parts
+     *
     // "remove" escaping by splitting to be able to split on actual joins
     // then, put it back together
     var parts = str.split(dblescape).map(
@@ -156,6 +150,7 @@ export function parseMarkerKey(str) {
     }
     values.push(val);
 
+    */
     // create key, odd is dim, even is dimension value
     const key = {};
     for (let i = 0; i < values.length; i += 2) {
