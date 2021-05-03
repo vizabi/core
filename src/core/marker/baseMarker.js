@@ -1,4 +1,4 @@
-import { trace, reaction, computed, observable, isComputed, isBoxedObservable, when } from 'mobx';
+import { trace, reaction, computed, observable, isComputed, isBoxedObservable, when, toJS } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, isProperSubset, combineStates } from "../utils";
@@ -199,9 +199,16 @@ baseMarker.nonObservable = function(config, parent, id) {
             return this.requiredEncodings.length === 0 || this.requiredEncodings.includes(name)
         },
         filterRequired(data) {
-            const required = this.requiredEncodings;
+            const required = toJS(this.requiredEncodings);
+            const l = required.length;
             return data
-                .filter(row => required.every(encName => row.hasOwnProperty(encName) && row[encName] !== null))
+                .filter(row => {
+                    for (let i = 0; i < l; i++) {
+                        const v = row[required[i]];
+                        if (v === undefined || v === null) return false;
+                    }
+                    return true;
+                })
                 .filterGroups(group => group.size > 0);
         },
         differentiate(xField, data) {

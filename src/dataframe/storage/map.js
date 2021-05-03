@@ -43,9 +43,10 @@ function createEmptyMap() {
     storage.set = (row, keyStr) => {
         // passing keyStr is optimization to circumvent keyStr generation (TODO: check performance impact)
         // if keyStr set, we assume it's correct. Only use when you know keyStr fits with current key dims
-        if (keyStr === undefined || storage.incrementIndex)
+        if (keyStr === undefined || storage.incrementIndex) {
             keyStr = storage.keyFn(row);
-        row[Symbol.for('key')] = keyStr;
+            row[Symbol.for('key')] = keyStr;
+        }
         set(keyStr, row);
     }
     storage.hasByObjOrStr = (keyObj, keyStr) => has(keyStr);
