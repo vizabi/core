@@ -23,7 +23,9 @@ export function order(df, order_by = []) {
         return 0;
     });
 
-    return DataFrame(data, df.key);
+    data.key = df.key;
+
+    return DataFrame(data);
 }
 
 /**    
