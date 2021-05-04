@@ -109,7 +109,7 @@ function minmax(value, [min, max]) {
         let min, max, group;
         
         for (group of groups.values()) { // each frame
-            if (group.hasByObjOrStr(null, groupValue)) { // if frame contains marker
+            if (group.hasByStr(groupValue)) { // if frame contains marker
                 if (min === undefined) {
                     min = group;
                 }

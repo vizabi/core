@@ -118,7 +118,7 @@ trail.nonObservable = function(config, parent) {
                 const historicalTrails = new Set();
                 for (let trailMarkerKey of trailMarkerKeys) {
                     // current group doesn't have a head for this trail that has already passed
-                    if (!group.hasByObjOrStr(null, trailMarkerKey)) {
+                    if (!group.hasByStr(trailMarkerKey)) {
                         if (trailHeads.has(trailMarkerKey)) {
                             historicalTrails.add(trailMarkerKey);
                         }
@@ -158,7 +158,7 @@ trail.nonObservable = function(config, parent) {
                 const trail = new Map();
                 trails.set(key, trail);
                 for (let [i, group] of group) {
-                    if (group.hasByObjOrStr(null,key))
+                    if (group.hasByStr(key))
                         trail.set(i, Object.assign({}, group.getByObjOrStr(null,key)));
                 }
             }
