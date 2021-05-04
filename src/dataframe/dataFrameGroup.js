@@ -76,7 +76,7 @@ function createGroup(key, descendantKeys) {
     }
     group.batchSetRow = (data) => {
         const descKeys = group.descendantKeys;
-        if (arrayEquals(data.key, descKeys[descKeys.length - 1])) {
+        if (arrayEquals(data.key, descKeys[descKeys.length - 1]) && data.key.length > 0) {
             for (let row of data.values()) {
                 getDataFrame(group, row)
                     .setByStr(row[Symbol.for('key')], row);
