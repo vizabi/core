@@ -40,36 +40,43 @@ function combineResults(one, two) {
 // in the style of d3.extent
 function extentIterable(iter, concept, groupby, groupSubset) {
     iter = getIter(iter);
-    groupSubset = groupSubset ? Array.from(groupSubset) : groupSubset;
+    let row;
 
-    let min, max, value, row, group;
-    let groups = {};
-    let keyFn = groupby ? createKeyFn(groupby) : () => undefined;
-    for (row of iter) {
-        group = keyFn(row);
-        if (groupSubset && !groupSubset.includes(group))
-            continue;
-        if (!groups[group]) groups[group] = [];
-        [min, max] = groups[group];
-        value = row[concept];
-        if (value != null) {
-            if (min === undefined) {
-                // find first comparable values
-                if (value >= value) min = max = value;
-            } else {
-                // compare remaining values 
-                if (min > value) min = value;
-                if (max < value) max = value;
-            }
+    if (groupby) {
+        groupSubset = groupSubset ? Array.from(groupSubset) : groupSubset;
+        let keyFn = Array.isArray(groupby) ? createKeyFn(groupby) : undefined;
+        let groups = {};
+        for (row of iter) {
+            const group = keyFn(row);
+            if (groupSubset && !groupSubset.includes(group))
+                continue;
+            if (!groups[group]) groups[group] = [];
+            groups[group] = minmax(row[concept], groups[group]);
         }
-        groups[group] = [min, max];
+        return groups
+    } else {
+        let minmaxArr = [];
+        for (row of iter) {
+            minmaxArr = minmax(row[concept], minmaxArr);
+        }
+        return minmaxArr;
     }
-    if (groupby)
-        return groups;
-    else   
-        return groups[undefined];
 }
 
+function minmax(value, [min, max]) {
+    
+    if (value != null) {
+        if (min === undefined) {
+            // find first comparable values
+            if (value >= value) min = max = value;
+        } else {
+            // compare remaining values 
+            if (min > value) min = value;
+            if (max < value) max = value;
+        }
+    }
+    return [min, max]
+}
 
 /**
  * Faster extent algorithm for specific grouped dataframes which satisfy:

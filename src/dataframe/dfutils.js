@@ -97,6 +97,7 @@ export function esc (str) {
 }
 
 export const createKeyFn = (space) => {
+    space = normalizeKey(space);
     const l = space.length;
     return (row) => {
         const parts = [];
