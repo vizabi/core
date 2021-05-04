@@ -1,8 +1,8 @@
-import { DataFrameGroupMap } from "../dataFrameGroup";
+import { DataFrameGroup } from "../dataFrameGroup";
 
 export function groupBy(df, groupKey, memberKey = df.key) {
 
-    return DataFrameGroupMap(df, groupKey, memberKey);
+    return DataFrameGroup(df, groupKey, memberKey);
     
 }
 

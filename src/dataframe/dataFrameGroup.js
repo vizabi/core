@@ -1,6 +1,6 @@
 import { DataFrame } from "./dataFrame";
-import { parseMarkerKey, isDataFrame, createKeyFn } from "./dfutils";
-import { extent, extentOfGroupMapKeyPerMarker } from "./info/extent";
+import { parseMarkerKey, isDataFrame, createKeyFn, arrayEquals } from "./dfutils";
+import { extent, extentOfGroupKeyPerMarker } from "./info/extent";
 
 /**
  * 
@@ -8,7 +8,7 @@ import { extent, extentOfGroupMapKeyPerMarker } from "./info/extent";
  * @param {*} key key by which is grouped
  * @param {*} descKeys keys of groups and their descendants
  */
-export function DataFrameGroupMap(df, key, descKeys = []) {
+export function DataFrameGroup(df, key, descKeys = []) {
 
     if (!Array.isArray(descKeys)) descKeys = [[descKeys]]; // desc keys is single string (e.g. 'year')
     if (!Array.isArray(descKeys[0])) descKeys = [descKeys]; // desc keys is one key (e.g. ['year'])
@@ -16,86 +16,96 @@ export function DataFrameGroupMap(df, key, descKeys = []) {
     if (!isDataFrame(df)) df = DataFrame(df);
     if (descKeys.length === 0) descKeys = [df.key];  // descKeys is empty
     
-    const groupMap = createGroupMap(key, descKeys, df)
+    const group = createGroup(key, descKeys)
+    group.batchSetRow(df);
 
-    for (let row of df.values()) {
-        groupMap.setRow(row);
-    }
-
-    return groupMap; 
+    return group; 
 }
 
-function createGroupMap(key, descendantKeys) {
-    const groupMap = new Map();
-    groupMap.key = key;
-    groupMap.keyFn = createKeyFn(key);
-    groupMap.descendantKeys = descendantKeys;
-    groupMap.groupType = () => groupMap.descendantKeys.length === 1 ? 'DataFrame' : 'GroupMap';
-    groupMap.each = (fn) => each(groupMap, fn);
-    groupMap.map = (fn) => map(groupMap, fn);
-    // groupMap.mapCall = (fn) => mapCall(groupMap, fn); // not exposing mapcall
-    groupMap.interpolate = mapCall(groupMap, "interpolate");
-    groupMap.filter = mapCall(groupMap, "filter");
-    groupMap.order = mapCall(groupMap, "order");
-    groupMap.reindex = mapCall(groupMap, "reindex");
-    groupMap.flatten = (key) => flatten(groupMap, key);
-    groupMap.extent = (concept, groupBy, groupSubset) => extent(groupMap, concept, groupBy, groupSubset),
-    groupMap.extentOfGroupMapKeyPerMarker = (groupSubset) => extentOfGroupMapKeyPerMarker(groupMap, groupSubset),
-    groupMap.groupBy = (key) => {
-        for (let group of groupMap.values()) {
-            const newGroup = group.groupBy(key);
+function createGroup(key, descendantKeys) {
+    const group = new Map();
+    group.key = key;
+    group.keyFn = createKeyFn(key);
+    group.descendantKeys = descendantKeys;
+    group.groupType = () => group.descendantKeys.length === 1 ? 'DataFrame' : 'Group';
+    group.each = (fn) => each(group, fn);
+    group.map = (fn) => map(group, fn);
+    // group.mapCall = (fn) => mapCall(group, fn); // not exposing mapcall
+    group.interpolate = mapCall(group, "interpolate");
+    group.filter = mapCall(group, "filter");
+    group.order = mapCall(group, "order");
+    group.reindex = mapCall(group, "reindex");
+    group.flatten = (key) => flatten(group, key);
+    group.extent = (concept, groupBy, groupSubset) => extent(group, concept, groupBy, groupSubset),
+    group.extentOfGroupKeyPerMarker = (groupSubset) => extentOfGroupKeyPerMarker(group, groupSubset),
+    group.groupBy = (key) => {
+        for (let member of group.values()) {
+            const newMember = member.groupBy(key);
 
-            // groups change from DataFrame to GroupMap
-            if (groupMap.groupType() === 'DataFrame')
-                groupMap.set(key, newGroup);
+            // groups change from DataFrame to group
+            if (group.groupType() === 'DataFrame')
+                group.set(key, newMember);
         }
-        groupMap.descendantKeys.push(key);
-        return groupMap;
+        group.descendantKeys.push(key);
+        return group;
     }
-    groupMap.createChild = (keyStr) => createChild(groupMap, keyStr);
-    groupMap.toJSON = () => mapToObject(groupMap);
-    groupMap.rows = function* () {
-        let group, row; 
-        for (group of groupMap.values()) {
-            for (row of group.rows()) // get rows recursively
+    group.createMember = (keyStr) => createMember(group, keyStr);
+    group.toJSON = () => mapToObject(group);
+    group.rows = function* () {
+        let member, row; 
+        for (member of group.values()) {
+            for (row of member.rows()) // get rows recursively
                 yield row;
         }
     }
-    groupMap.filterGroups = (filterFn) => {
-        let result = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
-        for (let [key, group] of groupMap) {
-            const newGroup = group.filterGroups(filterFn);
-            if (filterFn(newGroup)) 
-                result.set(key, newGroup);
+    group.filterGroups = (filterFn) => {
+        let result = DataFrameGroup([], group.key, group.descendantKeys);
+        for (let [key, member] of group) {
+            const newMember = member.filterGroups(filterFn);
+            if (filterFn(newMember)) 
+                result.set(key, newMember);
         }
         return result;
     }
-    groupMap.setRow = (row) => {
-        getOrCreateGroup(groupMap, row)
-            .setRow(row);
+    group.setRow = (row, key) => {
+        getOrCreateMember(group, row)
+            .setRow(row, key);
     }
-    return groupMap;
+    group.batchSetRow = (data) => {
+        const descKeys = group.descendantKeys;
+        if (arrayEquals(data.key, descKeys[descKeys.length - 1])) {
+            for (let row of data.values()) {
+                group.setRow(row, row[Symbol.for('key')]);
+            }
+        } else {
+            for (let row of data.values()) {
+                group.setRow(row);
+            }
+        }
+    
+    }
+    return group;
 }
 
-function each(grouping, fn) {
-    for (let [key, df] of grouping) {
-        fn(df, parseMarkerKey(key));
+function each(group, fn) {
+    for (let [key, member] of group) {
+        fn(member, parseMarkerKey(key));
     }
-    return grouping;
+    return group;
 }
 
-function map(grouping, fn) {
-    for (let [key, df] of grouping) {
-        grouping.set(key, fn(df, parseMarkerKey(key)));
+function map(group, fn) {
+    for (let [key, member] of group) {
+        group.set(key, fn(member, parseMarkerKey(key)));
     }
-    return grouping;
+    return group;
 }
 
-function mapCall(groupMap, fnName) {
+function mapCall(group, fnName) {
     return function() {
-        let result = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
-        for (let [key, group] of groupMap) {
-            result.set(key, group[fnName](...arguments));
+        let result = DataFrameGroup([], group.key, group.descendantKeys);
+        for (let [key, member] of group) {
+            result.set(key, member[fnName](...arguments));
         }
         return result;
     }
@@ -106,30 +116,30 @@ function mapCall(groupMap, fnName) {
  * @param {*} group the group to find member in
  * @param {*} row data row to find member for
  */
-function getOrCreateGroup(groupMap, row) {
-    let group;
-    const keyStr = groupMap.keyFn(row);
-    if (groupMap.has(keyStr)) {
-        group = groupMap.get(keyStr);
+function getOrCreateMember(group, row) {
+    let member;
+    const keyStr = group.keyFn(row);
+    if (group.has(keyStr)) {
+        member = group.get(keyStr);
     } else {
-        group = groupMap.createChild(keyStr);
+        member = group.createMember(keyStr);
     }
-    return group;
+    return member;
 }
 
-function createChild(groupMap, keyStr) {
+function createMember(group, keyStr) {
     // DataFrames have no children of their own (= leafs)
-    const child = groupMap.descendantKeys.length === 1
-        ? DataFrame([], groupMap.descendantKeys[0])
-        : DataFrameGroupMap([], groupMap.descendantKeys[0], groupMap.descendantKeys.slice(1));
+    const newMember = group.descendantKeys.length === 1
+        ? DataFrame([], group.descendantKeys[0])
+        : DataFrameGroup([], group.descendantKeys[0], group.descendantKeys.slice(1));
     
-    groupMap.set(keyStr, child);
-    return child;
+    group.set(keyStr, newMember);
+    return newMember;
 }
 
 function flatten(group, result) {
     for (let member of group.values()) {
-        if (group.groupType() == 'GroupMap') {
+        if (group.groupType() == 'Group') {
             result = flatten(member, result)
         } else {
             if (!result)

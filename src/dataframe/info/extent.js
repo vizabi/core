@@ -93,7 +93,7 @@ function minmax(value, [min, max]) {
  * @param {*} groupSubset 
  * @returns 
  */
- export function extentOfGroupMapKeyPerMarker(groups, groupSubset, concept = groups.key[0], groupBy = groups.descendantKeys[0]) {
+ export function extentOfGroupKeyPerMarker(groups, groupSubset, concept = groups.key[0], groupBy = groups.descendantKeys[0]) {
         
     if (!isGroupedDataFrame(groups)) throw("Special case but iterable is not a grouped dataframe");
     const descKeys = groups.descendantKeys

@@ -1,5 +1,5 @@
 import { DataFrame } from "../../../src/dataframe/dataFrame";
-import { extent, extentOfGroupMapKeyPerMarker } from "../../../src/dataframe/info/extent";
+import { extent, extentOfGroupKeyPerMarker } from "../../../src/dataframe/info/extent";
 
 const df = DataFrame([
     { time: 2011, geo: 'swe', pop: 5 },
@@ -89,20 +89,20 @@ describe('dataframe extent', () => {
 
 
     it('returns special case: grouped extent of grouping by key of group', () => {
-        expect(extentOfGroupMapKeyPerMarker(grouped, ['geo-ger'], 'time', ['geo'])).toEqual({ 
+        expect(extentOfGroupKeyPerMarker(grouped, ['geo-ger'], 'time', ['geo'])).toEqual({ 
             'geo-ger': [2011, 2011]
         })
     });
 
     it('returns special case: grouped extent of grouping by key of group, multidimensional', () => {
-        expect(extentOfGroupMapKeyPerMarker(grouped2, ['gender-female-geo-swe'], 'time', ['geo', 'gender'])).toEqual({ 
+        expect(extentOfGroupKeyPerMarker(grouped2, ['gender-female-geo-swe'], 'time', ['geo', 'gender'])).toEqual({ 
             'gender-female-geo-swe': [2011, 2013]
         })
     });
 
     it('returns special case: grouped extent of grouping by key of group, iterator for group subsets', () => {
         const map = new Map([['gender-female-geo-swe', 'foo']])
-        expect(extentOfGroupMapKeyPerMarker(grouped2, map.keys(), 'time', ['geo', 'gender'])).toEqual({ 
+        expect(extentOfGroupKeyPerMarker(grouped2, map.keys(), 'time', ['geo', 'gender'])).toEqual({ 
             'gender-female-geo-swe': [2011, 2013]
         })
     });

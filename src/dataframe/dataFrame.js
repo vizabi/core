@@ -59,7 +59,7 @@ function constructDataFrame(storage) {
             filterGroups: filterFn => {
                 return df.copy();
             },
-            setRow: row => df.set(row)
+            setRow: (row, keyStr) => df.set(row, keyStr)
         }
     );
 

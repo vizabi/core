@@ -182,7 +182,7 @@ frame.nonObservable = function(config, parent) {
          */
         markerLimits(markerKeys) {
             const frameMap = this.dataMapBeforeTransform("currentFrame");
-            return frameMap.extentOfGroupMapKeyPerMarker(markerKeys)
+            return frameMap.extentOfGroupKeyPerMarker(markerKeys)
         },
     
         // TRANSFORMS
@@ -292,7 +292,7 @@ frame.nonObservable = function(config, parent) {
          */
         differentiate(df, xField) {
             let prevFrame;
-            let result = DataFrameGroupMap([], df.key, df.descendantKeys);
+            let result = DataFrameGroup([], df.key, df.descendantKeys);
             for (let [yKey, frame] of df) {
                 const newFrame = frame.copy()
                 for(let [key, row] of newFrame) {

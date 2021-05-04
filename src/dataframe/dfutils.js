@@ -224,10 +224,10 @@ export function rangeIndex(index = 0) {
     return (row, key) => index++;
 }
 
-export function mapToObject(map) {
+export function mapToObject(group) {
     const result = {};
-    for ([key, group] of groupMap) {
-        result[key] = group.toJSON();
+    for ([key, member] of group) {
+        result[key] = member.toJSON();
     }
     return result;
 }

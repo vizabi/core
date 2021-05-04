@@ -1,7 +1,7 @@
 import { assign, applyDefaults, clamp } from "../utils";
 import { action, computed, observable, reaction, trace } from "mobx";
 import { baseEncoding } from "./baseEncoding";
-import { DataFrameGroupMap } from "../../dataframe/dataFrameGroup";
+import { DataFrameGroup } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { createKeyFn } from "../../dataframe/dfutils";
 
@@ -48,8 +48,8 @@ trail.nonObservable = function(config, parent) {
          */
         get limits() {
             // get datamap that's also used as input for addTrails
-            const groupMap = this.dataMapBeforeTransform("addPreviousTrailHeads");
-            return groupMap.extentOfGroupMapKeyPerMarker(this.data.filter.markers.keys())
+            const group = this.dataMapBeforeTransform("addPreviousTrailHeads");
+            return group.extentOfGroupKeyPerMarker(this.data.filter.markers.keys())
         },
         /**
          * Set trail start of every bubble to `value` if value is lower than current trail start
@@ -104,17 +104,17 @@ trail.nonObservable = function(config, parent) {
         /**
          * Trails are all sorted together at the position of their head.
          * So we first add heads, then we can order markers and then we can add the rest of the trail
-         * @param {*} groupMap 
+         * @param {*} group 
          * @returns 
          */
-        addPreviousTrailHeads(groupMap) {
+        addPreviousTrailHeads(group) {
             const trailMarkerKeys = Object.keys(this.starts);
             if (trailMarkerKeys.length == 0 || !this.show)
-                return groupMap;
+                return group;
 
-            const newGroupMap = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
+            const newGroup = DataFrameGroup([], group.key, group.descendantKeys);
             const trailHeads = new Map();
-            for (let [id, group] of groupMap) {
+            for (let [id, group] of group) {
                 const historicalTrails = new Set();
                 for (let trailMarkerKey of trailMarkerKeys) {
                     // current group doesn't have a head for this trail that has already passed
@@ -133,31 +133,31 @@ trail.nonObservable = function(config, parent) {
                     const trailHead = trailHeads.get(trailMarkerKey);
                     newGroup.set(trailHead);
                 }
-                newGroupMap.set(id, newGroup);
+                newGroup.set(id, newGroup);
             }
-            return newGroupMap;
+            return newGroup;
         },
         /**
          *  Per given marker, in whatever ordered group
          *  1. get markers from groups before its group (possibly starting at given group)
          *  2. add those markers to current group, with new key including original group (so no collission)
-         * @param {*} groupMap 
+         * @param {*} group 
          */
-        addTrails(groupMap) {
+        addTrails(group) {
 
             // can't use this.groupDim because circular dep this.marker.transformedDataMap
-            const groupDim = groupMap.key[0]; // supports only 1 dimensional grouping
+            const groupDim = group.key[0]; // supports only 1 dimensional grouping
             const markerKeys = Object.keys(this.starts);
 
             if (markerKeys.length == 0 || !this.show)
-                return groupMap;
+                return group;
 
             // create trails
             const trails = new Map();
             for (let key of markerKeys) {
                 const trail = new Map();
                 trails.set(key, trail);
-                for (let [i, group] of groupMap) {
+                for (let [i, group] of group) {
                     if (group.hasByObjOrStr(null,key))
                         trail.set(i, Object.assign({}, group.getByObjOrStr(null,key)));
                 }
@@ -165,10 +165,10 @@ trail.nonObservable = function(config, parent) {
 
             // add trails to groups
             const prop = groupDim;
-            const newGroupMap = DataFrameGroupMap([], groupMap.key, groupMap.descendantKeys);
-            const trailKeyDims = [...groupMap.descendantKeys[0], prop];
+            const newGroup = DataFrameGroup([], group.key, group.descendantKeys);
+            const trailKeyDims = [...group.descendantKeys[0], prop];
             const trailKeyFn = createKeyFn(trailKeyDims);
-            for (let [id, group] of groupMap) {
+            for (let [id, group] of group) {
                 const newGroup = DataFrame([], group.key);
                 for (let [markerKey, markerData] of group) {
                     // insert trails before its head marker
@@ -197,9 +197,9 @@ trail.nonObservable = function(config, parent) {
                     // (head) marker
                     newGroup.set(markerData, markerKey);
                 }
-                newGroupMap.set(id, newGroup);
+                newGroup.set(id, newGroup);
             }
-            return newGroupMap;
+            return newGroup;
         },
         onCreate() {
             const updateTrailDestruct = reaction(
