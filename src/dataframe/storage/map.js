@@ -49,6 +49,9 @@ function createEmptyMap() {
         }
         set(keyStr, row);
     }
+    storage.setByStr = set;
+    storage.hasByStr = has;
+    storage.getByStr = get;
     storage.hasByObjOrStr = (keyObj, keyStr) => has(keyStr);
     storage.getByObjOrStr = (keyObj, keyStr) => get(keyStr);
     storage.batchSet = data => batchSet(storage, data);
@@ -75,7 +78,7 @@ function batchSet(storage, data) {
             keyStr = keyFn(row);
             if (storage.hasByObjOrStr(null, keyStr))
                 duplicates.push({ keyStr, orig: storage.getByObjOrStr(null, keyStr), new: row})
-            storage.set(row, keyStr);
+            storage.setByStr(keyStr, row);
         }
 
         if (duplicates.length > 0)
