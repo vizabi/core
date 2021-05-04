@@ -24,10 +24,10 @@ export function DataFrameGroup(df, key, descKeys = []) {
 
 function createGroup(key, descendantKeys) {
     const group = new Map();
+    group.type = 'Group';
     group.key = key;
     group.keyFn = createKeyFn(key);
     group.descendantKeys = descendantKeys;
-    group.groupType = () => group.descendantKeys.length === 1 ? 'DataFrame' : 'Group';
     group.each = (fn) => each(group, fn);
     group.map = (fn) => map(group, fn);
     // group.mapCall = (fn) => mapCall(group, fn); // not exposing mapcall
@@ -43,7 +43,7 @@ function createGroup(key, descendantKeys) {
             const newMember = member.groupBy(key);
 
             // groups change from DataFrame to group
-            if (group.groupType() === 'DataFrame')
+            if (member.type === 'DataFrame')
                 group.set(key, newMember);
         }
         group.descendantKeys.push(key);
@@ -68,20 +68,20 @@ function createGroup(key, descendantKeys) {
         return result;
     }
     group.setRow = (row, key) => {
-        getOrCreateMember(group, row)
-            .setRow(row, key);
+        getDataFrame(group, row)
+            .set(row, key);
     }
     group.batchSetRow = (data) => {
         const descKeys = group.descendantKeys;
         if (arrayEquals(data.key, descKeys[descKeys.length - 1])) {
             for (let row of data.values()) {
-                getOrCreateMember(group, row)
-                    .setRow(row, row[Symbol.for('key')]);
+                getDataFrame(group, row)
+                    .setByStr(row[Symbol.for('key')], row);
             }
         } else {
             for (let row of data.values()) {
-                getOrCreateMember(group, row)
-                    .setRow(row);
+                getDataFrame(group, row)
+                    .set(row);
             }
         }
     
@@ -118,13 +118,16 @@ function mapCall(group, fnName) {
  * @param {*} group the group to find member in
  * @param {*} row data row to find member for
  */
-function getOrCreateMember(group, row) {
+function getDataFrame(group, row) {
     let member;
     const keyStr = group.keyFn(row);
     if (group.has(keyStr)) {
         member = group.get(keyStr);
     } else {
         member = group.createMember(keyStr);
+    }
+    if (member.type == 'Group') {
+        member = getDataFrame(member, row);
     }
     return member;
 }
@@ -141,7 +144,7 @@ function createMember(group, keyStr) {
 
 function flatten(group, result) {
     for (let member of group.values()) {
-        if (group.groupType() == 'Group') {
+        if (member.type == 'Group') {
             result = flatten(member, result)
         } else {
             if (!result)

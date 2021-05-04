@@ -51,6 +51,7 @@ function constructDataFrame(storage) {
             // info
             extent: (concept, groupBy, groupSubset) => extent(df, concept, groupBy, groupSubset),
             unique: (concept) => unique(df, concept),
+            type: 'DataFrame',
         
             // export
             toJSON: () => [...df.values()]
