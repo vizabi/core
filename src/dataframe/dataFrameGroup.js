@@ -127,13 +127,16 @@ function createChild(groupMap, keyStr) {
     return child;
 }
 
-function flatten(group, key = []) {
-    function* entries() {
-        for (let df of group.values()) {
-            for (let row of df.values()) {
-                yield row;
-            }
+function flatten(group, result) {
+    for (let member of group.values()) {
+        if (group.groupType() == 'GroupMap') {
+            result = flatten(member, result)
+        } else {
+            if (!result)
+                result = DataFrame(member, member.key);
+            else 
+                result.batchSet(member);
         }
-    }
-    return DataFrame(entries(), key);
+    } 
+    return result;
 }
