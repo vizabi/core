@@ -1,4 +1,4 @@
-import { normalizeKey, getIter, rangeIndex, createKeyFn, isNonNullObject } from "../dfutils";
+import { normalizeKey, getIter, createKeyFn, isNonNullObject, arrayEquals } from "../dfutils";
 
 export function MapStorage(data = [], keyArr = data.key || []) {
     
@@ -51,7 +51,7 @@ function createEmptyMap() {
     }
     storage.hasByObjOrStr = (keyObj, keyStr) => has(keyStr);
     storage.getByObjOrStr = (keyObj, keyStr) => get(keyStr);
-    storage.batchSet = rowIter => batchSet(storage, rowIter);
+    storage.batchSet = data => batchSet(storage, data);
     storage.rows = storage.values;
     storage.updateIndexes = () => updateIndexes(storage);
 
@@ -59,25 +59,34 @@ function createEmptyMap() {
     return storage;
 }
 
-function batchSet(storage, rowIter) {
-    const duplicates = [];
+function batchSet(storage, data) {
 
-    rowIter = getIter(rowIter);
+    const iter = getIter(data);
 
-    let keyStr;
-    for (let row of rowIter) {
-        if (!storage.incrementIndex) {
-            keyStr = storage.keyFn(row);
+    if (!storage.incrementIndex) {
+
+        let keyStr;
+        const duplicates = [];
+        const keyFn = Array.isArray(data.key) && arrayEquals(storage.key, data.key)
+            ? row => row[Symbol.for('key')]
+            : storage.keyFn;
+
+        for (let row of iter) {
+            keyStr = keyFn(row);
             if (storage.hasByObjOrStr(null, keyStr))
                 duplicates.push({ keyStr, orig: storage.getByObjOrStr(null, keyStr), new: row})
             storage.set(row, keyStr);
-        } else {
+        }
+
+        if (duplicates.length > 0)
+            console.warn('Found duplicates for given key when constructing dataframe.', { key: storage.key, duplicates });
+
+    } else {
+        for (let row of iter) {
             storage.set(row);
         }
     }
 
-    if (duplicates.length > 0)
-        console.warn('Found duplicates for given key when constructing dataframe.', { key: storage.key, duplicates });
 }
 
 function updateIndexes(storage) {
