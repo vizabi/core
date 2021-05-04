@@ -75,11 +75,13 @@ function createGroup(key, descendantKeys) {
         const descKeys = group.descendantKeys;
         if (arrayEquals(data.key, descKeys[descKeys.length - 1])) {
             for (let row of data.values()) {
-                group.setRow(row, row[Symbol.for('key')]);
+                getOrCreateMember(group, row)
+                    .setRow(row, row[Symbol.for('key')]);
             }
         } else {
             for (let row of data.values()) {
-                group.setRow(row);
+                getOrCreateMember(group, row)
+                    .setRow(row);
             }
         }
     
