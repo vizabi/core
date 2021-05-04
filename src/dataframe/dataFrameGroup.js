@@ -58,12 +58,15 @@ function createGroup(key, descendantKeys) {
                 yield row;
         }
     }
-    group.filterGroups = (filterFn) => {
-        let result = DataFrameGroup([], group.key, group.descendantKeys);
+    group.filterGroups = (filterFn, inplace = false) => {
+        let result = inplace ? group : DataFrameGroup([], group.key, group.descendantKeys);
         for (let [key, member] of group) {
-            const newMember = member.filterGroups(filterFn);
-            if (filterFn(newMember)) 
+            const newMember = member.filterGroups(filterFn, inplace);
+            const filterApplies = filterFn(newMember);
+            if (!inplace && filterApplies)
                 result.set(key, newMember);
+            if (inplace && !filterApplies) 
+                result.delete(key);
         }
         return result;
     }

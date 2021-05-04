@@ -17,7 +17,6 @@ import { copy } from "./transforms/copy";
 import { differentiate } from "./transforms/differentiate"
 import { interpolateBetween } from "./transforms/interpolateBetween";
 
-//df.get(["swe","2015"]).population
 const fromLookups = (concepts, key) => constructDataFrame(LookupStorage(concepts, key));
 const fromArray = (data = [], key = data.key || []) => constructDataFrame(MapStorage(data, key));
 
@@ -57,8 +56,8 @@ function constructDataFrame(storage) {
             toJSON: () => [...df.values()]
         },
         {
-            filterGroups: filterFn => {
-                return df.copy();
+            filterGroups: (filterFn, inplace = false) => {
+                return inplace ? df : df.copy();
             },
             setRow: (row, keyStr) => df.set(row, keyStr)
         }

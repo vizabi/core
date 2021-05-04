@@ -209,7 +209,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                     }
                     return true;
                 })
-                .filterGroups(group => group.size > 0);
+                .filterGroups(group => group.size > 0, true);
         },
         differentiate(xField, data) {
             const frame = this.encoding.frame
