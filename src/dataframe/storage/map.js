@@ -72,7 +72,7 @@ function batchSet(storage, data) {
         const duplicates = [];
         const keyFn = Array.isArray(data.key) && arrayEquals(storage.key, data.key)
             ? row => row[Symbol.for('key')]
-            : storage.keyFn;
+            : row => row[Symbol.for('key')] = storage.keyFn(row);
 
         for (let row of iter) {
             keyStr = keyFn(row);
