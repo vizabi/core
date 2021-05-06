@@ -29,10 +29,12 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
             );
             return fromPromise(Promise.all(labelPromises));
         },
+        get space() {
+            return base.space.filter(dim => this.source.isEntityConcept(dim));
+        },
         get queries() {
-            const entityDims = this.space.filter(dim => this.source.isEntityConcept(dim));
             const kvLookup = this.source.availability.keyValueLookup;
-            return entityDims
+            return this.space
                 .filter(dim => kvLookup.get(dim).has(this.concept))
                 .map(dim => {
                     const { concept, filter, locale } = this;
