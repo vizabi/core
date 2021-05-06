@@ -240,7 +240,7 @@ const config = {
                     data: {
                         concept: "time"
                     },
-                    splash: { show: true },
+                    splash: true,
                     value: "2018",
                     interpolate: true,
                     extrapolate: "fill",
