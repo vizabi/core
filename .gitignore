@@ -3,5 +3,7 @@ node_modules/
 package-lock.json
 dist/Dataframe.js
 dist/Dataframe.js.map
+dist/stats-Dataframe.html
 dist/Vizabi.js
 dist/Vizabi.js.map
+dist/stats-Vizabi.html
