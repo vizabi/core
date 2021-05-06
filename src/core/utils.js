@@ -69,10 +69,15 @@ export function subsets(array) {
 /**
  * Relative complement (difference, B\A) of A with respect to B
  * Everything in B which is not in A. A=[geo,year], B=[geo,year,gender], B\A = [gender]
- * @param {*} a array representing set A
- * @param {*} b array representing set B
+ * @param {Array|Set} a Array/Set representing set A
+ * @param {Array|Set} b Array/Set representing set B
  */
 export function relativeComplement(a, b) {
+    if (a.has) {
+        const result = [];
+        for (let e of b) if (!a.has(e)) result.push(e);
+        return result;
+    }
     return b.filter(e => !a.includes(e));
 }
 

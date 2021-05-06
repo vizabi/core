@@ -228,13 +228,76 @@ frame.nonObservable = function(config, parent) {
             const fields = newFrameMap.values().next().value.fields;
             const interpolateFields = this.interpolationEncodings;
             const constantFields = relativeComplement(interpolateFields, fields);
+            const emptyRow = createEmptyRow(fields);
 
             //console.log('reindexed')
             //console.timeLog('int step');
 
-            // get a list of all markers including first/last frame we see them (i.e. extent)
+            // Gapfilling/Reindexing markers: add missing marker rows between first and last sighting
+            /**
+             * MISSING MARKER METHOD
+             * Keeps a list of all markers it has seen in previous frames, and if they have been missing in frames up until current
+             * For each frame:
+             * 1. Adds new markers to list of seen markers
+             * 2. If frame contains less markers than all markers it's seen:
+             *   a. check if any of the seen markers are not in frame, if so add this row to missing frames for that marker
+             *   b. if a marker is in frame, and it has been missing in frames before, we found a gap we can fill 
+             * 
+             * Seems less more variable run time, possibly more GC?
+             * Checks all markers that were ever active, even if there won't be any more appearances.
+             * Shorter!
+             *
             const markers = new Map();
-            const emptyRow = createEmptyRow(fields);
+            const newMarkers = new Set();
+            for (const [frameKey, frame] of newFrameMap) {
+
+                newMarkers.clear();
+                for (const [key, row] of frame) {
+                    if (!markers.has(key)) {
+                        let newRow = Object.assign(emptyRow, pick(row, constantFields));
+                        newRow[Symbol.for('key')] = key;
+                        newMarkers.add(key);
+                        markers.set(key, [ newRow, [] ]);
+                    }
+                }
+
+                // don't need to fill missing markers if frame contains them all
+                if (markers.size != frame.size) {
+                    // use old markers, no need to check markers that were just added
+                    for (const [key, [ newRow, missingFromFrame ]] of markers) {
+                        if (newMarkers.has(key)) continue;
+                        if (!frame.has(key)) {
+                            missingFromFrame.push(frameKey);
+                        } 
+                        else if (missingFromFrame.length > 1) {
+                            for (const missingFrameKey of missingFromFrame) {
+                                const row = Object.assign( // deepmerge to copy Date objects
+                                    {}, newRow, newFrameMap.keyObject(missingFrameKey)
+                                );
+                                row[this.data.concept] = row[name];
+                                frame.setByStr(key, row) 
+                            }
+                            markers.get(key)[1] = [];
+                        }
+                    }
+                }
+            }
+            /**/
+            
+            /* 
+             * EXTENT METHOD
+             * 1. gets frame-extent for each marker, 
+             * 2. Transforms frame extent to marker enter & exits per frame
+             * 3. Goes over frames and adds missing markers between enter & exit
+             * 
+             * This method works well for sparse frames, with many intermediate markers missing.
+             * It only checks markers we know should be active.
+             * It can easily skip frames if it contains all its expected markers. 
+             * It takes extra preparation to do this.
+             ***/
+
+            // 1. get a list of all markers including first/last frame we see them (i.e. extent)
+            const markers = new Map();
             for (const [frameKey, frame] of newFrameMap) {
                 for (const [key, row] of frame) {
                     if (!markers.has(key)) {
@@ -246,46 +309,16 @@ frame.nonObservable = function(config, parent) {
                     }
                 }
             }
-/**
- * 
- * 
-            const markers = new Map();
-            for (const [frameKey, frame] of newFrameMap) {
 
-                for (const [key, {newRow, missingFromFrame }] of markers) {
-                    if (!frame.has(key)) {
-                        missingFromFrame.push(frameKey);
-                    } else {
-                        for (const missingFrameKey of missingFromFrame) {
-                            const row = deepclone( // deepclone to copy Date objects
-                                Object.assign({}, newRow, newFrameMap.keyObject(missingFrameKey))
-                            );
-                            row[this.data.concept] = row[name];
-                            row[Symbol.for('key')] = key;
-                            frame.setByStr(key, row) 
-                        }
-                        missingFromFrame.length = 0;
-                    }
-                }
-
-                for (const [key, row] of frame) {
-
-                    if (!markers.has(key)) {
-                        let newRow = Object.assign(emptyRow, pick(row, constantFields));
-                        markers.set(key, { newRow, missingFromFrame: [] });
-                    }
-                }
-            }
- */
             //console.log('get marker extend')
             //console.timeLog('int step');
 
-            // transform list of markers to list of frames with marker start/end
-            const startPerFrame = new Map();
-            const endsPerFrame = new Map();
+            // 2. transform list of markers to list of frames with set of markers that enter & exit
+            const enterPerFrame = new Map();
+            const exitPerFrame = new Map();
             for (const [markerKey, { firstFrame, lastFrame }] of markers) {
-                addToMappedSet(startPerFrame, firstFrame, markerKey);
-                addToMappedSet(endsPerFrame, lastFrame, markerKey);
+                addToMappedSet(enterPerFrame, firstFrame, markerKey);
+                addToMappedSet(exitPerFrame, lastFrame, markerKey);
             }
             function addToMappedSet(map, mapKey, payLoad) {
                 const set = map.get(mapKey);
@@ -296,32 +329,37 @@ frame.nonObservable = function(config, parent) {
             //console.log('get transformed marker extend ')
             //console.timeLog('int step');
 
-            // fill frames with missing markers
+            // 3. fill frames with missing markers
             const activeMarkers = new Set();
+            const emptySet = new Set();
             const addToActive = activeMarkers.add.bind(activeMarkers);
             const delFromActive = activeMarkers.delete.bind(activeMarkers);
             for (const [frameKey, frame] of newFrameMap) {
-                startPerFrame.has(frameKey) && startPerFrame.get(frameKey).forEach(addToActive);
+                const exits = exitPerFrame.get(frameKey) ?? emptySet;
+                const enters = enterPerFrame.get(frameKey) ?? emptySet;
                 // skip if all active markers are already in the frame
-                if (frame.size == activeMarkers.size)
+                if (frame.size == activeMarkers.size + enters.size)
                     continue;
-                for (const key of activeMarkers) {
-                    if (!frame.hasByStr(key)) {
-                        const row = deepclone( // deepclone to copy Date objects
-                            Object.assign({}, markers.get(key).newRow, newFrameMap.keyObject(frameKey))
-                        );
-                        row[this.data.concept] = row[name]
-                        frame.setByStr(key, row) 
-                    }
+                // already remove exits, we know they're in this frame
+                exits.forEach(delFromActive);
+                const missingMarkers = relativeComplement(frame, activeMarkers);
+                for (const key of missingMarkers) {
+                    const row = deepclone( // deepclone to copy Date objects
+                        Object.assign({}, markers.get(key).newRow, newFrameMap.keyObject(frameKey))
+                    );
+                    row[this.data.concept] = row[name]
+                    frame.setByStr(key, row) 
                 }
-                endsPerFrame.has(frameKey) && endsPerFrame.get(frameKey).forEach(delFromActive);
+                // only now add enters, we already knew they're in this frame
+                enters.forEach(addToActive);
             }
-
             //console.log('add markers')
             //console.timeLog('int step');
+            /**/
 
-            const markersArray = Array.from(markers.keys());
+            // with all markers in place, actually interpolate
             //console.time('interpolate');
+            const markersArray = Array.from(markers.keys());
             for (const field of interpolateFields) {
                 const gapPerMarker = new Map(markersArray.map(key => [key, newGap()]));
                 for (const frame of newFrameMap.values()) {                    
@@ -330,7 +368,7 @@ frame.nonObservable = function(config, parent) {
                         evaluateGap(row, field, gap)
                     }
                 }
-                //console.log('finished', field);
+                //console.log('finished interpolating field', field);
                 //console.timeLog('interpolate');
             }
 
