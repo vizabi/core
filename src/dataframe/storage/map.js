@@ -76,7 +76,7 @@ function batchSet(storage, data) {
         for (let row of iter) {
             keyStr = keyFn(row);
             if (storage.hasByStr(keyStr))
-                duplicates.push({ keyStr, orig: storage.getByObjOrStr(null, keyStr), new: row})
+                duplicates.push({ keyStr, orig: storage.getByStr(keyStr), new: row})
             storage.setByStr(keyStr, row);
         }
 

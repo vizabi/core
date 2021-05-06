@@ -10,7 +10,7 @@ export function interpolateBetween(from, to, mu) {
     
     let newRow, row2;
     for(const [key, row1] of from) {
-        row2 = to.getByObjOrStr(undefined, key);
+        row2 = to.getByStr(key);
         if (!row2) continue;
         if (row2 !== row1) { // same object, depends on trails using same object for trail markers across frames.
             newRow = Object.assign({}, row1);

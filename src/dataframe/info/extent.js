@@ -119,7 +119,7 @@ function minmax(value, [min, max]) {
             }
         }
 
-        extents[groupValue] = [min, max].map(group => group?.getByObjOrStr(null, groupValue)[concept]);
+        extents[groupValue] = [min, max].map(group => group?.getByStr(groupValue)[concept]);
     }
     return extents;
 }

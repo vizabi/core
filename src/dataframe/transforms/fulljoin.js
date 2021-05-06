@@ -73,7 +73,7 @@ function createObj(space, row, keyStr) {
 function getOrCreateRow(df, keyArr, row, keyStr) {
     let obj;
 
-    obj = df.getByObjOrStr(row, keyStr);
+    obj = df.getByStr(keyStr);
     if (obj === undefined) {
         obj = createObj(keyArr, row, keyStr);
         df.set(obj, keyStr);
