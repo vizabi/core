@@ -305,7 +305,7 @@ frame.nonObservable = function(config, parent) {
                         newRow[Symbol.for('key')] = key;
                         markers.set(key, { newRow, firstFrame: frameKey, lastFrame: frameKey });
                     } else {
-                        markers.get(key).last = frameKey;
+                        markers.get(key).lastFrame = frameKey;
                     }
                 }
             }
