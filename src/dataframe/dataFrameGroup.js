@@ -25,8 +25,13 @@ export function DataFrameGroup(df, key, descKeys = []) {
 
 function createGroup(key, descendantKeys) {
     const group = new Map();
+
     group.type = 'Group';
     group.key = key;
+    group.keyObject = (key) => {
+        let row = getDataFrame(group.get(key)).values().next().value;
+        return pick(row, group.key);
+    }
     group.keyFn = createKeyFn(key);
     group.descendantKeys = descendantKeys;
     group.each = (fn) => each(group, fn);
@@ -42,12 +47,12 @@ function createGroup(key, descendantKeys) {
     group.keyExtent = () => extentOfGroupKey(group);
     group.extentOfGroupKeyPerMarker = (groupSubset) => extentOfGroupKeyPerMarker(group, groupSubset),
     group.groupBy = (key) => {
-        for (let member of group.values()) {
+        for (let [keyStr, member] of group) {
             const newMember = member.groupBy(key);
 
             // groups change from DataFrame to group
             if (member.type === 'DataFrame')
-                group.set(key, newMember);
+                group.set(keyStr, newMember);
         }
         group.descendantKeys.push(key);
         return group;
@@ -73,6 +78,10 @@ function createGroup(key, descendantKeys) {
         }
         return result;
     }
+    group.setByObj = (keyObj, member) => {
+        const keyStr = group.keyFn(keyObj);
+        group.set(keyStr, member);
+    }
     group.setRow = (row, key) => {
         getDataFrame(group, row)
             .set(row, key);
@@ -96,24 +105,25 @@ function createGroup(key, descendantKeys) {
 }
 
 function each(group, fn) {
-    for (let [key, member] of group) {
-        fn(member, parseMarkerKey(key));
+    for (let [keyStr, member] of group) {
+        fn(member, keyStr, group);
     }
     return group;
 }
 
 function map(group, fn) {
-    for (let [key, member] of group) {
-        group.set(key, fn(member, parseMarkerKey(key)));
+    let result = DataFrameGroup([], group.key, group.descendantKeys);
+    for (let [keyStr, member] of group) {
+        result.set(keyStr, fn(member, keyStr, group));
     }
-    return group;
+    return result;
 }
 
 function mapCall(group, fnName) {
     return function() {
         let result = DataFrameGroup([], group.key, group.descendantKeys);
-        for (let [key, member] of group) {
-            result.set(key, member[fnName](...arguments));
+        for (let [keyStr, member] of group) {
+            result.set(keyStr, member[fnName](...arguments));
         }
         return result;
     }
@@ -121,21 +131,23 @@ function mapCall(group, fnName) {
 
 /**
  * 
- * @param {*} group the group to find member in
- * @param {*} row data row to find member for
+ * @param {*} group the group to find dataframe in
+ * @param {*} row data row to find dataframe for
  */
 function getDataFrame(group, row) {
+    if (group.type == 'DataFrame') return group;
     let member;
-    const keyStr = group.keyFn(row);
-    if (group.has(keyStr)) {
-        member = group.get(keyStr);
+    if (!row) {
+        member = group.values().next().value;
     } else {
-        member = group.createMember(keyStr);
+        const keyStr = group.keyFn(row);
+        if (group.has(keyStr)) {
+            member = group.get(keyStr);
+        } else {
+            member = group.createMember(keyStr);
+        }
     }
-    if (member.type == 'Group') {
-        member = getDataFrame(member, row);
-    }
-    return member;
+    return getDataFrame(member, row);
 }
 
 function createMember(group, keyStr) {

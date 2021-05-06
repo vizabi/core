@@ -30,9 +30,9 @@ export function reindexGroup(group, index) {
         const keyStr = newGroup.keyFn(keyObj)
         if (group.has(keyStr)) {
             let member = group.get(keyStr);
-            newGroup.setMember(keyObj, member);
+            newGroup.set(keyStr, member);
         } else {
-            newGroup.createMember(keyObj);
+            newGroup.createMember(keyStr);
         }
     }
     return newGroup;

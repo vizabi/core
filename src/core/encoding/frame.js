@@ -1,9 +1,9 @@
 import { baseEncoding } from './baseEncoding';
 import { action, observable, reaction, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals } from '../utils';
-import { DataFrameGroupMap } from '../../dataframe/dataFrameGroup';
-import { createKeyFn, parseMarkerKey } from '../../dataframe/dfutils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, interval, deepclone, getOrCreate } from '../utils';
+import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
+import { createKeyFn, pick } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
@@ -299,7 +299,7 @@ frame.nonObservable = function(config, parent) {
                     const newRow = Object.assign({}, row);
                     const xValue = row[xField];
                     if (xValue !== undefined) {
-                        newRow[xField] = prevFrame ? xValue - prevFrame.get(parseMarkerKey(key))[xField] : 0;
+                        newRow[xField] = prevFrame ? xValue - prevFrame.getByStr(key)[xField] : 0;
                     }
                     newFrame.set(newRow, key);
                 }

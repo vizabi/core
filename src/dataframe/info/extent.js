@@ -129,8 +129,8 @@ export function extentOfGroupKey(group) {
 
     let keyConcept = group.key[0];
     let minmaxArr = [];
-    group.each(member => {
-        const keyObj = group.keyObjects.get(member);
+    group.each((member, keyStr) => {
+        const keyObj = group.keyObject(keyStr);
         minmaxArr = minmax(keyObj[keyConcept], minmaxArr);
     })
     return minmaxArr;
