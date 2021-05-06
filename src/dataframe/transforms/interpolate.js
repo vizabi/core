@@ -23,7 +23,8 @@ export function newGap() {
     }
 }
 
-export function evaluateGap(row, field, { start, rows }) {
+export function evaluateGap(row, field, gap) {
+    const { rows, start } = gap;
     const fieldVal = row[field];
     if (fieldVal ?? true) { // faster for undefined/null check
         if (start ?? true)
