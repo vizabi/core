@@ -179,9 +179,11 @@ function emptyTarget(val) {
 }
 
 function cloneUnlessOtherwiseSpecified(value, options) {
-    return (options.clone !== false && options.isMergeableObject(value)) ?
-        deepmerge(emptyTarget(value), value, options) :
-        value
+    return (options.clone !== false && options.isMergeableObject(value)) 
+        ? deepmerge(emptyTarget(value), value, options) 
+        : Object.prototype.toString.call(value) == '[object Date]'
+            ? new Date(value.getTime())
+            : value;
 }
 
 function defaultArrayMerge(target, source, options) {
