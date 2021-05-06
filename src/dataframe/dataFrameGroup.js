@@ -1,6 +1,7 @@
 import { DataFrame } from "./dataFrame";
-import { parseMarkerKey, isDataFrame, createKeyFn, arrayEquals } from "./dfutils";
-import { extent, extentOfGroupKeyPerMarker } from "./info/extent";
+import { isDataFrame, createKeyFn, arrayEquals, pick } from "./dfutils";
+import { extent, extentOfGroupKey, extentOfGroupKeyPerMarker } from "./info/extent";
+import { reindexGroup } from "./transforms/reindex";
 
 /**
  * 
@@ -35,8 +36,10 @@ function createGroup(key, descendantKeys) {
     group.filter = mapCall(group, "filter");
     group.order = mapCall(group, "order");
     group.reindex = mapCall(group, "reindex");
+    group.reindexMembers = index => reindexGroup(group, index);
     group.flatten = (key) => flatten(group, key);
     group.extent = (concept, groupBy, groupSubset) => extent(group, concept, groupBy, groupSubset),
+    group.keyExtent = () => extentOfGroupKey(group);
     group.extentOfGroupKeyPerMarker = (groupSubset) => extentOfGroupKeyPerMarker(group, groupSubset),
     group.groupBy = (key) => {
         for (let member of group.values()) {

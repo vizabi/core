@@ -1,3 +1,4 @@
+import { DataFrameGroup } from "../dataFrameGroup";
 import { DataFrame } from "../dataFrame";
 
 // TODO: add check if there are rows that are don't fit stepfn 
@@ -20,4 +21,19 @@ function createEmptyRow(fields) {
     const obj = {};
     for (let field of fields) obj[field] = null;
     return obj;
+}
+
+export function reindexGroup(group, index) {
+    const newGroup = DataFrameGroup([], group.key, group.descendantKeys);
+    for (let i of index) {
+        const keyObj = { [newGroup.key[0]]: i };
+        const keyStr = newGroup.keyFn(keyObj)
+        if (group.has(keyStr)) {
+            let member = group.get(keyStr);
+            newGroup.setMember(keyObj, member);
+        } else {
+            newGroup.createMember(keyObj);
+        }
+    }
+    return newGroup;
 }

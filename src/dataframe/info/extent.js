@@ -123,3 +123,15 @@ function minmax(value, [min, max]) {
     }
     return extents;
 }
+
+export function extentOfGroupKey(group) {
+    if (group.key.length > 1) throw("Can't get group key extent if key size is > 1")
+
+    let keyConcept = group.key[0];
+    let minmaxArr = [];
+    group.each(member => {
+        const keyObj = group.keyObjects.get(member);
+        minmaxArr = minmax(keyObj[keyConcept], minmaxArr);
+    })
+    return minmaxArr;
+}
