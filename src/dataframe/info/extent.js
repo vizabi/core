@@ -135,3 +135,12 @@ export function extentOfGroupKey(group) {
     })
     return minmaxArr;
 }
+
+export function extentOfOrdered(data, field) {
+    const iter = getIter(data);
+    const min = iter.next().value[field];
+    let prev, cur;
+    while (!(cur = iter.next()).done)
+        prev = cur;
+    return [min, prev.value[field]];
+}

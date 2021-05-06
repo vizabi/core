@@ -9,10 +9,11 @@ export function reindex(df, index) {
     const keyConcept = df.key[0]; // supports only single indexed
     for (let key of index) {
         const keyObj = { [keyConcept]: key };
-        const row = df.has(keyObj) 
-            ? df.get(keyObj)
+        const keyStr = df.keyFn(keyObj);
+        const row = df.hasByStr(keyStr)
+            ? df.getByStr(keyStr)
             : Object.assign({ }, empty, keyObj);
-        result.set(row);
+        result.setByStr(keyStr, row);
     }
     return result;
 }
