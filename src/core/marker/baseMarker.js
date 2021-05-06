@@ -284,7 +284,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                         const result = fn(previous)
                         const t1 = performance.now();
                         pipelineTime += t1 - t0;
-                        console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
+                        //console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
                         return result;
                     }, 
                     { name }

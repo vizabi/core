@@ -218,7 +218,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 const t0 = performance.now();
                 const df = DataFrame(response, query.select.key);      
                 normalizingTime += performance.now() - t0;
-                console.log('normalized: ', performance.now() - t0, 'total: ' + normalizingTime)
+                //console.log('normalized: ', performance.now() - t0, 'total: ' + normalizingTime)
                 return df;
             }
         },
@@ -285,7 +285,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
         tryCache({ query, resolves }) {
             let response;
             if (response = this.cache.get(query)) {
-                console.warn('Resolving query from cache.', query);
+                //console.warn('Resolving query from cache.', query);
                 resolves.forEach(resolve => resolve(response));
                 return true;
             }
