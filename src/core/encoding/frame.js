@@ -7,6 +7,7 @@ import { createKeyFn, pick } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
+import { evaluateGap, newGap } from '../../dataframe/transforms/interpolate';
 
 const defaultConfig = {
     modelType: "frame",
@@ -195,39 +196,156 @@ frame.nonObservable = function(config, parent) {
     
         // FRAMEMAP TRANSFORM
         get interpolate() { return this.config.interpolate || defaults.interpolate },
-        frameMap(data) {
-            if (data.size > 0 && this.interpolate) 
-                data = this.interpolateData(data);
-            return data.groupBy(this.name, this.rowKeyDims);
+        frameMap(df) {
+            df = df.groupBy(this.name, this.rowKeyDims);
+            if (df.size > 0 && this.interpolate) 
+                df = this.interpolateData(df);
+            
+            return df;
         },
-        interpolateData(df) {
+        get interpolationEncodings() {
+            const enc = this.marker.encoding;
+            const encProps = Object.keys(enc).filter(prop => enc[prop] != this);
+            if (!this.data.conceptInSpace)
+                return encProps;
+            else
+                return encProps.filter(prop => {
+                    return enc[prop].data.space && enc[prop].data.space.includes(this.data.concept);
+                })
+        },
+        interpolateData(frameMap) {
             const concept = this.data.concept;
             const name = this.name;
-            // can't use scale.domain as it is calculated after 
-            // filterRequired, which needs data to be interpolated (and might have less frames)
-            const domain = this.data.calcDomain(df, this.data.conceptProps);
+            //console.time('int step');
+
+            // reindex framemap - add missing frames within domain
+            // i.e. not a single defining encoding had data for these frame
+            const domain = frameMap.keyExtent();
             const newIndex = inclusiveRange(domain[0], domain[1], concept);
-    
-            return df
-                .groupBy(this.rowKeyDims, [name])
-                .map((group, groupKeyDims) => { 
-    
-                    const fillFns = {};
-                    df.key.forEach(dim => {
-                        // copy space values from group key
-                        if (dim in groupKeyDims) 
-                            fillFns[dim] = groupKeyDims[dim];
-                        // frame concept not in group key so copy from row
-                        if (dim === concept)
-                            fillFns[dim] = row => row[name];  
-                    })
-    
-                    return group
-                        .reindex(newIndex) // reindex also orders (needed for interpolation)
-                        .fillNull(fillFns) // fill nulls of marker space with custom fns
-                        .interpolate();    // fill rest of nulls through interpolation
-                })
-                .flatten(df.key);
+            const newFrameMap = frameMap.reindexMembers(newIndex);
+  
+            // what fields to interpolate?
+            const fields = newFrameMap.values().next().value.fields;
+            const interpolateFields = this.interpolationEncodings;
+            const constantFields = relativeComplement(interpolateFields, fields);
+
+            //console.log('reindexed')
+            //console.timeLog('int step');
+
+            // get a list of all markers including first/last frame we see them (i.e. extent)
+            const markers = new Map();
+            const emptyRow = createEmptyRow(fields);
+            for (const [frameKey, frame] of newFrameMap) {
+                for (const [key, row] of frame) {
+                    if (!markers.has(key)) {
+                        let newRow = Object.assign(emptyRow, pick(row, constantFields));
+                        newRow[Symbol.for('key')] = key;
+                        markers.set(key, { newRow, firstFrame: frameKey, lastFrame: frameKey });
+                    } else {
+                        markers.get(key).last = frameKey;
+                    }
+                }
+            }
+/**
+ * 
+ * 
+            const markers = new Map();
+            for (const [frameKey, frame] of newFrameMap) {
+
+                for (const [key, {newRow, missingFromFrame }] of markers) {
+                    if (!frame.has(key)) {
+                        missingFromFrame.push(frameKey);
+                    } else {
+                        for (const missingFrameKey of missingFromFrame) {
+                            const row = deepclone( // deepclone to copy Date objects
+                                Object.assign({}, newRow, newFrameMap.keyObject(missingFrameKey))
+                            );
+                            row[this.data.concept] = row[name];
+                            row[Symbol.for('key')] = key;
+                            frame.setByStr(key, row) 
+                        }
+                        missingFromFrame.length = 0;
+                    }
+                }
+
+                for (const [key, row] of frame) {
+
+                    if (!markers.has(key)) {
+                        let newRow = Object.assign(emptyRow, pick(row, constantFields));
+                        markers.set(key, { newRow, missingFromFrame: [] });
+                    }
+                }
+            }
+ */
+            //console.log('get marker extend')
+            //console.timeLog('int step');
+
+            // transform list of markers to list of frames with marker start/end
+            const startPerFrame = new Map();
+            const endsPerFrame = new Map();
+            for (const [markerKey, { firstFrame, lastFrame }] of markers) {
+                addToMappedSet(startPerFrame, firstFrame, markerKey);
+                addToMappedSet(endsPerFrame, lastFrame, markerKey);
+            }
+            function addToMappedSet(map, mapKey, payLoad) {
+                const set = map.get(mapKey);
+                if (!set) map.set(mapKey, new Set([payLoad]))
+                else set.add(payLoad);
+            }
+
+            //console.log('get transformed marker extend ')
+            //console.timeLog('int step');
+
+            // fill frames with missing markers
+            const activeMarkers = new Set();
+            const addToActive = activeMarkers.add.bind(activeMarkers);
+            const delFromActive = activeMarkers.delete.bind(activeMarkers);
+            for (const [frameKey, frame] of newFrameMap) {
+                startPerFrame.has(frameKey) && startPerFrame.get(frameKey).forEach(addToActive);
+                // skip if all active markers are already in the frame
+                if (frame.size == activeMarkers.size)
+                    continue;
+                for (const key of activeMarkers) {
+                    if (!frame.hasByStr(key)) {
+                        const row = deepclone( // deepclone to copy Date objects
+                            Object.assign({}, markers.get(key).newRow, newFrameMap.keyObject(frameKey))
+                        );
+                        row[this.data.concept] = row[name]
+                        frame.setByStr(key, row) 
+                    }
+                }
+                endsPerFrame.has(frameKey) && endsPerFrame.get(frameKey).forEach(delFromActive);
+            }
+
+            //console.log('add markers')
+            //console.timeLog('int step');
+
+            const markersArray = Array.from(markers.keys());
+            //console.time('interpolate');
+            for (const field of interpolateFields) {
+                const gapPerMarker = new Map(markersArray.map(key => [key, newGap()]));
+                for (const frame of newFrameMap.values()) {                    
+                    for (const [markerKey, row] of frame) {
+                        const gap = gapPerMarker.get(markerKey);
+                        evaluateGap(row, field, gap)
+                    }
+                }
+                //console.log('finished', field);
+                //console.timeLog('interpolate');
+            }
+
+            //console.timeEnd('interpolate');
+            //console.log('interpolate')
+            //console.timeEnd('int step');
+
+            return newFrameMap;
+
+            function createEmptyRow(fields) {
+                const obj = {};
+                for (let field of fields) obj[field] = undefined;
+                return obj;
+            }
+
         },
         get rowKeyDims() {
             // remove frame concept from key if it's in there
