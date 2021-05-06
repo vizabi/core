@@ -111,12 +111,12 @@ export const createKeyFn = (space) => {
 // end micro-optimizations
 
 export function pick(object, keys) {
-    return keys.reduce((obj, key) => {
-        if (object[key]) {
-            obj[key] = object[key];
-        }
-        return obj;
-        }, {});
+    const result = {};
+    for (const key of keys) {
+        if (key in object)
+            result[key] = object[key];
+    }
+    return result;
 }
 
 export function unique(...arrays) {

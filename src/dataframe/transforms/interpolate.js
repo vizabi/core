@@ -1,33 +1,40 @@
 /**
- * Interpolate within a dataframe. Fill missing values in rows
+ * Interpolate within a dataframe. Fill missing values in rows. Inplace.
  * @param {*} df 
  */
-export function interpolate(df) {
-    return interpolateAllFields(df);
-}
-
-function interpolateAllFields(df) {
-    for (let field of df.fields) {
+export function interpolate(df, fields = df.fields) {
+    for (let field of fields) {
         interpolateField(df, field);
     }
     return df;
 }
 
 function interpolateField(df, field) {
-    let prevVal = null;
-    let gapRows = [];
+    const gap = newGap();
     for (let row of df.values()) {
-        const fieldVal = row[field];
-        if (fieldVal === undefined || fieldVal === null) {
-            gapRows.push(row);
-        } else {
-            // fill gap if it exists and is inner
-            if (prevVal != null && gapRows.length > 0) {
-                interpolateGap(gapRows, prevVal, fieldVal, field);
-            }
-            gapRows = [];
-            prevVal = fieldVal;
+        evaluateGap(row, field, gap);
+    }
+}
+
+export function newGap() {
+    return {
+        start: undefined,
+        rows: []
+    }
+}
+
+export function evaluateGap(row, field, { start, rows }) {
+    const fieldVal = row[field];
+    if (fieldVal ?? true) { // faster for undefined/null check
+        if (start ?? true)
+            rows.push(row);
+    } else {
+        // fill gap if it exists and is inner
+        if (rows.length > 0) {
+            interpolateGap(rows, start, fieldVal, field);
+            rows.length = 0;
         }
+        gap.start = fieldVal;
     }
 }
 
