@@ -114,26 +114,26 @@ trail.nonObservable = function(config, parent) {
 
             const newGroup = DataFrameGroup([], group.key, group.descendantKeys);
             const trailHeads = new Map();
-            for (let [id, group] of group) {
+            for (let [id, frame] of group) {
                 const historicalTrails = new Set();
                 for (let trailMarkerKey of trailMarkerKeys) {
                     // current group doesn't have a head for this trail that has already passed
-                    if (!group.hasByStr(trailMarkerKey)) {
+                    if (!frame.hasByStr(trailMarkerKey)) {
                         if (trailHeads.has(trailMarkerKey)) {
                             historicalTrails.add(trailMarkerKey);
                         }
                     } else {
-                        const trailMarker = group.getByObjOrStr(null, trailMarkerKey);
+                        const trailMarker = frame.getByStr(trailMarkerKey);
                         trailHeads.set(trailMarkerKey, trailMarker);
                     }
                 }
 
-                const newGroup = group.copy();
+                const newFrame = frame.copy();
                 for (let trailMarkerKey of historicalTrails) {
                     const trailHead = trailHeads.get(trailMarkerKey);
-                    newGroup.set(trailHead);
+                    newFrame.set(trailHead);
                 }
-                newGroup.set(id, newGroup);
+                newGroup.set(id, newFrame);
             }
             return newGroup;
         },
@@ -157,9 +157,9 @@ trail.nonObservable = function(config, parent) {
             for (let key of markerKeys) {
                 const trail = new Map();
                 trails.set(key, trail);
-                for (let [i, group] of group) {
-                    if (group.hasByStr(key))
-                        trail.set(i, Object.assign({}, group.getByObjOrStr(null,key)));
+                for (let [i, frame] of group) {
+                    if (frame.hasByStr(key))
+                        trail.set(i, Object.assign({}, frame.getByStr(key)));
                 }
             }
 
@@ -168,9 +168,9 @@ trail.nonObservable = function(config, parent) {
             const newGroup = DataFrameGroup([], group.key, group.descendantKeys);
             const trailKeyDims = [...group.descendantKeys[0], prop];
             const trailKeyFn = createKeyFn(trailKeyDims);
-            for (let [id, group] of group) {
-                const newGroup = DataFrame([], group.key);
-                for (let [markerKey, markerData] of group) {
+            for (let [id, frame] of group) {
+                const newFrame = DataFrame([], frame.key);
+                for (let [markerKey, markerData] of frame) {
                     // insert trails before its head marker
                     if (trails.has(markerKey)) {
                         const trail = trails.get(markerKey);
@@ -191,13 +191,13 @@ trail.nonObservable = function(config, parent) {
                                 [Symbol.for('key')]: newKey,
                                 [Symbol.for('trailHeadKey')]: markerKey
                             });
-                            newGroup.set(newData, newKey);
+                            newFrame.set(newData, newKey);
                         }
                     }
                     // (head) marker
-                    newGroup.set(markerData, markerKey);
+                    newFrame.set(markerData, markerKey);
                 }
-                newGroup.set(id, newGroup);
+                newGroup.set(id, newFrame);
             }
             return newGroup;
         },
