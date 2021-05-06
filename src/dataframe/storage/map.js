@@ -31,11 +31,10 @@ function createEmptyMap() {
         set: storage.setKey,
         get: () => key
     });    
-    storage.has = keyObj => storage.incrementIndex ? has(keyObj) : has(storage.keyFn(keyObj));
-    storage.get = keyObj => {
-        if (!storage.incrementIndex && !isNonNullObject(keyObj))
-            throw(new Error('Dataframe key is not an object: ' + JSON.stringify(keyObj)))
-        const key = storage.incrementIndex ? keyObj : storage.keyFn(keyObj)
+    storage.has = key => storage.incrementIndex || typeof key == 'string' ? has(key) : has(storage.keyFn(key));
+    storage.get = key => {
+        key = storage.incrementIndex || typeof key == 'string' ? key : storage.keyFn(key)
+        
         //if (!has(key))
         //    throw(new Error('Key not found in dataframe: ' + JSON.stringify(keyObj)))
         return get(key);
