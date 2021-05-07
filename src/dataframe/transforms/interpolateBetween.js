@@ -9,7 +9,8 @@ export function interpolateBetween(from, to, mu) {
     const df = DataFrame([], from.key);
     
     let newRow, row2;
-    for(const [key, row1] of from) {
+    for(const key of from.keys()) {
+        const row1 = from.getByStr(key)
         row2 = to.getByStr(key);
         if (!row2) continue;
         if (row2 !== row1) { // same object, depends on trails using same object for trail markers across frames.

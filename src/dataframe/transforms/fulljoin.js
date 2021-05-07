@@ -39,7 +39,8 @@ function _fullJoin(left, rightCfg) {
     if (!projection || Object.keys(projection).length === 0)
         console.warn("No projection given for join so no new fields will be joined", { left: left, right: rightCfg } );
 
-    for (let [keyStr, rightRow] of rightCfg.dataFrame) {
+    for (let keyStr of rightCfg.dataFrame.keys()) {
+        const rightRow = rightCfg.dataFrame.getByStr(keyStr);
         const leftRow = getOrCreateRow(left, joinKey, rightRow, keyStr)  
         // project with aliases        
         for(let key in projection) {

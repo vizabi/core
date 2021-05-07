@@ -81,8 +81,8 @@ frame.nonObservable = function(config, parent) {
         get domainValues() {
             let frameValues = [];
             // default domain data is after filtering, so empty frames are dropped, so steps doesn't include those
-            for (let [key, group] of this.data.domainData) {
-                const frameValue = group.values().next().value[this.name];
+            for (let frame of this.data.domainData.values()) {
+                const frameValue = frame.values().next().value[this.name];
                 if (this.scale.domainIncludes(frameValue)) {
                     frameValues.push(frameValue);
                 } 
@@ -303,7 +303,7 @@ frame.nonObservable = function(config, parent) {
             for (const frameKey of newFrameMap.keys()) {
                 const frame = newFrameMap.get(frameKey);
                 for (const key of frame.keys()) {
-                    const row = frame.get(key);
+                    const row = frame.getByStr(key);
                     if (!markers.has(key)) {
                         let newRow = Object.assign(emptyRow, pick(row, constantFields));
                         newRow[Symbol.for('key')] = key;
@@ -369,7 +369,7 @@ frame.nonObservable = function(config, parent) {
                 const gapPerMarker = new Map(markersArray.map(key => [key, newGap()]));
                 for (const frame of newFrameMap.values()) {                    
                     for (const markerKey of frame.keys()) {
-                        const row = frame.get(markerKey); // less gc: not creating arrays which are destructured in for loop
+                        const row = frame.getByStr(markerKey); // less gc: not creating arrays which are destructured in for loop
                         const gap = gapPerMarker.get(markerKey);
                         evaluateGap(row, field, gap)
                     }

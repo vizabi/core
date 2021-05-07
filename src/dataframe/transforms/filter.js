@@ -14,7 +14,8 @@ export function filter(df, filter) {
         filter : createFilterFn(filter);    
 
     const result = DataFrame([], df.key);
-    for(let [key, row] of df) {
+    for(let key of df.keys()) {
+        const row = df.getByStr(key);
         if (filterFn(row))
             result.set(row, key);
     }

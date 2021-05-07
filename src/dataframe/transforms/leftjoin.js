@@ -24,7 +24,8 @@ export function leftJoin(left, rights) {
 
     const result = DataFrame([], leftKey)
 
-    for (let [keyStr, row] of leftDf) {
+    for (let keyStr of leftDf.keys()) {
+        const row = leftDf.getByStr(keyStr);
         // left row as base
         const leftRow = cloneRow(row);
         
