@@ -272,7 +272,6 @@ baseMarker.nonObservable = function(config, parent, id) {
             // if we'd call .get() in here (returning the value), each change would lead to applying all transformations
             // because transformedDataMaps() would be observering all stepResults
             // would be nice to find a way for transformedDataMaps to just return the value instead of a boxed computed
-            //console.time('transformedDataMaps');
             const results = new Map();
             let stepResult = observable.box(this.dataMapCache, { deep: false });
             this.transformations.forEach(({name, fn}) => {
@@ -292,7 +291,6 @@ baseMarker.nonObservable = function(config, parent, id) {
                 results.set(name, stepResult);
             });
             results.set('final', stepResult);
-            //console.timeEnd('transformedDataMaps');
             return results;
         },
         /**

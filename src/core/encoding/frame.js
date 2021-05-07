@@ -249,10 +249,11 @@ frame.nonObservable = function(config, parent) {
              *
             const markers = new Map();
             const newMarkers = new Set();
-            for (const [frameKey, frame] of newFrameMap) {
-
+            for (const frameKey of newFrameMap.keys()) {
+                const frame = newFrameMap.get(frameKey);
                 newMarkers.clear();
-                for (const [key, row] of frame) {
+                for (const key of frame.keys()) {
+                    const row = frame.get(key);
                     if (!markers.has(key)) {
                         let newRow = Object.assign(emptyRow, pick(row, constantFields));
                         newRow[Symbol.for('key')] = key;
@@ -264,7 +265,8 @@ frame.nonObservable = function(config, parent) {
                 // don't need to fill missing markers if frame contains them all
                 if (markers.size != frame.size) {
                     // use old markers, no need to check markers that were just added
-                    for (const [key, [ newRow, missingFromFrame ]] of markers) {
+                    for (const key of markers.keys()) {
+                        const [ newRow, missingFromFrame ] = markers.get(key);
                         if (newMarkers.has(key)) continue;
                         if (!frame.has(key)) {
                             missingFromFrame.push(frameKey);
@@ -277,7 +279,7 @@ frame.nonObservable = function(config, parent) {
                                 row[this.data.concept] = row[name];
                                 frame.setByStr(key, row) 
                             }
-                            markers.get(key)[1] = [];
+                            missingFromFrame.length = 0;
                         }
                     }
                 }
@@ -336,7 +338,8 @@ frame.nonObservable = function(config, parent) {
             const emptySet = new Set();
             const addToActive = activeMarkers.add.bind(activeMarkers);
             const delFromActive = activeMarkers.delete.bind(activeMarkers);
-            for (const [frameKey, frame] of newFrameMap) {
+            for (const frameKey of newFrameMap.keys()) {
+                const frame = newFrameMap.get(frameKey);
                 const exits = exitPerFrame.get(frameKey) ?? emptySet;
                 const enters = enterPerFrame.get(frameKey) ?? emptySet;
                 // skip if all active markers are already in the frame
