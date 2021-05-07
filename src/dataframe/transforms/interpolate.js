@@ -27,7 +27,7 @@ export function evaluateGap(row, field, gap) {
     const { rows, start } = gap;
     const fieldVal = row[field];
     if (fieldVal == null) { // faster for undefined/null check
-        if (start != undefined)
+        if (start !== undefined)
             rows.push(row);
     } else {
         // fill gap if it exists and is inner

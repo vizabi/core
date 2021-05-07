@@ -298,8 +298,10 @@ frame.nonObservable = function(config, parent) {
 
             // 1. get a list of all markers including first/last frame we see them (i.e. extent)
             const markers = new Map();
-            for (const [frameKey, frame] of newFrameMap) {
-                for (const [key, row] of frame) {
+            for (const frameKey of newFrameMap.keys()) {
+                const frame = newFrameMap.get(frameKey);
+                for (const key of frame.keys()) {
+                    const row = frame.get(key);
                     if (!markers.has(key)) {
                         let newRow = Object.assign(emptyRow, pick(row, constantFields));
                         newRow[Symbol.for('key')] = key;
@@ -363,7 +365,8 @@ frame.nonObservable = function(config, parent) {
             for (const field of interpolateFields) {
                 const gapPerMarker = new Map(markersArray.map(key => [key, newGap()]));
                 for (const frame of newFrameMap.values()) {                    
-                    for (const [markerKey, row] of frame) {
+                    for (const markerKey of frame.keys()) {
+                        const row = frame.get(markerKey); // less gc: not creating arrays which are destructured in for loop
                         const gap = gapPerMarker.get(markerKey);
                         evaluateGap(row, field, gap)
                     }
