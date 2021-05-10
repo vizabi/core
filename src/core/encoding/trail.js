@@ -115,6 +115,7 @@ trail.nonObservable = function(config, parent) {
             const newGroup = DataFrameGroup([], group.key, group.descendantKeys);
             const trailHeads = new Map();
             for (let [id, frame] of group) {
+                const keyObj = group.keyObject(frame);
                 const historicalTrails = new Set();
                 for (let trailMarkerKey of trailMarkerKeys) {
                     // current group doesn't have a head for this trail that has already passed
@@ -133,7 +134,7 @@ trail.nonObservable = function(config, parent) {
                     const trailHead = trailHeads.get(trailMarkerKey);
                     newFrame.set(trailHead);
                 }
-                newGroup.set(id, newFrame);
+                newGroup.set(keyObj, newFrame);
             }
             return newGroup;
         },
@@ -169,6 +170,7 @@ trail.nonObservable = function(config, parent) {
             const trailKeyDims = [...group.descendantKeys[0], prop];
             const trailKeyFn = createKeyFn(trailKeyDims);
             for (let [id, frame] of group) {
+                const keyObj = group.keyObject(frame);
                 const newFrame = DataFrame([], frame.key);
                 for (let [markerKey, markerData] of frame) {
                     // insert trails before its head marker
@@ -197,7 +199,7 @@ trail.nonObservable = function(config, parent) {
                     // (head) marker
                     newFrame.set(markerData, markerKey);
                 }
-                newGroup.set(id, newFrame);
+                newGroup.set(keyObj, newFrame);
             }
             return newGroup;
         },

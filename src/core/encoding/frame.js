@@ -269,12 +269,12 @@ frame.nonObservable = function(config, parent) {
                         const [ newRow, missingFromFrame ] = markers.get(key);
                         if (newMarkers.has(key)) continue;
                         if (!frame.has(key)) {
-                            missingFromFrame.push(frameKey);
+                            missingFromFrame.push(frame);
                         } 
                         else if (missingFromFrame.length > 1) {
                             for (const missingFrameKey of missingFromFrame) {
                                 const row = Object.assign( // deepmerge to copy Date objects
-                                    {}, newRow, newFrameMap.keyObject(missingFrameKey)
+                                    {}, newRow, newFrameMap.keyObject(frame)
                                 );
                                 row[this.data.concept] = row[name];
                                 frame.setByStr(key, row) 
@@ -343,14 +343,16 @@ frame.nonObservable = function(config, parent) {
                 const exits = exitPerFrame.get(frameKey) ?? emptySet;
                 const enters = enterPerFrame.get(frameKey) ?? emptySet;
                 // skip if all active markers are already in the frame
-                if (frame.size == activeMarkers.size + enters.size)
+                if (frame.size == activeMarkers.size + enters.size) {
+                    enters.forEach(addToActive);
                     continue;
+                }
                 // already remove exits, we know they're in this frame
                 exits.forEach(delFromActive);
                 const missingMarkers = relativeComplement(frame, activeMarkers);
                 for (const key of missingMarkers) {
                     const row = deepclone( // deepclone to copy Date objects
-                        Object.assign({}, markers.get(key).newRow, newFrameMap.keyObject(frameKey))
+                        Object.assign({}, markers.get(key).newRow, newFrameMap.keyObject(frame))
                     );
                     row[this.data.concept] = row[name]
                     frame.setByStr(key, row) 

@@ -25,13 +25,12 @@ export function DataFrameGroup(df, key, descKeys = []) {
 
 function createGroup(key, descendantKeys) {
     const group = new Map();
+    const keyObjects = new WeakMap();
+    const set = group.set.bind(group);
 
     group.type = 'Group';
     group.key = key;
-    group.keyObject = (key) => {
-        let row = getDataFrame(group.get(key)).values().next().value;
-        return pick(row, group.key);
-    }
+    group.keyObject = member => keyObjects.get(member);
     group.keyFn = createKeyFn(key);
     group.descendantKeys = descendantKeys;
     group.each = (fn) => each(group, fn);
@@ -48,16 +47,17 @@ function createGroup(key, descendantKeys) {
     group.extentOfGroupKeyPerMarker = (groupSubset) => extentOfGroupKeyPerMarker(group, groupSubset),
     group.groupBy = (key) => {
         for (let [keyStr, member] of group) {
+            const keyObj = group.keyObject(member);
             const newMember = member.groupBy(key);
 
             // groups change from DataFrame to group
             if (member.type === 'DataFrame')
-                group.set(keyStr, newMember);
+                group.set(keyObj, newMember);
         }
         group.descendantKeys.push(key);
         return group;
     }
-    group.createMember = (keyStr) => createMember(group, keyStr);
+    group.createMember = (keyObj) => createMember(group, keyObj);
     group.toJSON = () => mapToObject(group);
     group.rows = function* () {
         let member, row; 
@@ -69,18 +69,20 @@ function createGroup(key, descendantKeys) {
     group.filterGroups = (filterFn, inplace = false) => {
         let result = inplace ? group : DataFrameGroup([], group.key, group.descendantKeys);
         for (let [key, member] of group) {
+            const keyObj = group.keyObject(member);
             const newMember = member.filterGroups(filterFn, inplace);
             const filterApplies = filterFn(newMember);
             if (!inplace && filterApplies)
-                result.set(key, newMember);
+                result.set(keyObj, newMember);
             if (inplace && !filterApplies) 
                 result.delete(key);
         }
         return result;
     }
-    group.setByObj = (keyObj, member) => {
+    group.set = (keyObj, member) => {
+        keyObjects.set(member, keyObj);
         const keyStr = group.keyFn(keyObj);
-        group.set(keyStr, member);
+        set(keyStr, member);
     }
     group.setRow = (row, key) => {
         getDataFrame(group, row)
@@ -114,7 +116,8 @@ function each(group, fn) {
 function map(group, fn) {
     let result = DataFrameGroup([], group.key, group.descendantKeys);
     for (let [keyStr, member] of group) {
-        result.set(keyStr, fn(member, keyStr, group));
+        const keyObj = group.keyObject(member);
+        result.set(keyObj, fn(member, keyStr, group));
     }
     return result;
 }
@@ -123,7 +126,8 @@ function mapCall(group, fnName) {
     return function() {
         let result = DataFrameGroup([], group.key, group.descendantKeys);
         for (let [keyStr, member] of group) {
-            result.set(keyStr, member[fnName](...arguments));
+            const keyObj = group.keyObject(member);
+            result.set(keyObj, member[fnName](...arguments));
         }
         return result;
     }
@@ -140,23 +144,24 @@ function getDataFrame(group, row) {
     if (!row) {
         member = group.values().next().value;
     } else {
-        const keyStr = group.keyFn(row);
+        const keyObj = pick(row, group.key);
+        const keyStr = group.keyFn(keyObj);
         if (group.has(keyStr)) {
             member = group.get(keyStr);
         } else {
-            member = group.createMember(keyStr);
+            member = group.createMember(keyObj);
         }
     }
     return getDataFrame(member, row);
 }
 
-function createMember(group, keyStr) {
+function createMember(group, keyObj) {
     // DataFrames have no children of their own (= leafs)
     const newMember = group.descendantKeys.length === 1
         ? DataFrame([], group.descendantKeys[0])
         : DataFrameGroup([], group.descendantKeys[0], group.descendantKeys.slice(1));
     
-    group.set(keyStr, newMember);
+    group.set(keyObj, newMember);
     return newMember;
 }
 
