@@ -6,7 +6,7 @@ import { DataFrame } from "../../dataframe/dataFrame";
 import { fromPromise, FULFILLED } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
-import { isDataFrame } from "../../dataframe/dfutils";
+import { createKeyStr, isDataFrame } from "../../dataframe/dfutils";
 import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
 
@@ -76,7 +76,8 @@ dataConfig.nonObservable = function(config, parent, id) {
                     const entityQuery = dataConfig.createQuery({ 
                         space: [conceptId],  
                         concept: ["name", "rank"],
-                        locale: dataConfig.locale
+                        locale: dataConfig.locale,
+                        source
                     })
                     promises.push(source.query(entityQuery).then(response => {
                         result[conceptId]['entities'] = response;
@@ -239,12 +240,18 @@ dataConfig.nonObservable = function(config, parent, id) {
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
         },
-        createQuery({ space, concept, filter, locale } = this) {
+        createQuery({ space = this.space, concept = this.concept, filter = this.filter, locale = this.locale, source = this.source } = {}) {
             const query = {};
             
+            const keyStr = createKeyStr(space);
+            concept = Array.isArray(concept) ? concept : [concept];
+            concept = concept.filter(concept => {
+                return source.availability.keyValueLookup.get(keyStr).has(concept);
+            })
+
             query.select = {
                 key: space.slice(), // slice to make sure it's a normal array (not mobx)
-                value: Array.isArray(concept) ? concept : [concept]
+                value: concept
             }
             query.from = (space.length === 1) ? "entities" : "datapoints";
             if (filter) {

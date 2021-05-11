@@ -37,8 +37,7 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
             return this.space
                 .filter(dim => kvLookup.get(dim).has(this.concept))
                 .map(dim => {
-                    const { concept, filter, locale } = this;
-                    return this.createQuery({ concept, space: [dim], filter, locale });
+                    return this.createQuery({ space: [dim] });
                 });
         },
         lookups(response, concept) {
