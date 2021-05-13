@@ -748,9 +748,7 @@ function chart() {
                             };
                         })
                         .selectAll('option')
-                        .data(d => {
-                            return d.data
-                        })
+                        .data(d => [...d.data.values()])
                         .enter()
                         .append('option')
                         .text(d => d.name);

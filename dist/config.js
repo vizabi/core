@@ -8,12 +8,12 @@ const config = {
             modelType: "bw",
             service: 'https://big-waffle.gapminder.org', 
             name: "sg-master"
-        },/*
+        },
         gap: {
             modelType: "ddfcsv",
             path: "./ddf--jheeffer--mdtest/"
         },
-        */
+        
         /*
                 sg: {
                     type: "ddfcsv",
@@ -88,6 +88,67 @@ const config = {
             }
         },
         */
+        bubble: {
+            requiredEncodings: ["x", "y", "size"],
+            data: { 
+              source: "gap",
+              filter: {},
+              space: ["country", "time"]
+            },
+            encoding: {
+              "selected": {
+                modelType: "selection",
+                data: {
+                  filter: {
+                    ref: "markers.bubble.encoding.trail.data.filter"
+                  }
+                }
+              },
+              "highlighted": { modelType: "selection" },
+              "superhighlighted": { modelType: "selection" },
+              "y": {
+                data: {
+                  space: ["country", "time"],
+                  filter: {},
+                  concept: "life_expectancy"
+                }
+              },
+              "x": {
+                data: {
+                  space: ["country", "time"],
+                  filter: {},
+                  concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
+                }
+              },
+              "order": { modelType: "order",
+                data: { concept: {
+                  ref: "markers.bubble.encoding.size.data.concept"
+                } }
+              },
+              "size": {
+                data: {
+                    space: ["country", "time"],
+                    filter: {},
+                    concept: "population_total"
+                },
+                scale: {
+                  modelType: "size",
+                  range: [0, 50]
+                }
+              },
+              "color": { 
+                data: {
+                    space: ["country", "time"],
+                    filter: {},
+                    concept: "life_expectancy"
+                  },
+                  scale: { modelType: "color" } 
+                },
+              "label": { data: { modelType: "entityPropertyDataConfig" } },
+              "frame": { modelType: "frame", value: "2016" },
+              "trail": { modelType: "trail" }
+            }
+        },
         "legend": {
             data: {
                 ref: {
@@ -138,7 +199,7 @@ const config = {
                 "trail": { modelType: "trail" }                
             }
         },
-        "bubble": {
+        "bubble-sg": {
             data: {
                 source: "gapbw",
                 space: ["country", "time"],
