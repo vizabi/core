@@ -16,9 +16,7 @@ export function leftJoin(left, rights) {
     
     const rightCopies = rights.filter(r => leftKey.some(d => d in r.projection));
     rights = rights.filter(r => !rightCopies.includes(r)).map(r => { 
-        const sameKey = arrayEquals(r.dataFrame.key, leftKey);
-        r.hasFn = sameKey ? "hasByObjOrStr" : "has";
-        r.getFn = sameKey ? "getByObjOrStr" : "get";
+        r.sameKey = arrayEquals(r.dataFrame.key, leftKey);
         return r;
     });
 
@@ -30,11 +28,13 @@ export function leftJoin(left, rights) {
         const leftRow = cloneRow(row);
         
         // join any rows in right dfs which have same key as left row
-        for (let { dataFrame, projection, hasFn, getFn } of rights) {
-            if (dataFrame[hasFn](row, keyStr)) {
-                const rightRow = dataFrame[getFn](row, keyStr);
-                for(let key in projection) {
-                    for (let field of projection[key]) 
+        for (let r of rights) {
+            const rightRow = r.sameKey 
+                ? r.dataFrame.getByStr(keyStr) 
+                : r.dataFrame.get(row);
+            if (rightRow !== undefined) {
+                for(let key in r.projection) {
+                    for (let field of r.projection[key]) 
                         leftRow[field] = rightRow[key];
                 }
             }

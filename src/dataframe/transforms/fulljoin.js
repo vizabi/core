@@ -1,4 +1,5 @@
 import { DataFrame } from "../dataFrame";
+import { arrayEquals } from "../dfutils";
 
 export function fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {
     
@@ -33,6 +34,7 @@ function _fullJoin(left, rightCfg) {
     const joinKey = left.key;
     const dataKey = rightCfg.dataFrame.key;
     const projection = normalizeProjection(rightCfg.projection) || {};
+    const sameKey = arrayEquals(joinKey, dataKey);
 
     if (!joinKey.every(dim => dataKey.includes(dim)))
         console.warn("Right key does not contain all join fields.", { left: left, right: rightCfg });
@@ -41,7 +43,8 @@ function _fullJoin(left, rightCfg) {
 
     for (let keyStr of rightCfg.dataFrame.keys()) {
         const rightRow = rightCfg.dataFrame.getByStr(keyStr);
-        const leftRow = getOrCreateRow(left, joinKey, rightRow, keyStr)  
+        const leftKeyStr = sameKey ? keyStr : left.keyFn(rightRow);
+        const leftRow = getOrCreateRow(left, rightRow, leftKeyStr)  
         // project with aliases        
         for(let key in projection) {
             for (let field of projection[key]) 
@@ -71,12 +74,12 @@ function createObj(space, row, keyStr) {
     return obj;
 }
 
-function getOrCreateRow(df, keyArr, row, keyStr) {
+function getOrCreateRow(df, row, keyStr) {
     let obj;
 
     obj = df.getByStr(keyStr);
     if (obj === undefined) {
-        obj = createObj(keyArr, row, keyStr);
+        obj = createObj(df.key, row, keyStr);
         df.set(obj, keyStr);
     }
     
