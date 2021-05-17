@@ -80,7 +80,7 @@ dataConfig.nonObservable = function(config, parent, id) {
                         source
                     })
                     promises.push(source.query(entityQuery).then(response => {
-                        result[conceptId]['entities'] = response;
+                        result[conceptId]['entities'] = response.forKey(entityQuery.key);
                     }));
                     if (maxDepth && maxDepth > 0) {
                         const props = source.availability.keyValueLookup.get(conceptId).keys();
@@ -234,7 +234,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.promise.case({
                 pending: () => latestResponse,
                 rejected: e => latestResponse,
-                fulfilled: (res) => latestResponse = res
+                fulfilled: (res) => latestResponse = res.forKey(this.commonSpace)
             });
         },
         get conceptInSpace() {

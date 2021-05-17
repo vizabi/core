@@ -726,7 +726,7 @@ function chart() {
                         },
                         from: "entities"
                     }).then(data => {
-                        return { data, dim: d.dim }
+                        return { data: data.raw, dim: d.dim }
                     });
                 });
                 Promise.all(promises).then(dims => {

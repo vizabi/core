@@ -46,9 +46,9 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
                 const { dim, data } = dimResponse;
                 const lookup = new Map();
                 lookups.set(dim, lookup);
-                data.forEach(row => {
+                for (const row of data.raw) {
                     lookup.set(row[dim], row[concept]);
-                })
+                }
             });
             return new Map([[concept, lookups]]);
         },
