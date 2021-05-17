@@ -82,7 +82,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             //trace();
             const empty = new Map();
             return this.conceptsPromise.case({
-                fulfilled: v => v.forKey(['concept']),
+                fulfilled: v => v.forQueryKey(),
                 pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
                 error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
             })
@@ -120,7 +120,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
     
             /* handle availability responses */
             responses.forEach(response => {
-                response = response.forKey(['key','value']).values(); // get dataframe iterator if there
+                response = response.forQueryKey().values(); // get dataframe iterator if there
                 for(let row of response) {
                     let keyStr, valueLookup;
                     row.key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();
@@ -205,7 +205,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
         isEntityConcept(conceptId) {
             return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
         },
-        normalizeResponse(response) {
+        normalizeResponse(response, query) {
             const cache = {}
             if (isDataFrame(response)) {
                 cache[createKeyStr(response.key)] = response;
@@ -214,17 +214,22 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 // https://github.com/Gapminder/big-waffle/issues/53
                 response.pop();
             }
+            function forKey(key) {
+                const t0 = performance.now();   
+                const keyStr = createKeyStr(key);
+                const df = cache[keyStr] ?? (cache[keyStr] = DataFrame(response, key)); 
+                const time = performance.now() - t0;
+                normalizingTime += time;
+                //console.log('normalized: ', time, 'total: ' + normalizingTime)
+                return df;
+            }
+            function forQueryKey() {
+                return forKey(query.select.key);
+            }
             return {
                 raw: response,
-                forKey(key) {
-                    const t0 = performance.now();   
-                    const keyStr = createKeyStr(key);
-                    const df = cache[keyStr] ?? (cache[keyStr] = DataFrame(response, key)); 
-                    const time = performance.now() - t0;
-                    normalizingTime += time;
-                    //console.log('normalized: ', time, 'total: ' + normalizingTime)
-                    return df;
-                }
+                forKey,
+                forQueryKey
             }
         },
         query(query) {

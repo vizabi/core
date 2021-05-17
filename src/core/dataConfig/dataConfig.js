@@ -80,7 +80,7 @@ dataConfig.nonObservable = function(config, parent, id) {
                         source
                     })
                     promises.push(source.query(entityQuery).then(response => {
-                        result[conceptId]['entities'] = response.forKey(entityQuery.key);
+                        result[conceptId]['entities'] = response.forQueryKey();
                     }));
                     if (maxDepth && maxDepth > 0) {
                         const props = source.availability.keyValueLookup.get(conceptId).keys();
