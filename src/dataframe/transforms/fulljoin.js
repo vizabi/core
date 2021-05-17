@@ -34,7 +34,6 @@ function _fullJoin(left, rightCfg) {
     const joinKey = left.key;
     const dataKey = rightCfg.dataFrame.key;
     const projection = normalizeProjection(rightCfg.projection) || {};
-    const sameKey = arrayEquals(joinKey, dataKey);
 
     if (!joinKey.every(dim => dataKey.includes(dim)))
         console.warn("Right key does not contain all join fields.", { left: left, right: rightCfg });
@@ -43,8 +42,7 @@ function _fullJoin(left, rightCfg) {
 
     for (let keyStr of rightCfg.dataFrame.keys()) {
         const rightRow = rightCfg.dataFrame.getByStr(keyStr);
-        const leftKeyStr = sameKey ? keyStr : left.keyFn(rightRow);
-        const leftRow = getOrCreateRow(left, rightRow, leftKeyStr)  
+        const leftRow = getOrCreateRow(left, rightRow, keyStr)  
         // project with aliases        
         for(let key in projection) {
             for (let field of projection[key]) 
