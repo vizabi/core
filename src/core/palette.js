@@ -57,7 +57,7 @@ export function palette(config = {}, parent) {
         get defaultPalette() {
             let palette;
             
-            if (this.encoding.data.isConstant()) {
+            if (this.encoding.data.isConstant) {
                 //an explicit hex color constant #abc or #adcdef is provided
                 if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(this.encoding.data.constant)) {
                     palette = { "_default": this.encoding.data.constant };
@@ -78,7 +78,7 @@ export function palette(config = {}, parent) {
         },
         get paletteType() {
             //constant
-            if (this.encoding.data.isConstant()) return "_default";
+            if (this.encoding.data.isConstant) return "_default";
             //measure
             if (["time", "measure"].includes(this.encoding.data.conceptProps.concept_type)) return "_continuous";
             

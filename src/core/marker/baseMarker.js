@@ -146,7 +146,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                     continue;
     
                 // constants value (ignores other config like concept etc)
-                else if (encoding.data.isConstant())
+                else if (encoding.data.isConstant)
                     constantEncodings.push({ name, encoding });
     
                 // copy data from space/key

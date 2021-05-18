@@ -118,9 +118,9 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.configSolution.space;
         },
         get constant() {
-            return resolveRef(this.config.constant) || this.defaults.constant;
+            return resolveRef(this.config.constant) ?? this.defaults.constant;
         },
-        isConstant() {
+        get isConstant() {
             return this.constant != null;
         },
         get commonSpace() {
@@ -165,7 +165,7 @@ dataConfig.nonObservable = function(config, parent, id) {
         },
         get domain() {
             //trace();
-            if (this.isConstant())
+            if (this.isConstant)
                 return isNumeric(this.constant) ? [this.constant, this.constant] : [this.constant];
 
             return this.calcDomain(this.domainData, this.conceptProps);
@@ -210,7 +210,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             }
         },
         get promise() {
-            if (this.isConstant()) { return fromPromise.resolve() }
+            if (this.isConstant) { return fromPromise.resolve() }
 
             const sourcePromises = configSolver.dataConfigPromisesBeforeSolving(this);
             if (this.source) { sourcePromises.push(this.source.conceptsPromise) } // conceptPromise needed for calcDomain()
@@ -225,7 +225,7 @@ dataConfig.nonObservable = function(config, parent, id) {
         },
         get response() {
             //trace();
-            if (this.isConstant()) {
+            if (this.isConstant) {
                 throw(new Error(`Can't get response for dataConfig with constant value.`))
             }
             return this.promise.case({

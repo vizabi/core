@@ -554,7 +554,7 @@ function chart() {
             let colorConfig = marker.encoding.color;
             let data;
 
-            if (colorConfig.data.isConstant()) {
+            if (colorConfig.data.isConstant) {
                 data = [{ color: colorConfig.data.constant, name: "Single color" }]
             } else if (Vizabi.utils.isEntityConcept(colorConfig.data.conceptProps)) {
                 // need extra query

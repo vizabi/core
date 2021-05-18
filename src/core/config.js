@@ -73,7 +73,7 @@ function transformModel(model, transform) {
             });
         case "entityConceptSkipFilter":
             return observable({
-                space: model.data.isConstant() ? [] : [model.data.concept],
+                space: model.data.isConstant ? [] : [model.data.concept],
                 source: model.data.source,
                 locale: model.data.locale
             });

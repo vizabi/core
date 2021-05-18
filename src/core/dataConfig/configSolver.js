@@ -40,7 +40,7 @@ function configSolution(dataConfig) {
 function encodingSolution(dataConfig, markerSpaceCfg, usedConcepts = []) {
     let result;    
 
-    if (dataConfig.isConstant()) {
+    if (dataConfig.isConstant) {
         result = { concept: undefined, space: undefined };
     } else if (needsSpaceAutoCfg(dataConfig)) {
         result = findSpaceAndConcept(dataConfig, { usedConcepts, markerSpaceCfg });
@@ -64,7 +64,7 @@ function findMarkerConfigForSpace(markerDataConfig, space) {
     let success = sortedEncodingEntries(markerDataConfig.parent.encoding).every(([name, enc]) => {
 
         // only one result per dataConfig, multiple encodings can have the same dataConfig (e.g. by reference)
-        let encResult = dataConfigResults.get(enc.data) 
+        let encResult = dataConfigResults.has(enc.data) 
             ? dataConfigResults.get(enc.data)
             : encodingSolution(enc.data, space, [...usedConcepts]);
 

@@ -220,6 +220,7 @@ frame.nonObservable = function(config, parent) {
 
             // reindex framemap - add missing frames within domain
             // i.e. not a single defining encoding had data for these frame
+            // reindexing also sorts frames
             const domain = frameMap.keyExtent();
             const newIndex = inclusiveRange(domain[0], domain[1], concept);
             const newFrameMap = frameMap.reindexMembers(newIndex);

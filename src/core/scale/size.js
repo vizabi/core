@@ -23,7 +23,7 @@ size.nonObservable = function(config, parent) {
     return assign(s, {
         ordinalScale: "point",
         get extent() {
-            return this.config.extent || [defaults.extent[0], this.data.isConstant() ? null : defaults.extent[1]];
+            return this.config.extent || [defaults.extent[0], this.data.isConstant ? null : defaults.extent[1]];
         },
         set extent(extent) {
             this.config.extent = extent;

@@ -57,7 +57,7 @@ baseScale.nonObservable = function(config, parent) {
             return this.parent.data;
         },
         scaleTypeNoGenLog(domain = this.domain) {
-            if (this.data.isConstant()) {
+            if (this.data.isConstant) {
                 return this.ordinalScale;
             }
             const concept = this.data.conceptProps;
@@ -106,7 +106,7 @@ baseScale.nonObservable = function(config, parent) {
                 return this.config.range;
 
             // default for constant is identity
-            if (this.data.isConstant())
+            if (this.data.isConstant)
                 return this.domain;
 
             // default
