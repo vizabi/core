@@ -1,14 +1,11 @@
-import { applyDefaults, assign } from "../utils";
+import { assign, deepmerge } from "../utils";
 import { baseScale } from "./baseScale";
 
-const defaultConfig = {
-    zeroBaseline: true,
-    clamp: true,
-    range: [0, 20]
-}
-
 const defaults = {
-    extent: [0, 1]
+    clamp: true,
+    extent: [0, 1],
+    range: [0, 20],
+    zeroBaseline: true,
 }
 
 export function size(config, parent) {
@@ -17,23 +14,16 @@ export function size(config, parent) {
 
 size.nonObservable = function(config, parent) {
 
-    applyDefaults(config, defaultConfig);
     const s = baseScale.nonObservable(config, parent);
+    s.defaults = deepmerge(s.defaults, defaults);
 
     return assign(s, {
         ordinalScale: "point",
         get extent() {
-            return this.config.extent || [defaults.extent[0], this.data.isConstant ? null : defaults.extent[1]];
+            return this.config.extent || [this.defaults.extent[0], this.data.isConstant ? null : this.defaults.extent[1]];
         },
         set extent(extent) {
             this.config.extent = extent;
-        },
-        get range() {
-            if (this.config.range != null)
-                return this.config.range
-            if (this.type == "point")
-                return [1, 20];
-            return [0, 20];
         }
     });
 }

@@ -1,4 +1,4 @@
-import { applyDefaults, isNumeric, parseConfigValue } from "../utils";
+import { isNumeric, parseConfigValue } from "../utils";
 import { computed } from "mobx";
 
 const scales = {
@@ -12,27 +12,11 @@ const scales = {
     "time": d3.scaleUtc
 }
 
-
-const defaultConfig = {
-    type: null,
-    zoomed: null,
-    zeroBaseline: false,
-    clamp: false,
-    allowedTypes: null
-}
-
-const defaults = {
-    clampToData: false,
-    domain: [0,1],
-    range: [0,1]
-}
 export function baseScale(config, parent) {
     return observable(baseScale.nonObservable(config, parent))
 }
 
 baseScale.nonObservable = function(config, parent) {
-
-    applyDefaults(config, defaultConfig);
   
     function isArrayOneSided(array){
         if (!array) return false;
@@ -46,11 +30,20 @@ baseScale.nonObservable = function(config, parent) {
         // ordinal, point or band
         ordinalScale: "ordinal",
         name: 'scale',
+        defaults: {
+            allowedTypes: null,
+            clamp: false,
+            clampToData: false,
+            domain: [0, 1],
+            range: [0, 1],
+            type: 'linear',
+            zeroBaseline: false,
+        },
         get zeroBaseline() {
-            return this.config.zeroBaseline;
+            return (this.config.zeroBaseline ?? this.defaults.zeroBaseline) && !this.isDiscrete(this.data.domain) && isArrayOneSided(this.data.domain);
         },
         get clamp() {
-            return this.config.clamp;
+            return this.config.clamp ?? this.defaults.clamp;
         },
         get data() {
             return this.parent.data;
@@ -74,12 +67,12 @@ baseScale.nonObservable = function(config, parent) {
             } else if (concept && ["time"].includes(concept.concept_type)) {
                 scaleType = "time";
             } else {
-                scaleType = "linear";
+                scaleType = this.defaults.type;
             }
             return scaleType;
         },
         get allowedTypes() {
-            return this.config.allowedTypes;
+            return this.config.allowedTypes ?? this.defaults.allowedTypes;
         },
         get type() {
 
@@ -109,12 +102,12 @@ baseScale.nonObservable = function(config, parent) {
                 return this.domain;
 
             // default
-            return defaults.range;
+            return this.defaults.range;
         },
         set range(range) {
             this.config.range = range;
         },
-        get clampToData() { return this.config.clampToData ?? defaults.clampToData },
+        get clampToData() { return this.config.clampToData ?? this.defaults.clampToData },
         get domain() {
             if (this.config.domain) {
                 return this.config.domain
@@ -122,20 +115,20 @@ baseScale.nonObservable = function(config, parent) {
                     .map(v => this.clampToData ? this.clampToDomain(v, this.data.domain) : v);
             } else if (this.data.isConstant && this.config.range) {
                 return this.range.slice().sort();
-            } else if (this.data.domain) {   
+            } else if (this.data.domain) {
                 // zeroBaseline can override the domain if defined and if data domain is one-sided
                 // by replacing the value closest to zero with zero
                 // use cases: forcing zero-based bar charts and bubble size
-                if (this.zeroBaseline && !this.isDiscrete(this.data.domain) && isArrayOneSided(this.data.domain)){
-                  const domain = [...this.data.domain];
-                  const closestToZeroIdx = d3.scan(domain.map(Math.abs));
-                  domain[closestToZeroIdx] = 0;
-                  return domain;
+                if (!this.data.isConstant && this.zeroBaseline) {
+                    const domain = [...this.data.domain];
+                    const closestToZeroIdx = d3.scan(domain.map(Math.abs));
+                    domain[closestToZeroIdx] = 0;
+                    return domain;
                 } else {
-                  return this.data.domain;
+                    return this.data.domain;
                 }
             } else {
-                return defaults.domain;
+                return this.defaults.domain;
             }      
         },
         set domain(domain) {
