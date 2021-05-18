@@ -92,9 +92,7 @@ export function arrayEquals(a, b) {
 // rewrote for clarity and make sources overwrite target (mimic Object.assign)
 export function assign(target, ...sources) {
     sources.forEach(source => {
-        Object.keys(source).forEach(property => {
-            Object.defineProperty(target, property, Object.getOwnPropertyDescriptor(source, property));
-        });
+        Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
     });
     return target;
 }
