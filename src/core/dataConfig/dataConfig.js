@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { trace, observable } from "mobx";
-import { applyDefaults, arrayEquals, createSpaceFilterFn, fromPromiseAll, intersect, isNumeric } from "../utils";
+import { applyDefaults, arrayEquals, createSpaceFilterFn, deepclone, fromPromiseAll, intersect, isNumeric } from "../utils";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { fromPromise, FULFILLED } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
@@ -11,7 +11,8 @@ import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
 
 const defaultConfig = {
-    allow: {}
+    allow: {},
+    filter: {}
 }
 
 export function dataConfig(config = {}, parent, id) {
@@ -22,10 +23,6 @@ export function dataConfig(config = {}, parent, id) {
 }
 
 dataConfig.nonObservable = function(config, parent, id) {
-
-    if (parent.config.encoding) {
-        if (!("filter" in config)) config.filter = {};
-    }
 
     applyDefaults(config, defaultConfig);
     let latestResponse = [];
@@ -134,7 +131,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             console.warn('Cannot get data.commonSpace of Marker.data. Only meaningful on Encoding.data.')
         },
         get filter() {
-            const filter = resolveRef(this.config.filter) || (this.hasEncodingMarker ? this.parent.marker.data.filter : {});
+            const filter = resolveRef(this.config.filter);
             return filterStore.get(filter, this);
         },
         get locale() {
@@ -255,7 +252,11 @@ dataConfig.nonObservable = function(config, parent, id) {
             }
             query.from = (space.length === 1) ? "entities" : "datapoints";
             if (filter) {
-                query.where = filter.whereClause(query.select.key);
+                if (Array.isArray(filter)) {
+                    query.where = Object.assign(...filter.map(f => f.whereClause(query.select.key))) 
+                } else {
+                    query.where = filter.whereClause(query.select.key);
+                }
             }
             if (locale) {
                 query.language = locale; 
@@ -264,7 +265,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             return query;
         },
         get ddfQuery() {    
-            return this.createQuery();
+            return this.createQuery({ filter: [this.marker.data.filter, this.filter] })
         },
         dispose() { }
     };

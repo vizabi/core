@@ -108,15 +108,11 @@ const config = {
               "superhighlighted": { modelType: "selection" },
               "y": {
                 data: {
-                  space: ["country", "time"],
-                  filter: {},
                   concept: "life_expectancy"
                 }
               },
               "x": {
                 data: {
-                  space: ["country", "time"],
-                  filter: {},
                   concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
                 }
               },
@@ -127,8 +123,6 @@ const config = {
               },
               "size": {
                 data: {
-                    space: ["country", "time"],
-                    filter: {},
                     concept: "population_total"
                 },
                 scale: {
@@ -139,7 +133,6 @@ const config = {
               "color": { 
                 data: {
                     space: ["country", "time"],
-                    filter: {},
                     concept: "life_expectancy"
                   },
                   scale: { modelType: "color" } 

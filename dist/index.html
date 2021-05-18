@@ -656,7 +656,7 @@ function chart() {
 
     function drawEncoding() {
 
-        mobxUtils.fromPromise(viz.dataSources.gapbw.metaDataPromise).case({
+        mobxUtils.fromPromise(viz.markers.bubble.data.source.metaDataPromise).case({
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
