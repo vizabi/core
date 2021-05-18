@@ -304,11 +304,9 @@ frame.nonObservable = function(config, parent) {
             for (const frameKey of newFrameMap.keys()) {
                 const frame = newFrameMap.get(frameKey);
                 for (const key of frame.keys()) {
-                    const row = frame.getByStr(key);
                     if (!markers.has(key)) {
-                        let newRow = Object.assign(emptyRow, pick(row, constantFields));
-                        newRow[Symbol.for('key')] = key;
-                        markers.set(key, { newRow, firstFrame: frameKey, lastFrame: frameKey });
+                        const sourceRow = frame.getByStr(key);
+                        markers.set(key, { sourceRow, firstFrame: frameKey, lastFrame: frameKey });
                     } else {
                         markers.get(key).lastFrame = frameKey;
                     }
@@ -353,10 +351,10 @@ frame.nonObservable = function(config, parent) {
                 const missingMarkers = relativeComplement(frame, activeMarkers);
                 for (const key of missingMarkers) {
                     const row = deepclone( // deepclone to copy Date objects
-                        Object.assign({}, markers.get(key).newRow, newFrameMap.keyObject(frame))
+                        Object.assign({}, markers.get(key).sourceRow, newFrameMap.keyObject(frame))
                     );
-                    row[this.data.concept] = row[name]
-                    frame.setByStr(key, row) 
+                    row[this.data.concept] = row[name];
+                    frame.setByStr(key, row);
                 }
                 // only now add enters, we already knew they're in this frame
                 enters.forEach(addToActive);
