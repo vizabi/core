@@ -108,6 +108,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             const 
                 keyValueLookup = new Map(),
                 keyLookup = new Map(),
+                valueLookup = new Map(),
                 data = [];
     
             /* utility functions, probably move later */
@@ -115,24 +116,27 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 map.has(key) || map.set(key, getNewVal());
                 return map.get(key);
             }
-            const getNewMap = () => new Map();
-            const getMapFromMap = (map, key) => getFromMap(map, key, getNewMap);
+            const newSet = () => new Set();
+            const newMap = () => new Map();
     
             /* handle availability responses */
             responses.forEach(response => {
                 response = response.forQueryKey().values(); // get dataframe iterator if there
                 for(let row of response) {
-                    let keyStr, valueLookup;
+                    let keyStr;
                     row.key = Array.isArray(row.key) ? row.key : JSON.parse(row.key).sort();
                     keyStr = createKeyStr(row.key);
                     data.push(row);
                     keyLookup.set(keyStr, row.key);
-                    valueLookup = getMapFromMap(keyValueLookup, keyStr);
-                    valueLookup.set(row.value, row);    
+                    getFromMap(keyValueLookup, keyStr, newMap)
+                        .set(row.value, row);  
+                    getFromMap(valueLookup, row.value, newSet)
+                        .add(row.key);
                 };
             });
     
             return {
+                valueLookup,
                 keyValueLookup,
                 keyLookup,
                 data
