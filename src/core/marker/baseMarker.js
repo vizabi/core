@@ -142,7 +142,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             for (let [name, encoding] of Object.entries(this.encoding)) {
     
                 // no data or constant, no further processing (e.g. selections)
-                if (encoding.data.concept === undefined && !encoding.data.isConstant())
+                if (encoding.data.concept === undefined && !encoding.data.isConstant)
                     continue;
     
                 // constants value (ignores other config like concept etc)

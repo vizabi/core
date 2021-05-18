@@ -639,12 +639,12 @@ function chart() {
                 .call(xAxis)
             xAxisSVGtext
                 .attr("x", appLayout.width)
-                .text(xConfig.data.conceptProps.name)
+                .text(xConfig.data.isConstant ? 'Constant' : xConfig.data.conceptProps.name)
             yAxisSVG
             //.transition(t)
                 .call(yAxis);
             yAxisSVGtext
-                .text(yConfig.data.conceptProps.name)
+                .text(yConfig.data.isConstant ? 'Constant' : yConfig.data.conceptProps.name)
         }
     };
 
@@ -706,59 +706,87 @@ function chart() {
                 .attr('id', d => d + "select")
                 .attr('class', 'encConceptSelect')
                 .on("change", function(enc) {
-                    const kv = d3.select(this.options[this.selectedIndex]).datum();
-                    marker.encoding[enc].setWhich(kv);
+                    const kv = d3.select(this.options[this.selectedIndex]).datum();                    
+                    if (kv.value.concept == 'constant') {
+                        marker.encoding[enc].setWhich({ value: { concept: marker.encoding[enc].scale.range[1] } })
+                    } else {
+                        marker.encoding[enc].setWhich(kv);
+                    }
                 });
             divsEnter.insert("label", ":first-child").attr('for', d => d + "select").text(d => d);
             const divs = divsEnter.merge(divsUpdate);
 
             const extraDims = divsEnter.append('span').attr('id', d => d + 'dims').attr('class', "dims");
             divs.selectAll('.dims').each((prop, i, nodes) => {
-                const div = nodes[i];
+                const div = d3.select(nodes[i]);
                 const encoding = marker.encoding[prop];
-                const encSpace = encoding.data.space;
-                const dims = Vizabi.utils.relativeComplement(marker.data.space, encSpace).map(dim => ({ dim, encoding }));
-                const promises = dims.map(d => {
-                    return d.encoding.data.source.query({
-                        select: {
-                            key: [d.dim],
-                            value: ["name"]
-                        },
-                        from: "entities"
-                    }).then(data => {
-                        return { data: data.raw, dim: d.dim }
+                if (encoding.data.isConstant) {
+                    let range = div.selectAll('.constantRange')
+                    if (range.empty()) {
+                        range = div.append('input')
+                            .attr('type', 'range')
+                            .attr('min', encoding.scale.domain[0])
+                            .attr('max', encoding.scale.domain[1])
+                            .attr('value', encoding.data.constant)
+                            .attr('class', 'constantRange')
+                            .on('input', function() {
+                                encoding.setWhich({ value: { concept: +this.value } });
+                            })
+                    } else {
+                        range
+                            .attr('min', encoding.scale.domain[0])
+                            .attr('max', encoding.scale.domain[1])
+                    }
+                } else {
+                    div.selectAll('.constantRange').remove();
+
+                    const encSpace = encoding.data.space;
+                    const dims = Vizabi.utils.relativeComplement(marker.data.space, encSpace).map(dim => ({ dim, encoding }));
+                    const promises = dims.map(d => {
+                        return d.encoding.data.source.query({
+                            select: {
+                                key: [d.dim],
+                                value: ["name"]
+                            },
+                            from: "entities"
+                        }).then(data => {
+                            return { data, dim: d.dim }
+                        });
                     });
-                });
-                Promise.all(promises).then(dims => {
-                    const dimUpdate = d3.select(div).selectAll('span')
-                        .data(dims);
-                    const dimEnter = dimUpdate
-                        .enter()
-                        .append('span');
-                    dimEnter
-                        .append('label').attr('for', d => d.dim + "_extraDim").text(d => d.dim)
-                    dimEnter
-                        .append('select')
-                        .attr('id', d => d.dim + "_extraDim")
-                        .on("change", function(enc) {
+                    Promise.all(promises).then(dims => {
+                        const dimUpdate = div.selectAll('span')
+                            .data(dims);
+                        const dimEnter = dimUpdate
+                            .enter()
+                            .append('span');
+                        dimEnter
+                            .append('label').attr('for', d => d.dim + "_extraDim").text(d => d.dim)
+                        dimEnter
+                            .append('select')
+                            .attr('id', d => d.dim + "_extraDim")
+                            .on("change", function(enc) {
+                                const dim = d3.select(this).datum().dim;
+                                const kv = d3.select(this.options[this.selectedIndex]).datum();
+                                encoding.data.filter.config.dimensions[dim] = {
+                                    [dim]: kv[dim]
+                                };
+                            })
+                            .selectAll('option')
+                            .data(d => {
+                                return d.data
+                            })
+                            .enter()
+                            .append('option')
+                            .text(d => d.name);
+                        dimUpdate.exit().remove().each(function(d) {
                             const dim = d3.select(this).datum().dim;
-                            const kv = d3.select(this.options[this.selectedIndex]).datum();
-                            encoding.data.filter.config.dimensions[dim] = {
-                                [dim]: kv[dim]
-                            };
-                        })
-                        .selectAll('option')
-                        .data(d => [...d.data.values()])
-                        .enter()
-                        .append('option')
-                        .text(d => d.name);
-                    dimUpdate.exit().remove().each(function(d) {
-                        const dim = d3.select(this).datum().dim;
+                        });
                     });
-                });
+                }
             });
             // populate select options
-            const items = marker.availability;
+            let items = [...marker.availability];
+            items.unshift({ value: { concept: 'constant', name: 'Constant' }, key: [], source: {} });
 
             const selects = divs.selectAll('select.encConceptSelect');
             const selUpdate = selects.selectAll("option").data(items);
@@ -771,7 +799,7 @@ function chart() {
                     const enc = marker.encoding[encId]
                     return d.value && d.value.concept == enc.data.concept && Vizabi.utils.arrayEquals(d.key, enc.data.space);
                 })
-                .text(d => !d.value ? 'n/a' : d.value.name + ' (' + d.key.join(',') + ') [' + d.source.path + ']')
+                .text(d => !d.value ? 'n/a' : d.value.name + ' (' + d.key.join(',') + ') [' + d.source.id + ']')
                 .sort((a, b) => !a.value || !b.value ? 0 : (a.value.name > b.value.name ? 1 : -1));
             const selExit = selUpdate.exit().remove();
 

@@ -3,12 +3,13 @@ const config = {
         /*gapcsv: {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
-        },*/
+        },
         gapbw: {
             modelType: "bw",
             service: 'https://big-waffle.gapminder.org', 
             name: "sg-master"
         },
+        */
         gap: {
             modelType: "ddfcsv",
             path: "./ddf--jheeffer--mdtest/"
@@ -116,10 +117,16 @@ const config = {
                   concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
                 }
               },
-              "order": { modelType: "order",
-                data: { concept: {
-                  ref: "markers.bubble.encoding.size.data.concept"
-                } }
+              "order": { 
+                modelType: "order",
+                data: { 
+                  constant: {
+                    ref: "markers.bubble.encoding.size.data.constant"
+                  },
+                  concept: {
+                    ref: "markers.bubble.encoding.size.data.concept"
+                  } 
+                }
               },
               "size": {
                 data: {

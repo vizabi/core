@@ -1,4 +1,4 @@
-import { applyDefaults, parseConfigValue } from "../utils";
+import { applyDefaults, isNumeric, parseConfigValue } from "../utils";
 import { computed } from "mobx";
 
 const scales = {
@@ -14,8 +14,6 @@ const scales = {
 
 
 const defaultConfig = {
-    domain: null,
-    range: null,
     type: null,
     zoomed: null,
     zeroBaseline: false,
@@ -25,7 +23,8 @@ const defaultConfig = {
 
 const defaults = {
     clampToData: false,
-    domain: [0,1]
+    domain: [0,1],
+    range: [0,1]
 }
 export function baseScale(config, parent) {
     return observable(baseScale.nonObservable(config, parent))
@@ -57,9 +56,6 @@ baseScale.nonObservable = function(config, parent) {
             return this.parent.data;
         },
         scaleTypeNoGenLog(domain = this.domain) {
-            if (this.data.isConstant) {
-                return this.ordinalScale;
-            }
             const concept = this.data.conceptProps;
             let scaleType = null;
             let scale;
@@ -71,7 +67,10 @@ baseScale.nonObservable = function(config, parent) {
                 concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)
                 || domain.length == 1
             ) {
-                scaleType = this.ordinalScale;
+                if (!this.range.every(isNumeric))
+                    scaleType = "ordinal"
+                else
+                    scaleType = this.ordinalScale;
             } else if (concept && ["time"].includes(concept.concept_type)) {
                 scaleType = "time";
             } else {
@@ -110,8 +109,7 @@ baseScale.nonObservable = function(config, parent) {
                 return this.domain;
 
             // default
-            return (this.type == "ordinal") ?
-                d3.schemeCategory10 : [0, 1];
+            return defaults.range;
         },
         set range(range) {
             this.config.range = range;
@@ -122,9 +120,11 @@ baseScale.nonObservable = function(config, parent) {
                 return this.config.domain
                     .map(v => parseConfigValue(v, this.data.conceptProps))
                     .map(v => this.clampToData ? this.clampToDomain(v, this.data.domain) : v);
+            } else if (this.data.isConstant && this.config.range) {
+                return this.range.slice().sort();
             } else if (this.data.domain) {   
                 // zeroBaseline can override the domain if defined and if data domain is one-sided
-                // by replaceing the value closest to zero with zero
+                // by replacing the value closest to zero with zero
                 // use cases: forcing zero-based bar charts and bubble size
                 if (this.zeroBaseline && !this.isDiscrete(this.data.domain) && isArrayOneSided(this.data.domain)){
                   const domain = [...this.data.domain];
