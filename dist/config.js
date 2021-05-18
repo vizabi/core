@@ -182,10 +182,16 @@ const config = {
                 "superhighlighted": { modelType: "selection" },
                 "x": { },
                 "y": { },
-                "order": { modelType: "order",
-                    data: { concept: { 
+                "order": { 
+                    modelType: "order",
+                    data: { 
+                      constant: {
+                        ref: "markers.bubble.encoding.size.data.constant"
+                      },
+                      concept: { 
                         ref: "markers.bubble.encoding.size.data.concept"
-                    } }
+                      } 
+                    }
                 },
                 "size": {
                     scale: {
@@ -266,6 +272,9 @@ const config = {
                 "order": {
                     modelType: "order",
                     data: {
+                        constant: {
+                            ref: "markers.bubble.encoding.size.data.constant"
+                        },
                         concept: { 
                             ref: "markers.bubble.encoding.size.data.concept"
                         },
@@ -287,6 +296,7 @@ const config = {
                         concept: "world_4region"
                     },
                     scale: {
+                        modelType: 'color',
                         type: "ordinal"
                     }
                 },
