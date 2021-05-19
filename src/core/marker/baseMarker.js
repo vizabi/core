@@ -76,7 +76,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             }
             return currentDataConfig = dataConfig;
         },
-        get requiredEncodings() { return this.config.requiredEncodings || defaults.requiredEncodings },
+        get requiredEncodings() { return toJS(this.config.requiredEncodings || defaults.requiredEncodings) },
         encodingCache: encodingCache(),
         get encoding() {
             const validEncoding = config => config() && Object.keys(config()).length > 0
@@ -198,8 +198,10 @@ baseMarker.nonObservable = function(config, parent, id) {
         isRequired(name) {
             return this.requiredEncodings.length === 0 || this.requiredEncodings.includes(name)
         },
-        filterRequired(data) {
-            const required = toJS(this.requiredEncodings);
+        filterRequired(data) {            
+            const required = this.requiredEncodings.filter(
+                enc => !this.encoding[enc].data.isConstant && !this.encoding[enc].data.conceptInSpace
+            );
             const l = required.length;
             return data
                 .filter(row => {
