@@ -229,7 +229,7 @@ frame.nonObservable = function(config, parent) {
             const fields = newFrameMap.values().next().value.fields;
             const interpolateFields = this.interpolationEncodings;
             const constantFields = relativeComplement(interpolateFields, fields);
-            const emptyRow = createEmptyRow(fields);
+            constantFields.push(Symbol.for('key'));
 
             //console.log('reindexed')
             //console.timeLog('int step');
@@ -352,9 +352,7 @@ frame.nonObservable = function(config, parent) {
                 exits.forEach(delFromActive);
                 const missingMarkers = relativeComplement(frame, activeMarkers);
                 for (const key of missingMarkers) {
-                    const row = deepclone( // deepclone to copy Date objects
-                        Object.assign({}, markers.get(key).sourceRow, newFrameMap.keyObject(frame))
-                    );
+                    const row = Object.assign({}, markers.get(key).sourceRow, newFrameMap.keyObject(frame));
                     row[this.data.concept] = row[name];
                     frame.setByStr(key, row);
                 }
