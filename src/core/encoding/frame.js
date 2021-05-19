@@ -304,11 +304,13 @@ frame.nonObservable = function(config, parent) {
             for (const frameKey of newFrameMap.keys()) {
                 const frame = newFrameMap.get(frameKey);
                 for (const key of frame.keys()) {
-                    if (!markers.has(key)) {
-                        const sourceRow = frame.getByStr(key);
+                    const marker = markers.get(key);
+                    if (marker === undefined) {
+                        const row = frame.getByStr(key);
+                        const sourceRow = pick(row, constantFields);
                         markers.set(key, { sourceRow, firstFrame: frameKey, lastFrame: frameKey });
                     } else {
-                        markers.get(key).lastFrame = frameKey;
+                        marker.lastFrame = frameKey;
                     }
                 }
             }
