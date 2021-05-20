@@ -42,32 +42,6 @@ baseMarker.nonObservable = function(config, parent, id) {
 
     const marker = { config, id };
     const functions = {
-        on: function(prop, fn) {
-            if (this.validProp(prop) && typeof fn == "function") {
-                const disposer = reaction(
-                    () => this[prop], 
-                    propVal => fn.call(this, propVal)
-                );
-                this.getEventListenersMapFor(prop).set(fn, disposer);
-            }
-            return this;
-        },
-        off: function(prop, fn) {
-            if (this.validProp(prop) && this.eventListeners.get(prop).has(fn)){
-                this.getEventListenersMapFor(prop).get(fn)(); // dispose
-                this.getEventListenersMapFor(prop).delete(fn); // delete
-            }
-            return this;
-        },
-        validProp(prop) {
-            return prop in this;
-        },
-        eventListeners: new Map(),
-        getEventListenersMapFor(prop) {
-            if (!this.eventListeners.has(prop))
-                this.eventListeners.set(prop, new Map());
-            return this.eventListeners.get(prop);
-        },
         get data() {
             const datacfg = resolveRef(this.config.data);
             const dataConfig = dataConfigStore.get(datacfg, this);
