@@ -536,10 +536,13 @@ function chart() {
     }
 
     function drawLegend() {
-
-        marker.on('state')
-        legendmarker.on('state')
-
+/*
+        start(legendmarker, {
+            pending: showLoading,
+            rejected: showError,
+            fulfilled: draw
+        }, 'drawLegend');
+*/
         function showLoading() {
             console.log("loading");
         }
