@@ -5,7 +5,7 @@ export function encodingCache() {
     function fill(cfg, marker) {
         for (const prop in cfg) {
             if (!(prop in cache)) {
-                cache[prop] = encodingStore.get(cfg[prop], marker);
+                cache[prop] = encodingStore.get(cfg[prop], marker, prop);
             }
         }
     }

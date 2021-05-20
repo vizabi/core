@@ -38,15 +38,15 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
         has: function(id) {
             return id in this.models;
         },   
-        get(reference, parent) {
+        get(reference, parent, name) {
             if (isString(reference)) {
                 return this.models[reference] // id
             } else if (isDataSource(reference) || isFilter(reference) || isDataConfig(reference)) {
                 return reference;
             } else if (isModel(reference)) {
-                return this.create(reference.config, parent)
+                return this.create(reference.config, parent, name)
             } else {
-                return this.create(reference, parent)
+                return this.create(reference, parent, name)
             }
         },
         getAll: function() {
