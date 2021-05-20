@@ -298,11 +298,11 @@ function chart() {
         zoomScales = mobx.observable({
             t: d3.zoomTransform(chart),
             get x() { 
-                const xConfig = marker.encoding.x;
-                return this.t.rescaleX(xConfig.scale.d3Scale) },
+                const xConfig = marker.encoding.x.scale;
+                return xConfig.isDiscrete() ? xConfig.d3Scale : this.t.rescaleX(xConfig.d3Scale) },
             get y() { 
-                const yConfig = marker.encoding.y;
-                return this.t.rescaleY(yConfig.scale.d3Scale) },
+                const yConfig = marker.encoding.y.scale;
+                return yConfig.isDiscrete() ? yConfig.d3Scale : this.t.rescaleX(yConfig.d3Scale) },
             setTransform: mobx.action(function(t) {
                 this.t = t
             })

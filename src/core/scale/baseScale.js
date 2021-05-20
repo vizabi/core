@@ -27,8 +27,6 @@ baseScale.nonObservable = function(config, parent) {
     return {
         config,
         parent,
-        // ordinal, point or band
-        ordinalScale: "ordinal",
         name: 'scale',
         defaults: {
             allowedTypes: null,
@@ -60,10 +58,10 @@ baseScale.nonObservable = function(config, parent) {
                 concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)
                 || domain.length == 1
             ) {
-                if (!this.range.every(isNumeric))
+                if (!this.range.every(isNumeric) || this.range.length != 2)
                     scaleType = "ordinal"
                 else
-                    scaleType = this.ordinalScale;
+                    scaleType = "point";
             } else if (concept && ["time"].includes(concept.concept_type)) {
                 scaleType = "time";
             } else {

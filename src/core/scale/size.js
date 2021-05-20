@@ -18,7 +18,6 @@ size.nonObservable = function(config, parent) {
     s.defaults = deepmerge(s.defaults, defaults);
 
     return assign(s, {
-        ordinalScale: "point",
         get extent() {
             return this.config.extent || [this.defaults.extent[0], this.data.isConstant ? null : this.defaults.extent[1]];
         },
