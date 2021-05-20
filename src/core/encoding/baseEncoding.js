@@ -17,13 +17,14 @@ export function baseEncoding(config, parent, name) {
     );
 }
 
-baseEncoding.nonObservable = function(config, parent, name) {
+baseEncoding.nonObservable = function(config, parent, id) {
     //console.warn('creating new encoding', name, config);
     applyDefaults(config, defaultConfig);
 
     let currentDataConfig;
 
     const functions = {
+        id, 
         get marker() {
             return this.parent;
         },
