@@ -12,15 +12,12 @@ export function makeCache() {
     }
     const has = function (query) { return cache.has(makeKey(query)); }
     const get = function (query) { return cache.get(makeKey(query)); }
-    const set = function(query, response) {
+    const set = function(query, promise) {
         if (query.select.value.length > 1) 
-            return splitQuery(query).map(q => set(q, response));
+            return splitQuery(query).map(q => set(q, promise));
         
         const key = makeKey(query);
-        return cache.set(key, response);
-    }
-    const setFromPromise = function(query, promise) {
-        return promise.then(response => set(query, response))
+        return cache.set(key, promise);
     }
     const splitQuery = function(query) {
         return query.select.value.map(concept => {
@@ -33,7 +30,6 @@ export function makeCache() {
     return {
         has, 
         get, 
-        set,
-        setFromPromise
+        set
     }
 }

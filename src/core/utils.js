@@ -67,8 +67,8 @@ export function subsets(array) {
 }
 
 /**
- * Relative complement (difference, B\A) of A with respect to B
- * Everything in B which is not in A. A=[geo,year], B=[geo,year,gender], B\A = [gender]
+ * Everything in B which is not in A. Relative complement (difference, B\A) of A with respect to B.
+ * A=[geo,year], B=[geo,year,gender], B\A = [gender]
  * @param {Array|Set} a Array/Set representing set A
  * @param {Array|Set} b Array/Set representing set B
  */
@@ -79,6 +79,10 @@ export function relativeComplement(a, b) {
         return result;
     }
     return b.filter(e => !a.includes(e));
+}
+
+export function concatUnique(...arrays) {
+    return Array.from(new Set(arrays.flat()));
 }
 
 // returns true if a and b are identical, regardless of order (i.e. like sets)
@@ -392,6 +396,7 @@ function pad(value, width) {
 }
     
 export const defer = setTimeout;
+export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 function compose2(f, g) {
     return (...args) => f(g(...args));

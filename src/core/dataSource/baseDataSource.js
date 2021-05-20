@@ -1,5 +1,5 @@
 import { computedFn, fromPromise, FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, defer, deepclone, pipe, stableStringifyObject } from "../utils";
+import { assign, applyDefaults, defer, deepclone, pipe, stableStringifyObject, relativeComplement, concatUnique, sleep } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
@@ -243,92 +243,38 @@ baseDataSource.nonObservable = function (config, parent, id) {
             }
             query = dotToJoin(query);
             query = addExplicitAnd(query);
-            //console.log('Adding to queue', query);
-            const queryPromise = this.enqueue(query);
-            return fromPromise(queryPromise);
-        },
-        get queue() {
-            return [];
-        },
-        enqueue(query) {
-            return new Promise((resolve, reject) => {
-                this.queue.push({ query, resolves: [resolve], rejects: [reject] });
-                // defer so queue can fill up before queue is processed
-                // only first of deferred process calls will find a filled queue
-                defer(() => this.processQueue(this.queue));
-            })
-        },
-        processQueue(queue) {
-            return pipe(
-                this.resolveCached.bind(this),
-                this.combineQueries.bind(this), 
-                this.sendQueries.bind(this),
-                this.setQueueHandlers.bind(this),
-                this.addToCache.bind(this),
-                this.clearQueue.bind(this)
-            )(queue);
-        },
-        combineQueries(queue) {
-            const queries = queue.reduce((queries, { query, resolves, rejects }) => {
-                const queryCombineId = this.calcCombineId(query);
-                if (queries.has(queryCombineId)) {
-                    const { 
-                        query: combinedQuery, 
-                        resolves: combinedResolves, 
-                        rejects: combinedRejects 
-                    } = queries.get(queryCombineId);
-                    const additionalValues = query.select.value.filter(v => combinedQuery.select.value.includes(v) === false)
-                    combinedQuery.select.value.push(...additionalValues);
-                    combinedResolves.push(...resolves);
-                    combinedRejects.push(...rejects);
-                } else {
-                    queries.set(queryCombineId, {
-                        query: deepclone(query),
-                        resolves,
-                        rejects
-                    });
-                }
-                return queries;
-            }, new Map());
-            return [...queries.values()];
+            //console.log('Processing query', query);
+            return this.combineAndSendQueries(query);
         },
         cache: makeCache(),
-        resolveCached(queries) {
-            return queries.filter(query => !this.tryCache(query));
+        get queue() {
+            return new Map();
         },
-        tryCache({ query, resolves }) {
-            let response;
-            if (response = this.cache.get(query)) {
-                //console.warn('Resolving query from cache.', query);
-                resolves.forEach(resolve => resolve(response));
-                return true;
+        combineAndSendQueries(query) {
+            if (this.cache.has(query)) 
+                return this.cache.get(query);
+
+            const queryCombineId = this.calcCombineId(query);
+            if (this.queue.has(queryCombineId)) {
+                const { baseQuery, promise } = this.queue.get(queryCombineId);
+                baseQuery.select.value = concatUnique(baseQuery.select.value, query.select.value);
+                return promise;
+            } else {
+                const baseQuery = deepclone(query);
+                const promise = fromPromise(this.sendDelayedQuery(baseQuery));
+                this.queue.set(queryCombineId, { baseQuery, promise })
+                this.cache.set(baseQuery, promise);
+                return promise;
             }
-            return false;
+            
         },
-        sendQueries(queries) {
-            return queries.map(({ query, resolves, rejects }) => {
-                //console.log('Sending query to reader', query);
-                const promise = this.reader.read(query).then(response => this.normalizeResponse(response, query));
-                return {
-                    query, resolves, rejects, promise
-                };
-            });
-        },
-        setQueueHandlers(queries) {
-            queries.forEach(({ promise, resolves, rejects }) => {
-                resolves.forEach(res => promise.then(res));
-                rejects.forEach(rej => promise.catch(rej));
-            })
-            return queries;
-        },
-        addToCache(queries) {
-            queries.forEach(({ query, promise }) => {
-                this.cache.setFromPromise(query, promise);
-            });
-            return queries;
-        },
-        clearQueue() {
-            this.queue.length = 0; // reset without changing ref
+        async sendDelayedQuery(query) {
+            // sleep first so other queries can fill up baseQuery's select.value
+            await sleep();
+            const queryCombineId = this.calcCombineId(query);
+            this.queue.delete(queryCombineId);
+            const response = await this.reader.read(query);
+            return this.normalizeResponse(response, query);
         },
         calcCombineId(query) {
             const clone = deepclone(query);
