@@ -1,12 +1,11 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
-import { trace, observable } from "mobx";
-import { applyDefaults, arrayEquals, createSpaceFilterFn, deepclone, fromPromiseAll, intersect, isNumeric } from "../utils";
-import { DataFrame } from "../../dataframe/dataFrame";
-import { fromPromise, FULFILLED } from "mobx-utils";
+import { computed, observable, trace } from "mobx";
+import { applyDefaults, createSpaceFilterFn, fromPromiseAll, intersect, isNumeric } from "../utils";
+import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
-import { createKeyStr, isDataFrame } from "../../dataframe/dfutils";
+import { createKeyStr } from "../../dataframe/dfutils";
 import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
 
@@ -273,6 +272,6 @@ dataConfig.nonObservable = function(config, parent, id) {
 
 dataConfig.decorate = {
 //    response: observable.ref,
-//    space: computed.struct,
-//    commonSpace: computed.struct
+    space: computed.struct,
+    commonSpace: computed.struct
 }

@@ -59,3 +59,4 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
         }
     })
 }
+entityPropertyDataConfig.decorate = dataConfig.decorate;
