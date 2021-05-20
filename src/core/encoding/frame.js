@@ -1,5 +1,5 @@
 import { baseEncoding } from './baseEncoding';
-import { action, observable, reaction, trace } from 'mobx'
+import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
 import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, interval, deepclone, getOrCreate } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
@@ -210,7 +210,8 @@ frame.nonObservable = function(config, parent) {
                 return encProps;
             else
                 return encProps.filter(prop => {
-                    return enc[prop].data.space && enc[prop].data.space.includes(this.data.concept);
+                    return enc[prop].data.hasOwnData 
+                        && enc[prop].data.space.includes(this.data.concept);
                 })
         },
         interpolateData(frameMap) {
@@ -538,6 +539,9 @@ frame.splashMarker = function splashMarker(marker) {
     } else {
         return { marker };
     }
+}
+frame.decorate = {
+    interpolationEncodings: computed.struct
 }
 
 function markerWithFallback(marker, fallback) {
