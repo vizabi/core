@@ -211,9 +211,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             }
         },
         get promise() {
-            if (this.isConstant) { return fromPromise.resolve() }
-
-            const sourcePromises = configSolver.dataConfigPromisesBeforeSolving(this);
+            const sourcePromises = [configSolver.markerPromiseBeforeSolving(this.marker)];
             if (this.source) { sourcePromises.push(this.source.conceptsPromise) } // conceptPromise needed for calcDomain()
             const combined = fromPromiseAll(sourcePromises);
             return combined.case({ 
