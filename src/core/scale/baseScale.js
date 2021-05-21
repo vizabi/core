@@ -1,4 +1,4 @@
-import { isNumeric, parseConfigValue } from "../utils";
+import { isNumeric, parseConfigValue, sortDateSafe } from "../utils";
 import { computed } from "mobx";
 
 const scales = {
@@ -32,6 +32,7 @@ baseScale.nonObservable = function(config, parent) {
             allowedTypes: null,
             clamp: false,
             clampToData: false,
+            orderDomain: true,
             domain: [0, 1],
             range: [0, 1],
             type: 'linear',
@@ -45,6 +46,9 @@ baseScale.nonObservable = function(config, parent) {
         },
         get data() {
             return this.parent.data;
+        },
+        get orderDomain() {
+            return this.config.orderDomain ?? this.defaults.orderDomain;
         },
         scaleTypeNoGenLog(domain = this.domain) {
             const concept = this.data.conceptProps;
@@ -107,27 +111,27 @@ baseScale.nonObservable = function(config, parent) {
         },
         get clampToData() { return this.config.clampToData ?? this.defaults.clampToData },
         get domain() {
+            let domain;
             if (this.config.domain) {
-                return this.config.domain
+                domain = this.config.domain
                     .map(v => parseConfigValue(v, this.data.conceptProps))
                     .map(v => this.clampToData ? this.clampToDomain(v, this.data.domain) : v);
             } else if (this.data.isConstant && this.config.range) {
-                return this.range.slice().sort();
+                domain = [...this.range].sort(sortDateSafe);
             } else if (this.data.domain) {
+                domain = this.data.domain;
                 // zeroBaseline can override the domain if defined and if data domain is one-sided
                 // by replacing the value closest to zero with zero
                 // use cases: forcing zero-based bar charts and bubble size
                 if (!this.data.isConstant && this.zeroBaseline) {
-                    const domain = [...this.data.domain];
+                    domain = [...domain];
                     const closestToZeroIdx = d3.scan(domain.map(Math.abs));
                     domain[closestToZeroIdx] = 0;
-                    return domain;
-                } else {
-                    return this.data.domain;
-                }
+                } 
             } else {
-                return this.defaults.domain;
-            }      
+                domain = this.defaults.domain;
+            }     
+            return this.isDiscrete(domain) && this.orderDomain ? [...domain].sort(sortDateSafe) : domain;
         },
         set domain(domain) {
             this.config.domain = domain;

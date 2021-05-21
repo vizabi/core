@@ -431,6 +431,14 @@ function canonicalObject(where) {
 }
 
 /**
+ * Function for Array#sort which doesn't convert values to strings. Dates will be converted to integers and thus sort chronologically.
+ * @param {*} a 
+ * @param {*} b 
+ * @returns 
+ */
+export const sortDateSafe = (a, b) => a > b ? 1 : a < b ? -1 : 0; 
+
+/**
  * Returns value for `key` in `map`. If `key` not in map, first create new value using `create` getter function and set it to `key`.
  * @param {Map} map Map to get from
  * @param {Any} key Key to map
