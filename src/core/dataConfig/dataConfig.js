@@ -149,7 +149,9 @@ dataConfig.nonObservable = function(config, parent, id) {
             if (source === 'auto') {
                 source = this.conceptInSpace
                     ? 'filterRequired'
-                    : 'self';
+                    : this.hasOwnData
+                        ? 'self'
+                        : undefined;
             }
             return source;
         },
@@ -220,6 +222,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             })
         },
         get state() {
+            if (this.promise.state == 'fulfilled' && this.domainDataSource == 'self') this.domain; 
             return this.promise.state;
         },
         get response() {

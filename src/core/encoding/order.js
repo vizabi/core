@@ -15,6 +15,9 @@ export const order = defaultDecorator({
         get direction() {
             return this.data.config.direction || defaults.direction;
         },
+        get transformFields() {
+            return this.data.isConstant ? [] : [this.name];
+        },
         order(df) {
             if (this.data.isConstant)
                 return df;

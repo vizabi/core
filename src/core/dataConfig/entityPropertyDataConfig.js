@@ -52,6 +52,10 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
             });
             return new Map([[concept, lookups]]);
         },
+        get domain() {
+            // could be an object with domain per dimension?
+            return undefined;
+        },
         get response() {
             const response = this.promise.value;
             const lookups = this.lookups(response, this.concept);

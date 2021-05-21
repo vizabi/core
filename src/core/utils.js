@@ -484,3 +484,12 @@ export function createSpaceFilterFn(filterSpec = {}, dataConfig) {
             .every(filterFn);
     }
 }
+
+export function pickGetters(object, keys) {
+    const result = {};
+    for (const key of keys) {
+        if (key in object)
+            Object.defineProperty(result, key, Object.getOwnPropertyDescriptor(object, key));
+    }
+    return result;
+}

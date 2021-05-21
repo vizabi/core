@@ -1,9 +1,9 @@
 import { baseEncoding } from './baseEncoding';
 import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, interval, deepclone, getOrCreate } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, pickGetters } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
-import { createKeyFn, pick } from '../../dataframe/dfutils';
+import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
@@ -214,6 +214,9 @@ frame.nonObservable = function(config, parent) {
                         && enc[prop].data.space.includes(this.data.concept);
                 })
         },
+        get transformFields() {
+            return [this.name];
+        },
         interpolateData(frameMap) {
             const concept = this.data.concept;
             const name = this.name;
@@ -308,7 +311,7 @@ frame.nonObservable = function(config, parent) {
                     const marker = markers.get(key);
                     if (marker === undefined) {
                         const row = frame.getByStr(key);
-                        const sourceRow = pick(row, constantFields);
+                        const sourceRow = pickGetters(row, constantFields);
                         markers.set(key, { sourceRow, firstFrame: frameKey, lastFrame: frameKey });
                     } else {
                         marker.lastFrame = frameKey;

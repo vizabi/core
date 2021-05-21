@@ -42,6 +42,9 @@ baseEncoding.nonObservable = function(config, parent, id) {
             }
             return currentDataConfig = dataConfig;
         },
+        get transformFields() {
+            return [];
+        },
         get scale() {
             // console.warn('recalculating scale', this.name);
             const scale = resolveRef(this.config.scale);

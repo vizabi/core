@@ -1,7 +1,7 @@
-import { trace, reaction, computed, observable, isComputed, isBoxedObservable, when, toJS } from 'mobx';
+import { trace, reaction, computed, observable, toJS } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
-import { assign, applyDefaults, isProperSubset, combineStates } from "../utils";
+import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement } from "../utils";
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -77,6 +77,15 @@ baseMarker.nonObservable = function(config, parent, id) {
         },
         get state() {
             const dataConfigSolverState = this.promise.state;
+
+            if (dataConfigSolverState == 'fulfilled') {
+                if (this.encoding.frame?.interpolationEncodings?.some(enc => this.encoding[enc].data.state !== 'fulfilled')) {
+                    this.dataMapCache;
+                } else {
+                    this.dataMap 
+                }
+            }
+
             const encodingStates = [...Object.values(this.encoding)].map(enc => enc.state);
             const states = [dataConfigSolverState, ...encodingStates];
             return combineStates(states);
@@ -99,65 +108,109 @@ baseMarker.nonObservable = function(config, parent, id) {
             })
             return items;
         },
-        // computed to cache calculation
-        get dataMapCache() {
-            //trace();
-            console.time('dataMapCache');
-            // prevent recalculating on each encoding data coming in
-            if (this.state !== "fulfilled") 
-                return DataFrame([], this.data.space);
-    
-            const markerDefiningEncodings = [];
-            let markerAmmendingEncodings = [];
-            const spaceEncodings = [];
-            const constantEncodings = [];
-    
-            // sort visual encodings by how they add data to markers
-            for (let [name, encoding] of Object.entries(this.encoding)) {
-    
-                // no data or constant, no further processing (e.g. selections)
-                if (encoding.data.concept === undefined && !encoding.data.isConstant)
-                    continue;
-    
-                // constants value (ignores other config like concept etc)
-                else if (encoding.data.isConstant)
-                    constantEncodings.push({ name, encoding });
-    
-                // copy data from space/key
-                else if (encoding.data.conceptInSpace)
-                    spaceEncodings.push({ name, encoding });
-                
-                // own data, not defining final markers (not required or proper subspace)
-                else if (isProperSubset(encoding.data.space, this.data.space) || !this.isRequired(name))
-                    markerAmmendingEncodings.push(this.joinConfig(encoding, name));
-    
-                // own data, superspace (includes identical space) and required defining markers
-                else
-                    markerDefiningEncodings.push(this.joinConfig(encoding, name));
-    
+        get encodingByType() {
+
+            const defining = [];
+            const ammendWrite = []; // ammends by writing to object. Changes to encoding trigger pipeline, but pipeline is faster with direct writing.
+            let ammendGet = []; // ammends by creating a getter. Allows changing config of encoding without triggering rest of pipeline.
+            
+            const transformFields = new Set(Object.values(this.encoding).map(enc => enc.transformFields).flat());
+
+            for (const name of Object.keys(this.encoding)) {
+                const fn = this.ammendFnForEncoding(name);
+
+                if (typeof fn === 'function') {
+                    if (transformFields.has(name)) {
+                        ammendWrite.push(name);
+                    } else {
+                        ammendGet.push(name);
+                    }
+                } else if (fn === 'defining') {
+                    defining.push(name);
+                }
+
             }
                    
-            // optimization: if ammending is not required but does share response with defining just let fullJoin handle it
-            const definingDFs = markerDefiningEncodings.map(defJC => defJC.dataFrame);
-            markerAmmendingEncodings = markerAmmendingEncodings.filter(ammending => {
-                if (definingDFs.includes(ammending.dataFrame)) {
-                    markerDefiningEncodings.push(ammending);
+            // optimization: if ammending shares response with defining just let fullJoin handle it
+            const definingResponses = defining.map(name => this.encoding[name].data.promise);
+            ammendGet = ammendGet.filter(name => {
+                const data = this.encoding[name].data;
+                if (data.hasOwnData && definingResponses.includes(data.promise)) {
+                    defining.push(name);
                     return false;
                 }
                 return true;
-            });
-    
-            // define markers (full join encoding data)
-            let dataMap = fullJoin(markerDefiningEncodings, this.data.space);
-            // ammend markers with non-defining data, constants and copies of space
-            dataMap = dataMap.leftJoin(markerAmmendingEncodings);
-            constantEncodings.forEach(({name, encoding}) => {
-                dataMap = dataMap.addColumn(name, encoding.data.constant);
             })
-            spaceEncodings.forEach(({name, encoding}) => {
-                const concept = encoding.data.concept;
-                dataMap = dataMap.addColumn(name, row => row[concept]);
-            });
+
+            return {
+                defining,
+                ammendGet,
+                ammendWrite
+            }
+        },
+        ammendFnForEncoding(name) {
+            const required = this.requiredEncodings;
+            const data = this.encoding[name].data;
+            const concept = data.concept;
+
+            if (concept === undefined && !data.isConstant)
+                return 'no-op'
+            else if (data.isConstant) {
+                return row => data.constant;
+            } else if (data.conceptInSpace) {
+                return row => row[concept];
+            } else if (data.commonSpace.length < this.data.space.length) { 
+                // proper subset
+                // const response = data.response;
+                return row => data.response.get(row)?.[concept];
+            } else if (required.length > 0 && !required.includes(name)) {
+                //const response = data.response;
+                return row => data.response.getByStr(row[Symbol.for('key')])?.[concept];
+            } else {
+                return 'defining'; // defining encoding
+            }
+        },
+        get encodingState() {
+            const encs = [...this.encodingByType.defining, ...this.encodingByType.ammendWrite];
+            return combineStates(encs.map(enc => this.encoding[enc].data.state));
+        },
+        // computed to cache calculation
+        get dataMapCache() {
+            trace();
+
+            // prevent recalculating on each encoding data coming in
+            if (this.encodingState !== 'fulfilled')
+                return DataFrame([], this.data.space);
+
+            console.time('dataMapCache');
+            
+            // define markers (full join encoding data)
+            const { defining, ammendWrite, ammendGet } = this.encodingByType;
+            const joinConfigs = defining.map(name => this.joinConfig(this.encoding[name], name));
+            let dataMap = fullJoin(joinConfigs, this.data.space);
+
+            // ammend markers with getter        
+            for (const encName of ammendGet) {
+                for (const row of dataMap.values()) { 
+                    let fallback;
+                    Object.defineProperty(row, encName, {
+                        get: () => this.ammendFnForEncoding(encName)(row),
+                        set(value) {
+                            fallback = value;
+                        },
+                        enumerable: true,
+                        configurable: true
+                    })
+                }
+            }
+
+            // ammend markers by writing
+            const ammendFns = Object.fromEntries(ammendWrite.map(enc => [enc, this.ammendFnForEncoding(enc)]));
+            for (const row of dataMap.values()) {
+                for (const name in ammendFns)
+                    row[name] = ammendFns[name](row);
+            }
+            
             console.timeEnd('dataMapCache');
             return dataMap;
         },
@@ -169,12 +222,9 @@ baseMarker.nonObservable = function(config, parent, id) {
                 dataFrame: encoding.data.response
             }
         },
-        isRequired(name) {
-            return this.requiredEncodings.length === 0 || this.requiredEncodings.includes(name)
-        },
         filterRequired(data) {            
             const required = this.requiredEncodings.filter(
-                enc => !this.encoding[enc].data.isConstant && !this.encoding[enc].data.conceptInSpace
+                enc => this.encoding[enc].data.hasOwnData
             );
             const l = required.length;
             return data
@@ -314,5 +364,7 @@ baseMarker.nonObservable = function(config, parent, id) {
 }
 
 baseMarker.decorate = {
-    encodingCache: observable.ref
+    encodingCache: observable.ref,
+    encodingByType: computed.struct,
+    requiredEncodings: computed.struct
 }
