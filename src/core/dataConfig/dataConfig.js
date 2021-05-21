@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { computed, observable, trace } from "mobx";
-import { applyDefaults, createSpaceFilterFn, fromPromiseAll, intersect, isNumeric } from "../utils";
+import { applyDefaults, combineStates, createSpaceFilterFn, fromPromiseAll, intersect, isNumeric } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
@@ -211,13 +211,13 @@ dataConfig.nonObservable = function(config, parent, id) {
             }
         },
         get promise() {
-            const sourcePromises = [configSolver.markerPromiseBeforeSolving(this.marker)];
-            if (this.source) { sourcePromises.push(this.source.conceptsPromise) } // conceptPromise needed for calcDomain()
-            const combined = fromPromiseAll(sourcePromises);
-            return combined.case({ 
-                fulfilled: () => this.hasOwnData ? this.sendQuery() : fromPromise.resolve(),
-                pending: () => combined,
-            })
+            const states = [ this.marker.configSolvingState ];
+            if (this.source) { states.push(this.source.conceptsState) } // conceptPromise needed for calcDomain()
+            const combined = combineStates(states);
+            switch (combined) {
+                case 'fulfilled': return this.hasOwnData ? this.sendQuery() : fromPromise.resolve();
+                case 'pending':   return fromPromise(() => {});
+            }
         },
         get state() {
             if (this.promise.state == 'fulfilled' && this.domainDataSource == 'self') this.domain; 

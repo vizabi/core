@@ -75,6 +75,9 @@ baseMarker.nonObservable = function(config, parent, id) {
         get promise() {
             return configSolver.markerPromiseBeforeSolving(this);
         },
+        get configSolvingState() {
+            return this.promise.state;
+        },
         get state() {
             const dataConfigSolverState = this.promise.state;
 
