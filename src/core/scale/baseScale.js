@@ -62,7 +62,8 @@ baseScale.nonObservable = function(config, parent) {
                 concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)
                 || domain.length == 1
             ) {
-                if (!this.range.every(isNumeric) || this.range.length != 2)
+                const range = this.calcRange(domain);
+                if (!range.every(isNumeric) || range.length != 2)
                     scaleType = "ordinal"
                 else
                     scaleType = "point";
@@ -95,19 +96,19 @@ baseScale.nonObservable = function(config, parent) {
         get d3Type() {
             return scales[this.type];
         },
-        get range() {
+        calcRange(domain = this.domain) {
             if (this.config.range != null)
                 return this.config.range;
 
             // default for constant is identity
             if (this.data.isConstant)
-                return this.domain;
+                return domain;
 
             // default
             return this.defaults.range;
-        },
-        set range(range) {
-            this.config.range = range;
+        }, 
+        get range() {
+            return this.calcRange();
         },
         get clampToData() { return this.config.clampToData ?? this.defaults.clampToData },
         get domain() {
@@ -123,7 +124,7 @@ baseScale.nonObservable = function(config, parent) {
                 // zeroBaseline can override the domain if defined and if data domain is one-sided
                 // by replacing the value closest to zero with zero
                 // use cases: forcing zero-based bar charts and bubble size
-                if (!this.data.isConstant && this.zeroBaseline) {
+                if (this.zeroBaseline) {
                     domain = [...domain];
                     const closestToZeroIdx = d3.scan(domain.map(Math.abs));
                     domain[closestToZeroIdx] = 0;

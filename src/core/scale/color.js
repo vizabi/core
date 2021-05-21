@@ -22,7 +22,7 @@ color.nonObservable = function(config, parent) {
     const s = baseScale.nonObservable(config, parent);
 
     return assign(s, {
-        get range() {
+        calcRange(domain = this.domain) {
             const range = this.config.range;
             if (Array.isArray(range))
                 return range;
@@ -32,13 +32,13 @@ color.nonObservable = function(config, parent) {
 
             const palette = this.palette;
             if (palette.paletteType == "_continuous") {
-                const scaleDomain = this.domain;
+                const scaleDomain = domain;
                 const singlePoint = (scaleDomain[1] - scaleDomain[0] == 0);
 
                 return palette.paletteDomain.map(m => palette.getColor(singlePoint ? palette.palette[palette.paletteDomain[0]] : m));
             }
 
-            return this.domain.map(d => {
+            return domain.map(d => {
                 return palette.getColor(d) || palette.getColor("_default");
             });
         },
@@ -49,14 +49,13 @@ color.nonObservable = function(config, parent) {
         },
 
         get d3Scale() {
-            const scaleDomain = this.domain;
-            const domain = this.palette.paletteType == "_continuous" ? 
-                this.palette.paletteDomain.map(m => +scaleDomain[0] + m / 100 * (scaleDomain[1] - scaleDomain[0]))
-                :
-                scaleDomain;
 
             const scale = this.d3ScaleCreate();
-            scale.domain(domain);
+            let domain = scale.domain();
+
+            if (this.palette.paletteType == "_continuous") { 
+                domain = this.palette.paletteDomain.map(m => +domain[0] + m / 100 * (domain[1] - domain[0]))
+            }
             
             if (this.isDiscrete()) {
                 scale.unknown(this.palette.defaultColor);
@@ -67,13 +66,14 @@ color.nonObservable = function(config, parent) {
                         .domain(limits)
                         .range(limits);
                     
-                    scale.domain(domain.map(d => s.invert(d)));
+                    domain = domain.map(d => s.invert(d));
                 }
                 
                 scale.interpolate(d3.interpolateRgb.gamma(2.2));
             }
             
-            return scale.range(this.range);
+            scale.domain(domain);
+            return scale;
         }
     });
 }
