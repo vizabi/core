@@ -147,10 +147,10 @@ dataConfig.nonObservable = function(config, parent, id) {
         get domainDataSource() {
             let source = this.config.domainDataSource || this.defaults.domainDataSource;
             if (source === 'auto') {
-                source = this.conceptInSpace
-                    ? 'filterRequired'
-                    : this.hasOwnData
-                        ? 'self'
+                source = this.hasOwnData
+                    ? 'self'
+                    : this.conceptInSpace
+                        ? 'filterRequired'
                         : undefined;
             }
             return source;
