@@ -1,3 +1,4 @@
+import { deepclone, pipe } from "../../core/utils";
 import { DataFrame } from "../dataFrame";
 
 /**
@@ -28,53 +29,88 @@ function validFilterArg(filter) {
 }
 
 /**
- * Partially apply applyFilterRow, giving only the filter spec
+ * Create a function, given a filter spec
  * @param {Object} filterSpec Filter specification according to DDFQL WHERE spec
  * @returns {Function} Filter function, which takes an object and returns a boolean representing if the object satifies the filterSpec
  */
 export function createFilterFn(filterSpec = {}) {
-    return (row) => applyFilterRow(row, filterSpec);
+    let fn = 'return '
+    fn += createFilterFnString(filterSpec);
+    fn += ';';
+    return new Function('row', fn);
 }
 
-export function applyFilterRow(row, filter) {
-    // implicit $and in filter object handled by .every()
-    return Object.keys(filter).every(filterKey => {
-        let operator;
-        if (filterKey.startsWith('$')) {
-            if (operator = operators.get(filterKey)) {
-                // { $eq: "europe" } / { $lte: 5 } / { $and: [{...}, ...] }
-                return operator(row, filter[filterKey]);
-            } else {
-                console.warn('Unknown operator: ', { operator: filterKey, filter, row });
-                return true;
-            }
-        } else if(typeof filter[filterKey] != "object") { // assuming values are primitives not Number/Boolean/String objects
-            // { <field>: <value> } is shorthand for { <field>: { $eq: <value> }} 
-            return operators.get("$eq")(row[filterKey], filter[filterKey]);
+function normalizeFilter(filterSpec) {
+    let result = pipe(
+        deepclone,
+        implicitAnd,
+        implicitEq,
+        recurse,
+    )(filterSpec);
+
+    return result;
+
+    function implicitAnd(filter) {
+        const keys = Object.keys(filter);
+        if (keys.length > 1) {
+            return { $and: 
+                keys.map(key => ({ [key]: filter[key] }))
+            };
         } else {
-            // filterSpec[filterKey] is an object and will thus contain a comparison operator
-            // { <field>: { $<operator>: <value> }}
-            // no deep objects (like in Mongo) supported:
-            // { <field>: { <subfield>: { ... } } }
-            return applyFilterRow(row[filterKey], filter[filterKey]);
+            return filter;
         }
-    });
+    }
+    
+    function implicitEq(filter) {
+        const key = Object.keys(filter)[0]
+        if (!key.startsWith('$') && typeof filter[key] != "object") {
+            filter[key] = { $eq: filter[key] }
+        }
+        return filter;
+    }
+
+    function recurse(filter) {
+        const key = Object.keys(filter)[0];
+        if (['$and','$or','$nor'].includes[key]) {
+            filter[key] = filter[key].map(normalizeFilter);
+        }
+        if (key == '$not') {
+            filter[key] = normalizeFilter(filter[key]);
+        }
+        return filter;
+    }
 }
 
-const operators = new Map([
-    /* logical operators */
-    ["$and", (row, predicates) => predicates.every(p => applyFilterRow(row,p))],
-    ["$or",  (row, predicates) => predicates.some(p => applyFilterRow(row,p))],
-    ["$not", (row, predicate) => !applyFilterRow(row, predicate)],
-    ["$nor", (row, predicates) => !predicates.some(p => applyFilterRow(row,p))],
+/**
+ * Returns a string function body for the given filter spec. This method was tested to be faster than walking through filterSpec "run-time".
+ * @param {*} filterSpec 
+ * @returns 
+ */
+function createFilterFnString(filterSpec) {
+    filterSpec = normalizeFilter(filterSpec);
+    let key = Object.keys(filterSpec)[0];
+    if (key.startsWith('$')) {
+        return logicalToString[key](filterSpec[key]);
+    } else {
+        const operator = Object.keys(filterSpec[key])[0];
+        return comparisonToString[operator](key, JSON.stringify(filterSpec[key][operator]));
+    } 
+    
+}
 
-    /* comparison operators */
-    ["$eq",  (rowValue, filterValue) => rowValue === filterValue],
-    ["$ne",  (rowValue, filterValue) => rowValue !== filterValue],
-    ["$gt",  (rowValue, filterValue) => rowValue > filterValue],
-    ["$gte", (rowValue, filterValue) => rowValue >= filterValue],
-    ["$lt",  (rowValue, filterValue) => rowValue < filterValue],
-    ["$lte", (rowValue, filterValue) => rowValue <= filterValue],
-    ["$in",  (rowValue, filterValue) => filterValue.includes(rowValue)],
-    ["$nin", (rowValue, filterValue) => !filterValue.includes(rowValue)],
-]);
+const logicalToString = {
+    '$not': (spec) => `!${createFilterFnString(spec)}`,
+    '$and': (spec) => `(${spec.map(createFilterFnString).join(' && ')})`,
+    '$or':  (spec) => `(${spec.map(createFilterFnString).join(' || ')})`,
+    '$nor': (spec) => `!(${spec.map(createFilterFnString).join(' || ')})`,
+}
+const comparisonToString = {
+    "$eq":  (field, val) => `row.${field} === ${val}`,
+    "$ne":  (field, val) => `row.${field} !== ${val}`,
+    "$gt":  (field, val) => `row.${field} > ${val}`,
+    "$gte": (field, val) => `row.${field} >= ${val}`,
+    "$lt":  (field, val) => `row.${field} < ${val}`,
+    "$lte": (field, val) => `row.${field} <= ${val}`,
+    "$in":  (field, val) => `${val}.includes(row.${field})`,
+    "$nin": (field, val) => `!${val}.includes(row.${field})`,
+}
