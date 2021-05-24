@@ -168,7 +168,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 return row => data.response.get(row)?.[concept];
             } else if (required.length > 0 && !required.includes(name)) {
                 //const response = data.response;
-                return (row, key) => data.response.getByStr(row[Symbol.for('key')])?.[concept];
+                return (row, key) => data.response.getByStr(key)?.[concept];
             } else {
                 return 'defining'; // defining encoding
             }
