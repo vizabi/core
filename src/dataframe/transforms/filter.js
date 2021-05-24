@@ -41,14 +41,12 @@ export function createFilterFn(filterSpec = {}) {
 }
 
 function normalizeFilter(filterSpec) {
-    let result = pipe(
-        deepclone,
-        implicitAnd,
-        implicitEq,
-        recurse,
-    )(filterSpec);
+    
+    filterSpec = deepclone(filterSpec);
+    filterSpec = implicitAnd(filterSpec);
+    filterSpec = implicitEq(filterSpec);
 
-    return result;
+    return filterSpec;
 
     function implicitAnd(filter) {
         const keys = Object.keys(filter);
@@ -65,17 +63,6 @@ function normalizeFilter(filterSpec) {
         const key = Object.keys(filter)[0]
         if (!key.startsWith('$') && typeof filter[key] != "object") {
             filter[key] = { $eq: filter[key] }
-        }
-        return filter;
-    }
-
-    function recurse(filter) {
-        const key = Object.keys(filter)[0];
-        if (['$and','$or','$nor'].includes[key]) {
-            filter[key] = filter[key].map(normalizeFilter);
-        }
-        if (key == '$not') {
-            filter[key] = normalizeFilter(filter[key]);
         }
         return filter;
     }
