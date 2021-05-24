@@ -1,7 +1,7 @@
 import { trace, reaction, computed, observable, toJS } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
-import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement } from "../utils";
+import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString } from "../utils";
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -226,19 +226,39 @@ baseMarker.nonObservable = function(config, parent, id) {
                 dataFrame: encoding.data.response
             }
         },
+        requiredFilterSpec(required) {
+            return { $nor: makeSpec(required) }
+            function makeSpec(required) {
+                return required.map(predicate => {
+                    if (typeof predicate === 'string') {
+                        return { $or: [ { [predicate]: { $eq: null } }, { [predicate]: { $eq: undefined } }] };
+                    } else {
+                        return Object.fromEntries(Object.entries(predicate).map(([key, value]) => {
+                            return [key, makeSpec(value)]
+                        }))
+                    }
+                })
+            }
+        },
+        requiredSimpleFunction(required) {
+            const l = required.length;
+            return row => {
+                for (let i = 0; i < l; i++) {
+                    const v = row[required[i]];
+                    if (v == null) return false;
+                }
+                return true;
+            }
+        },
         filterRequired(data) {            
             const required = this.requiredEncodings.filter(
                 enc => this.encoding[enc].data.hasOwnData
             );
-            const l = required.length;
+            let filter = required.every(isString)
+                ? this.requiredSimpleFunction(required)
+                : this.requiredFilterSpec(required)
             return data
-                .filter(row => {
-                    for (let i = 0; i < l; i++) {
-                        const v = row[required[i]];
-                        if (v === undefined || v === null) return false;
-                    }
-                    return true;
-                })
+                .filter(filter)
                 .filterGroups(group => group.size > 0, true);
         },
         differentiate(xField, data) {
