@@ -168,7 +168,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 return row => data.response.get(row)?.[concept];
             } else if (required.length > 0 && !required.includes(name)) {
                 //const response = data.response;
-                return row => data.response.getByStr(row[Symbol.for('key')])?.[concept];
+                return (row, key) => data.response.getByStr(row[Symbol.for('key')])?.[concept];
             } else {
                 return 'defining'; // defining encoding
             }
@@ -194,10 +194,11 @@ baseMarker.nonObservable = function(config, parent, id) {
 
             // ammend markers with getter        
             for (const encName of ammendGet) {
-                for (const row of dataMap.values()) { 
+                for (const markerKey of dataMap.keys()) {
+                    const row = dataMap.get(markerKey); 
                     let fallback;
                     Object.defineProperty(row, encName, {
-                        get: () => this.ammendFnForEncoding(encName)(row),
+                        get: () => this.ammendFnForEncoding(encName)(row, markerKey),
                         set(value) {
                             fallback = value;
                         },
