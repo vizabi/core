@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { computed, observable, trace } from "mobx";
-import { applyDefaults, combineStates, createSpaceFilterFn, fromPromiseAll, intersect, isNumeric } from "../utils";
+import { applyDefaults, combineStates, createSpaceFilterFn, fromPromiseAll, getConceptsCatalog, intersect, isNumeric } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
@@ -59,48 +59,22 @@ dataConfig.nonObservable = function(config, parent, id) {
                 }
             })
         },
-        getConceptsCatalog(concepts, dataConfig, maxDepth) {
-            const promises = [];
-            const result = {}
-            const source = dataConfig.source;
-            for (const conceptId of concepts) {
-                const concept = source.getConcept(conceptId);
-                result[conceptId] = {
-                    concept
-                };
-                if (source.isEntityConcept(conceptId)) {
-                    const entityQuery = dataConfig.createQuery({ 
-                        space: [conceptId],  
-                        concept: ["name", "rank"],
-                        locale: dataConfig.locale,
-                        source
-                    })
-                    promises.push(source.query(entityQuery).then(response => {
-                        result[conceptId]['entities'] = response.forQueryKey();
-                    }));
-                    if (maxDepth && maxDepth > 0) {
-                        const props = source.availability.keyValueLookup.get(conceptId).keys();
-                        const propDetails = this.getConceptsCatalog(props, dataConfig, maxDepth - 1);
-                        promises.push(propDetails.then(response => {
-                            result[conceptId]['properties'] = response;
-                        }));
-                    }
-                }
-            }
-            return Promise.all(promises).then(() => result);
-        },
-        get spaceCatalog() {
-            return this.getConceptsCatalog(this.space, this, 1);
-        },
         get hasEncodingMarker() {
             return this.parent && this.parent.marker;
         },
-        get invariants() {
-            let fails = [];
-            if (this.constant && (this.concept || this.source)) fails.push("Can't have constant value and concept or source set.");
-            if (this.conceptInSpace && this.source) fails.push("Can't have concept in space and have a source simultaneously");
-            if (fails.length > 0)
-                console.warn("One or more invariants not satisfied:",fails,this);
+        get marker() {
+            if (this.hasEncodingMarker) {
+                return this.parent.marker;
+            }
+            if (this.parent) {
+                if (this.parent.marker) {
+                    return this.parent.marker;
+                }
+                if (this.parent.encoding) {
+                    return this.parent
+                }
+            }
+            return undefined;
         },
         get source() {
             const source = resolveRef(this.config.source);
@@ -113,14 +87,14 @@ dataConfig.nonObservable = function(config, parent, id) {
                     return null;
             }
         },
+        get configSolution() {
+            return configSolver.configSolution(this);
+        },
         get space() {
             return this.configSolution.space;
         },
-        get constant() {
-            return resolveRef(this.config.constant) ?? this.defaults.constant;
-        },
-        get isConstant() {
-            return this.constant != null;
+        get spaceCatalog() {
+            return getConceptsCatalog(this.space, this, 1);
         },
         get commonSpace() {
             if (this.hasEncodingMarker)
@@ -128,6 +102,21 @@ dataConfig.nonObservable = function(config, parent, id) {
             else if (!this.marker) // dataConfig used on its own
                 return this.space;
             console.warn('Cannot get data.commonSpace of Marker.data. Only meaningful on Encoding.data.')
+        },
+        get concept() {
+            return resolveRef(this.configSolution.concept);
+        },
+        get conceptProps() { 
+            return this.concept && this.source.getConcept(this.concept) 
+        },
+        get constant() {
+            return resolveRef(this.config.constant) ?? this.defaults.constant;
+        },
+        get isConstant() {
+            return this.constant != null;
+        },
+        get hasOwnData() {
+            return !!(this.source && this.concept && !this.conceptInSpace);
         },
         get filter() {
             const filter = resolveRef(this.config.filter);
@@ -139,10 +128,6 @@ dataConfig.nonObservable = function(config, parent, id) {
             else
                 return this.hasEncodingMarker ? this.parent.marker.data.locale || this.source?.locale : this.source?.locale;              
         },
-        get concept() { 
-            return resolveRef(this.configSolution.concept);
-        },
-        get conceptProps() { return this.concept && this.source.getConcept(this.concept) },
         get availability() { return this.source.availability.data.map(kv => this.source.getConcept(kv.value)) },
         get domainDataSource() {
             let source = this.config.domainDataSource || this.defaults.domainDataSource;
@@ -177,27 +162,6 @@ dataConfig.nonObservable = function(config, parent, id) {
                 return extent(data.rows(), concept);
             else // ordinal (entity_set, entity_domain, string)
                 return unique(data.rows(), concept); 
-        },
-
-        get marker() {
-            if (this.hasEncodingMarker) {
-                return this.parent.marker;
-            }
-            if (this.parent) {
-                if (this.parent.marker) {
-                    return this.parent.marker;
-                }
-                if (this.parent.encoding) {
-                    return this.parent
-                }
-            }
-            return undefined;
-        },
-        get configSolution() {
-            return configSolver.configSolution(this);
-        },
-        get hasOwnData() {
-            return this.source && this.concept && !this.conceptInSpace;
         },
         sendQuery() {
             if (!this.source || !this.concept) {

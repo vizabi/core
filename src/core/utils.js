@@ -493,3 +493,35 @@ export function pickGetters(object, keys) {
     }
     return result;
 }
+
+
+export function getConceptsCatalog(concepts, dataConfig, maxDepth) {
+    const promises = [];
+    const result = {}
+    const source = dataConfig.source;
+    for (const conceptId of concepts) {
+        const concept = source.getConcept(conceptId);
+        result[conceptId] = {
+            concept
+        };
+        if (source.isEntityConcept(conceptId)) {
+            const entityQuery = dataConfig.createQuery({ 
+                space: [conceptId],  
+                concept: ["name", "rank"],
+                locale: dataConfig.locale,
+                source
+            })
+            promises.push(source.query(entityQuery).then(response => {
+                result[conceptId]['entities'] = response.forQueryKey();
+            }));
+            if (maxDepth && maxDepth > 0) {
+                const props = source.availability.keyValueLookup.get(conceptId).keys();
+                const propDetails = getConceptsCatalog(props, dataConfig, maxDepth - 1);
+                promises.push(propDetails.then(response => {
+                    result[conceptId]['properties'] = response;
+                }));
+            }
+        }
+    }
+    return Promise.all(promises).then(() => result);
+}
