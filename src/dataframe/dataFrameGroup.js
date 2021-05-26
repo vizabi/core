@@ -9,18 +9,15 @@ import { reindexGroup } from "./transforms/reindex";
  * @param {*} key key by which is grouped
  * @param {*} descKeys keys of groups and their descendants
  */
-export function DataFrameGroup(df, key, descKeys = []) {
+export function DataFrameGroup(data, key, descKeys = []) {
 
     if (!Array.isArray(descKeys)) descKeys = [[descKeys]]; // desc keys is single string (e.g. 'year')
     if (!Array.isArray(descKeys[0])) descKeys = [descKeys]; // desc keys is one key (e.g. ['year'])
     if (!Array.isArray(key)) key = [key]; // key is single string (e.g. 'year')
-    if (!isDataFrame(df)) df = DataFrame(df);
-    if (descKeys.length === 0) descKeys = [df.key];  // descKeys is empty
+    if (descKeys.length === 0 && data.key) descKeys = [data.key];  // descKeys is empty
     
-    const group = createGroup(key, descKeys)
-    group.batchSetRow(df);
-
-    return group; 
+    return createGroup(key, descKeys)
+        .batchSetRow(data);
 }
 
 function createGroup(key, descendantKeys) {
@@ -40,6 +37,7 @@ function createGroup(key, descendantKeys) {
     group.filter = mapCall(group, "filter");
     group.order = mapCall(group, "order");
     group.reindex = mapCall(group, "reindex");
+    group.copy = () => group.map(member => member.copy());
     group.reindexMembers = index => reindexGroup(group, index);
     group.flatten = (key) => flatten(group, key);
     group.extent = (concept, groupBy, groupSubset) => extent(group, concept, groupBy, groupSubset),
@@ -82,15 +80,15 @@ function createGroup(key, descendantKeys) {
     group.set = (keyObj, member) => {
         keyObjects.set(member, keyObj);
         const keyStr = group.keyFn(keyObj);
-        set(keyStr, member);
+        return set(keyStr, member);
     }
     group.setRow = (row, key) => {
-        getDataFrame(group, row)
+        return getDataFrame(group, row)
             .set(row, key);
     }
     group.batchSetRow = (data) => {
         const descKeys = group.descendantKeys;
-        if (arrayEquals(data.key, descKeys[descKeys.length - 1]) && data.key.length > 0) {
+        if (data.key?.length > 0 && arrayEquals(data.key, descKeys[descKeys.length - 1])) {
             for (let row of data.values()) {
                 getDataFrame(group, row)
                     .setByStr(row[Symbol.for('key')], row);
@@ -101,7 +99,7 @@ function createGroup(key, descendantKeys) {
                     .set(row);
             }
         }
-    
+        return group;
     }
     return group;
 }
