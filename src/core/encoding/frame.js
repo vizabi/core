@@ -206,7 +206,7 @@ frame.nonObservable = function(config, parent) {
             // reindex framemap - add missing frames within domain
             // i.e. not a single defining encoding had data for these frame
             // reindexing also sorts frames
-            if (frameMap.size > 0) {
+            if (frameMap.size > 1) {
                 const concept = this.data.concept;
                 const domain = frameMap.keyExtent();
                 const newIndex = inclusiveRange(domain[0], domain[1], concept);
@@ -452,6 +452,8 @@ frame.nonObservable = function(config, parent) {
                 }
                 for (const markerKey of lastIndices.keys()) {
                     const lastSeenIndex = lastIndices.get(markerKey);
+                    if (lastSeenIndex === lastFilled)
+                        continue;
                     const sourceFrame = newFrameMap.get(frameKeys[lastSeenIndex]);
                     const fromIdx = Math.min(lastFilled + 1, lastSeenIndex + 1);
                     const toIdx = Math.min(lastFilled + 1, fromIdx + extrapolateSize);
