@@ -210,7 +210,7 @@ frame.nonObservable = function(config, parent) {
                 const concept = this.data.concept;
                 const domain = frameMap.keyExtent();
                 const newIndex = inclusiveRange(domain[0], domain[1], concept);
-                frameMap = frameMap.reindexMembers(newIndex);
+                frameMap = frameMap.reindexGroup(newIndex);
             }
             return frameMap;
         },
@@ -400,27 +400,15 @@ frame.nonObservable = function(config, parent) {
             if (frameMap.size == 0 || !this.extrapolate) 
                 return frameMap;
 
-            const newFrameMap = frameMap.copy();
-
-            // what fields to extrapolate?
-            const name = this.name;
-            const concept = this.data.concept;
-            const fields = newFrameMap.values().next().value.fields;
-            const extrapolateFields = this.interpolationEncodings;
-            const extrapolateSize = this.extrapolate;
-            const constantFields = relativeComplement(extrapolateFields, fields);
-            constantFields.push(Symbol.for('key'));
-
-            const frameKeys = [...newFrameMap.keys()]
-            const frameCount = frameKeys.length;
-
             // find which indexes will be the first and last after marker.filterRequired transform
             // needed to limit extrapolation to eventual filterRequired (feature request by Ola)
             // can't extrapolate áfter filterRequired as some partially filled markers will already be filtered out
+            const frameKeys = [...frameMap.keys()]
+            const frameCount = frameKeys.length;
             let firstFilled, lastFilled;
             for (let idx = 0; idx < frameCount; idx++) {
                 const frameKey = frameKeys[idx];
-                const frame = newFrameMap.get(frameKey);
+                const frame = frameMap.get(frameKey);
                 let empty = true;
                 for (const marker of frame.values()) {
                     if (this.marker.requiredEncodings.every(enc => marker[enc] != null)) {
@@ -432,55 +420,11 @@ frame.nonObservable = function(config, parent) {
                 if (!empty) lastFilled = idx;
             }
 
-            for (const field of extrapolateFields) {
-                const lastIndices = new Map();
-                for (let idx = firstFilled; idx < lastFilled + 1; idx++) {
-                    const frameKey = frameKeys[idx];
-                    const frame = newFrameMap.get(frameKey);
-                    for (const markerKey of frame.keys()) {
-                        const marker = frame.getByStr(markerKey);
-                        if (marker[field] != null) {
-                            if (!lastIndices.has(markerKey) && idx > 0) {
-                                // first occurence, extrapolate backwards
-                                const fromIdx = Math.max(firstFilled, idx - extrapolateSize);
-                                doExtrapolate(newFrameMap, fromIdx, idx, marker, field);
-                            }
-                            // keep track of last occurence
-                            lastIndices.set(markerKey, idx);
-                        }
-                    }
-                }
-                for (const markerKey of lastIndices.keys()) {
-                    const lastSeenIndex = lastIndices.get(markerKey);
-                    if (lastSeenIndex === lastFilled)
-                        continue;
-                    const sourceFrame = newFrameMap.get(frameKeys[lastSeenIndex]);
-                    const fromIdx = Math.min(lastFilled + 1, lastSeenIndex + 1);
-                    const toIdx = Math.min(lastFilled + 1, fromIdx + extrapolateSize);
-                    doExtrapolate(newFrameMap, fromIdx, toIdx, sourceFrame.getByStr(markerKey), field);
-                }
-            }
-
-            function doExtrapolate(frames, fromIdx, toIdx, sourceMarker, field) {
-                const markerKey = sourceMarker[Symbol.for('key')];
-                for (let j = fromIdx; j < toIdx; j++) {
-                    const extraFrame = frames.get(frameKeys[j]);
-                    let extraMarker = extraFrame.getByStr(markerKey);
-                    if (extraMarker !== undefined) {
-                        extraMarker = assign({}, extraMarker);
-                    } else {
-                        extraMarker = pickGetters(sourceMarker, constantFields);
-                        extraMarker[concept] = sourceMarker[name];
-                    }
-                    extraMarker[field] = sourceMarker[field];
-                    if (!(Symbol.for('extrapolated') in extraMarker))
-                        extraMarker[Symbol.for('extrapolated')] = {}
-                    extraMarker[Symbol.for('extrapolated')] = { [field]: sourceMarker }
-                    extraFrame.setByStr(markerKey, extraMarker);
-                }
-            }
-
-            return newFrameMap;
+            return frameMap.extrapolateOverMembers({ 
+                fields: this.interpolationEncodings, 
+                sizeLimit: this.extrapolate,
+                indexLimit: [firstFilled, lastFilled]
+            });
         },
         get rowKeyDims() {
             // remove frame concept from key if it's in there

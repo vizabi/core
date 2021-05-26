@@ -1,6 +1,7 @@
 import { DataFrame } from "./dataFrame";
 import { isDataFrame, createKeyFn, arrayEquals, pick } from "./dfutils";
 import { extent, extentOfGroupKey, extentOfGroupKeyPerMarker } from "./info/extent";
+import { extrapolateGroup } from "./transforms/extrapolate";
 import { reindexGroup } from "./transforms/reindex";
 
 /**
@@ -37,8 +38,12 @@ function createGroup(key, descendantKeys) {
     group.filter = mapCall(group, "filter");
     group.order = mapCall(group, "order");
     group.reindex = mapCall(group, "reindex");
+    group.interpolate = mapCall(group, "interpolate");
+    group.extrapolate = mapCall(group, "extrapolate");
+    group.reindexGroup = index => reindexGroup(group, index);
+    group.interpolateOverMembers = () => interpolateGroup(group)
+    group.extrapolateOverMembers = options => extrapolateGroup(group, options)
     group.copy = () => group.map(member => member.copy());
-    group.reindexMembers = index => reindexGroup(group, index);
     group.flatten = (key) => flatten(group, key);
     group.extent = (concept, groupBy, groupSubset) => extent(group, concept, groupBy, groupSubset),
     group.keyExtent = () => extentOfGroupKey(group);
