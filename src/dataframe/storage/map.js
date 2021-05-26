@@ -19,7 +19,9 @@ function createEmptyMap() {
     const set = storage.set.bind(storage);
 
     Object.defineProperty(storage, 'fields', { 
-        get: () => Object.keys(storage.values().next().value) || []
+        get: function () { 
+            return Object.keys(storage.values().next().value) ?? [] 
+        }
     });  
     storage.setKey = newKey => {
         key = normalizeKey(newKey);
