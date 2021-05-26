@@ -93,14 +93,14 @@ function minmax(value, [min, max]) {
  * @param {*} groupSubset 
  * @returns 
  */
- export function extentOfGroupKeyPerMarker(groups, groupSubset, concept = groups.key[0], groupBy = groups.descendantKeys[0]) {
+ export function extentOfGroupKeyPerMarker(group, groupSubset, concept = group.key[0], groupBy = group.descendantKeys[0]) {
         
-    if (!isGroupedDataFrame(groups)) throw("Special case but iterable is not a grouped dataframe");
-    const descKeys = groups.descendantKeys
-    if (!arrayEquals(groups.key, [concept])) throw("Special case but grouping is not by given concept");
-    if (descKeys.length != 1) throw("Special case but grouping is more than 1 level deep");
-    if (!arrayEquals(descKeys[0], groupBy)) throw("Special case but grouping members keys is not same as `groupBy`");
-    if (!isIterable(groupSubset)) throw("Special case but groupSubset iterable not given.");
+    if (!isGroupedDataFrame(group)) throw("iterable is not a grouped dataframe");
+    const descKeys = group.descendantKeys
+    if (!arrayEquals(group.key, [concept])) throw("grouping is not by given concept");
+    if (descKeys.length != 1) throw("grouping is more than 1 level deep");
+    if (!arrayEquals(descKeys[0], groupBy)) throw("grouping members keys is not same as `groupBy`");
+    if (!isIterable(groupSubset)) throw("groupSubset iterable not given.");
     // can't O(1) check ordering & interpolation requirements
 
     const extents = {};
@@ -108,7 +108,7 @@ function minmax(value, [min, max]) {
         
         let min, max, group;
         
-        for (group of groups.values()) { // each frame
+        for (group of group.values()) { // each frame
             if (group.hasByStr(groupValue)) { // if frame contains marker
                 if (min === undefined) {
                     min = group;
