@@ -32,19 +32,24 @@ export function evaluateGap(row, field, gap) {
     } else {
         // fill gap if it exists and is inner
         if (rows.length > 0) {
-            interpolateGap(rows, start, fieldVal, field);
+            interpolateGap(rows, start, row, field);
             rows.length = 0;
         }
-        gap.start = fieldVal;
+        gap.start = row;
     }
 }
 
-function interpolateGap(gapRows, startVal, endVal, field) {
+function interpolateGap(gapRows, startRow, endRow, field) {
+    const startVal = startRow[field];
+    const endVal = endRow[field];
     const int = d3.interpolate(startVal, endVal);
     const delta = 1 / (gapRows.length+1);
     let mu = 0;
     for (let gapRow of gapRows) {
         mu += delta;
         gapRow[field] = int(mu);
+        if (!(Symbol.for('interpolated') in gapRow))
+            gapRow[Symbol.for('interpolated')] = {}
+        gapRow[Symbol.for('interpolated')] = { [field]: [startRow, endRow] }
     }
 }
