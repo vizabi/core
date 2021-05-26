@@ -302,7 +302,7 @@ function chart() {
                 return xConfig.isDiscrete() ? xConfig.d3Scale : this.t.rescaleX(xConfig.d3Scale) },
             get y() { 
                 const yConfig = marker.encoding.y.scale;
-                return yConfig.isDiscrete() ? yConfig.d3Scale : this.t.rescaleX(yConfig.d3Scale) },
+                return yConfig.isDiscrete() ? yConfig.d3Scale : this.t.rescaleY(yConfig.d3Scale) },
             setTransform: mobx.action(function(t) {
                 this.t = t
             })
@@ -433,8 +433,9 @@ function chart() {
                             'none';
                     })
                     .style('stroke', 'black')
-                    .style('stroke-width', d => isHighlightedTrail(d) ? 3 : 1)
+                    .style('stroke-width', d => isHighlightedTrail(d) ? 3 : d[Symbol.for('extrapolated')] || d[Symbol.for('interpolated')] ? 2 : 1)
                     .style('stroke-opacity', getOpacity)
+                    .style('stroke-dasharray', d => d[Symbol.for('extrapolated')] ? '1,2' : d[Symbol.for('interpolated')] ? '10,10' : 'none' )
                     .style('opacity', getOpacity)
                     .attr("r", d => {
                         return bubbleSurfaceScale(sizeScale(d.size));
