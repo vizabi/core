@@ -106,20 +106,20 @@ function minmax(value, [min, max]) {
     const extents = {};
     for (let groupValue of groupSubset) {
         
-        let min, max, group;
+        let min, max, member;
         
-        for (group of group.values()) { // each frame
-            if (group.hasByStr(groupValue)) { // if frame contains marker
+        for (member of group.values()) { // each frame
+            if (member.hasByStr(groupValue)) { // if frame contains marker
                 if (min === undefined) {
-                    min = group;
+                    min = member;
                 }
-                max = group; // ordered frames, so any subsequent frame is higher
+                max = member; // ordered frames, so any subsequent frame is higher
             } else if (min) {
                 break; // marker missing, interpolated & ordered frames so won't find marker later either. This is max.
             }
         }
 
-        extents[groupValue] = [min, max].map(group => group?.getByStr(groupValue)[concept]);
+        extents[groupValue] = [min, max].map(member => member?.getByStr(groupValue)[concept]);
     }
     return extents;
 }

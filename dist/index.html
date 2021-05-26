@@ -474,7 +474,7 @@ function chart() {
                 const format = Vizabi.utils.autoFormat;
 
                 const labelWithoutFrame = (d) => marker.data.space.filter(dim => trailConcept !== dim).map(dim => format(d.label[dim])).join(', ')
-                const labelAll = (d) => marker.data.space.map(dim => format(d.label[dim])).join(', ');
+                const labelAll = (d) => marker.data.space.map(dim => format(dim in d.label ? d.label[dim] : d[dim])).join(', ');
                 const labelOnlyFrame = (d) => format(d[trailConcept]);
 
                 // if trail, put label at trail start
