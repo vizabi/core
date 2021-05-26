@@ -438,7 +438,7 @@ frame.nonObservable = function(config, parent) {
                     const frameKey = frameKeys[idx];
                     const frame = newFrameMap.get(frameKey);
                     for (const markerKey of frame.keys()) {
-                        const marker = frame.get(markerKey);
+                        const marker = frame.getByStr(markerKey);
                         if (marker[field] != null) {
                             if (!lastIndices.has(markerKey) && idx > 0) {
                                 // first occurence, extrapolate backwards
@@ -457,7 +457,7 @@ frame.nonObservable = function(config, parent) {
                     const sourceFrame = newFrameMap.get(frameKeys[lastSeenIndex]);
                     const fromIdx = Math.min(lastFilled + 1, lastSeenIndex + 1);
                     const toIdx = Math.min(lastFilled + 1, fromIdx + extrapolateSize);
-                    doExtrapolate(newFrameMap, fromIdx, toIdx, sourceFrame.get(markerKey), field);
+                    doExtrapolate(newFrameMap, fromIdx, toIdx, sourceFrame.getByStr(markerKey), field);
                 }
             }
 
@@ -465,7 +465,7 @@ frame.nonObservable = function(config, parent) {
                 const markerKey = sourceMarker[Symbol.for('key')];
                 for (let j = fromIdx; j < toIdx; j++) {
                     const extraFrame = frames.get(frameKeys[j]);
-                    let extraMarker = extraFrame.get(markerKey);
+                    let extraMarker = extraFrame.getByStr(markerKey);
                     if (extraMarker !== undefined) {
                         extraMarker = assign({}, extraMarker);
                     } else {
