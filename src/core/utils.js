@@ -307,6 +307,7 @@ export function interval(concept) {
 }
 
 export function inclusiveRange(start, stop, concept) {
+    if (!start || !stop) return [];
     const result = range(start, stop, concept);
     result.push(stop);
     return result;
