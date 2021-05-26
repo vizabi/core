@@ -5,7 +5,7 @@ export function getIter(iter) {
 }
 
 export function isDataFrame(data) {
-    return "hasByObjOrStr" in data && typeof data.hasByObjOrStr === "function";
+    return data.type == 'DataFrame' || data.type == 'Group';
 }
 
 export function isGroupedDataFrame(data) {

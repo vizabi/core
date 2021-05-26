@@ -1,7 +1,7 @@
 import { baseEncoding } from './baseEncoding';
 import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, pickGetters } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, pickGetters, getOrCreate } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
@@ -25,6 +25,7 @@ const defaultConfig = {
 
 const defaults = {
     interpolate: true,
+    extrapolate: false,
     loop: false,
     playbackSteps: 1,
     speed: 100,
@@ -190,18 +191,28 @@ frame.nonObservable = function(config, parent) {
         get transformationFns() {
             return {
                 'frameMap': this.frameMap.bind(this),
+                'interpolate': this.interpolateData.bind(this),
+                'extrapolate': this.extrapolateData.bind(this),
                 'currentFrame': this.currentFrame.bind(this)
             }
         },
+        get transformFields() {
+            return [this.name];
+        },
     
         // FRAMEMAP TRANSFORM
-        get interpolate() { return this.config.interpolate || defaults.interpolate },
         frameMap(df) {
-            df = df.groupBy(this.name, this.rowKeyDims);
-            if (df.size > 0 && this.interpolate) 
-                df = this.interpolateData(df);
-            
-            return df;
+            let frameMap = df.groupBy(this.name, this.rowKeyDims);
+            // reindex framemap - add missing frames within domain
+            // i.e. not a single defining encoding had data for these frame
+            // reindexing also sorts frames
+            if (frameMap.size > 0) {
+                const concept = this.data.concept;
+                const domain = frameMap.keyExtent();
+                const newIndex = inclusiveRange(domain[0], domain[1], concept);
+                frameMap = frameMap.reindexMembers(newIndex);
+            }
+            return frameMap;
         },
         get interpolationEncodings() {
             const enc = this.marker.encoding;
@@ -214,20 +225,14 @@ frame.nonObservable = function(config, parent) {
                         && enc[prop].data.space.includes(this.data.concept);
                 })
         },
-        get transformFields() {
-            return [this.name];
-        },
+        get interpolate() { return this.config.interpolate ?? defaults.interpolate },
         interpolateData(frameMap) {
-            const concept = this.data.concept;
+            if (frameMap.size == 0 || !this.interpolate) 
+                return frameMap;
+
+            const newFrameMap = frameMap.copy();
             const name = this.name;
             //console.time('int step');
-
-            // reindex framemap - add missing frames within domain
-            // i.e. not a single defining encoding had data for these frame
-            // reindexing also sorts frames
-            const domain = frameMap.keyExtent();
-            const newIndex = inclusiveRange(domain[0], domain[1], concept);
-            const newFrameMap = frameMap.reindexMembers(newIndex);
   
             // what fields to interpolate?
             const fields = newFrameMap.values().next().value.fields;
@@ -389,12 +394,91 @@ frame.nonObservable = function(config, parent) {
 
             return newFrameMap;
 
-            function createEmptyRow(fields) {
-                const obj = {};
-                for (let field of fields) obj[field] = undefined;
-                return obj;
+        },
+        get extrapolate() { return this.config.extrapolate ?? defaults.extrapolate },
+        extrapolateData(frameMap) {
+            if (frameMap.size == 0 || !this.extrapolate) 
+                return frameMap;
+
+            const newFrameMap = frameMap.copy();
+
+            // what fields to extrapolate?
+            const name = this.name;
+            const concept = this.data.concept;
+            const fields = newFrameMap.values().next().value.fields;
+            const extrapolateFields = this.interpolationEncodings;
+            const extrapolateSize = this.extrapolate;
+            const constantFields = relativeComplement(extrapolateFields, fields);
+            constantFields.push(Symbol.for('key'));
+
+            const frameKeys = [...newFrameMap.keys()]
+            const frameCount = frameKeys.length;
+
+            // find which indexes will be the first and last after marker.filterRequired transform
+            // needed to limit extrapolation to eventual filterRequired (feature request by Ola)
+            // can't extrapolate áfter filterRequired as some partially filled markers will already be filtered out
+            let firstFilled, lastFilled;
+            for (let idx = 0; idx < frameCount; idx++) {
+                const frameKey = frameKeys[idx];
+                const frame = newFrameMap.get(frameKey);
+                let empty = true;
+                for (const marker of frame.values()) {
+                    if (this.marker.requiredEncodings.every(enc => marker[enc] != null)) {
+                        empty = false;
+                        break;
+                    }
+                }
+                if (!empty && firstFilled == undefined) firstFilled = idx;
+                if (!empty) lastFilled = idx;
             }
 
+            for (const field of extrapolateFields) {
+                const lastIndices = new Map();
+                for (let idx = firstFilled; idx < lastFilled + 1; idx++) {
+                    const frameKey = frameKeys[idx];
+                    const frame = newFrameMap.get(frameKey);
+                    for (const markerKey of frame.keys()) {
+                        const marker = frame.get(markerKey);
+                        if (marker[field] != null) {
+                            if (!lastIndices.has(markerKey) && idx > 0) {
+                                // first occurence, extrapolate backwards
+                                const fromIdx = Math.max(firstFilled, idx - extrapolateSize);
+                                doExtrapolate(newFrameMap, fromIdx, idx, marker, field);
+                            }
+                            // keep track of last occurence
+                            lastIndices.set(markerKey, idx);
+                        }
+                    }
+                }
+                for (const markerKey of lastIndices.keys()) {
+                    const lastSeenIndex = lastIndices.get(markerKey);
+                    const sourceFrame = newFrameMap.get(frameKeys[lastSeenIndex]);
+                    const fromIdx = Math.min(lastFilled + 1, lastSeenIndex + 1);
+                    const toIdx = Math.min(lastFilled + 1, fromIdx + extrapolateSize);
+                    doExtrapolate(newFrameMap, fromIdx, toIdx, sourceFrame.get(markerKey), field);
+                }
+            }
+
+            function doExtrapolate(frames, fromIdx, toIdx, sourceMarker, field) {
+                const markerKey = sourceMarker[Symbol.for('key')];
+                for (let j = fromIdx; j < toIdx; j++) {
+                    const extraFrame = frames.get(frameKeys[j]);
+                    let extraMarker = extraFrame.get(markerKey);
+                    if (extraMarker !== undefined) {
+                        extraMarker = assign({}, extraMarker);
+                    } else {
+                        extraMarker = pickGetters(sourceMarker, constantFields);
+                        extraMarker[concept] = sourceMarker[name];
+                    }
+                    extraMarker[field] = sourceMarker[field];
+                    if (!(Symbol.for('extrapolated') in extraMarker))
+                        extraMarker[Symbol.for('extrapolated')] = {}
+                    extraMarker[Symbol.for('extrapolated')] = { [field]: sourceMarker }
+                    extraFrame.setByStr(markerKey, extraMarker);
+                }
+            }
+
+            return newFrameMap;
         },
         get rowKeyDims() {
             // remove frame concept from key if it's in there

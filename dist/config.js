@@ -4,12 +4,13 @@ const config = {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
         },
+        /**/
         gapbw: {
             modelType: "bw",
             service: 'https://big-waffle.gapminder.org', 
             name: "sg-master"
         },
-        */
+        /*
         gap: {
             modelType: "ddfcsv",
             path: "./ddf--jheeffer--mdtest/"
@@ -89,7 +90,8 @@ const config = {
             }
         },
         */
-        bubble: {
+       /*
+        bubble_md: {
             requiredEncodings: ["x", "y", "size"],
             data: { 
               source: "gap",
@@ -148,7 +150,7 @@ const config = {
               "frame": { modelType: "frame", value: "2016" },
               "trail": { modelType: "trail" }
             }
-        },
+        },*/
         "legend": {
             data: {
                 ref: {
@@ -165,7 +167,7 @@ const config = {
                 rank: { data: { concept: "rank" } },
                 map: { data: { concept: "shape_lores_svg" } }
             }
-        },
+        },/*
         "bubble-noconfig": {
             requiredEncodings: ["x", "y", "size"],
             data: { source: "gapbw" },
@@ -204,8 +206,8 @@ const config = {
                 "frame": { modelType: "frame" },
                 "trail": { modelType: "trail" }                
             }
-        },
-        "bubble-sg": {
+        },*/
+        "bubble": {
             data: {
                 source: "gapbw",
                 space: ["country", "time"],
@@ -272,12 +274,7 @@ const config = {
                 "order": {
                     modelType: "order",
                     data: {
-                        constant: {
-                            ref: "markers.bubble.encoding.size.data.constant"
-                        },
-                        concept: { 
-                            ref: "markers.bubble.encoding.size.data.concept"
-                        },
+                        ref: "markers.bubble.encoding.size.data",
                         direction: "desc"
                     }
                 },
@@ -314,7 +311,7 @@ const config = {
                     splash: true,
                     value: "2018",
                     interpolate: true,
-                    extrapolate: "fill",
+                    extrapolate: 5,
                     speed: 100
                 },
                 "trail": {

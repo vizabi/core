@@ -20,6 +20,8 @@ const defaults = {
     requiredEncodings: [],
     transformations: [
         "frame.frameMap",
+        "frame.interpolate",
+        "frame.extrapolate",
         "filterRequired", // after framemap so doesn't remove interpolatable rows
         "trail.addPreviousTrailHeads", // before ordering so trailheads get ordered
         "order.order", 
@@ -50,7 +52,11 @@ baseMarker.nonObservable = function(config, parent, id) {
             }
             return currentDataConfig = dataConfig;
         },
-        get requiredEncodings() { return toJS(this.config.requiredEncodings || defaults.requiredEncodings) },
+        get requiredEncodings() { 
+            return toJS(this.config.requiredEncodings || defaults.requiredEncodings).filter(
+                enc => this.encoding[enc].data.hasOwnData
+            ); 
+        },
         encodingCache: encodingCache(),
         get encoding() {
             const validEncoding = config => config() && Object.keys(config()).length > 0
@@ -210,9 +216,10 @@ baseMarker.nonObservable = function(config, parent, id) {
 
             // ammend markers by writing
             const ammendFns = Object.fromEntries(ammendWrite.map(enc => [enc, this.ammendFnForEncoding(enc)]));
-            for (const row of dataMap.values()) {
+            for (const markerKey of dataMap.keys()) {
+                const row = dataMap.get(markerKey);
                 for (const name in ammendFns)
-                    row[name] = ammendFns[name](row);
+                    row[name] = ammendFns[name](row, markerKey);
             }
             
             console.timeEnd('dataMapCache');
@@ -251,9 +258,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             }
         },
         filterRequired(data) {            
-            const required = this.requiredEncodings.filter(
-                enc => this.encoding[enc].data.hasOwnData
-            );
+            const required = this.requiredEncodings;
             let filter = required.every(isString)
                 ? this.requiredSimpleFunction(required)
                 : this.requiredFilterSpec(required)
