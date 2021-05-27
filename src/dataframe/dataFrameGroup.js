@@ -1,6 +1,6 @@
 import { DataFrame } from "./dataFrame";
 import { isDataFrame, createKeyFn, arrayEquals, pick } from "./dfutils";
-import { extent, extentOfGroupKey, extentOfGroupKeyPerMarker } from "./info/extent";
+import { extent, extentIndicesOfGroupKey, extentOfGroupKey, extentOfGroupKeyPerMarker } from "./info/extent";
 import { extrapolateGroup } from "./transforms/extrapolate";
 import { interpolateGroup } from "./transforms/interpolate";
 import { reindexGroup, reindexGroupToKeyDomain } from "./transforms/reindex";
@@ -49,6 +49,7 @@ function createGroup(key, descendantKeys) {
     group.flatten = (key) => flatten(group, key);
     group.extent = (concept, groupBy, groupSubset) => extent(group, concept, groupBy, groupSubset),
     group.keyExtent = () => extentOfGroupKey(group);
+    group.keyExtentIndices = options => extentIndicesOfGroupKey(group, options);
     group.extentOfGroupKeyPerMarker = (groupSubset) => extentOfGroupKeyPerMarker(group, groupSubset),
     group.groupBy = (key) => {
         for (let [keyStr, member] of group) {

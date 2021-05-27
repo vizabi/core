@@ -240,27 +240,25 @@ frame.nonObservable = function(config, parent) {
             // find which indexes will be the first and last after marker.filterRequired transform
             // needed to limit extrapolation to eventual filterRequired (feature request by Ola)
             // can't extrapolate áfter filterRequired as some partially filled markers will already be filtered out
-            const frameKeys = [...frameMap.keys()]
-            const frameCount = frameKeys.length;
-            let firstFilled, lastFilled;
-            for (let idx = 0; idx < frameCount; idx++) {
-                const frameKey = frameKeys[idx];
-                const frame = frameMap.get(frameKey);
-                let empty = true;
+            const hasDataForRequiredEncodings = frame => {
                 for (const marker of frame.values()) {
                     if (this.marker.requiredEncodings.every(enc => marker[enc] != null)) {
-                        empty = false;
-                        break;
+                        return true;
                     }
                 }
-                if (!empty && firstFilled == undefined) firstFilled = idx;
-                if (!empty) lastFilled = idx;
+                return false;
             }
+            const requiredExtentIndices = frameMap.keyExtentIndices({
+                filter: hasDataForRequiredEncodings
+            })
+
+            const encName = this.name;
 
             return frameMap.extrapolateOverMembers({ 
                 fields: this.interpolationEncodings, 
                 sizeLimit: this.extrapolate,
-                indexLimit: [firstFilled, lastFilled]
+                indexLimit: requiredExtentIndices,
+                ammendNewRow: row => row[this.data.concept] = row[encName]
             });
         },
         get rowKeyDims() {

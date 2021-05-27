@@ -63,21 +63,6 @@ function extentIterable(iter, concept, groupby, groupSubset) {
     }
 }
 
-function minmax(value, [min, max]) {
-    
-    if (value != null) {
-        if (min === undefined) {
-            // find first comparable values
-            if (value >= value) min = max = value;
-        } else {
-            // compare remaining values 
-            if (min > value) min = value;
-            if (max < value) max = value;
-        }
-    }
-    return [min, max]
-}
-
 /**
  * Faster extent algorithm for specific grouped dataframes which satisfy:
  *  - grouping by `concept` you want to get extent of (e.g. frame concept)
@@ -136,6 +121,31 @@ export function extentOfGroupKey(group) {
     return minmaxArr;
 }
 
+export function extentIndicesOfGroupKey(group, { filter = () => true }) {
+    if (group.key.length > 1) throw("Can't get group key extent if key size is > 1")
+    
+    let keyConcept = group.key[0];
+    let i = 0, mini, maxi;
+    let min, max;
+    group.each((member) => {
+        if (filter(member)) {
+            const value = group.keyObject(member)[keyConcept];
+            if (value != null) {
+                if (min === undefined) {
+                    // find first comparable values
+                    if (value >= value) { min = max = value; mini = maxi = i };
+                } else {
+                    // compare remaining values 
+                    if (min > value) { min = value; mini = i };
+                    if (max < value) { max = value; maxi = i };
+                }
+            }
+        }
+        i++;
+    })
+    return [mini, maxi];
+}
+
 export function extentOfOrdered(data, field) {
     const iter = getIter(data);
     const min = iter.next().value[field];
@@ -143,4 +153,19 @@ export function extentOfOrdered(data, field) {
     while (!(cur = iter.next()).done)
         prev = cur;
     return [min, prev.value[field]];
+}
+
+function minmax(value, [min, max]) {
+    
+    if (value != null) {
+        if (min === undefined) {
+            // find first comparable values
+            if (value >= value) min = max = value;
+        } else {
+            // compare remaining values 
+            if (min > value) min = value;
+            if (max < value) max = value;
+        }
+    }
+    return [min, max]
 }
