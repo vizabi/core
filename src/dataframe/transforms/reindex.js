@@ -1,5 +1,6 @@
 import { DataFrameGroup } from "../dataFrameGroup";
 import { DataFrame } from "../dataFrame";
+import { inclusiveRange } from "../../core/utils";
 
 // TODO: add check if there are rows that are don't fit stepfn 
 // (iterate over df and match one step of stepfn with step of iteration)
@@ -37,4 +38,13 @@ export function reindexGroup(group, index) {
         }
     }
     return newGroup;
+}
+
+export function reindexGroupToKeyDomain(group, keyConcept) {
+    if (group.size > 1) {
+        const domain = group.keyExtent();
+        const newIndex = inclusiveRange(domain[0], domain[1], keyConcept);
+        group = reindexGroup(group, newIndex);
+    }
+    return group;
 }

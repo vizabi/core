@@ -3,7 +3,7 @@ import { isDataFrame, createKeyFn, arrayEquals, pick } from "./dfutils";
 import { extent, extentOfGroupKey, extentOfGroupKeyPerMarker } from "./info/extent";
 import { extrapolateGroup } from "./transforms/extrapolate";
 import { interpolateGroup } from "./transforms/interpolate";
-import { reindexGroup } from "./transforms/reindex";
+import { reindexGroup, reindexGroupToKeyDomain } from "./transforms/reindex";
 
 /**
  * 
@@ -42,6 +42,7 @@ function createGroup(key, descendantKeys) {
     group.interpolate = mapCall(group, "interpolate");
     group.extrapolate = mapCall(group, "extrapolate");
     group.reindexGroup = index => reindexGroup(group, index);
+    group.reindexToKeyDomain = keyConcept => reindexGroupToKeyDomain(group, keyConcept);
     group.interpolateOverMembers = options => interpolateGroup(group, options)
     group.extrapolateOverMembers = options => extrapolateGroup(group, options)
     group.copy = () => group.map(member => member.copy());
