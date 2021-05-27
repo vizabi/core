@@ -88,7 +88,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             const dataConfigSolverState = this.promise.state;
 
             if (dataConfigSolverState == 'fulfilled') {
-                if (this.encoding.frame?.interpolationEncodings?.some(enc => this.encoding[enc].data.state !== 'fulfilled')) {
+                if (this.encoding.frame?.changeBetweenFramesEncodings?.some(enc => this.encoding[enc].data.state !== 'fulfilled')) {
                     this.dataMapCache;
                 } else {
                     this.dataMap 
@@ -285,7 +285,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 if (enc.transformationFns)
                     for (let [tName, t] of Object.entries(enc.transformationFns))
                         transformations[name + '.' + tName] = t;
-                if (enc.config && enc.config.data && enc.config.data.transformations instanceof Array) {
+                if (Array.isArray(enc?.config?.data?.transformations)) {
                     for (let tName of enc.config.data.transformations) {
                         const fn = this[tName];
                         if (fn)
@@ -333,12 +333,13 @@ baseMarker.nonObservable = function(config, parent, id) {
                 let prevResult = stepResult; // local reference for closure of computed
                 stepResult = computed(
                     () => {
+                        trace();
                         const previous = prevResult.get();
                         const t0 = performance.now();
                         const result = fn(previous)
                         const t1 = performance.now();
                         pipelineTime += t1 - t0;
-                        //console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
+                        console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
                         return result;
                     }, 
                     { name }

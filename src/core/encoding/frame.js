@@ -207,7 +207,28 @@ frame.nonObservable = function(config, parent) {
             // reindexing also sorts frames
             return frameMap.reindexToKeyDomain(this.data.concept);
         },
-        get interpolationEncodings() {
+        get rowKeyDims() {
+            // remove frame concept from key if it's in there
+            // e.g. <geo,year>,pop => frame over year => <year>-><geo>,year,pop 
+            return relativeComplement([this.data.concept], this.data.space);
+        },
+
+        // interpolate transform
+        get interpolate() { return this.config.interpolate ?? defaults.interpolate },
+        interpolateData(frameMap) {
+            if (frameMap.size == 0 || !this.interpolate) 
+                return frameMap;
+
+            const newFrameMap = frameMap.copy();
+            const encName = this.name;
+
+            return newFrameMap.interpolateOverMembers({ 
+                fields: this.changeBetweenFramesEncodings,
+                ammendNewRow: row => row[this.data.concept] = row[encName]
+            });
+
+        },
+        get changeBetweenFramesEncodings() {
             const enc = this.marker.encoding;
             const encProps = Object.keys(enc).filter(prop => enc[prop] != this);
             if (!this.data.conceptInSpace)
@@ -218,20 +239,8 @@ frame.nonObservable = function(config, parent) {
                         && enc[prop].data.space.includes(this.data.concept);
                 })
         },
-        get interpolate() { return this.config.interpolate ?? defaults.interpolate },
-        interpolateData(frameMap) {
-            if (frameMap.size == 0 || !this.interpolate) 
-                return frameMap;
 
-            const newFrameMap = frameMap.copy();
-            const encName = this.name;
-
-            return newFrameMap.interpolateOverMembers({ 
-                fields: this.interpolationEncodings,
-                ammendNewRow: row => row[this.data.concept] = row[encName]
-            });
-
-        },
+        // extrapolate transform
         get extrapolate() { return this.config.extrapolate ?? defaults.extrapolate },
         extrapolateData(frameMap) {
             if (frameMap.size == 0 || !this.extrapolate) 
@@ -255,18 +264,13 @@ frame.nonObservable = function(config, parent) {
             const encName = this.name;
 
             return frameMap.extrapolateOverMembers({ 
-                fields: this.interpolationEncodings, 
+                fields: this.changeBetweenFramesEncodings,
                 sizeLimit: this.extrapolate,
                 indexLimit: requiredExtentIndices,
                 ammendNewRow: row => row[this.data.concept] = row[encName]
             });
         },
-        get rowKeyDims() {
-            // remove frame concept from key if it's in there
-            // e.g. <geo,year>,pop => frame over year => <year>-><geo>,year,pop 
-            return relativeComplement([this.data.concept], this.data.space);
-        },
-    
+
         // CURRENTFRAME TRANSFORM
         currentFrame(data) {
             if (data.size == 0) 
@@ -409,7 +413,7 @@ frame.splashMarker = function splashMarker(marker) {
     }
 }
 frame.decorate = {
-    interpolationEncodings: computed.struct
+    changeBetweenFramesEncodings: computed.struct
 }
 
 function markerWithFallback(marker, fallback) {
