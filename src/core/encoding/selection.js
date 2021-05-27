@@ -5,8 +5,7 @@ const defaultConfig = {
     modelType: "selection",
     data: {
         concept: undefined,
-        space: undefined,
-        filter: {} // force own filter value so it doesn't fall back to marker filter like a normal encoding
+        space: undefined
     }
 }
 

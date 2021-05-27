@@ -1,5 +1,5 @@
 import { action, isObservableArray, observable, toJS, trace } from 'mobx';
-import { isString, deepmerge, arrayEquals, configValue } from '../utils';
+import { isString, deepmerge, arrayEquals, configValue, removeOnce } from '../utils';
 import { resolveRef } from '../config';
 
 const defaultConfig = {
@@ -51,16 +51,37 @@ filter.nonObservable = function (config, parent, id) {
                 return;
             }
             const key = this.getKey(marker);
-            this.config.markers[key] = configValue(payload);
+            const cfg = this.config.markers;
+            if (payload) {
+                if (Array.isArray(this.config.markers)) {
+                    this.config.markers = Object.fromEntries(this.config.markers.map(m => [m,true]));
+                }
+                this.config.markers[key] = configValue(payload);
+            } else {
+                if (!Array.isArray(this.config.markers)) {
+                    if (Object.keys(this.config.markers).length > 0) {
+                        this.config.markers[key] = true;
+                    } else {
+                        this.config.markers = [key]
+                    }
+                } else if (!this.config.markers.includes(key)) {
+                    this.config.markers.push(key);
+                }
+            }
         }),
         delete: action("deleteFilter", function(marker) {
             if (Array.isArray(marker)) {
                 for (el of marker) this.delete(el)
                 return;
             }
+            const cfg = this.config.markers;
             const key = this.getKey(marker);
-            delete this.config.markers[key];
-            return !(key in this.config.markers);
+            if (Array.isArray(cfg)) {
+                removeOnce(cfg, key);
+            } else {
+                delete cfg[key];
+            }
+            return !this.markers.has(key);
         }),
         clear: action("clearFilter", function() {
             this.config.markers = {};
