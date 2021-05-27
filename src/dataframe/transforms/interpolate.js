@@ -39,7 +39,7 @@ export function evaluateGap(row, field, gap) {
     }
 }
 
-function interpolateGap(gapRows, startRow, endRow, field) {
+export function interpolateGap(gapRows, startRow, endRow, field) {
     const startVal = startRow[field];
     const endVal = endRow[field];
     const int = d3.interpolate(startVal, endVal);
