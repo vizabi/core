@@ -1,3 +1,5 @@
+import { assign, pickGetters, relativeComplement } from "../../core/utils";
+
 /**
  * Interpolate within a dataframe. Fill missing values in rows. Inplace.
  * @param {*} df 
@@ -39,7 +41,7 @@ export function evaluateGap(row, field, gap) {
     }
 }
 
-export function interpolateGap(gapRows, startRow, endRow, field) {
+function interpolateGap(gapRows, startRow, endRow, field) {
     const startVal = startRow[field];
     const endVal = endRow[field];
     const int = d3.interpolate(startVal, endVal);
@@ -52,4 +54,57 @@ export function interpolateGap(gapRows, startRow, endRow, field) {
             gapRow[Symbol.for('interpolated')] = {}
         gapRow[Symbol.for('interpolated')] = { [field]: [startRow, endRow] }
     }
+}
+
+
+export function interpolateGroup(group, { fields = group.fields, ammendNewRow = () => {} } = {}) {
+    
+    // what fields to interpolate?
+    const groupFields = group.values().next().value.fields;
+    const copyFields = relativeComplement(fields, groupFields);
+    copyFields.push(Symbol.for('key'));
+
+    //console.time('interpolate');
+    const frameKeys = [...group.keys()]
+    const numFrames = frameKeys.length;
+    for (const field of fields) {
+        const lastIndexPerMarker = new Map();
+        for (let i = 0; i < numFrames; i ++) {
+            const frame = group.get(frameKeys[i]);                  
+            for (const markerKey of frame.keys()) {
+                const marker = frame.getByStr(markerKey);
+                if (marker[field] != null) {
+                    let lastIndex = lastIndexPerMarker.get(markerKey);
+                    if (lastIndex && (i - lastIndex) > 1) {
+                        const gapRows = []; // d3.range(lastIndex + 1, i).map(i => group.get(frameKeys[i]))
+                        for (let j = lastIndex + 1; j < i; j++) {
+                            const gapFrame = group.get(frameKeys[j]);
+                            let gapRow = gapFrame.get(markerKey);
+                            if (gapRow === undefined) {
+                                gapRow = Object.assign(pickGetters(marker, copyFields), group.keyObject(gapFrame));
+                                ammendNewRow(gapRow);
+                                gapRow[Symbol.for('interpolated')] = {};
+                                gapFrame.setByStr(markerKey, gapRow);
+                            } else {
+                                if (!(Symbol.for('interpolated') in gapRow)) {
+                                    gapRow = assign({}, gapRow)
+                                    gapRow[Symbol.for('interpolated')] = {};
+                                    gapFrame.setByStr(markerKey, gapRow);
+                                }
+                            }
+                            gapRows.push(gapRow);
+                        }
+                        const startRow = group.get(frameKeys[lastIndex]).get(markerKey);
+                        const endRow = group.get(frameKeys[i]).get(markerKey);
+                        interpolateGap(gapRows, startRow, endRow, field);
+                    }
+                    lastIndexPerMarker.set(markerKey, i);
+                }
+            }
+        }
+        //console.log('finished interpolating field', field);
+        //console.timeLog('interpolate');
+    }
+    //console.timeEnd('interpolate');
+    return group;
 }

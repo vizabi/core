@@ -1,13 +1,12 @@
 import { baseEncoding } from './baseEncoding';
 import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, pickGetters } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef } from '../config';
-import { interpolateGap } from '../../dataframe/transforms/interpolate';
 
 const defaultConfig = {
     modelType: "frame",
@@ -232,62 +231,11 @@ frame.nonObservable = function(config, parent) {
 
             const newFrameMap = frameMap.copy();
             const encName = this.name;
-            //console.time('int step');
-  
-            // what fields to interpolate?
-            const fields = newFrameMap.values().next().value.fields;
-            const interpolateFields = this.interpolationEncodings;
-            const copyFields = relativeComplement(interpolateFields, fields);
-            copyFields.push(Symbol.for('key'));
 
-            // with all markers in place, actually interpolate
-            //console.time('interpolate');
-            const frameKeys = [...newFrameMap.keys()]
-            const numFrames = frameKeys.length;
-            for (const field of interpolateFields) {
-                const lastIndexPerMarker = new Map();
-                //console.time('interpolate');
-                for (let i = 0; i < numFrames; i ++) {
-                    const frame = newFrameMap.get(frameKeys[i]);                  
-                    for (const markerKey of frame.keys()) {
-                        const marker = frame.getByStr(markerKey);
-                        if (marker[field] != null) {
-                            let lastIndex = lastIndexPerMarker.get(markerKey);
-                            if (lastIndex && (i - lastIndex) > 1) {
-                                const gapRows = []; // d3.range(lastIndex + 1, i).map(i => newFrameMap.get(frameKeys[i]))
-                                for (let j = lastIndex + 1; j < i; j++) {
-                                    const gapFrame = newFrameMap.get(frameKeys[j]);
-                                    let gapRow = gapFrame.get(markerKey);
-                                    if (gapRow === undefined) {
-                                        gapRow = Object.assign(pickGetters(marker, copyFields), newFrameMap.keyObject(gapFrame));
-                                        gapRow[this.data.concept] = gapRow[encName];
-                                        gapRow[Symbol.for('interpolated')] = {};
-                                        gapFrame.setByStr(markerKey, gapRow);
-                                    } else {
-                                        if (!(Symbol.for('interpolated') in gapRow)) {
-                                            gapRow = assign({}, gapRow)
-                                            gapRow[Symbol.for('interpolated')] = {};
-                                            gapFrame.setByStr(markerKey, gapRow);
-                                        }
-                                    }
-                                    gapRows.push(gapRow);
-                                }
-                                const startRow = newFrameMap.get(frameKeys[lastIndex]).get(markerKey);
-                                const endRow = newFrameMap.get(frameKeys[i]).get(markerKey);
-                                interpolateGap(gapRows, startRow, endRow, field);
-                            }
-                            lastIndexPerMarker.set(markerKey, i);
-                        }
-                    }
-                }
-                //console.log('finished interpolating field', field);
-                //console.timeLog('interpolate');
-            }
-
-            //console.timeEnd('interpolate');
-            //console.timeEnd('int step');
-
-            return newFrameMap;
+            return newFrameMap.interpolateOverMembers({ 
+                fields: this.interpolationEncodings,
+                ammendNewRow: row => row[this.data.concept] = row[encName]
+            });
 
         },
         get extrapolate() { return this.config.extrapolate ?? defaults.extrapolate },
