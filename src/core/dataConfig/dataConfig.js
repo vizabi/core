@@ -212,7 +212,7 @@ dataConfig.nonObservable = function(config, parent, id) {
         },
         responsePromise: fromPromise(() => {}),
         get responseState() {
-            if (!this.hasOwnData) {
+            if (this.beforeResponseState == 'fulfilled' && !this.hasOwnData) {
                 return 'fulfilled';
             } else if (this.beforeResponseState != 'fulfilled') {
                 return 'pending';
