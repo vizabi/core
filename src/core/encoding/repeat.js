@@ -14,6 +14,7 @@ const defaults = {
 
 export const repeat = defaultDecorator({
     base: baseEncoding,
+    defaultConfig,
     functions: {
         //["y1", "y2"], this is for special case when aliases are connected across rows-columns 
         get row() {
