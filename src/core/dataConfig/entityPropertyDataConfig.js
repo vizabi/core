@@ -51,7 +51,9 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
             return undefined;
         },
         fetchResponse() {
-            if (this.readyForDataState == 'fulfilled' && this.hasOwnData) {
+            if (this.beforeResponseState != 'fulfilled') {
+                this.responseState = 'pending';
+            } else if (this.hasOwnData) {
                 this.responseState = 'pending';
                 
                 const labelPromises = this.queries.map(query => this.source.query(query)
@@ -63,6 +65,8 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
                     const lookups = this.lookups(response, this.concept);
                     this.response = DataFrame.fromLookups(lookups, this.commonSpace)
                 }));
+            } else {
+                this.responseState = 'fulfilled';
             }
         }
     })

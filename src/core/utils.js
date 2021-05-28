@@ -1,5 +1,5 @@
 import { fromPromise } from "mobx-utils";
-import { action, isObservableArray, onBecomeObserved, onBecomeUnobserved } from "mobx";
+import { action, autorun, isObservableArray, onBecomeObserved, onBecomeUnobserved } from "mobx";
 import { createFilterFn } from "../dataframe/transforms/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
