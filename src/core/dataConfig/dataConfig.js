@@ -207,24 +207,27 @@ dataConfig.nonObservable = function(config, parent, id) {
         get ddfQuery() {    
             return this.createQuery({ filter: [this.marker.data.filter, this.filter] })
         },
-        response: [],
-        responseState: 'fulfilled',
-        fetchResponse() {
-            if (this.beforeResponseState != 'fulfilled') {
-                this.responseState = 'pending';
-            } else if (this.hasOwnData) {
-                this.responseState = 'pending';
-                this.source.query(this.ddfQuery).then(action(response => {
-                    this.response = response.forKey(this.commonSpace);
-                    this.responseState = 'fulfilled';
-                }))
+        get response() {
+            return this.responsePromise.value;
+        },
+        responsePromise: fromPromise(() => {}),
+        get responseState() {
+            if (!this.hasOwnData) {
+                return 'fulfilled';
+            } else if (this.beforeResponseState != 'fulfilled') {
+                return 'pending';
             } else {
-                this.responseState = 'fulfilled';
+                return this.responsePromise.state;
             }
+        },
+        fetchResponse() {
+            const promise = this.source.query(this.ddfQuery)
+                .then(response => response.forKey(this.commonSpace));
+            this.responsePromise = fromPromise(promise);
         },
         disposers: [],
         onCreate() {
-            const dispose = lazyAsync(this.fetchResponse.bind(this), this, "responseState");
+            const dispose = lazyAsync(this.fetchResponse.bind(this), this, "responsePromise");
             this.disposers.push(dispose);
         },
         dispose() { 
@@ -238,5 +241,5 @@ dataConfig.nonObservable = function(config, parent, id) {
 dataConfig.decorate = {
     space: computed.struct,
     commonSpace: computed.struct,
-    response: observable.ref
+    // response: observable.ref
 }

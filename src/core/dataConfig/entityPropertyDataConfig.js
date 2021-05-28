@@ -51,23 +51,14 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
             return undefined;
         },
         fetchResponse() {
-            if (this.beforeResponseState != 'fulfilled') {
-                this.responseState = 'pending';
-            } else if (this.hasOwnData) {
-                this.responseState = 'pending';
-                
-                const labelPromises = this.queries.map(query => this.source.query(query)
-                    .then(data => ({ dim: query.select.key[0], data }))
-                );
-                const promise = fromPromise(Promise.all(labelPromises));
-                promise.then(action(response => {
-                    this.responseState = 'fulfilled';
-                    const lookups = this.lookups(response, this.concept);
-                    this.response = DataFrame.fromLookups(lookups, this.commonSpace)
-                }));
-            } else {
-                this.responseState = 'fulfilled';
-            }
+            const labelPromises = this.queries.map(query => this.source.query(query)
+                .then(data => ({ dim: query.select.key[0], data }))
+            );
+            const promise = Promise.all(labelPromises).then(response => {
+                const lookups = this.lookups(response, this.concept);
+                return DataFrame.fromLookups(lookups, this.commonSpace)
+            });
+            this.responsePromise = fromPromise(promise);
         }
     })
 }
