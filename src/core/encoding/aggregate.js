@@ -1,79 +1,53 @@
 import { baseEncoding } from './baseEncoding';
-import { defaultDecorator, isString } from '../utils';
+import { assign, defaultDecorator, filterObject } from '../utils';
 import { DataFrame } from '../../dataframe/dataFrame';
+import { pick } from '../../dataframe/dfutils';
 
-const defaults = {
+const defaultConfig = {
+  space: undefined,
+  concept: undefined
 }
 
 export const aggregate = defaultDecorator({
     base: baseEncoding,
+    defaultConfig,
     functions: {
         get grouping () { 
-          return this.config.grouping || {};
+          return this.config.grouping ?? {};
         },
         get measures() {
-          return this.config.measures || [];
+          return this.config.measures ?? [];
         },
         aggregate(df) {
-            if (Object.keys(this.grouping).every(key => this.grouping[key]["grouping"] === 1)) {
+            const groupSizes = filterObject(this.grouping, 
+                (val, key) => df.key.includes(key) && val['grouping'] > 1
+            );
+            const measures = this.measures;
+
+            if (Object.keys(groupSizes).length == 0) {
               return df;
             }
-        
-            const grouping = this.grouping;
-            const space = this.parent?.data.space || this.data.space;//query.select.key;
-            const measures = [this.name, ...(this.measures ?? [])];//query.select.value.filter(value => conceptProps[value]["concept_type"] === "measure");
-      
-          
-            const groupKeys = Object.keys(grouping || {}).filter(key => 
-              space.indexOf(key) !== -1 && grouping[key]["grouping"] > 1);
-            
-            const groupKeyCalcs = groupKeys.reduce((calcs, key) => (function(group) {
-              calcs[key] = function(d) { return ~~(+d / group) * group; };
-              return calcs;
-            })(grouping[key]["grouping"]), {});
 
-            let nest = d3.nest();
-
-            space.forEach(k => (groupKeyCalc =>
-              nest = nest.key(groupKeyCalc ?
-                function(d) {
-                  return groupKeyCalc(d[k]);
+            let result = DataFrame([], df.key);
+            for (const row of df.rows()) {
+                // new grouped key
+                const newKeyObj = pick(row, df.key);
+                for (const dim in groupSizes) {
+                    const groupSize = groupSizes[dim]['grouping'];
+                    newKeyObj[dim] = Math.floor(+row[dim] / groupSize) * groupSize;
                 }
-                :
-                function(d) {
-                  return d[k];
+                const keyStr = result.keyFn(newKeyObj);
+                // sum if group already exists, otherwise create
+                if (result.hasByStr(keyStr)) {
+                    const newRow = result.getByStr(keyStr);
+                    measures.forEach(measure => newRow[measure] += row[measure])
+                } else {
+                    const newRow = assign({}, row, newKeyObj);
+                    result.setByStr(keyStr, newRow)
                 }
-              )
-            )(groupKeyCalcs[k]));
-      
-            if (groupKeys.length) {
-              nest = nest.rollup(values => {
-                const obj = Object.assign({}, values[0]);
-                groupKeys.forEach(key => obj[key] = groupKeyCalcs[key](obj[key]));
-                measures.forEach(measure => obj[measure] = d3.sum(values, d => +d[measure]));
-                aggrValues.push(obj);
-                return 0;
-              });
             }
-      
-            const aggrValues = [];
-            nest.entries([...df.rows()]);
-            // d3.rollup(df.rows(), values => {
-            //   const obj = Object.assign({}, values[0]);
-            //   groupKeys.forEach(key => obj[key] = groupKeyCalcs[key](obj[key]));
-            //   measures.forEach(measure => obj[measure] = d3.sum(values, d => +d[measure]));
-            //   aggrValues.push(obj);
-            //   return 0;
-            // }, ...space.map(k => (groupKeyCalc => groupKeyCalc ?
-            //   function(d) {
-            //     return groupKeyCalc(d[k]);
-            //   }
-            //   :
-            //   function(d) {
-            //     return d[k];
-            //   })(groupKeyCalcs[k]))); 
-            const aggrDf = DataFrame(aggrValues, df.key, df.descendantKeys)
-            return aggrDf;      
+        
+            return result;
         },
         get transformationFns() {
             return {

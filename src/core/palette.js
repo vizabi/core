@@ -1,5 +1,5 @@
 import { action } from 'mobx';
-import { applyDefaults, deepclone, filterObject } from "./utils";
+import { applyDefaults, deepclone } from "./utils";
 
 const defaultConfig = {
     paletteHiddenKeys: [],

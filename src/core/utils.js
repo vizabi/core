@@ -465,7 +465,7 @@ export function filterObject(obj, filter) {
     let result = {}, key;
 
     for (key in obj) {
-        if (obj.hasOwnProperty(key) && filter(key, obj[key])) {
+        if (obj.hasOwnProperty(key) && filter(obj[key], key)) {
             result[key] = obj[key];
         }
     }
