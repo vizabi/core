@@ -127,6 +127,9 @@ frame.nonObservable = function(config, parent) {
                 }
             }
         }),
+        setExtrapolate: action('setExtrapolate', function setExtrapolate(extrapolate) {
+            this.config.extrapolate = extrapolate;
+        }),
         setSpeed: action('setSpeed', function setSpeed(speed) {
             speed = Math.max(0, speed);
             this.config.speed = speed;
