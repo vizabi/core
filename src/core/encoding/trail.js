@@ -160,7 +160,7 @@ trail.nonObservable = function(config, parent) {
                 trails.set(key, trail);
                 for (let [i, frame] of group) {
                     if (frame.hasByStr(key))
-                        trail.set(i, Object.assign({}, frame.getByStr(key)));
+                        trail.set(i, assign({}, frame.getByStr(key)));
                 }
             }
 
