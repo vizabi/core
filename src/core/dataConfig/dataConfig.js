@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
-import { computed, observable, trace } from "mobx";
-import { applyDefaults, combineStates, createSpaceFilterFn, fromPromiseAll, getConceptsCatalog, intersect, isNumeric } from "../utils";
+import { action, computed, observable, trace } from "mobx";
+import { applyDefaults, combineStates, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric, lazyAsync } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
@@ -118,6 +118,9 @@ dataConfig.nonObservable = function(config, parent, id) {
         get hasOwnData() {
             return !!(this.source && this.concept && !this.conceptInSpace);
         },
+        get conceptInSpace() {
+            return this.concept && this.space && this.space.includes(this.concept);
+        },
         get filter() {
             const filter = resolveRef(this.config.filter);
             return filterStore.get(filter, this);
@@ -163,43 +166,16 @@ dataConfig.nonObservable = function(config, parent, id) {
             else // ordinal (entity_set, entity_domain, string)
                 return unique(data.rows(), concept); 
         },
-        sendQuery() {
-            if (!this.source || !this.concept) {
-                console.warn("Encoding " + this.parent.name + " was asked for data but source and/or concept is not set.");
-                return fromPromise.resolve();
-            } else if (this.conceptInSpace) {         
-                //console.warn("Encoding " + this.parent.name + " was asked for data but concept is in space.", { space: this.space, concept: this.concept }); 
-                return fromPromise.resolve(); 
-            } else {
-                return this.source.query(this.ddfQuery);
-            }
-        },
-        get promise() {
+        get beforeResponseState() {
             const states = [ this.marker.configSolvingState ];
             if (this.source) { states.push(this.source.conceptsState) } // conceptPromise needed for calcDomain()
-            const combined = combineStates(states);
-            switch (combined) {
-                case 'fulfilled': return this.hasOwnData ? this.sendQuery() : fromPromise.resolve();
-                case 'pending':   return fromPromise(() => {});
-            }
+            return combineStates(states);
         },
         get state() {
-            if (this.promise.state == 'fulfilled' && this.domainDataSource == 'self') this.domain; 
-            return this.promise.state;
-        },
-        get response() {
-            //trace();
-            if (this.isConstant) {
-                throw(new Error(`Can't get response for dataConfig with constant value.`))
-            }
-            return this.promise.case({
-                pending: () => latestResponse,
-                rejected: e => latestResponse,
-                fulfilled: (res) => latestResponse = res.forKey(this.commonSpace)
-            });
-        },
-        get conceptInSpace() {
-            return this.concept && this.space && this.space.includes(this.concept);
+            const states = [ this.beforeResponseState, this.responseState ];
+            const state = combineStates(states);
+            if (state == 'fulfilled' && this.domainDataSource == 'self') this.domain; 
+            return state;
         },
         createQuery({ space = this.space, concept = this.concept, filter = this.filter, locale = this.locale, source = this.source } = {}) {
             const query = {};
@@ -231,12 +207,36 @@ dataConfig.nonObservable = function(config, parent, id) {
         get ddfQuery() {    
             return this.createQuery({ filter: [this.marker.data.filter, this.filter] })
         },
-        dispose() { }
+        response: [],
+        responseState: 'fulfilled',
+        fetchResponse() {
+            if (this.beforeResponseState != 'fulfilled') {
+                this.responseState = 'pending';
+            } else if (this.hasOwnData) {
+                this.responseState = 'pending';
+                this.source.query(this.ddfQuery).then(action(response => {
+                    this.response = response.forKey(this.commonSpace);
+                    this.responseState = 'fulfilled';
+                }))
+            } else {
+                this.responseState = 'fulfilled';
+            }
+        },
+        disposers: [],
+        onCreate() {
+            const dispose = lazyAsync(this.fetchResponse.bind(this), this, "responseState");
+            this.disposers.push(dispose);
+        },
+        dispose() { 
+            for (const dispose of this.disposers) {
+                dispose();
+            }
+        }
     };
 }
 
 dataConfig.decorate = {
-//    response: observable.ref,
     space: computed.struct,
-    commonSpace: computed.struct
+    commonSpace: computed.struct,
+    response: observable.ref
 }

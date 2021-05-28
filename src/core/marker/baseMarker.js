@@ -142,10 +142,10 @@ baseMarker.nonObservable = function(config, parent, id) {
             }
                    
             // optimization: if ammending shares response with defining just let fullJoin handle it
-            const definingResponses = defining.map(name => this.encoding[name].data.promise);
+            const definingResponses = defining.map(name => this.encoding[name].data.response);
             ammendGet = ammendGet.filter(name => {
                 const data = this.encoding[name].data;
-                if (data.hasOwnData && definingResponses.includes(data.promise)) {
+                if (data.hasOwnData && definingResponses.includes(data.response)) {
                     defining.push(name);
                     return false;
                 }

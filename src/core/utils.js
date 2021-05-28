@@ -1,5 +1,5 @@
 import { fromPromise } from "mobx-utils";
-import { action, isObservableArray } from "mobx";
+import { action, isObservableArray, onBecomeObserved, onBecomeUnobserved } from "mobx";
 import { createFilterFn } from "../dataframe/transforms/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
@@ -533,4 +533,19 @@ export function removeOnce(arr, value) {
         arr.splice(index, 1);
     }
     return arr;
+}
+
+export function lazyAsync(asyncFn, obsObj, obsProp) {
+    let lazyDisposer;
+    const dispObs = onBecomeObserved(obsObj, obsProp, () => {
+        lazyDisposer = autorun(asyncFn);
+    })
+    const dispUnobs = onBecomeUnobserved(obsObj, obsProp, () => {
+        lazyDisposer();
+    });
+    return () => {
+        dispObs();
+        dispUnobs();
+        lazyDisposer?.();
+    }
 }

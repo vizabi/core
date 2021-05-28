@@ -1,6 +1,6 @@
 import { dataConfig } from './dataConfig';
 import { composeObj, renameProperty } from '../utils';
-import { trace, toJS, observable } from 'mobx';
+import { trace, toJS, observable, action } from 'mobx';
 import { fromPromise } from 'mobx-utils';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { configSolver } from './configSolver';
@@ -23,12 +23,6 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
 
     return composeObj(base, {
 
-        sendQuery() {
-            const labelPromises = this.queries.map(query => this.source.query(query)
-                .then(data => ({ dim: query.select.key[0], data }))
-            );
-            return fromPromise(Promise.all(labelPromises));
-        },
         get space() {
             return base.space.filter(dim => this.source.isEntityConcept(dim));
         },
@@ -56,10 +50,20 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
             // could be an object with domain per dimension?
             return undefined;
         },
-        get response() {
-            const response = this.promise.value;
-            const lookups = this.lookups(response, this.concept);
-            return DataFrame.fromLookups(lookups, this.commonSpace)
+        fetchResponse() {
+            if (this.readyForDataState == 'fulfilled' && this.hasOwnData) {
+                this.responseState = 'pending';
+                
+                const labelPromises = this.queries.map(query => this.source.query(query)
+                    .then(data => ({ dim: query.select.key[0], data }))
+                );
+                const promise = fromPromise(Promise.all(labelPromises));
+                promise.then(action(response => {
+                    this.responseState = 'fulfilled';
+                    const lookups = this.lookups(response, this.concept);
+                    this.response = DataFrame.fromLookups(lookups, this.commonSpace)
+                }));
+            }
         }
     })
 }
