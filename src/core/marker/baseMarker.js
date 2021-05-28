@@ -19,6 +19,7 @@ const defaultConfig = {
 const defaults = {
     requiredEncodings: [],
     transformations: [
+        "aggregate.aggregate",
         "frame.frameMap",
         "frame.interpolate",
         "frame.extrapolate",
