@@ -186,7 +186,7 @@ baseMarker.nonObservable = function(config, parent, id) {
         },
         // computed to cache calculation
         get dataMapCache() {
-            trace();
+            // trace();
 
             // prevent recalculating on each encoding data coming in
             if (this.encodingState !== 'fulfilled')
@@ -340,7 +340,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                         const result = fn(previous)
                         const t1 = performance.now();
                         pipelineTime += t1 - t0;
-                        //console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
+                        console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
                         return result;
                     }, 
                     { name }
