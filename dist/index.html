@@ -387,7 +387,7 @@ function chart() {
                     // exclude trail head duplicate
                     data.filter(row => !(row[Symbol.for('trailHeadKey')] && Vizabi.utils.equals(row.frame, frameConfig.value))),
                     d => d[Symbol.for('key')]
-                );
+                ).order();
 
             // create new bubbles
             const enter = update.enter()
@@ -443,9 +443,6 @@ function chart() {
                     .each(drawLabel);
 
             })
-
-            // sort bubbles in data order
-            bubbles.selectAll(".dot").order();
 
             function getOpacity(d) {
                 const highlightOthers = 0.3;

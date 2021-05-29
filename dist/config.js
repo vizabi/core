@@ -273,9 +273,9 @@ const config = {
                 },
                 "order": {
                     modelType: "order",
+                    direction: "desc",
                     data: {
                         ref: "markers.bubble.encoding.size.data",
-                        direction: "desc"
                     }
                 },
                 "size": {
@@ -311,12 +311,17 @@ const config = {
                     splash: true,
                     value: "2018",
                     interpolate: true,
-                    extrapolate: 5,
+                    extrapolate: false,
                     speed: 100
                 },
                 "trail": {
                     modelType: "trail",
-                    groupDim: "time"
+                    groupDim: "time",
+                    data: {
+                        filter: {
+                            markers: { rus: '1990' }
+                        }
+                    }
                 }
             }
         }

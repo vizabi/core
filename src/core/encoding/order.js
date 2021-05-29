@@ -13,7 +13,7 @@ export const order = defaultDecorator({
     base: baseEncoding,
     functions: {
         get direction() {
-            return this.data.config.direction || defaults.direction;
+            return this.config.direction || defaults.direction;
         },
         get transformFields() {
             return this.data.isConstant ? [] : [this.name];
