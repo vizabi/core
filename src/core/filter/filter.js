@@ -2,8 +2,8 @@ import { action, isObservableArray, observable, toJS, trace } from 'mobx';
 import { isString, deepmerge, arrayEquals, configValue, removeOnce } from '../utils';
 import { resolveRef } from '../config';
 
-const defaultConfig = {
-    markers: {},
+const defaults = {
+    markers: [],
     dimensions: {}
 }
 
@@ -18,8 +18,8 @@ export function filter(config, parent, id) {
 
 filter.nonObservable = function (config, parent, id) {
 
-    if (!("markers" in config)) config.markers = {};
-    if (!("dimensions" in config)) config.dimensions = {};
+    if (!("markers" in config)) config.markers = defaults.markers;
+    if (!("dimensions" in config)) config.dimensions = defaults.dimensions;
 
     return {
         id,
@@ -84,7 +84,7 @@ filter.nonObservable = function (config, parent, id) {
             return !this.markers.has(key);
         }),
         clear: action("clearFilter", function() {
-            this.config.markers = {};
+            this.config.markers = [];
         }),
         toggle: action("toggleFilter", function(marker) {
             if (this.has(marker))
