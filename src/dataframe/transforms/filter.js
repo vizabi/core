@@ -1,4 +1,4 @@
-import { deepclone, pipe } from "../../core/utils";
+import { deepclone, pipe, isString } from "../../core/utils";
 import { DataFrame } from "../dataFrame";
 
 /**
@@ -100,4 +100,37 @@ const comparisonToString = {
     "$lte": (field, val) => `row.${field} <= ${val}`,
     "$in":  (field, val) => `${val}.includes(row.${field})`,
     "$nin": (field, val) => `!${val}.includes(row.${field})`,
+}
+
+export function filterNullish(df, fields) {
+    let filterParam = fields.every(isString)
+        ? simpleNullishCheck(fields)
+        : nullishFilterSpec(fields)
+    return filter(df, filterParam);
+}
+
+// simple, fast filtering using function that checks for nullish value
+function simpleNullishCheck(fields) {
+    const l = fields.length;
+    return row => {
+        for (let i = 0; i < l; i++) {
+            if (row[fields[i]] == null) return false;
+        }
+        return true;
+    }
+}
+// allows defining fields with logical conditions like: [{ $or: ['x','x1'] }, 'y']
+function nullishFilterSpec(fields) {
+    return { $nor: makeSpec(fields) }
+    function makeSpec(fields) {
+        return fields.map(predicate => {
+            if (typeof predicate === 'string') {
+                return { $or: [ { [predicate]: { $eq: null } }, { [predicate]: { $eq: undefined } }] };
+            } else {
+                return Object.fromEntries(Object.entries(predicate).map(([key, value]) => {
+                    return [key, makeSpec(value)]
+                }))
+            }
+        })
+    }
 }

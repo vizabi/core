@@ -37,6 +37,7 @@ function createGroup(key, descendantKeys) {
     // group.mapCall = (fn) => mapCall(group, fn); // not exposing mapcall
     group.interpolate = mapCall(group, "interpolate");
     group.filter = mapCall(group, "filter");
+    group.filterNullish = mapCall(group, "filterNullish");
     group.order = mapCall(group, "order");
     group.reindex = mapCall(group, "reindex");
     group.interpolate = mapCall(group, "interpolate");

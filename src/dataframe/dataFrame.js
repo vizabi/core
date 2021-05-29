@@ -4,7 +4,7 @@ import { MapStorage } from "./storage/map";
 import { LookupStorage } from "./storage/lookups";
 import { copyColumn } from "./transforms/copycolumn";
 import { leftJoin } from "./transforms/leftjoin";
-import { filter } from "./transforms/filter";
+import { filter, filterNullish } from "./transforms/filter";
 import { project } from "./transforms/project";
 import { addColumn } from "./transforms/addColumn";
 import { groupBy } from "./transforms/group";
@@ -37,6 +37,7 @@ function constructDataFrame(storage) {
             fullJoin: (joinParams, key) => fullJoin([{ dataFrame: df }, ...joinParams], key),
             copyColumn: (src, dest) => copyColumn(df, src, dest),
             filter: (filterObj) => filter(df, filterObj),
+            filterNullish: (fields) => filterNullish(df, fields),
             project: (projection) => project(df, projection),
             addColumn: (name, value) => addColumn(df, name, value),
             groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
