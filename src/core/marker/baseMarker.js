@@ -1,7 +1,7 @@
 import { trace, reaction, computed, observable, toJS } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
-import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString } from "../utils";
+import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable } from "../utils";
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -129,15 +129,15 @@ baseMarker.nonObservable = function(config, parent, id) {
             for (const name of Object.keys(this.encoding)) {
                 const fn = this.ammendFnForEncoding(name);
 
-                if (typeof fn === 'function') {
+                if (fn === 'defining' && isIterable(this.encoding[name].data.response)) {
+                    defining.push(name);
+                } else if (typeof fn === 'function' || fn === 'defining') {
                     if (transformFields.has(name)) {
                         ammendWrite.push(name);
                     } else {
                         ammendGet.push(name);
                     }
-                } else if (fn === 'defining') {
-                    defining.push(name);
-                }
+                } 
 
             }
                    
