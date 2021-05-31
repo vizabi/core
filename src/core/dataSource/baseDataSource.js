@@ -1,5 +1,5 @@
 import { computedFn, fromPromise, FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, defer, deepclone, pipe, stableStringifyObject, relativeComplement, concatUnique, sleep } from "../utils";
+import { assign, applyDefaults, defer, deepclone, pipe, stableStringifyObject, relativeComplement, concatUnique, sleep, lazyAsync, combineStates } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
@@ -70,23 +70,6 @@ baseDataSource.nonObservable = function (config, parent, id) {
             // toJS: don't want insides of data to be observable (adds overhead & complexity)
             return toJS(this.config.values);
         },
-        get availability() {
-            let empty = this.buildAvailability();
-            return this.availabilityPromise.case({
-                fulfilled: v => v,
-                pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },
-                error: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); return empty }
-            })
-        },
-        get concepts() {
-            //trace();
-            const empty = new Map();
-            return this.conceptsPromise.case({
-                fulfilled: v => v.forQueryKey(),
-                pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
-                error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
-            })
-        },
         get defaultEncodingPromise() {
             if ("getDefaultEncoding" in this.reader)
                 return fromPromise(this.reader.getDefaultEncoding());
@@ -142,7 +125,8 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 data
             };
         },
-        get availabilityPromise() {
+        availabilityPromise: fromPromise(() => {}),
+        fetchAvailability() {
             //trace();
             const collections = ["concepts", "entities", "datapoints"];
             const getCollAvailPromise = (collection) => this.query({
@@ -153,15 +137,25 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 from: collection + ".schema"
             });
     
-            return fromPromise(Promise.all(collections.map(getCollAvailPromise))
+            this.availabilityPromise = fromPromise(Promise.all(collections.map(getCollAvailPromise))
                 .then(this.buildAvailability));
         },
-        get conceptsPromise() {
+        get availabilityState() {
+            return this.availabilityPromise.state;
+        },
+        get availability() {
+            let empty = this.buildAvailability();
+            return this.availabilityPromise.case({
+                fulfilled: v => v,
+                pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },
+                error: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); return empty }
+            })
+        },
+        conceptsPromise: fromPromise(() => {}),
+        fetchConcepts() {
             //trace();
             const locale = this.locale
-            return fromPromise(this.availabilityPromise.then(av => {
-                if (locale != this.locale)
-                    return; // abort since there's a newer locale and thus a new conceptPromise
+            this.conceptsPromise = fromPromise(this.availabilityPromise.then(av => {
                 const conceptKeyString = createKeyStr(["concept"]);
                 const avConcepts = [...av.keyValueLookup.get(conceptKeyString).keys()];
         
@@ -180,21 +174,23 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 return this.query(query);
             }));
         },
-        get metaDataPromise() {
-            return fromPromise(Promise.all([this.availabilityPromise, this.conceptsPromise, this.defaultEncodingPromise]));
-        },
-        /* 
-        *  separate state computed which don't become stale with new promise in same state 
-        *  might use these later to make own .case({pending, fulfilled, rejected}) functionality    
-        */
-        get availabilityState() {
-            return this.availabilityPromise.state;
-        },
         get conceptsState() {
             return this.conceptsPromise.state;
         },
+        get concepts() {
+            //trace();
+            const empty = new Map();
+            return this.conceptsPromise.case({
+                fulfilled: v => v.forQueryKey(),
+                pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
+                error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
+            })
+        },
+        /* 
+        *  separate state computed which don't become stale with new promise in same state  
+        */
         get state() {
-            return this.metaDataPromise.state;
+            return combineStates([this.availabilityState, this.conceptsState]);
         },
         get identity() {
             return stableStringifyObject(this.config);
@@ -266,7 +262,6 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 this.cache.set(baseQuery, promise);
                 return promise;
             }
-            
         },
         async sendDelayedQuery(query) {
             // sleep first so other queries can fill up baseQuery's select.value
@@ -280,6 +275,19 @@ baseDataSource.nonObservable = function (config, parent, id) {
             const clone = deepclone(query);
             delete clone.select.value;
             return stableStringifyObject(clone);
+        },
+        disposers: [],
+        onCreate() {
+            this.disposers.push(
+                lazyAsync(this.fetchAvailability.bind(this), this, "availabilityPromise"),
+                lazyAsync(this.fetchConcepts.bind(this), this, "conceptsPromise")
+            );
+        },
+        dispose() {
+            let dispose;
+            while (dispose = this.disposers.pop()) {
+                dispose();
+            }
         }
     }
 

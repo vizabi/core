@@ -272,7 +272,7 @@ function needsAutoConfig(dataConfig) {
 
 function dataConfigPromisesBeforeSolving(dataConfig) {
     if (needsAutoConfig(dataConfig))
-        return [dataConfig.source.metaDataPromise];
+        return [dataConfig.source.conceptsPromise];
     else 
         return [];
 }
