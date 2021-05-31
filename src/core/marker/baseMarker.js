@@ -83,11 +83,12 @@ baseMarker.nonObservable = function(config, parent, id) {
         get state() {
             const dataConfigSolverState = this.promise.state;
 
+            // observe (part of) the pipeline as long as state is observed to keep them cached
             if (dataConfigSolverState == 'fulfilled') {
                 if (this.encoding.frame?.changeBetweenFramesEncodings?.some(enc => this.encoding[enc].data.state !== 'fulfilled')) {
                     this.dataMapCache;
                 } else {
-                    this.dataMap 
+                    this.dataMap;
                 }
             }
 
@@ -113,13 +114,20 @@ baseMarker.nonObservable = function(config, parent, id) {
             })
             return items;
         },
+        get transformFields() {
+            return new Set(
+                this.requiredEncodings.concat(
+                    Object.values(this.encoding).map(enc => enc.transformFields).flat()
+                )
+            );
+        },
         get encodingByType() {
 
             const defining = [];
             const ammendWrite = []; // ammends by writing to object. Changes to encoding trigger pipeline, but pipeline is faster with direct writing.
             let ammendGet = []; // ammends by creating a getter. Allows changing config of encoding without triggering rest of pipeline.
             
-            const transformFields = new Set(Object.values(this.encoding).map(enc => enc.transformFields).flat());
+            const transformFields = this.transformFields;
 
             for (const name of Object.keys(this.encoding)) {
                 const fn = this.ammendFnForEncoding(name);
