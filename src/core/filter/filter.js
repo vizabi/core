@@ -3,8 +3,6 @@ import { isString, deepmerge, arrayEquals, configValue, removeOnce } from '../ut
 import { resolveRef } from '../config';
 
 const defaults = {
-    markers: [],
-    dimensions: {}
 }
 
 export const type = 'filter';
@@ -18,8 +16,8 @@ export function filter(config, parent, id) {
 
 filter.nonObservable = function (config, parent, id) {
 
-    if (!("markers" in config)) config.markers = defaults.markers;
-    if (!("dimensions" in config)) config.dimensions = defaults.dimensions;
+    if (!("markers" in config)) config.markers = [];
+    if (!("dimensions" in config)) config.dimensions = {};
 
     return {
         id,

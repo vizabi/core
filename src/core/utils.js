@@ -130,7 +130,7 @@ export function fromPromiseAll(promiseColl) {
     return fromPromise((res, rej) => { });
 }
 
-export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
+export function defaultDecorator({ base, renameProperties = {}, defaultConfig = {}, functions = {} }) {
     if (Array.isArray(functions)) functions = assign({}, ...functions);
     const newType = function (config, parent, name) {
         return observable(newType.nonObservable(config, parent, name));
@@ -140,6 +140,9 @@ export function defaultDecorator({ base, defaultConfig = {}, functions = {} }) {
         delete functions.config;
         if (!base) base = (config, parent) => ({ config, parent });
         const baseObj = base.nonObservable(config, parent, name);
+        for (i in renameProperties) {
+            renameProperty(baseObj, i, renameProperties[i]);
+        }
         return assign(baseObj, functions);
     }
     newType.decorate = base.decorate;
