@@ -2,7 +2,6 @@ import { action } from 'mobx';
 import { applyDefaults, deepclone } from "./utils";
 
 const defaultConfig = {
-    paletteHiddenKeys: [],
     palette: {},
 }
 
@@ -87,14 +86,15 @@ export function palette(config = {}, parent) {
         get paletteLabels() {
             return this.colorConceptProp.paletteLabels;
         },
-        get palette() {            
-            const palette = deepclone(this.defaultPalette);
-
-            this.config.paletteHiddenKeys.forEach(hiddenKey => {
-                delete palette[hiddenKey];
-            });
+        get palette() {
+            const obj = Object.assign({}, this.defaultPalette, this.config.palette); 
             
-            return Object.assign(palette, this.config.palette);
+            //remove null values from the result of merging
+            Object.keys(obj).forEach(key => {
+                if (!obj[key]) delete obj[key];
+            });
+
+            return obj;
         },
         get defaultColor() {
             return this.getColor("_default") || this.defaultPalettes["_default"]["_default"];
@@ -125,32 +125,12 @@ export function palette(config = {}, parent) {
             const color = palette[key];
             return Array.isArray(color) ? color[0] : color;
         },
-        setColor: action('setColor', function (value, pointer, oldPointer) {
-            if (value) value = d3.color(value).hex();
-
-            if (this.parent.isDiscrete()) {
-                this.config.palette[pointer] = value;
-            } else {
-                //const palette = this.getPalette();
-                //const paletteKeys = this._paletteKeys;
-                const defaultPalette = this.defaultPalette;
-                const paletteHiddenKeys = this.config.paletteHiddenKeys;
-
-                if (oldPointer !== null) {
-                    if (defaultPalette[oldPointer] && !paletteHiddenKeys.includes(oldPointer)) {
-                        paletteHiddenKeys.push(oldPointer);
-                    }
-              
-                    delete this.config.palette[oldPointer];
-                }
-
-                if (pointer && paletteHiddenKeys.includes(pointer)) {
-                    paletteHiddenKeys.splice(paletteHiddenKeys.indexOf(pointer), 1);
-                }
-
-                if (pointer) this.config.palette[pointer] = value;
-            }
-        
+        setColor: action('setColor', function (value, pointer) {
+            this.config.palette["" + pointer] = value ? d3.color(value).hex() : value;
+        }),
+        removeColor: action('removeColor', function (pointer) {
+            if(this.config.palette.hasOwnProperty("" + pointer))
+                delete this.config.palette["" + pointer];
         })
     }
 }
