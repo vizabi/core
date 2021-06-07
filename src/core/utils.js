@@ -140,8 +140,8 @@ export function defaultDecorator({ base, renameProperties = {}, defaultConfig = 
         delete functions.config;
         if (!base) base = (config, parent) => ({ config, parent });
         const baseObj = base.nonObservable(config, parent, name);
-        for (i in renameProperties) {
-            renameProperty(baseObj, i, renameProperties[i]);
+        for (const prop in renameProperties) {
+            renameProperty(baseObj, prop, renameProperties[prop]);
         }
         return assign(baseObj, functions);
     }

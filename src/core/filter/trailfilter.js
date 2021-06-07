@@ -28,7 +28,7 @@ export const trailFilter = defaultDecorator({
             }
             // set again if clamped is different from current
             const clamped = clamp(value, limit[0], limit[1]);
-            this.baseSet(key, value);
+            this.baseSet(key, clamped);
         })
     }
 });

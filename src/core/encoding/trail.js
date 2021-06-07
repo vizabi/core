@@ -218,10 +218,10 @@ trail.nonObservable = function(config, parent) {
                     // available in data. This loops that data-informed exclusion back to 
                     // config.
                     if (starts) {
-                        const filterMarkers = this.data.filter.config.markers;
-                        for (let key in filterMarkers) {
+                        const filter = this.data.filter;
+                        for (let key of filter.markers.keys()) {
                             if (!(key in starts))
-                                delete filterMarkers[key];
+                                filter.delete(key);
                         }
                     }
                 },
