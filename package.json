@@ -1,6 +1,6 @@
 {
   "name": "vizabi-reactive",
-  "version": "1.13.0",
+  "version": "1.13.1",
   "description": "Vizabi core (data layer)",
   "main": "dist/Vizabi.js",
   "type": "module",
