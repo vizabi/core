@@ -1,4 +1,4 @@
-import { normalizeKey, getIter, createKeyFn, arrayEquals } from "../dfutils";
+import { normalizeKey, getIter, createKeyFn, arrayEquals, unique } from "../dfutils";
 
 export function MapStorage(data = [], keyArr = data.key || []) {
     
@@ -20,7 +20,7 @@ function createEmptyMap() {
 
     Object.defineProperty(storage, 'fields', { 
         get: function () { 
-            return Object.keys(storage.values().next().value) ?? [] 
+            return unique(storage.key, Object.keys(storage.values().next().value ?? {}) ?? [])
         }
     });  
     storage.setKey = newKey => {

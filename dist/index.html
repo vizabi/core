@@ -800,7 +800,7 @@ function chart() {
                     const enc = marker.encoding[encId]
                     return d.value && d.value.concept == enc.data.concept && Vizabi.utils.arrayEquals(d.key, enc.data.space);
                 })
-                .text(d => !d.value ? 'n/a' : d.value.name + ' (' + d.key.join(',') + ') [' + d.source.id + ']')
+                .text(d => !d.value ? 'n/a' : (d.value.name ?? d.value.concept) + ' (' + d.key.join(',') + ') [' + d.source.id + ']')
                 .sort((a, b) => !a.value || !b.value ? 0 : (a.value.name > b.value.name ? 1 : -1));
             const selExit = selUpdate.exit().remove();
 

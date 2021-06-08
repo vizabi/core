@@ -28,14 +28,8 @@ const config = {
         },
         gapcsv: {
             type: "csv",
-            file: "fullgap.gapodd.csv",
-            space: ["geo", "time"],
-            transforms: [{
-                type: "interpolate",
-                dimension: "time",
-                step: 1,
-                concepts: ["POP", "GDP", "LEX", "world_region"],
-            }]
+            path: "fullgap.gapodd.csv",
+            keyConcepts: ["geo", "time"]
         },
         soder: {
             reader: "csv",
@@ -324,6 +318,86 @@ const config = {
                     }
                 }
             }
-        }
+        },
+        /*
+        "bubble-csv": {
+            data: {
+                source: "gapcsv",
+                space: ["geo", "time"]
+            },
+            requiredEncodings: ["x", "y", "size"],
+            encoding: {
+                "selected": {
+                    modelType: "selection",
+                    data: { 
+                        filter: { 
+                            ref: "markers.bubble.encoding.trail.data.filter"
+                        }
+                    }
+                },
+                "highlighted": {
+                    modelType: "selection"
+                },
+                "superhighlighted": {
+                    modelType: "selection"
+                },
+                "x": {
+                    data: {
+                        concept: "GDP"
+                    },
+                    scale: {
+                        type: "log"
+                    }
+                },
+                "y": {
+                    data: {
+                        concept: 'LEX',
+                    }
+                },
+                "order": {
+                    modelType: "order",
+                    direction: "desc",
+                    data: {
+                        ref: "markers.bubble.encoding.size.data",
+                    }
+                },
+                "size": {
+                    data: {
+                        concept: "POP"
+                    },
+                    scale: {
+                        modelType: "size",
+                        range: [0, 50]
+                    }
+                },
+                "color": {
+                    data: {
+                        concept: "world_region"
+                    },
+                    scale: {
+                        modelType: 'color'
+                    }
+                },
+                "label": {
+                    data: {
+                        concept: "geo"
+                    }
+                },
+                "frame": {
+                    modelType: "frame",
+                    data: {
+                        concept: "time"
+                    },
+                    splash: true,
+                    value: "2018",
+                    interpolate: true,
+                    extrapolate: false,
+                    speed: 100
+                },
+                "trail": {
+                    modelType: "trail"
+                }
+            }
+        }*/
     }
 }
