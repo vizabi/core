@@ -6,6 +6,7 @@ import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
+import { extentOfOrdered } from '../../dataframe/info/extent';
 import { resolveRef } from '../config';
 
 const defaultConfig = {
@@ -25,6 +26,7 @@ const defaultConfig = {
 const defaults = {
     interpolate: true,
     extrapolate: false,
+    playEmptyFrames: false,
     loop: false,
     playbackSteps: 1,
     speed: 100,
@@ -75,19 +77,27 @@ frame.nonObservable = function(config, parent) {
     
             return scale;
         },
+        get playEmptyFrames() {
+            return this.config.playEmptyFrames ?? defaults.playEmptyFrames;
+        },
         /**
          * Key frame values limited to scale domain
          **/ 
         get domainValues() {
-            let frameValues = [];
-            // default domain data is after filtering, so empty frames are dropped, so steps doesn't include those
-            for (let frame of this.data.domainData.values()) {
-                const frameValue = frame.values().next().value[this.name];
-                if (this.scale.domainIncludes(frameValue)) {
-                    frameValues.push(frameValue);
-                } 
+            const frameMap = this.marker.getTransformedDataMap("filterRequired");
+            if (this.playEmptyFrames) {
+                const domain = frameMap.keyExtent();
+                return inclusiveRange(domain[0], domain[1], this.data.conceptProps);
+            } else {
+                let frameValues = [];
+                for (let frame of frameMap.values()) {
+                    const frameValue = frame.values().next().value[this.name];
+                    if (this.scale.domainIncludes(frameValue)) {
+                        frameValues.push(frameValue);
+                    } 
+                }
+                return frameValues
             }
-            return frameValues
         },
         get stepCount() {
             return this.domainValues.length;
@@ -208,7 +218,7 @@ frame.nonObservable = function(config, parent) {
             // reindex framemap - add missing frames within domain
             // i.e. not a single defining encoding had data for these frame
             // reindexing also sorts frames
-            return frameMap.reindexToKeyDomain(this.data.concept);
+            return frameMap.reindexToKeyDomain(this.data.conceptProps);
         },
         get rowKeyDims() {
             // remove frame concept from key if it's in there
@@ -281,7 +291,7 @@ frame.nonObservable = function(config, parent) {
     
             return data.has(this.frameKey) 
                 ? data.get(this.frameKey)
-                : this.scale.domainIncludes(this.value, this.data.domain)
+                : this.scale.domainIncludes(this.value, this.data.domain) && this.interpolate
                     ? this.getInterpolatedFrame(data, this.step, this.stepsAround)
                     : DataFrame([], data.descendantKeys[0]);
     

@@ -298,15 +298,20 @@ export function range(start, stop, concept) {
     return interval(concept).range(start, stop);
 }
 
-export function interval(concept) {
-    if (concept == "time") concept = "year";
-    return d3['utc' + ucFirst(concept)] || {
+export function interval({ concept, concept_type }) {
+    const nonTimeInterval = {
         offset: (n, d) => isNumeric(n) && isNumeric(d) ? n + d : console.error("Can't offset using non-numeric values", { n, d }),
         range: d3.range,
         floor: Math.floor,
         ceil: Math.ceil,
         round: Math.round
     };
+    if (concept_type == "time") {
+        if (concept == "time") concept = "year";
+        return d3['utc' + ucFirst(concept)] || nonTimeInterval;
+    } else {
+        return nonTimeInterval;
+    }
 }
 
 export function inclusiveRange(start, stop, concept) {
