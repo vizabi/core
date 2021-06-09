@@ -53,6 +53,10 @@ function encodingSolution(dataConfig, markerSpaceCfg, usedConcepts = []) {
         }
     }
 
+    if (!result) {
+        result = { concept: undefined, space: undefined };
+    }
+
     return result;
 }
 
@@ -134,7 +138,7 @@ function autoConfigSpace(dataConfig, extraOptions = {}, getFurtherResult) {
         }
     }
     
-    console.warn("Could not autoconfig to a space which also satisfies further results.", { dataConfig, spaceCfg: dataConfig.config.space || dataConfig.defaults.space  });
+    console.warn("Could not autoconfig to a space which also satisfies further results for " + dataConfig.parent.id + ".", { dataConfig, spaceCfg: dataConfig.config.space || dataConfig.defaults.space, getFurtherResult });
 
     return false;
 }
@@ -182,7 +186,7 @@ function findConceptForSpace(dataConfig, { usedConcepts = [] }, space) {
     } 
 
     if (!concept) {
-        console.warn("Could not autoconfig concept for given space.", { dataConfig, spaceCfg });
+        console.warn("Could not autoconfig concept for given space for " + dataConfig.parent.id  + ".", { dataConfig, spaceCfg });
         return false;
     } 
 
