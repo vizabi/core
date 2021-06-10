@@ -209,7 +209,10 @@ function defaultConceptSolver(space, dataConfig, usedConcepts) {
         ? createFilterFn(conceptCfg.filter)
         : () => true;
 
-    const filteredConcepts = [...availability.keyValueLookup.get(createKeyStr(space)).keys()]
+    const availableConcepts = availability.keyValueLookup.get(createKeyStr(space));
+    if (!availableConcepts) 
+        return;
+    const filteredConcepts = [...availableConcepts.keys()]
         // exclude the ones such as "is--country", they won't get resolved
         .filter(concept => concept.substr(0,4) !== "is--")
         // get concept objects

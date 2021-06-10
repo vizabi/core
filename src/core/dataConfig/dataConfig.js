@@ -1,6 +1,6 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
-import { action, computed, observable, trace } from "mobx";
+import { action, computed, observable, reaction, trace } from "mobx";
 import { applyDefaults, combineStates, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric, lazyAsync } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
@@ -232,8 +232,20 @@ dataConfig.nonObservable = function(config, parent, id) {
         },
         disposers: [],
         onCreate() {
-            const dispose = lazyAsync(this.fetchResponse.bind(this), this, "responsePromise");
-            this.disposers.push(dispose);
+            this.disposers.push(
+                lazyAsync(this.fetchResponse.bind(this), this, "responsePromise"),
+                reaction(
+                    () => this.state == 'fulfilled' ? { concept: this.concept, space: this.space } : {},
+                    ({ space, concept }) => {
+                        if (space && space != this.config.space) {
+                            this.config.space = space;
+                        }
+                        if (concept && concept != this.config.concept) {
+                            this.config.concept = concept;
+                        }
+                    }
+                )
+            );
         },
         dispose() { 
             for (const dispose of this.disposers) {
