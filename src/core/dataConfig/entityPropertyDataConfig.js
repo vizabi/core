@@ -34,6 +34,9 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
                     return this.createQuery({ space: [dim] });
                 });
         },
+        isConceptAvailableInSpace(space, concept) {
+            return true; // could check if there's availability for some space dimensions
+        },
         lookups(response, concept) {
             const lookups = new Map();
             response.forEach(dimResponse => {

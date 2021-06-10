@@ -167,7 +167,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             const concept = data.concept;
 
             if (concept === undefined && !data.isConstant)
-                return 'no-op'
+                return 'no-op';
             else if (data.isConstant) {
                 return row => data.constant;
             } else if (data.conceptInSpace) {

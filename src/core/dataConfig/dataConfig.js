@@ -121,6 +121,11 @@ dataConfig.nonObservable = function(config, parent, id) {
         get conceptInSpace() {
             return this.concept && this.space && this.space.includes(this.concept);
         },
+        isConceptAvailableInSpace(space, concept) {
+            const dataSource = this.source;
+            const availability = dataSource.availability;
+            return space.includes(concept) || availability.keyValueLookup.get(createKeyStr(space)).has(concept);
+        },
         get filter() {
             const filter = resolveRef(this.config.filter);
             return filterStore.get(filter, this);

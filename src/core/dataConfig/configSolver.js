@@ -140,7 +140,11 @@ function autoConfigSpace(dataConfig, extraOptions = {}, getFurtherResult) {
         }
     }
     
-    console.warn("Could not autoconfig to a space which also satisfies further results for " + dataConfig.parent.id + ".", { dataConfig, spaceCfg: dataConfig.config.space || dataConfig.defaults.space, getFurtherResult });
+    console.warn("Could not autoconfig to a space which also satisfies further results for " + dataConfig.parent.id + ".", { 
+        dataConfig,
+        spaceCfg: dataConfig.config.space || dataConfig.defaults.space, 
+        availableSpaces, 
+        getFurtherResult });
 
     return false;
 }
@@ -183,22 +187,16 @@ function findConceptForSpace(dataConfig, { usedConcepts = [] }, space) {
     if (needsConceptAutoCfg(dataConfig)) {
         const solveConcept = solveMethods[conceptCfg.solveMethod] || defaultConceptSolver;
         concept = solveConcept(space, dataConfig, usedConcepts)
-    } else if (isConceptAvailableInSpace(dataConfig, space, conceptCfg)) {
+    } else if (isReference(conceptCfg) || dataConfig.isConceptAvailableInSpace(space, conceptCfg)) {
         concept = conceptCfg;
     } 
 
     if (!concept) {
-        console.warn("Could not autoconfig concept for given space for " + dataConfig.parent.id  + ".", { dataConfig, space });
+        // console.warn("Could not autoconfig concept for given space for " + dataConfig.parent.id  + ".", { dataConfig, space });
         return false;
     } 
 
     return { concept, space };
-}
-
-function isConceptAvailableInSpace(dataConfig, space, concept) {
-    const dataSource = dataConfig.source;
-    const availability = dataSource.availability;
-    return availability.keyValueLookup.get(createKeyStr(space)).has(concept);
 }
 
 function defaultConceptSolver(space, dataConfig, usedConcepts) {
