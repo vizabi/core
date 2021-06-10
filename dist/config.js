@@ -3,34 +3,28 @@ const config = {
         /*gapcsv: {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
-        },
-        /**/
+        },/*
         gapbw: {
             modelType: "bw",
             service: 'https://big-waffle.gapminder.org', 
             name: "sg-master"
-        },
-        /*
+        },/**/
         gap: {
             modelType: "ddfcsv",
             path: "./ddf--jheeffer--mdtest/"
-        },
-        
-        /*
-                sg: {
-                    type: "ddfcsv",
-                    path: "./systema_globalis/"
-                },*/
-        /*
+        },/*
+        sg: {
+            type: "ddfcsv",
+            path: "./systema_globalis/"
+        },/*
         pcbs: {
             type: "ddfcsv",
             path: "./ddf--pcbs--census2017/"
-        },
+        },/*
         gapcsv: {
             type: "csv",
-            path: "fullgap.gapodd.csv",
-            keyConcepts: ["geo", "time"]
-        },
+            path: "fullgap.gapodd.csv"
+        },/*
         soder: {
             reader: "csv",
             path: "soder.csv"
@@ -82,15 +76,13 @@ const config = {
                     speed: 100
                 }
             }
-        },
-        */
-       /*
-        bubble_md: {
+        },/**/
+        bubble: {
             requiredEncodings: ["x", "y", "size"],
             data: { 
               source: "gap",
               filter: {},
-              space: ["country", "time"]
+              space: ["country", "gender", "time"]
             },
             encoding: {
               "selected": {
@@ -105,7 +97,7 @@ const config = {
               "superhighlighted": { modelType: "selection" },
               "y": {
                 data: {
-                  concept: "life_expectancy"
+                  concept: "life_expectancy",
                 }
               },
               "x": {
@@ -116,12 +108,7 @@ const config = {
               "order": { 
                 modelType: "order",
                 data: { 
-                  constant: {
-                    ref: "markers.bubble.encoding.size.data.constant"
-                  },
-                  concept: {
-                    ref: "markers.bubble.encoding.size.data.concept"
-                  } 
+                    ref: "markers.bubble.encoding.size.data.config"
                 }
               },
               "size": {
@@ -135,8 +122,8 @@ const config = {
               },
               "color": { 
                 data: {
-                    space: ["country", "time"],
-                    concept: "life_expectancy"
+                    space: ["country"],
+                    concept: "world_4region"
                   },
                   scale: { modelType: "color" } 
                 },
@@ -144,7 +131,7 @@ const config = {
               "frame": { modelType: "frame", value: "2016" },
               "trail": { modelType: "trail" }
             }
-        },*/
+        },/**/
         "legend": {
             data: {
                 ref: {
@@ -201,7 +188,7 @@ const config = {
                 "trail": { modelType: "trail" }                
             }
         },*/
-        "bubble": {
+        "bubble-config": {
             data: {
                 source: "gapbw",
                 space: ["country", "time"],
@@ -322,8 +309,7 @@ const config = {
         /*
         "bubble-csv": {
             data: {
-                source: "gapcsv",
-                space: ["geo", "time"]
+                source: "gapcsv"
             },
             requiredEncodings: ["x", "y", "size"],
             encoding: {
@@ -390,14 +376,50 @@ const config = {
                     },
                     splash: true,
                     value: "2018",
-                    interpolate: true,
+                    interpolate: false,
                     extrapolate: false,
+                    playEmptyFrames: true,
                     speed: 100
                 },
                 "trail": {
                     modelType: "trail"
                 }
             }
-        }*/
+        }
+        */
+        "bubble-noconfigcsv": {
+            requiredEncodings: ["x", "y", "size"],
+            data: { source: "gapcsv" },
+            encoding: {
+                "selected": {
+                    modelType: "selection",
+                    data: { 
+                        filter: { 
+                            ref: "markers.bubble.encoding.trail.data.filter"
+                        }
+                    }
+                },
+                "highlighted": { modelType: "selection" },
+                "superhighlighted": { modelType: "selection" },
+                "x": { },
+                "y": { },
+                "order": { 
+                    modelType: "order",
+                    data: {
+                        ref: "markers.bubble.encoding.size.data",
+                    }
+                },
+                "size": {
+                    scale: {
+                        modelType: 'size',
+                        range: [0, 50]
+                    }
+                },
+                "color": { scale: { modelType: "color" } },
+                "label": { data: { modelType: "entityPropertyDataConfig" } },
+                "frame": { modelType: "frame" },
+                "trail": { modelType: "trail" }                
+            }
+        },
     }
 }

@@ -114,20 +114,22 @@ function markerSolution(dataConfig) {
 function autoConfigSpace(dataConfig, extraOptions = {}, getFurtherResult) {
 
     const { markerSpaceCfg } = extraOptions;
-    let availableSpaces;
+    let availableSpaces
     if (dataConfig.hasEncodingMarker && markerSpaceCfg) {
         availableSpaces = subsets(markerSpaceCfg)
             .filter(space => dataConfig.source.availability.keyLookup.has(createKeyStr(space)))
+        availableSpaces = sortSpacesByPreference(availableSpaces);
+        availableSpaces.unshift(markerSpaceCfg);
     } else {
         availableSpaces = Array.from(dataConfig.source.availability.keyLookup.values());
+        availableSpaces = sortSpacesByPreference(availableSpaces);
     }
 
     const solveFilterSpec = dataConfig.config.space?.filter || dataConfig.defaults.space?.filter;
     const solveFilter = createSpaceFilterFn(solveFilterSpec, dataConfig);
     const allowFilter = dataConfig.allow.space?.filter || (() => true);
-    const spaces = sortSpacesByPreference(availableSpaces);
 
-    for (let space of spaces) {
+    for (let space of availableSpaces) {
         let result;
         if (!space.includes("concept") 
             && solveFilter(space)
@@ -176,21 +178,27 @@ addSolveMethod(selectUnusedConcept);
 function findConceptForSpace(dataConfig, { usedConcepts = [] }, space) {
     let concept;
     const conceptCfg = dataConfig.config.concept || dataConfig.defaults.concept;
-    const spaceCfg = space || dataConfig.config.space || dataConfig.defaults.space;
+    space = space || dataConfig.config.space || dataConfig.defaults.space;
 
     if (needsConceptAutoCfg(dataConfig)) {
         const solveConcept = solveMethods[conceptCfg.solveMethod] || defaultConceptSolver;
-        concept = solveConcept(spaceCfg, dataConfig, usedConcepts)
-    } else {
+        concept = solveConcept(space, dataConfig, usedConcepts)
+    } else if (isConceptAvailableInSpace(dataConfig, space, conceptCfg)) {
         concept = conceptCfg;
     } 
 
     if (!concept) {
-        console.warn("Could not autoconfig concept for given space for " + dataConfig.parent.id  + ".", { dataConfig, spaceCfg });
+        console.warn("Could not autoconfig concept for given space for " + dataConfig.parent.id  + ".", { dataConfig, space });
         return false;
     } 
 
     return { concept, space };
+}
+
+function isConceptAvailableInSpace(dataConfig, space, concept) {
+    const dataSource = dataConfig.source;
+    const availability = dataSource.availability;
+    return availability.keyValueLookup.get(createKeyStr(space)).has(concept);
 }
 
 function defaultConceptSolver(space, dataConfig, usedConcepts) {
