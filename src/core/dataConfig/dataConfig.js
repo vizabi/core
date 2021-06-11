@@ -235,7 +235,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             this.disposers.push(
                 lazyAsync(this.fetchResponse.bind(this), this, "responsePromise"),
                 reaction(
-                    () => this.state == 'fulfilled' ? { concept: this.concept, space: this.space } : {},
+                    () => this.state == 'fulfilled' ? this.configSolution : {},
                     ({ space, concept }) => {
                         if (space && space != this.config.space && !arrayEquals(space, this.marker.data.space)) {
                             this.config.space = space;
