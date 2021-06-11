@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { action, computed, observable, reaction, trace } from "mobx";
-import { applyDefaults, combineStates, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric, lazyAsync } from "../utils";
+import { applyDefaults, arrayEquals, combineStates, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric, lazyAsync } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
@@ -237,7 +237,7 @@ dataConfig.nonObservable = function(config, parent, id) {
                 reaction(
                     () => this.state == 'fulfilled' ? { concept: this.concept, space: this.space } : {},
                     ({ space, concept }) => {
-                        if (space && space != this.config.space) {
+                        if (space && space != this.config.space && !arrayEquals(space, this.marker.data.space)) {
                             this.config.space = space;
                         }
                         if (concept && concept != this.config.concept) {
