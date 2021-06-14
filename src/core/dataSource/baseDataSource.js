@@ -21,23 +21,6 @@ const defaultConfig = {
 
 export const type = "dataSource"
 
-const tryParse = data => {
-    for (let row of data) {
-        tryParseRow(row);
-    }
-    return data;
-}
-
-const tryParseRow = d => {
-    //return d3.autoType(d);
-    for (let key in d) {
-        d[key] = parse(d[key]);
-    }
-    return d;
-}
-
-const parse = (val) => (val == '') ? null : +val || val;
-
 export function baseDataSource(config, parent, id) {
     return observable(
         baseDataSource.nonObservable(observable(config), parent, id), 
@@ -53,7 +36,6 @@ baseDataSource.nonObservable = function (config, parent, id) {
         get path() { return this.config.path },
         get sheet() { return this.config.sheet },
         get keyConcepts() { return this.config.keyConcepts },
-        get space() { return this.config.space },
         get locale() { 
             if (this.config.locale)
                 return typeof this.config.locale == "string" ? this.config.locale : this.config.locale.id; 
@@ -175,6 +157,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             }));
         },
         get conceptsState() {
+            trace();
             return this.conceptsPromise.state;
         },
         get concepts() {
