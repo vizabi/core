@@ -157,7 +157,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             }));
         },
         get conceptsState() {
-            trace();
+            //trace();
             return this.conceptsPromise.state;
         },
         get concepts() {
