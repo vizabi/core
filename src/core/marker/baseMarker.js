@@ -8,7 +8,7 @@ import { DataFrame } from '../../dataframe/dataFrame';
 import { resolveRef, isReference } from '../config';
 import { configSolver } from '../dataConfig/configSolver';
 import { encodingCache } from './encodingCache';
-import { createKeyFn } from '../../dataframe/dfutils';
+import { createKeyFn, isDataFrame } from '../../dataframe/dfutils';
 
 
 const defaultConfig = {
@@ -141,9 +141,9 @@ baseMarker.nonObservable = function(config, parent, id) {
             for (const name of Object.keys(this.encoding)) {
                 const fn = this.ammendFnForEncoding(name);
 
-                if (fn === 'defining' && isIterable(this.encoding[name].data.response)) {
+                if (fn === 'defining') {
                     defining.push(name);
-                } else if (typeof fn === 'function' || fn === 'defining') {
+                } else if (typeof fn === 'function') {
                     if (transformFields.has(name)) {
                         ammendWrite.push(name);
                     } else {
@@ -181,7 +181,9 @@ baseMarker.nonObservable = function(config, parent, id) {
                 return row => data.constant;
             } else if (data.conceptInSpace) {
                 return row => row[concept];
-            } else if (data.commonSpace.length < this.data.space.length) { 
+            } else if (data.commonSpace.length < this.data.space.length
+                || isDataFrame(data.response) && !isIterable(data.response)
+                ) { 
                 // proper subset
                 // const response = data.response;
                 return row => data.response.get(row)?.[concept];

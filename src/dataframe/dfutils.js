@@ -5,11 +5,11 @@ export function getIter(iter) {
 }
 
 export function isDataFrame(data) {
-    return data.type == 'DataFrame' || data.type == 'Group';
+    return !!(data?.type == 'DataFrame' || data?.type == 'Group')
 }
 
 export function isGroupedDataFrame(data) {
-    return "descendantKeys" in data && Array.isArray(data.descendantKeys);
+    return !!("descendantKeys" in data && Array.isArray(data.descendantKeys));
 }
 
 export function isIterable(obj) {
