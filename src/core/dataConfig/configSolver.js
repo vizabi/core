@@ -13,8 +13,7 @@ export const configSolver = {
     configSolution,
     needsAutoConfig,
     encodingSolution,
-    markerPromiseBeforeSolving,
-    dataConfigPromisesBeforeSolving
+    markerPromiseBeforeSolving
 }
 
 function addSolveMethod(fn, name = fn.name) {
@@ -146,7 +145,7 @@ function autoConfigSpace(dataConfig, extraOptions = {}, getFurtherResult) {
         availableSpaces, 
         getFurtherResult });
 
-    return false;
+    return { concept: undefined, space: undefined };
 }
 
 function sortSpacesByPreference(spaces) {
