@@ -296,13 +296,7 @@ const config = {
                     speed: 100
                 },
                 "trail": {
-                    modelType: "trail",
-                    groupDim: "time",
-                    data: {
-                        filter: {
-                            markers: { rus: '1990' }
-                        }
-                    }
+                    modelType: "trail"
                 }
             }
         },

@@ -405,7 +405,7 @@ frame.nonObservable = function(config, parent) {
 frame.splashMarker = function splashMarker(marker) {
     const frame = marker.encoding.frame;
     if (frame?.splash) {
-        const concept = resolveRef(frame.config.data.concept);
+        const concept = resolveRef(frame.config.data.concept).value;
         if (typeof concept == "string") {
             let splashConfig = Vizabi.utils.deepclone(marker.config);
             const filterMerge = { data: { filter: { dimensions: { [concept]: { [concept]: 

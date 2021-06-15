@@ -10,7 +10,7 @@ import { stores } from "./vizabi";
  export function resolveRef(possibleRef, self) {
     // no ref
     if (!isReference(possibleRef))
-        return possibleRef
+        return { state: 'fulfilled', value: possibleRef }
 
     // handle config shorthand
     let ref = (isString(possibleRef.ref)) ? { model: possibleRef.ref } : possibleRef.ref;
@@ -27,8 +27,9 @@ import { stores } from "./vizabi";
     }
 
     // model ref includes resolved defaults
-    const model = resolveTreeRef(ref.model, firstNode);
-    return transformModel(model, ref.transform);
+    const result = resolveTreeRef(ref.model, firstNode);
+    result.value = transformModel(result.value, ref.transform);
+    return result;
 }
 
 export function isReference(possibleRef) {
@@ -37,45 +38,55 @@ export function isReference(possibleRef) {
 
 function resolveTreeRef(refStr, tree) {
     const ref = refStr.split('.');
+    let prev;
     let node = tree;
     for (let i = 0; i < ref.length; i++) {
-
+        prev = node;
         let step = ref[i];
         if (step == '^') {
-            node = node.parent; 
+            node = prev.parent; 
         } else if (typeof node.get == "function")
-            node = node.get(step);
+            node = prev.get(step);
         else
-            node = node[step];
+            node = prev[step];
 
         if (typeof node == "undefined") {
             console.warn("Couldn't resolve reference " + refStr);
             return null;
         }
     }
-    return node;
+
+    return { get state() { return node.state ?? prev.state }, value: node }
+    const state = node.state ?? prev.state;
+    if (state && state != 'fulfilled') {
+        return { state: 'pending', value: undefined };
+    } else {
+        return { state: 'fulfilled', value: node }
+    }
 }
 
 function transformModel(model, transform) {
     switch (transform) {
         case "entityConcept":
             return observable({
-                space: [model.data.concept],
-                filter: {
-                    dimensions: {
-                        [model.data.concept]: {
-                            [model.data.concept]: { $in: model.scale.domain }
+                get space() { return model.data.isConstant ? [] : [model.data.concept] },
+                get filter() {
+                    return {
+                        dimensions: {
+                            [model.data.concept]: {
+                                [model.data.concept]: { $in: model.scale.domain }
+                            }
                         }
                     }
                 },
-                source: model.data.source,
-                locale: model.data.locale
+                get source() { return model.data.source },
+                get locale() { return model.data.locale }
             });
         case "entityConceptSkipFilter":
             return observable({
-                space: model.data.isConstant ? [] : [model.data.concept],
-                source: model.data.source,
-                locale: model.data.locale
+                get space() { return model.data.isConstant ? [] : [model.data.concept] },
+                get source() { return model.data.source },
+                get locale() { return model.data.locale }
             });
         default:
             return model;

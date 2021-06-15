@@ -150,9 +150,13 @@ export function defaultDecorator({ base, renameProperties = {}, defaultConfig = 
 }
 
 export function combineStates(states) {
-    if (states.some(state => state === "rejected")) return "rejected";
-    if (states.every(state => state === "fulfilled")) return "fulfilled";
-    return "pending";
+    for (let state of states) {
+        // state getter allows us to only read state (and thus trigger upstream computeds) when earlier states are fulfilled
+        state = typeof state == 'function' ? state() : state;
+        if (state == 'pending') return 'pending';
+        if (state == 'rejected') return 'rejected'; // imperfect, should return rejected if any of states are rejected, but that would interfere with the above lazy state evaluation
+    }
+    return 'fulfilled';
 }
 
 // code from https://github.com/TehShrike/is-mergeable-object

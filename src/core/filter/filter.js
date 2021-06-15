@@ -25,7 +25,7 @@ filter.nonObservable = function (config, parent, id) {
         parent,
         type,
         get markers() {
-            const cfg = resolveRef(this.config.markers) || {};
+            const cfg = resolveRef(this.config.markers).value || {};
             const markers = (isObservableArray(cfg)) ?
                 cfg.map(m => [m, true]) :
                 Object.entries(cfg);
@@ -45,7 +45,7 @@ filter.nonObservable = function (config, parent, id) {
         },
         set: action("setFilter", function(marker, payload) {
             if (Array.isArray(marker)) {
-                for (el of marker) this.set(el);
+                for (const el of marker) this.set(el);
                 return;
             }
             const key = this.getKey(marker);
@@ -69,7 +69,7 @@ filter.nonObservable = function (config, parent, id) {
         }),
         delete: action("deleteFilter", function(marker) {
             if (Array.isArray(marker)) {
-                for (el of marker) this.delete(el)
+                for (const el of marker) this.delete(el)
                 return;
             }
             const cfg = this.config.markers;

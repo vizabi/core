@@ -5,7 +5,7 @@ import { assign, applyDefaults, isProperSubset, combineStates, relativeComplemen
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
-import { resolveRef } from '../config';
+import { resolveRef, isReference } from '../config';
 import { configSolver } from '../dataConfig/configSolver';
 import { encodingCache } from './encodingCache';
 import { createKeyFn } from '../../dataframe/dfutils';
@@ -46,7 +46,7 @@ baseMarker.nonObservable = function(config, parent, id) {
     const marker = { config, id };
     const functions = {
         get data() {
-            const datacfg = resolveRef(this.config.data);
+            const datacfg = resolveRef(this.config.data).value;
             const dataConfig = dataConfigStore.get(datacfg, this);
             if (currentDataConfig && dataConfig != currentDataConfig) {
                 currentDataConfig.dispose();
@@ -77,11 +77,20 @@ baseMarker.nonObservable = function(config, parent, id) {
         get promise() {
             return configSolver.markerPromiseBeforeSolving(this);
         },
-        get configSolvingState() {
+        get configState() {
             return this.promise.state;
         },
+        get references() {
+            return Object.fromEntries(Object.entries(this.config)
+                .filter(entry => isReference(entry[1]))
+                .map(([key, ref]) => [ key , resolveRef(ref) ] )
+            );
+        },
+        get referenceState() {
+            return combineStates(Object.values(this.references).map(ref => ref.state))
+        },
         get state() {
-            const dataConfigSolverState = this.promise.state;
+            const dataConfigSolverState = combineStates([() => this.referenceState, () => this.configState]);
 
             // observe (part of) the pipeline as long as state is observed to keep them cached
             if (dataConfigSolverState == 'fulfilled') {
@@ -92,7 +101,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 }
             }
 
-            const encodingStates = [...Object.values(this.encoding)].map(enc => enc.state);
+            const encodingStates = [...Object.values(this.encoding)].map(enc => () => enc.state);
             const states = [dataConfigSolverState, ...encodingStates];
             return combineStates(states);
         },

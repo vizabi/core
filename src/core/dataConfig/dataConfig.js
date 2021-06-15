@@ -23,7 +23,9 @@ export function dataConfig(config = {}, parent, id) {
 
 dataConfig.nonObservable = function(config, parent, id) {
 
-    applyDefaults(config, defaultConfig);
+    if (!('filter' in config)) config.filter = {};
+    if (!('allow' in config)) config.allow = {};
+    
     let latestResponse = [];
 
     return {
@@ -77,7 +79,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             return undefined;
         },
         get source() {
-            const source = resolveRef(this.config.source);
+            const source = resolveRef(this.config.source).value;
             if (source)
                 return dataSourceStore.get(source, this)
             else {
@@ -104,13 +106,13 @@ dataConfig.nonObservable = function(config, parent, id) {
             console.warn('Cannot get data.commonSpace of Marker.data. Only meaningful on Encoding.data.')
         },
         get concept() {
-            return resolveRef(this.configSolution.concept);
+            return resolveRef(this.configSolution.concept).value;
         },
         get conceptProps() { 
             return this.concept && this.source.getConcept(this.concept) 
         },
         get constant() {
-            return resolveRef(this.config.constant) ?? this.defaults.constant;
+            return resolveRef(this.config.constant).value ?? this.defaults.constant;
         },
         get isConstant() {
             return this.constant != null;
@@ -124,10 +126,10 @@ dataConfig.nonObservable = function(config, parent, id) {
         isConceptAvailableInSpace(space, concept) {
             const dataSource = this.source;
             const availability = dataSource.availability;
-            return space.includes(concept) || availability.keyValueLookup.get(createKeyStr(space)).has(concept);
+            return space.includes(concept) || availability.keyValueLookup.get(createKeyStr(space))?.has(concept);
         },
         get filter() {
-            const filter = resolveRef(this.config.filter);
+            const filter = resolveRef(this.config.filter).value;
             return filterStore.get(filter, this);
         },
         get locale() {
@@ -171,13 +173,13 @@ dataConfig.nonObservable = function(config, parent, id) {
             else // ordinal (entity_set, entity_domain, string)
                 return unique(data.rows(), concept); 
         },
-        get beforeResponseState() {
-            const states = [ this.marker.configSolvingState ];
+        get configState() {
+            const states = [ this.marker.configState ]; // marker's configSolver should be ready
             if (this.source) { states.push(this.source.conceptsState) } // conceptPromise needed for calcDomain()
             return combineStates(states);
         },
         get state() {
-            const states = [ this.beforeResponseState, this.responseState ];
+            const states = [ this.configState, this.responseState ];
             const state = combineStates(states);
             if (state == 'fulfilled' && this.domainDataSource == 'self') this.domain; 
             return state;
@@ -217,9 +219,9 @@ dataConfig.nonObservable = function(config, parent, id) {
         },
         responsePromise: fromPromise(() => {}),
         get responseState() {
-            if (this.beforeResponseState == 'fulfilled' && !this.hasOwnData) {
+            if (this.configState == 'fulfilled' && !this.hasOwnData) {
                 return 'fulfilled';
-            } else if (this.beforeResponseState != 'fulfilled') {
+            } else if (this.configState != 'fulfilled') {
                 return 'pending';
             } else {
                 return this.responsePromise.state;

@@ -1,9 +1,9 @@
 import { action, observable, trace } from 'mobx';
-import { assign, applyDefaults, isNonNullObject } from "../utils";
+import { assign, applyDefaults, isNonNullObject, combineStates } from "../utils";
 import { configurable } from '../configurable';
 import { dataConfigStore } from '../dataConfig/dataConfigStore';
 import { scaleStore } from '../scale/scaleStore';
-import { resolveRef } from '../config';
+import { resolveRef, isReference } from '../config';
 //import { scaleLinear, scaleSqrt, scaleLog, scalePoint, scaleOrdinal, schemeCategory10, extent, set } from 'd3'
 
 const defaultConfig = {
@@ -35,7 +35,7 @@ baseEncoding.nonObservable = function(config, parent, id) {
                 return 'Unnamed'
         },
         get data() {
-            const config = resolveRef(this.config.data);
+            const config = resolveRef(this.config.data).value;
             const dataConfig = dataConfigStore.get(config, this)
             if (currentDataConfig && dataConfig != currentDataConfig) {
                 currentDataConfig.dispose();
@@ -47,11 +47,20 @@ baseEncoding.nonObservable = function(config, parent, id) {
         },
         get scale() {
             // console.warn('recalculating scale', this.name);
-            const scale = resolveRef(this.config.scale);
+            const scale = resolveRef(this.config.scale).value;
             return scaleStore.get(scale, this);
         },
+        get references() {
+            return Object.fromEntries(Object.entries(this.config)
+                .filter(entry => isReference(entry[1]))
+                .map(([key, ref]) => [ key , resolveRef(ref) ] )
+            );
+        },
+        get referenceState() {
+            return combineStates(Object.values(this.references).map(ref => ref.state))
+        },
         get state() {
-            return this.data.state;
+            return combineStates([this.data.state, this.referenceState]);
         },
 
         dataMapBeforeTransform(transformName) {
