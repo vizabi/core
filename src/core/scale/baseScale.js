@@ -31,7 +31,7 @@ baseScale.nonObservable = function(config, parent) {
         defaults: {
             allowedTypes: null,
             clamp: false,
-            clampToData: false,
+            clampDomainToData: false,
             orderDomain: true,
             domain: [0, 1],
             range: [0, 1],
@@ -110,13 +110,13 @@ baseScale.nonObservable = function(config, parent) {
         get range() {
             return this.calcRange();
         },
-        get clampToData() { return this.config.clampToData ?? this.defaults.clampToData },
+        get clampDomainToData() { return this.config.clampDomainToData ?? this.defaults.clampDomainToData },
         get domain() {
             let domain;
             if (this.config.domain) {
                 domain = this.config.domain
                     .map(v => parseConfigValue(v, this.data.conceptProps))
-                    .map(v => this.clampToData ? this.clampToDomain(v, this.data.domain) : v);
+                    .map(v => this.clampDomainToData ? this.clampToDomain(v, this.data.domain) : v);
             } else if (this.data.isConstant && this.config.range) {
                 domain = [...this.range].sort(sortDateSafe);
             } else if (this.data.domain) {
