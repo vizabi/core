@@ -40,28 +40,41 @@ mobx.autorun(() => marker.state == 'fulfilled' && console.log(marker.dataArray))
 ```
 
 # Configure with data visualization concepts
-To configure properties, write to the corresponding .config property. E.g. to configure `data.concept` do `data.config.concept = "population"`. 
+To configure properties, write to the corresponding `.config` property. E.g. to configure `data.concept` do `data.config.concept = "population"`. 
 
 ## Marker
 A marker is a geometrical shape which represents one row in a [tidy data](https://vita.had.co.nz/papers/tidy-data.pdf) table. For example a bubble in a bubble chart, a line in a line chart or a bar in a bar chart. They can represent the male population of a country in a certain year, a flower observation or a student in a course in an academic quarter. Whatever the row in the data describes.
 
-Configurable Properties:
-- `Marker.data`: a `DataConfig` object
-- `Marker.encoding`: an object where each property contains an `Encoding` object
+### Configurable Properties
+Write through `Marker.config`, read through `Marker`.
+- `Marker.data: DataConfig`: a `DataConfig` object
+- `Marker.encoding: object`: an object where each property contains an `Encoding` object
+- `Marker.requiredEncodings: Array<string>`: Array of encoding names which are required to have data. Markers with no data for a required encoding will be filtered out of the final result.
+- `Marker.transformations: Array<string>`: Array of strings referring to data transformation methods on Marker or Encodings which data will undergo to reach the final data table.
+
+### Read-only properties
+- `Marker.state`: Current loading state of the marker. Should be `fulfilled` before reading any other properties.
+- `Marker.dataMap`: A DataFrame of the final data table of the marker
+- `Marker.dataArray`: An array of objects of the final data table of the marker
 
 ## Encoding
 An encoding channel, or encoding for short, is a property of a marker which encodes *data* using a *scale*. Examples of properties are a bubble's color, size or x and y position on a grid. A different data value leads to (*encodes to*) a different color, size or x and y position of the bubble.
 
 Encodings can also encode less obvious properties, such as designate what frame of an animation or small multiples plot a marker is shown in or what order the resulting data rows will be in (used for e.g. the marker's z-position).
 
-Configurable Properties:
+### Configurable Properties 
+Write through `Encoding.config`, read through `Encoding`.
 - `Encoding.data`: a `DataConfig` object
 - `Encoding.scale`: a `Scale` object
+
+### Read only properties:
+- `Encoding.state`: Current loading state of the encoding. Should be `fulfilled` before reading any other properties.
 
 ## DataConfig (.data)
 A DataConfig describes which data the encoding encodes. It points to a data `source` and describes what field (`concept`) and, if applicable, from what table (`space`) in the `source` the data comes and a `filter` defining a subset of rows. 
 
-Configurable Properties:
+### Configurable Properties
+Write through `DataConfig.config`, read through `DataConfig`.
 - `DataConfig.source: DataSource|string`: DataSource to fetch data from.
   - If `encoding.data.source` is not set, it inherits `marker.data.source`.
 - `DataConfig.space: Array<string>`: Which table in source to fetch data from. 
@@ -74,14 +87,17 @@ Configurable Properties:
 - `DataConfig.filter: Filter`: A `Filter` object defining a subset of markers through dimension (property) values or keys.
   - If `encoding.data.filter` is not set, it inherits `marker.data.filter`.
   
+### Read only properties:
+- `DataConfig.state`: Current loading state of the DataConfig. Should be `fulfilled` before reading any other properties.
+  
 ## Scale
 A scale is the part of the encoding which maps a value in the data to a value useful to a visualization. For example, mapping population to a bubble diameter in pixels, world region to a color in RGB hex or GDP per capita to an x-axis position in pixels. For more info on types of scales, see [d3-scale](https://github.com/d3/d3-scale).
 
 Configurable Properties:
-- `Scale.domain: Array<any>`: The domain of the scale. Defaults to the `Encoding.data.domain`.
-- `Scale.range: Array<any>`: The range of the scale. Defaults to `[0,1]` for standard scales.
+- `Scale.domain: Array<any>`: The domain of the scale. Defaults to the `Encoding.data.domain` if encoding has data. If data is set to constant, defaults to `encoding.range` if it is set, or `data.constant` value if range not set.
+- `Scale.range: Array<any>`: The range of the scale. Defaults to `[0,1]` for standard scales. If data is constant, defaults to `encoding.domain` to create an identity scale.
 - `Scale.zeroBaseLine: boolean`: Forces the scale to have a 0 in domain for continuous scales with one sided domains (i.e. only positive or only negative domain values). Can be used for e.g. bar chart heights or bubble sizes, where domains [should include 0](https://flowingdata.com/2015/08/31/bar-chart-baselines-start-at-zero/).
-- `Scale.type [ordinal|point|band|linear|log|genericLog|sqrt|time]`: The type of the scale. Defaults to first type in `scales` concept property, `ordinal` for entity, string and boolean concepts or single-value domains, `time` for time concepts and otherwise `linear`.
+- `Scale.type: ordinal|point|band|linear|log|genericLog|sqrt|time`: The type of the scale. Defaults to first type in `scales` concept property, `ordinal` for entity, string and boolean concepts or single-value domains, `time` for time concepts and otherwise `linear`.
 - `Scale.orderDomain: boolean`: Orders discrete (`ordinal`, `band`, `point`) domains. Defaults to true.
 - `Scale.clampDomainToData: boolean`: Clamps configured domain to data domain. Defaults to false.
 - `Scale.clamp: boolean`: Makes continuous scale clamp input values to domain. Defaults to false. See [d3-scale](https://github.com/d3/d3-scale#continuous_clamp).
