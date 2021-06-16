@@ -37,7 +37,6 @@ dataConfig.nonObservable = function(config, parent, id) {
             value: null,
             locale: null,
             source: null,
-            domain: [0, 1],
             domainDataSource: 'auto'
         },
         config,
