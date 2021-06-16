@@ -1,4 +1,4 @@
-import { trace, reaction, computed, observable, toJS } from 'mobx';
+import { trace, computed, observable, toJS, autorun } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
 import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable } from "../utils";
@@ -45,6 +45,33 @@ baseMarker.nonObservable = function(config, parent, id) {
 
     const marker = { config, id };
     const functions = {
+        on: function(prop, readyFn) {
+            if (this.validProp(prop) && typeof readyFn == "function") {
+                const disposer = autorun(
+                    () => this.state == 'fulfilled' && readyFn.call(this, this[prop])
+                );
+                this.getEventListenersMapFor(prop).set(readyFn, disposer);
+            } else {
+                console.warn('Invalid "on" call')
+            }
+            return this;
+        },
+        off: function(prop, fn) {
+            if (this.validProp(prop) && this.eventListeners.get(prop).has(fn)){
+                this.getEventListenersMapFor(prop).get(fn)(); // dispose
+                this.getEventListenersMapFor(prop).delete(fn); // delete
+            }
+            return this;
+        },
+        validProp(prop) {
+            return prop in this;
+        },
+        eventListeners: new Map(),
+        getEventListenersMapFor(prop) {
+            if (!this.eventListeners.has(prop))
+                this.eventListeners.set(prop, new Map());
+            return this.eventListeners.get(prop);
+        },
         get data() {
             const datacfg = resolveRef(this.config.data).value;
             const dataConfig = dataConfigStore.get(datacfg, this);
