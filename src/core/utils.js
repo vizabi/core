@@ -149,7 +149,23 @@ export function defaultDecorator({ base, renameProperties = {}, defaultConfig = 
     return newType;
 }
 
+/**
+ * Checks all states in parallel
+ * @param {string[]} states 
+ * @returns 
+ */
 export function combineStates(states) {
+    if (states.some(state => state === "rejected")) return "rejected";
+    if (states.every(state => state === "fulfilled")) return "fulfilled";
+    return "pending";
+}
+
+/**
+ * Checks all states sequantially (only check next if previous is fulfilled)
+ * @param {string[]} states 
+ * @returns 
+ */
+export function combineStatesSequential(states) {
     for (let state of states) {
         // state getter allows us to only read state (and thus trigger upstream computeds) when earlier states are fulfilled
         state = typeof state == 'function' ? state() : state;

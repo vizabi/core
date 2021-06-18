@@ -1,7 +1,7 @@
 import { trace, computed, observable, toJS, autorun } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
-import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable } from "../utils";
+import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable, combineStatesSequential } from "../utils";
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -57,7 +57,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             return this;
         },
         off: function(prop, fn) {
-            if (this.validProp(prop) && this.eventListeners.get(prop).has(fn)){
+            if (this.eventListeners.get(prop)?.has(fn)){
                 this.getEventListenersMapFor(prop).get(fn)(); // dispose
                 this.getEventListenersMapFor(prop).delete(fn); // delete
             }
@@ -114,7 +114,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             return combineStates(Object.values(this.references).map(ref => ref.state))
         },
         get state() {
-            const dataConfigSolverState = combineStates([() => this.referenceState, () => this.configState]);
+            const dataConfigSolverState = combineStatesSequential([() => this.referenceState, () => this.configState]);
 
             // observe (part of) the pipeline as long as state is observed to keep them cached
             if (dataConfigSolverState == 'fulfilled') {
@@ -127,7 +127,7 @@ baseMarker.nonObservable = function(config, parent, id) {
 
             const encodingStates = [...Object.values(this.encoding)].map(enc => () => enc.state);
             const states = [dataConfigSolverState, ...encodingStates];
-            return combineStates(states);
+            return combineStatesSequential(states);
         },
         get availability() {
             const items = [];
