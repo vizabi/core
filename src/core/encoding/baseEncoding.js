@@ -97,6 +97,7 @@ baseEncoding.nonObservable = function(config, parent, id) {
             this.config.scale.zoomed = null;
             this.config.scale.palette = {};
         }),
+        internalErrors: [],
         dispose() {
             for (const dispose of this.destructers) {
                 dispose();

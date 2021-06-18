@@ -230,35 +230,32 @@ function chart() {
             .style('direction', 'rtl')
             .on('input', function() { frameCfg.setSpeed(this.value) });
     }
+        
+    //mobx.onReactionError((...args) => console.log('errorrrr!', args));
 
-    function start(marker, caseImpl, name) {
-        autorun(() => {
-            //mobx.trace();
-            const state = marker.state;
-            caseImpl[state]();
-        }, { name })
+    function start(marker, caseImpl) {
+        //mobx.trace();
+        caseImpl[marker.state]();
     }
-    /*
-        if (!Array.isArray(markers)) markers = [markers];
-        const dataPromises = [];
-        markers.forEach(marker => {
-            marker.availabilityPromise.case({
-                fulfilled: () => {
-                    marker.conceptsPromise.case({
-                        fulfilled: () => {
-                            dataPromises.push(marker.dataPromise);
-                        }
-                    })
-                }
-            })
+
+    function startAuto(fn, name = fn.name) {
+        mobx.autorun(fn, { 
+            name,
+            onError: (reason) => console.warn('hellooo, error in', name, reason) 
         })
-        if (dataPromises.length == markers.length) {
-            if (dataPromises.some(p => p.state == "rejected")) rejected();
-            else if (dataPromises.every(p => p.state == "fulfilled")) fulfilled();
-            else pending();
-        }
     }
-    */
+
+    startAuto(setupTimecontrol);
+    startAuto(drawBubbles);
+    startAuto(drawChart);
+    startAuto(drawLegend);
+    startAuto(drawTimecontrol);
+    startAuto(drawEncoding);
+    //drawBubbles();
+    //drawChart();
+    //drawLegend();
+
+
     const updateSize = mobx.action("wrapper size", function(e) {
         var wrap = document.getElementById("wrapper");
         appLayout.wrapper.height = wrap.clientHeight;
@@ -273,16 +270,6 @@ function chart() {
     });
     window.addEventListener("resize", updateSize);
     updateSize();
-
-    mobx.autorun(setupTimecontrol);
-    mobx.autorun(drawBubbles);
-    mobx.autorun(drawChart);
-    mobx.autorun(drawLegend);
-    mobx.autorun(drawTimecontrol);
-    mobx.autorun(drawEncoding);
-    //drawBubbles();
-    //drawChart();
-    //drawLegend();
 
     let zoomScales;
     setupZoom();
@@ -319,14 +306,14 @@ function chart() {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
-        }, 'drawTimeControl');
+        });
 
         function showLoading() {
             console.log("loading");
         }
 
         function showError(error) {
-            console.warn("error", error);
+            // console.warn("error", error);
         }
 
         function draw() {
@@ -350,14 +337,14 @@ function chart() {
             pending: showLoading,
             rejected: showError,
             fulfilled: showData
-        }, 'drawBubbles');
+        });
 
         function showLoading() {
             console.log("loading");
         }
 
         function showError(error) {
-            console.warn("error", error);
+            //console.warn("error", error);
         }
 
         function showData() {
@@ -539,14 +526,14 @@ function chart() {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
-        }, 'drawLegend');
+        });
 
         function showLoading() {
             console.log("loading");
         }
 
         function showError(error) {
-            console.warn("error", error);
+            //console.warn("error", error);
         }
 
         function draw() {
@@ -612,14 +599,14 @@ function chart() {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
-        }, 'drawChart');
+        });
 
         function showLoading() {
             console.log("loading");
         }
 
         function showError(error) {
-            console.warn("error", error);
+            //console.warn("error", error);
         }
 
         function draw() {
@@ -668,7 +655,8 @@ function chart() {
         }
 
         function showError(error) {
-            console.warn("error", error);
+            throw error;
+            //console.warn("error", error);
         }
 
         function draw(metaData) {

@@ -6,16 +6,24 @@ import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/uti
  */
 export function inlineReader(argPromise) {
 
-    argPromise = Promise.resolve(argPromise); // promisify plain object arg
-    const dataPromise = argPromise.then(parseValues);
-    const conceptPromise = dataPromise.then(data => DataFrame(getConcepts(data), ["concept"]));
+    let dataPromise, conceptPromise;
 
     return {
         async read(query) {
+            if (!dataPromise) {
+                dataPromise = argPromise.then(parseValues);
+            }
+            
             let table = await dataPromise;
 
-            if (isConceptQuery(query))
+            if (isConceptQuery(query)) {
+                if (!conceptPromise) {
+                    conceptPromise = await dataPromise
+                        .then(getConcepts)
+                        .then(concepts => DataFrame(concepts, ["concept"]));
+                }
                 table = await conceptPromise;
+            }
 
             if (isSchemaQuery(query))
                 table = DataFrame(getSchema(table, query.from), ["key","value"])

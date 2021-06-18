@@ -1,7 +1,7 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
 import { isReference } from "../config";
-import { createSpaceFilterFn, fromPromiseAll, isNonNullObject, mode, subsets } from "../utils";
+import { combineStates, createSpaceFilterFn, fromPromiseAll, isNonNullObject, mode, subsets } from "../utils";
 
 /**
  * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
@@ -13,7 +13,7 @@ export const configSolver = {
     configSolution,
     needsAutoConfig,
     encodingSolution,
-    markerPromiseBeforeSolving
+    markerStateBeforeSolving
 }
 
 function addSolveMethod(fn, name = fn.name) {
@@ -282,17 +282,16 @@ function needsAutoConfig(dataConfig) {
     return needsSpaceAutoCfg(dataConfig) || needsConceptAutoCfg(dataConfig);
 }
 
-function dataConfigPromisesBeforeSolving(dataConfig) {
+function dataConfigStateBeforeSolving(dataConfig) {
     if (needsAutoConfig(dataConfig))
-        return [dataConfig.source.conceptsPromise];
+        return [dataConfig.source.conceptsState];
     else 
         return [];
 }
 
-function markerPromiseBeforeSolving(marker) {
+function markerStateBeforeSolving(marker) {
     const dataConfigs = [marker.data];
     for (const enc of Object.values(marker.encoding)) { dataConfigs.push(enc.data) };
-    const promises = dataConfigs.flatMap(dataConfigPromisesBeforeSolving);
-    const uniquePromises = [...new Set(promises)];
-    return fromPromiseAll(uniquePromises);
+    const states = dataConfigs.flatMap(dataConfigStateBeforeSolving);
+    return combineStates(states);
 }

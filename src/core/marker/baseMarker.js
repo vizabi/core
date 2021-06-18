@@ -101,11 +101,8 @@ baseMarker.nonObservable = function(config, parent, id) {
                 if (enc == encoding) return name;
             }
         },
-        get promise() {
-            return configSolver.markerPromiseBeforeSolving(this);
-        },
         get configState() {
-            return this.promise.state;
+            return configSolver.markerStateBeforeSolving(this);
         },
         get references() {
             return Object.fromEntries(Object.entries(this.config)
@@ -234,7 +231,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                 return DataFrame([], this.data.space);
 
             console.time('dataMapCache');
-            
+
             // define markers (full join encoding data)
             const { defining, ammendWrite, ammendGet } = this.encodingByType;
             const joinConfigs = defining.map(name => this.joinConfig(this.encoding[name], name));

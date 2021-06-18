@@ -66,7 +66,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
                     return v;
                 },
                 pending: () => { console.warn('Requesting default encoding before loaded. Will return empty. Recommended to await promise.'); return empty },
-                error: (e) => { console.warn('Requesting default encoding when loading errored. Will return empty. Recommended to check promise.'); return empty }
+                error: (e) => { console.warn('Requesting default encoding when loading errored. Will return empty. Recommended to catch exception.'); return empty }
             });
         },
         buildAvailability(responses = []) {
@@ -132,7 +132,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             return this.availabilityPromise.case({
                 fulfilled: v => v,
                 pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },
-                rejected: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); throw e; }
+                rejected: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to catch exception.'); return empty }
             })
         },
         conceptsPromise: fromPromise(() => {}),
@@ -169,8 +169,8 @@ baseDataSource.nonObservable = function (config, parent, id) {
             const empty = new Map();
             return this.conceptsPromise.case({
                 fulfilled: v => v.forQueryKey(),
-                pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
-                rejected: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); throw e; }
+                pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty; },
+                rejected: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to catch exception.'); return empty; }
             })
         },
         /* 
@@ -251,11 +251,12 @@ baseDataSource.nonObservable = function (config, parent, id) {
             }
         },
         async sendDelayedQuery(query) {
+            const reader = this.reader; // deref read before await so it's observed & memoized
             // sleep first so other queries can fill up baseQuery's select.value
             await sleep();
             const queryCombineId = this.calcCombineId(query);
             this.queue.delete(queryCombineId);
-            const response = await this.reader.read(query);
+            const response = await reader.read(query);
             return this.normalizeResponse(response, query);
         },
         calcCombineId(query) {

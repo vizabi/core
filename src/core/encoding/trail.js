@@ -25,11 +25,11 @@ export function trail(config, parent) {
     return observable(trail.nonObservable(config, parent));
 }
 
-trail.nonObservable = function(config, parent) {
+trail.nonObservable = function(config, parent, id) {
 
     applyDefaults(config, defaultConfig);
 
-    const base = baseEncoding.nonObservable(config, parent);
+    const base = baseEncoding.nonObservable(config, parent, id);
     let oldStarts = {};
 
     return assign(base, {
@@ -208,7 +208,10 @@ trail.nonObservable = function(config, parent) {
                 // wait for marker state, as we need transformeddatamaps for limits
                 () => this.marker.state == 'fulfilled' ? this.frameEncoding.ceilKeyFrame() : false,
                 (value) => { if (value) this.updateTrailStart(value) }, 
-                { name: "updateTrailStart on frame value change" }
+                { 
+                    name: "updateTrailStart on frame value change",
+                    onError: e => this.internalErrors.push(e)
+                }
             );
             this.destructers.push(updateTrailDestruct);
             const configLoopbackDestruct = reaction(
@@ -225,7 +228,10 @@ trail.nonObservable = function(config, parent) {
                         }
                     }
                 },
-                { name: "trail config loopback" }
+                { 
+                    name: "trail config loopback",
+                    onError: e => this.internalErrors.push(e)
+                }
             );
             this.destructers.push(configLoopbackDestruct);
         }

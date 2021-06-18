@@ -8,7 +8,7 @@ const config = {
             modelType: "bw",
             service: 'https://big-waffle.gapminder.org', 
             name: "sg-master"
-        },/**/
+        },/*
         gap: {
             modelType: "ddfcsv",
             path: "./ddf--jheeffer--mdtest/"
@@ -20,10 +20,10 @@ const config = {
         pcbs: {
             type: "ddfcsv",
             path: "./ddf--pcbs--census2017/"
-        },/*
+        },/**/
         gapcsv: {
             type: "csv",
-            path: "fullgap.gapodd.csv"
+            path: "fullgap.gapoddd.csv"
         },/*
         soder: {
             reader: "csv",
@@ -77,7 +77,7 @@ const config = {
                 }
             }
         },/**/
-        bubble: {
+        bubble_config: {
             requiredEncodings: ["x", "y", "size"],
             data: { 
               source: "gap",
@@ -300,8 +300,8 @@ const config = {
                 }
             }
         },
-        /*
-        "bubble-csv": {
+        
+        "bubble": {
             data: {
                 source: "gapcsv"
             },
@@ -368,7 +368,7 @@ const config = {
                     data: {
                         concept: "time"
                     },
-                    splash: true,
+                    splash: false,
                     value: "2018",
                     interpolate: false,
                     extrapolate: false,
@@ -380,7 +380,7 @@ const config = {
                 }
             }
         }
-        */
+        /*
         "bubble-noconfigcsv": {
             requiredEncodings: ["x", "y", "size"],
             data: { source: "gapcsv" },
@@ -415,5 +415,6 @@ const config = {
                 "trail": { modelType: "trail" }                
             }
         },
+        */
     }
 }

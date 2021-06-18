@@ -19,7 +19,7 @@ const defaultConfig = {
         }
     },
     scale: {
-        clampToData: true
+        clampDomainToData: true
     }
 }
 
@@ -39,7 +39,7 @@ export function frame(...args) {
     return obs;
 }
 
-frame.nonObservable = function(config, parent) {
+frame.nonObservable = function(config, parent, id) {
     applyDefaults(config, defaultConfig);
 
     const functions = {
@@ -374,7 +374,10 @@ frame.nonObservable = function(config, parent) {
                         this.playInterval = setInterval(this.nextStep.bind(this), speed);
                     }
                 }, 
-                { name: "frame playback timer" }
+                { 
+                    name: "frame playback timer",
+                    onError: error => this.internalErrors.push(error) 
+                }
             );
             this.destructers.push(playbackDestruct);
             const configLoopbackDestruct = reaction(
@@ -387,7 +390,10 @@ frame.nonObservable = function(config, parent) {
                         this.config.value = configValue(value, this.data.conceptProps);
                     }
                 },
-                { name: "frame config loopback" }
+                { 
+                    name: "frame config loopback",
+                    onError: error => this.internalErrors.push(error) 
+                }
             );
             this.destructers.push(configLoopbackDestruct);
             this.destructers.push(() => {
@@ -399,7 +405,7 @@ frame.nonObservable = function(config, parent) {
         }
     }
 
-    return assign(baseEncoding.nonObservable(config, parent), functions);
+    return assign(baseEncoding.nonObservable(config, parent, id), functions);
 }
 
 frame.splashMarker = function splashMarker(marker) {

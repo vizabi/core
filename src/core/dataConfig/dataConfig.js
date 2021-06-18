@@ -246,10 +246,15 @@ dataConfig.nonObservable = function(config, parent, id) {
                         if (concept && concept != this.config.concept) {
                             this.config.concept = concept;
                         }
+                    },
+                    {
+                        name: 'loopback data-config-solver ' + this.parent.id,
+                        onError: (error) => this.internalErrors.push(error)
                     }
                 )
             );
         },
+        internalErrors: [],
         dispose() { 
             for (const dispose of this.disposers) {
                 dispose();
