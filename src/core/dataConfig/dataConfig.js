@@ -223,6 +223,8 @@ dataConfig.nonObservable = function(config, parent, id) {
             } else if (this.configState != 'fulfilled') {
                 return 'pending';
             } else {
+                if (this.responsePromise.state == 'rejected')
+                    throw this.responsePromise.value;
                 return this.responsePromise.state;
             }
         },

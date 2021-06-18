@@ -123,6 +123,8 @@ baseDataSource.nonObservable = function (config, parent, id) {
                 .then(this.buildAvailability));
         },
         get availabilityState() {
+            if (this.availabilityPromise.state == 'rejected') 
+                throw this.availabilityPromise.value;
             return this.availabilityPromise.state;
         },
         get availability() {
@@ -130,7 +132,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             return this.availabilityPromise.case({
                 fulfilled: v => v,
                 pending: () => { console.warn('Requesting availability before availability loaded. Will return empty. Recommended to await promise.'); return empty },
-                error: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); return empty }
+                rejected: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to check promise.'); throw e; }
             })
         },
         conceptsPromise: fromPromise(() => {}),
@@ -153,11 +155,13 @@ baseDataSource.nonObservable = function (config, parent, id) {
                     query.language = locale; 
                 }
     
-                return this.query(query);
+                return this.query(query)
             }));
         },
         get conceptsState() {
             //trace();
+            if (this.conceptsPromise.state == 'rejected') 
+                throw this.conceptsPromise.value;
             return this.conceptsPromise.state;
         },
         get concepts() {
@@ -166,7 +170,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
             return this.conceptsPromise.case({
                 fulfilled: v => v.forQueryKey(),
                 pending: () => { console.warn('Requesting concepts before loaded. Will return empty. Recommended to await promise.'); return empty },
-                error: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); return empty }
+                rejected: (e) => { console.warn('Requesting concepts when loading errored. Will return empty. Recommended to check promise.'); throw e; }
             })
         },
         /* 

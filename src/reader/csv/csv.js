@@ -58,7 +58,7 @@ export function csvReader({
                 error.name = ERRORS.FILE_NOT_FOUND;
                 error.message = `No permissions, missing or empty file: ${path}`;
                 error.endpoint = path;
-                return error;
+                throw error;
             });
     }
 
