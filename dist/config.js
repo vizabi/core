@@ -23,7 +23,7 @@ const config = {
         },/**/
         gapcsv: {
             type: "csv",
-            path: "fullgap.gapoddd.csv"
+            path: "fullgap.gapodd.csv"
         },/*
         soder: {
             reader: "csv",
@@ -368,7 +368,7 @@ const config = {
                     data: {
                         concept: "time"
                     },
-                    splash: false,
+                    splash: true,
                     value: "2018",
                     interpolate: false,
                     extrapolate: false,
