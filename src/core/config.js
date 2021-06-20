@@ -56,7 +56,7 @@ function resolveTreeRef(refStr, tree) {
         }
     }
 
-    return { get state() { return node.state ?? prev.state }, value: node }
+    return { get state() { return node.state ?? prev.state ?? 'fulfilled' }, value: node }
     const state = node.state ?? prev.state;
     if (state && state != 'fulfilled') {
         return { state: 'pending', value: undefined };
