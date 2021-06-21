@@ -14,7 +14,6 @@ import { stores } from "./vizabi";
 
     // handle config shorthand
     let ref = (isString(possibleRef.ref)) ? { path: possibleRef.ref } : possibleRef.ref;
-    if (ref.model) ref.path = ref.model; // handle legacy path property
 
     // invalid ref
     if (!ref.path) {
