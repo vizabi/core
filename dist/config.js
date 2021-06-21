@@ -3,7 +3,7 @@ const config = {
         /*gapcsv: {
             type: "ddfcsv",
             path: "https://raw.githubusercontent.com/open-numbers/ddf--gapminder--systema_globalis/develop"
-        },/*
+        },/**/
         gapbw: {
             modelType: "bw",
             service: 'https://big-waffle.gapminder.org', 
@@ -20,7 +20,7 @@ const config = {
         pcbs: {
             type: "ddfcsv",
             path: "./ddf--pcbs--census2017/"
-        },/**/
+        },/*
         gapcsv: {
             type: "csv",
             path: "fullgap.gapodd.csv"
@@ -136,7 +136,7 @@ const config = {
             data: {
                 ref: {
                     transform: "entityConcept",
-                    model: "markers.bubble.encoding.color"
+                    path: "markers.bubble.encoding.color"
                 }
             },
             encoding: {
@@ -188,7 +188,7 @@ const config = {
                 "trail": { modelType: "trail" }                
             }
         },*/
-        "bubble-config": {
+        "bubble": {
             data: {
                 source: "gapbw",
                 space: ["country", "time"],
@@ -256,7 +256,7 @@ const config = {
                     modelType: "order",
                     direction: "desc",
                     data: {
-                        ref: "markers.bubble.encoding.size.data",
+                        ref: "markers.bubble.encoding.size.data.config",
                     }
                 },
                 "size": {
@@ -301,7 +301,7 @@ const config = {
             }
         },
         
-        "bubble": {
+        "bubble-csv": {
             data: {
                 source: "gapcsv"
             },

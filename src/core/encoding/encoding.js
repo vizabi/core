@@ -1,5 +1,5 @@
 import { action, observable, trace } from 'mobx';
-import { assign, applyDefaults, isNonNullObject, combineStates } from "../utils";
+import { assign, applyDefaults, isNonNullObject, combineStates, createModel } from "../utils";
 import { configurable } from '../configurable';
 import { dataConfigStore } from '../dataConfig/dataConfigStore';
 import { scaleStore } from '../scale/scaleStore';
@@ -10,14 +10,12 @@ const defaultConfig = {
     scale: {},
     data: {}
 }
-export function baseEncoding(config, parent, name) {
-    return observable(
-        baseEncoding.nonObservable(observable(config), parent, name),
-        { config: observable.ref }
-    );
-}
 
-baseEncoding.nonObservable = function(config, parent, id) {
+export function encoding(...args) {
+    return createModel(encoding, ...args);
+} 
+
+encoding.nonObservable = function(config, parent, id) {
     //console.warn('creating new encoding', name, config);
     applyDefaults(config, defaultConfig);
 

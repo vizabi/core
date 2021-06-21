@@ -1,4 +1,4 @@
-import { baseEncoding } from './baseEncoding';
+import { encoding } from './encoding';
 import { defaultDecorator, isString } from '../utils';
 
 const directions = {
@@ -10,7 +10,7 @@ const defaults = {
 }
 
 export const order = defaultDecorator({
-    base: baseEncoding,
+    base: encoding,
     functions: {
         get direction() {
             return this.config.direction || defaults.direction;

@@ -59,7 +59,7 @@ function createEmptyMap() {
     storage.rows = storage.values;
     storage.updateIndexes = () => updateIndexes(storage);
 
-    storage.setKey([]);
+    storage.setKey(key);
     return storage;
 }
 

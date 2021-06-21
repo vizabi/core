@@ -1,5 +1,4 @@
 import { createStore } from '../genericStore'
-import { baseMarker } from './baseMarker'
-import { bubble } from './bubble'
+import { marker } from './marker'
 
-export const markerStore = createStore(baseMarker, { bubble });
+export const markerStore = createStore(marker);

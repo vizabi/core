@@ -1,5 +1,5 @@
 import { autorun } from 'mobx';
-import { baseMarker } from '../../../src/core/marker/baseMarker';
+import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
 
@@ -40,7 +40,7 @@ describe('create marker', () => {
     it('create a new marker and get dataMap', async () => {
         const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
         dataSourceStore.createAndAddType('ddf', DDFReadObject);
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {   
                 source: { 
                     path: 'test/ddf--jheeffer--mdtest',
@@ -79,7 +79,7 @@ describe('create marker', () => {
 
         const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
         dataSourceStore.createAndAddType('ddf', DDFReadObject);
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {   
                 source: { 
                     path: 'test/ddf--jheeffer--mdtest',

@@ -1,5 +1,5 @@
 import { action, isObservableArray, observable, toJS, trace } from 'mobx';
-import { isString, deepmerge, arrayEquals, configValue, removeOnce } from '../utils';
+import { isString, deepmerge, arrayEquals, configValue, removeOnce, createModel } from '../utils';
 import { resolveRef } from '../config';
 
 const defaults = {
@@ -7,11 +7,8 @@ const defaults = {
 
 export const type = 'filter';
 
-export function filter(config, parent, id) {
-    return observable(
-        filter.nonObservable(observable(config), parent, id), 
-        filter.decorate
-    );
+export function filter(...args) {
+    return createModel(filter, ...args)
 }
 
 filter.nonObservable = function (config, parent, id) {

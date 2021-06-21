@@ -1,5 +1,5 @@
 import { createStore } from '../genericStore'
-import { baseEncoding } from './baseEncoding'
+import { encoding } from './encoding'
 import { frame } from './frame'
 import { selection } from './selection'
 import { order } from './order'
@@ -7,7 +7,7 @@ import { trail } from './trail'
 import { repeat } from './repeat'
 import { aggregate } from './aggregate'
 
-export const encodingStore = createStore(baseEncoding, {
+export const encodingStore = createStore(encoding, {
     frame,
     selection,
     order,

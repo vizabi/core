@@ -1,4 +1,4 @@
-import { baseEncoding } from './baseEncoding';
+import { encoding } from './encoding';
 import { defaultDecorator } from '../utils';
 
 const defaultConfig = {
@@ -13,7 +13,7 @@ const defaults = {
 }
 
 export const repeat = defaultDecorator({
-    base: baseEncoding,
+    base: encoding,
     defaultConfig,
     functions: {
         //["y1", "y2"], this is for special case when aliases are connected across rows-columns 

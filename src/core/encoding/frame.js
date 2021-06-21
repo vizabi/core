@@ -1,7 +1,7 @@
-import { baseEncoding } from './baseEncoding';
+import { encoding } from './encoding';
 import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, createModel } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
@@ -34,9 +34,7 @@ const defaults = {
 }
 
 export function frame(...args) {
-    const obs = observable(frame.nonObservable(...args));
-    obs.onCreate();
-    return obs;
+    return createModel(frame, ...args);
 }
 
 frame.nonObservable = function(config, parent, id) {
@@ -405,7 +403,7 @@ frame.nonObservable = function(config, parent, id) {
         }
     }
 
-    return assign(baseEncoding.nonObservable(config, parent, id), functions);
+    return assign(encoding.nonObservable(config, parent, id), functions);
 }
 
 frame.splashMarker = function splashMarker(marker) {

@@ -1,5 +1,5 @@
 import { fromPromise } from "mobx-utils";
-import { action, autorun, isObservableArray, onBecomeObserved, onBecomeUnobserved } from "mobx";
+import { action, autorun, isObservableArray, observable, onBecomeObserved, onBecomeUnobserved } from "mobx";
 import { createFilterFn } from "../dataframe/transforms/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
@@ -130,25 +130,6 @@ export function fromPromiseAll(promiseColl) {
     return fromPromise((res, rej) => { });
 }
 
-export function defaultDecorator({ base, renameProperties = {}, defaultConfig = {}, functions = {} }) {
-    if (Array.isArray(functions)) functions = assign({}, ...functions);
-    const newType = function (config, parent, name) {
-        return observable(newType.nonObservable(config, parent, name));
-    }
-    newType.nonObservable = function(config, parent, name) {
-        applyDefaults(config, defaultConfig);
-        delete functions.config;
-        if (!base) base = (config, parent) => ({ config, parent });
-        const baseObj = base.nonObservable(config, parent, name);
-        for (const prop in renameProperties) {
-            renameProperty(baseObj, prop, renameProperties[prop]);
-        }
-        return assign(baseObj, functions);
-    }
-    newType.decorate = base.decorate;
-    return newType;
-}
-
 /**
  * Checks all states in parallel
  * @param {string[]} states 
@@ -271,6 +252,36 @@ deepmerge.all = function deepmergeAll(array, options) {
 
 export function deepclone(object) {
     return deepmerge({}, object);
+}
+
+export function createModel(modelType, config, parent, id) {
+    let nameSuffix = id ? '-' + id : parent?.name ? '-' + parent.name : '';
+    let model = observable(
+        modelType.nonObservable(config, parent, id), 
+        Object.assign(modelType.decorate || {}, { config: observable.ref }), 
+        { name: (modelType.name || config.modelType || 'base') + nameSuffix }
+    );
+    if (model.onCreate) model.onCreate();
+    return model;
+}
+
+export function defaultDecorator({ base, renameProperties = {}, defaultConfig = {}, functions = {} }) {
+    if (Array.isArray(functions)) functions = assign({}, ...functions);
+    const newType = function (config, parent, id) {
+        return createModel(newType, config, parent, id)
+    }
+    newType.nonObservable = function(config, parent, id) {
+        applyDefaults(config, defaultConfig);
+        delete functions.config;
+        if (!base) base = (config, parent) => ({ config, parent });
+        const baseObj = base.nonObservable(config, parent, id);
+        for (const prop in renameProperties) {
+            renameProperty(baseObj, prop, renameProperties[prop]);
+        }
+        return assign(baseObj, functions);
+    }
+    newType.decorate = base.decorate;
+    return newType;
 }
 
 export const applyDefaults = action('applyDefaults', function applyDefaults(config, defaults) {

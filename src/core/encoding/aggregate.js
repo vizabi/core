@@ -1,4 +1,4 @@
-import { baseEncoding } from './baseEncoding';
+import { encoding } from './encoding';
 import { assign, defaultDecorator, filterObject } from '../utils';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { pick } from '../../dataframe/dfutils';
@@ -9,7 +9,7 @@ const defaultConfig = {
 }
 
 export const aggregate = defaultDecorator({
-    base: baseEncoding,
+    base: encoding,
     defaultConfig,
     functions: {
         get grouping () { 

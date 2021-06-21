@@ -522,11 +522,13 @@ function chart() {
 
     function drawLegend() {
 
-        start(legendmarker, {
+        const actions = {
             pending: showLoading,
             rejected: showError,
             fulfilled: draw
-        });
+        };
+        const loadingState = Vizabi.utils.combineStates([marker.state, legendmarker.state]);
+        actions[loadingState]();
 
         function showLoading() {
             console.log("loading");

@@ -1,4 +1,4 @@
-import { isNumeric, parseConfigValue, sortDateSafe } from "../utils";
+import { createModel, isNumeric, parseConfigValue, sortDateSafe } from "../utils";
 import { computed } from "mobx";
 
 const scales = {
@@ -12,11 +12,11 @@ const scales = {
     "time": d3.scaleUtc
 }
 
-export function baseScale(config, parent) {
-    return observable(baseScale.nonObservable(config, parent))
+export function scale(...args) {
+    return createModel(scale, ...args)
 }
 
-baseScale.nonObservable = function(config, parent) {
+scale.nonObservable = function(config, parent) {
   
     function isArrayOneSided(array){
         if (!array) return false;
@@ -185,7 +185,7 @@ baseScale.nonObservable = function(config, parent) {
     }
 }
 
-baseScale.decorate = {
+scale.decorate = {
     // allow setting an array to these properties, otherwise getting an infinite loop because values inside array won't be compared
     range: computed.struct,
     domain: computed.struct,

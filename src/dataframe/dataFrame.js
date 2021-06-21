@@ -33,7 +33,7 @@ function constructDataFrame(storage) {
         {        
             // transforms
             order: (direction) => order(df, direction), 
-            leftJoin: (rightJoinParams) => leftJoin({ dataFrame: df }, rightJoinParams),
+            leftJoin: (joinParams) => leftJoin({ dataFrame: df }, joinParams),
             fullJoin: (joinParams, key) => fullJoin([{ dataFrame: df }, ...joinParams], key),
             copyColumn: (src, dest) => copyColumn(df, src, dest),
             filter: (filterObj) => filter(df, filterObj),
@@ -43,7 +43,7 @@ function constructDataFrame(storage) {
             groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
             interpolate: () => interpolate(df),
             interpolateTowards: (df2, mu) => interpolateBetween(df, df2, mu),
-            reindex: (stepFn) => reindex(df, stepFn),
+            reindex: (iterable) => reindex(df, iterable),
             fillNull: (fillValues) => fillNull(df, fillValues),
             copy: () => copy(df),
             differentiate: (xField) => differentiate(df, xField),

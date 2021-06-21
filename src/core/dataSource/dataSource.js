@@ -1,12 +1,12 @@
-import { computedFn, fromPromise, FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, defer, deepclone, pipe, stableStringifyObject, relativeComplement, concatUnique, sleep, lazyAsync, combineStates } from "../utils";
+import { fromPromise } from 'mobx-utils'
+import { assign, applyDefaults, deepclone, stableStringifyObject, concatUnique, sleep, lazyAsync, combineStates, createModel } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline/inline';
 import { csvReader } from '../../reader/csv/csv';
-import { arrayEquals, createKeyStr, isDataFrame, normalizeKey } from '../../dataframe/dfutils';
+import { createKeyStr, isDataFrame } from '../../dataframe/dfutils';
 import { makeCache } from '../dataConfig/cache';
 
 let normalizingTime = 0;
@@ -21,14 +21,11 @@ const defaultConfig = {
 
 export const type = "dataSource"
 
-export function baseDataSource(config, parent, id) {
-    return observable(
-        baseDataSource.nonObservable(observable(config), parent, id), 
-        baseDataSource.decorate
-    );
+export function dataSource(...args) {
+    return createModel(dataSource, ...args)
 }
 
-baseDataSource.nonObservable = function (config, parent, id) {
+dataSource.nonObservable = function (config, parent, id) {
     applyDefaults(config, defaultConfig);
 
 
@@ -282,7 +279,7 @@ baseDataSource.nonObservable = function (config, parent, id) {
     return assign({}, functions, configurable, { config, id, type });
 }
 
-baseDataSource.decorate = {
+dataSource.decorate = {
     // to prevent config.values from becoming observable
     // possibly paints with too broad a brush, other config might need to be deep later
     config: observable.shallow,

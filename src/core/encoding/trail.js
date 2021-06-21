@@ -1,6 +1,6 @@
-import { assign, applyDefaults, clamp } from "../utils";
+import { assign, applyDefaults, clamp, createModel } from "../utils";
 import { action, computed, observable, reaction, trace } from "mobx";
-import { baseEncoding } from "./baseEncoding";
+import { encoding } from "./encoding";
 import { DataFrameGroup } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { createKeyFn } from "../../dataframe/dfutils";
@@ -21,15 +21,15 @@ const defaults = {
     updateStarts: true,
     frameEncoding: "frame"
 }
-export function trail(config, parent) {
-    return observable(trail.nonObservable(config, parent));
+export function trail(...args) {
+    return createModel(trail, ...args)
 }
 
 trail.nonObservable = function(config, parent, id) {
 
     applyDefaults(config, defaultConfig);
 
-    const base = baseEncoding.nonObservable(config, parent, id);
+    const base = encoding.nonObservable(config, parent, id);
     let oldStarts = {};
 
     return assign(base, {

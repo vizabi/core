@@ -1,6 +1,5 @@
 import { autorun } from 'mobx';
-import { baseEncoding } from '../../../src/core/encoding/baseEncoding';
-import { baseMarker } from '../../../src/core/marker/baseMarker';
+import { encoding } from '../../../src/core/encoding/encoding';
 
 function multiCheck(model, propPath, fns) {
     return new Promise((resolve, reject) => {
@@ -24,7 +23,7 @@ function multiCheck(model, propPath, fns) {
 
 describe('tests', () => {
     it('create a new encoding and use setwhich', () => {
-        const enc = baseEncoding({
+        const enc = encoding({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -45,7 +44,7 @@ describe('tests', () => {
     })
 
     it('change marker datasource on the fly', () => {
-        const marker = baseMarker({
+        const marker = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -78,7 +77,7 @@ describe('tests', () => {
 
 
     it('change from marker datasource to encoding datasource through setWhich', () => {
-        const marker = baseMarker({
+        const marker = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]

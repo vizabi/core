@@ -1,5 +1,5 @@
-import { assign, deepmerge } from "../utils";
-import { baseScale } from "./baseScale";
+import { assign, createModel, deepmerge } from "../utils";
+import { scale } from "./scale";
 
 const defaults = {
     clamp: true,
@@ -8,13 +8,13 @@ const defaults = {
     zeroBaseline: true,
 }
 
-export function size(config, parent) {
-    return observable(size.nonObservable(config, parent));
+export function size(...args) {
+    return createModel(size, ...args)
 }
 
 size.nonObservable = function(config, parent) {
 
-    const s = baseScale.nonObservable(config, parent);
+    const s = scale.nonObservable(config, parent);
     s.defaults = deepmerge(s.defaults, defaults);
 
     return assign(s, {

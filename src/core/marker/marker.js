@@ -1,7 +1,7 @@
 import { trace, computed, observable, toJS, autorun } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
-import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable, combineStatesSequential } from "../utils";
+import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable, combineStatesSequential, createModel } from "../utils";
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -31,13 +31,11 @@ const defaults = {
     ]
 }
 
-export function baseMarker(config, parent, id) {
-    return observable(baseMarker.nonObservable(observable(config), parent, id), {
-        config: observable.ref
-    });
+export function marker(...args) {
+    return createModel(marker, ...args);
 }
 
-baseMarker.nonObservable = function(config, parent, id) {
+marker.nonObservable = function(config, parent, id) {
     applyDefaults(config, defaultConfig);
 
     let pipelineTime = 0;
@@ -230,7 +228,7 @@ baseMarker.nonObservable = function(config, parent, id) {
             if (this.encodingState !== 'fulfilled')
                 return DataFrame([], this.data.space);
 
-            console.time('dataMapCache');
+            console.time('dataMapCache ' + this.id);
 
             // define markers (full join encoding data)
             const { defining, ammendWrite, ammendGet } = this.encodingByType;
@@ -261,7 +259,7 @@ baseMarker.nonObservable = function(config, parent, id) {
                     row[name] = ammendFns[name](row, markerKey);
             }
             
-            console.timeEnd('dataMapCache');
+            console.timeEnd('dataMapCache ' + this.id);
             return dataMap;
         },
         joinConfig(encoding, name) {
@@ -410,7 +408,7 @@ baseMarker.nonObservable = function(config, parent, id) {
     return assign(marker, functions, configurable);
 }
 
-baseMarker.decorate = {
+marker.decorate = {
     encodingCache: observable.ref,
     encodingByType: computed.struct,
     requiredEncodings: computed.struct

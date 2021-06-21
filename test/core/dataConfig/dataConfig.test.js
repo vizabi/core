@@ -1,5 +1,5 @@
 import { dataConfig } from '../../../src/core/dataConfig/dataConfig';
-import { baseMarker } from '../../../src/core/marker/baseMarker';
+import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import { _resetGlobalState, configure, autorun } from "mobx"
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
@@ -205,7 +205,7 @@ describe('create stand alone data configs', () => {
 
 describe('create marker with encoding dataconfigs', () => {
     it('encoding uses marker space', () => {
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {
                 space: []
             },
@@ -224,7 +224,7 @@ describe('create marker with encoding dataconfigs', () => {
     })
 
     it('encoding uses marker source', () => {
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -245,7 +245,7 @@ describe('create marker with encoding dataconfigs', () => {
     })
 
     it('encoding uses marker space and source', () => {
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -265,7 +265,7 @@ describe('create marker with encoding dataconfigs', () => {
 
 
     it('encoding uses autoconfig marker space', () => {
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -291,7 +291,7 @@ describe('create marker with encoding dataconfigs', () => {
 
 
     it('encoding uses autoconfig marker space and own autoconfig concept', () => {
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]

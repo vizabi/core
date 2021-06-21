@@ -1,6 +1,6 @@
-import { applyDefaults, assign, isString } from "../utils";
+import { applyDefaults, assign, createModel, isString } from "../utils";
 import { observable } from "mobx";
-import { baseScale } from "./baseScale";
+import { scale } from "./scale";
 import { palette } from "../palette";
 import { resolveRef } from "../config";
 
@@ -11,15 +11,15 @@ const colors = {
     schemeCategory10: d3.schemeCategory10
 }
 
-export function color(config, parent) {
-    return observable(color.nonObservable(config, parent));
+export function color(...args) {
+    return createModel(color, ...args)
 }
 
 color.nonObservable = function(config, parent) {
     
     applyDefaults(config, defaultConfig);
 
-    const s = baseScale.nonObservable(config, parent);
+    const s = scale.nonObservable(config, parent);
 
     return assign(s, {
         calcRange(domain = this.domain) {

@@ -1,5 +1,5 @@
 import { frame } from '../../../src/core/encoding/frame';
-import { baseMarker } from '../../../src/core/marker/baseMarker';
+import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import { _resetGlobalState, configure, autorun } from 'mobx';
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
@@ -29,7 +29,7 @@ describe('frame encoding', () => {
     it('marker with frame and play', () => {
         const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
         dataSourceStore.createAndAddType('ddf', DDFReadObject);
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {
                 source: {
                     path: 'test/ddf--jheeffer--mdtest',
@@ -80,7 +80,7 @@ describe('frame encoding', () => {
     it('default autoconfig frame to time concept in space', () => {
         const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
         dataSourceStore.createAndAddType('ddf', DDFReadObject);
-        const mrk = baseMarker({
+        const mrk = marker({
             data: {
                 source: {
                     path: 'test/ddf--jheeffer--mdtest',

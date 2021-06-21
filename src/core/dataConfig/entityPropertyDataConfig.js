@@ -1,15 +1,11 @@
 import { dataConfig } from './dataConfig';
-import { composeObj, renameProperty } from '../utils';
+import { composeObj, createModel } from '../utils';
 import { trace, toJS, observable, action } from 'mobx';
 import { fromPromise } from 'mobx-utils';
 import { DataFrame } from '../../dataframe/dataFrame';
-import { configSolver } from './configSolver';
 
-export function entityPropertyDataConfig(config, parent) {
-    return observable(
-        entityPropertyDataConfig.nonObservable(observable(config), parent), {
-        config: observable.ref
-    });
+export function entityPropertyDataConfig(...args) {
+    return createModel(entityPropertyDataConfig, ...args)
 }
 
 entityPropertyDataConfig.nonObservable = function (cfg, parent) {

@@ -9,7 +9,7 @@ import { reindexGroup, reindexGroupToKeyDomain } from "./transforms/reindex";
  * 
  * @param {*} df DataFrame from which to create groups
  * @param {*} key key by which is grouped
- * @param {*} descKeys keys of groups and their descendants
+ * @param {*} descKeys keys of members and their descendants
  */
 export function DataFrameGroup(data, key, descKeys = []) {
 

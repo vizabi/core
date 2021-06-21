@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
-import { action, computed, observable, reaction, trace } from "mobx";
-import { applyDefaults, arrayEquals, combineStates, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric, lazyAsync } from "../utils";
+import { computed, observable, reaction, trace } from "mobx";
+import { arrayEquals, combineStates, createModel, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric, lazyAsync } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
@@ -9,16 +9,8 @@ import { createKeyStr } from "../../dataframe/dfutils";
 import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
 
-const defaultConfig = {
-    allow: {},
-    filter: {}
-}
-
-export function dataConfig(config = {}, parent, id) {
-    return observable(
-        dataConfig.nonObservable(observable(config), parent, id),
-        { config: observable.ref }, 
-    );
+export function dataConfig(...args) {
+    return createModel(dataConfig, ...args)
 }
 
 dataConfig.nonObservable = function(config, parent, id) {
@@ -26,8 +18,6 @@ dataConfig.nonObservable = function(config, parent, id) {
     if (!('filter' in config)) config.filter = {};
     if (!('allow' in config)) config.allow = {};
     
-    let latestResponse = [];
-
     return {
         defaults: {
             filter: null,

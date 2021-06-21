@@ -17,14 +17,8 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
             this.modelTypes[modelType] = modelConstructor;
         },    
         create: action('create', function(config, parent, id) {
-            let modelType = this.modelTypes[config.modelType] || this.modelTypes.baseType;
-            let nameSuffix = id ? '-' + id : parent?.name ? '-' + parent.name : '';
-            let model = observable(
-                modelType.nonObservable(config, parent, id), 
-                Object.assign(modelType.decorate || {}, { config: observable.ref }), 
-                { name: (modelType.name || config.modelType || 'base') + nameSuffix }
-            );
-            if (model.onCreate) model.onCreate();
+            const modelType = this.modelTypes[config.modelType] || this.modelTypes.baseType;
+            const model = modelType(...arguments);
             if (id) this.set(id, model);
             return model;
         }),

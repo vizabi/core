@@ -7,27 +7,22 @@ import { stores } from "./vizabi";
  * @param {*} possibleRef 
  * @returns config Config object as described in reference config
  */
- export function resolveRef(possibleRef, self) {
+ export function resolveRef(possibleRef) {
     // no ref
     if (!isReference(possibleRef))
         return { state: 'fulfilled', value: possibleRef }
 
     // handle config shorthand
-    let ref = (isString(possibleRef.ref)) ? { model: possibleRef.ref } : possibleRef.ref;
-
-    let firstNode = stores;
-    if (ref.model.startsWith('.')) {
-        firstNode = self;
-        ref.model = ref.model.substring(1);
-    }
+    let ref = (isString(possibleRef.ref)) ? { path: possibleRef.ref } : possibleRef.ref;
+    if (ref.model) ref.path = ref.model; // handle legacy path property
 
     // invalid ref
-    if (!ref.model) {
-        console.warn("Invalid reference, expected string reference in ref or ref.model", possibleRef);
+    if (!ref.path) {
+        console.warn("Invalid reference, expected string reference in ref or ref.path", possibleRef);
     }
 
     // model ref includes resolved defaults
-    const result = resolveTreeRef(ref.model, firstNode);
+    const result = resolveTreeRef(ref.path, stores);
     result.value = transformModel(result.value, ref.transform);
     return result;
 }
@@ -42,13 +37,8 @@ function resolveTreeRef(refStr, tree) {
     let node = tree;
     for (let i = 0; i < ref.length; i++) {
         prev = node;
-        let step = ref[i];
-        if (step == '^') {
-            node = prev.parent; 
-        } else if (typeof node.get == "function")
-            node = prev.get(step);
-        else
-            node = prev[step];
+        let nextStep = ref[i];
+        node = prev.get?.(nextStep) ?? prev[nextStep];
 
         if (typeof node == "undefined") {
             console.warn("Couldn't resolve reference " + refStr);
@@ -56,12 +46,9 @@ function resolveTreeRef(refStr, tree) {
         }
     }
 
-    return { get state() { return node.state ?? prev.state ?? 'fulfilled' }, value: node }
-    const state = node.state ?? prev.state;
-    if (state && state != 'fulfilled') {
-        return { state: 'pending', value: undefined };
-    } else {
-        return { state: 'fulfilled', value: node }
+    return { 
+        get state() { return node.state ?? prev.state ?? 'fulfilled' }, 
+        value: node 
     }
 }
 
@@ -90,6 +77,5 @@ function transformModel(model, transform) {
             });
         default:
             return model;
-            break;
     }
 }
