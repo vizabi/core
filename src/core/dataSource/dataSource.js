@@ -104,7 +104,7 @@ dataSource.nonObservable = function (config, parent, id) {
                 data
             };
         },
-        availabilityPromise: fromPromise(() => {}),
+        get availabilityPromise() { return this.fetchAvailability(); },
         fetchAvailability() {
             //trace();
             const collections = ["concepts", "entities", "datapoints"];
@@ -116,7 +116,7 @@ dataSource.nonObservable = function (config, parent, id) {
                 from: collection + ".schema"
             });
     
-            this.availabilityPromise = fromPromise(Promise.all(collections.map(getCollAvailPromise))
+            return fromPromise(Promise.all(collections.map(getCollAvailPromise))
                 .then(this.buildAvailability));
         },
         get availabilityState() {
@@ -132,11 +132,11 @@ dataSource.nonObservable = function (config, parent, id) {
                 rejected: (e) => { console.warn('Requesting availability when loading errored. Will return empty. Recommended to catch exception.'); return empty }
             })
         },
-        conceptsPromise: fromPromise(() => {}),
+        get conceptsPromise() { return this.fetchConcepts(); },
         fetchConcepts() {
             //trace();
             const locale = this.locale
-            this.conceptsPromise = fromPromise(this.availabilityPromise.then(av => {
+            return fromPromise(this.availabilityPromise.then(av => {
                 const conceptKeyString = createKeyStr(["concept"]);
                 const avConcepts = [...av.keyValueLookup.get(conceptKeyString).keys()];
         
@@ -262,12 +262,7 @@ dataSource.nonObservable = function (config, parent, id) {
             return stableStringifyObject(clone);
         },
         disposers: [],
-        onCreate() {
-            this.disposers.push(
-                lazyAsync(this.fetchAvailability.bind(this), this, "availabilityPromise"),
-                lazyAsync(this.fetchConcepts.bind(this), this, "conceptsPromise")
-            );
-        },
+        onCreate() { },
         dispose() {
             let dispose;
             while (dispose = this.disposers.pop()) {

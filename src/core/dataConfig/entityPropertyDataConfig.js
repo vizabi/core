@@ -57,7 +57,7 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
                 const lookups = this.lookups(response, this.concept);
                 return DataFrame.fromLookups(lookups, this.commonSpace)
             });
-            this.responsePromise = fromPromise(promise);
+            return fromPromise(promise);
         }
     })
 }

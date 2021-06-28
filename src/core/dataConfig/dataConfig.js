@@ -206,7 +206,9 @@ dataConfig.nonObservable = function(config, parent, id) {
         get response() {
             return this.responsePromise.value;
         },
-        responsePromise: fromPromise(() => {}),
+        get responsePromise() {
+            return this.fetchResponse();
+        },
         get responseState() {
             if (this.configState == 'fulfilled' && !this.hasOwnData) {
                 return 'fulfilled';
@@ -221,12 +223,11 @@ dataConfig.nonObservable = function(config, parent, id) {
         fetchResponse() {
             const promise = this.source.query(this.ddfQuery)
                 .then(response => response.forKey(this.commonSpace));
-            this.responsePromise = fromPromise(promise);
+            return fromPromise(promise);
         },
         disposers: [],
         onCreate() {
             this.disposers.push(
-                lazyAsync(this.fetchResponse.bind(this), this, "responsePromise"),
                 reaction(
                     () => this.state == 'fulfilled' ? this.configSolution : {},
                     ({ space, concept }) => {
