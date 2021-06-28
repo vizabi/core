@@ -44,7 +44,7 @@ color.nonObservable = function(config, parent) {
         },
 
         get palette() {
-            const config = resolveRef(this.config.palette) || defaultConfig.palette;
+            const config = resolveRef(this.config.palette).value || defaultConfig.palette;
             return observable(palette(config, this));
         },
 
