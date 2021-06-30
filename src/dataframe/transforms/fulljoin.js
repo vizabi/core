@@ -1,26 +1,24 @@
+import { relativeComplement } from "../../core/utils";
 import { DataFrame } from "../dataFrame";
-import { arrayEquals } from "../dfutils";
+import { arrayEquals, createKeyFn, isDataFrame, unique } from "../dfutils";
 
-export function fullJoin(joinParams, joinKey = joinParams[0].dataFrame.key) {
+export function fullJoin(joinParams, joinKey = normalizeParam(joinParams[0]).dataFrame.key) {
     
-    return joinParams
-        .reduce((params, param) => {
-            const baseParam = params.find(baseParam => baseParam.dataFrame === param.dataFrame);
-            if (baseParam)
-                Object.keys(param.projection).forEach(key => {
-                    if (key in baseParam.projection) 
-                        baseParam.projection[key].push(param.projection[key]);
-                    else   
-                        baseParam.projection[key] = [ param.projection[key] ]
-                });
-            else
-                params.push(param);
-            return params;
-        }, [])
-        .reduce(
+    const normalizedParams = normalizeParams(joinParams);
+    const result = normalizedParams.reduce(
             _fullJoin, 
             DataFrame([], joinKey)
         );
+
+    // fill unjoined fields with explicit undefined
+    const fields = unique(normalizedParams.map(param => Object.values(param.projection)).flat(2));
+    for (const row of result.values()) {
+        for (const field of fields) {
+            if (!(field in row))
+                row[field] = undefined;
+        }
+    }
+    return result;
 
 }
 
@@ -33,20 +31,33 @@ function _fullJoin(left, rightCfg) {
     // join or copy right rows onto result
     const joinKey = left.key;
     const dataKey = rightCfg.dataFrame.key;
-    const projection = normalizeProjection(rightCfg.projection) || {};
+    const projection = rightCfg.projection;
 
-    if (!joinKey.every(dim => dataKey.includes(dim)))
-        console.warn("Right key does not contain all join fields.", { left: left, right: rightCfg });
-    if (!projection || Object.keys(projection).length === 0)
-        console.warn("No projection given for join so no new fields will be joined", { left: left, right: rightCfg } );
+    if (!joinKey.every(dim => rightCfg.dataFrame.fields.includes(dim)))
+        console.warn("Right dataFrame does not contain all join fields.", { left, rightCfg });
 
-    for (let keyStr of rightCfg.dataFrame.keys()) {
-        const rightRow = rightCfg.dataFrame.getByStr(keyStr);
-        const leftRow = getOrCreateRow(left, rightRow, keyStr)  
-        // project with aliases        
-        for(let key in projection) {
-            for (let field of projection[key]) 
-                leftRow[field] = rightRow[key];
+    if (arrayEquals(joinKey, dataKey)) { 
+        for (let keyStr of rightCfg.dataFrame.keys()) {
+            const rightRow = rightCfg.dataFrame.getByStr(keyStr);
+            const leftRow = getOrCreateRow(left, rightRow, keyStr)  
+            // project with aliases        
+            for(let key in projection) {
+                for (let field of projection[key]) {
+                    leftRow[field] = rightRow[key];
+                }
+            }
+        }
+    } else {
+        const keyFn = createKeyFn(joinKey);
+        for (let keyStr of rightCfg.dataFrame.keys()) {
+            const rightRow = rightCfg.dataFrame.getByStr(keyStr);
+            const leftKeyStr = keyFn(rightRow);
+            const leftRow = getOrCreateRow(left, rightRow, leftKeyStr)  
+            // project with aliases        
+            for(let key in projection) {
+                for (let field of projection[key]) 
+                    leftRow[field] = rightRow[key];
+            }
         }
     }
 
@@ -54,14 +65,43 @@ function _fullJoin(left, rightCfg) {
 }
 
 // change array ["geo","year"] to { geo: [ "geo" ], year: [ "year" ] }
-function normalizeProjection(projection) {
-    if (!Array.isArray(projection))
-        return projection;
+export function normalizeParams(params) {
+    return params
+        .map(normalizeParam)
+        .reduce((params, param) => {
+            const baseParam = params.find(baseParam => baseParam.dataFrame === param.dataFrame);
+            if (baseParam)
+                mergeProjections(baseParam, param);
+            else
+                params.push(param);
+            return params;
+        }, []);
+}
+
+function normalizeParam(param) {
+    if (isDataFrame(param))
+        param = { dataFrame: param }
+
+    if (!("projection" in param))
+        param.projection = relativeComplement(param.dataFrame.key, param.dataFrame.fields);
+
+    if (!Array.isArray(param.projection))
+        return param;
     
-    return projection.reduce((obj, field) => {
+    param.projection = param.projection.reduce((obj, field) => {
         obj[field] = [ field ];
         return obj;
     }, {});
+    return param;
+}
+
+function mergeProjections(destParam, sourceParam) {
+    for (const [sourceField, destFields] of Object.entries(sourceParam.projection)) {
+        if (sourceField in destParam.projection) 
+            destParam.projection[sourceField].push(...destFields);
+        else   
+            destParam.projection[sourceField] = destFields;
+    }
 }
 
 function createObj(space, row, keyStr) {

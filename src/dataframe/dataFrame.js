@@ -34,7 +34,7 @@ function constructDataFrame(storage) {
             // transforms
             order: (direction) => order(df, direction), 
             leftJoin: (joinParams) => leftJoin({ dataFrame: df }, joinParams),
-            fullJoin: (joinParams, key) => fullJoin([{ dataFrame: df }, ...joinParams], key),
+            fullJoin: (joinParams, key) => fullJoin([df, ...joinParams], key),
             copyColumn: (src, dest) => copyColumn(df, src, dest),
             filter: (filterObj) => filter(df, filterObj),
             filterNullish: (fields) => filterNullish(df, fields),

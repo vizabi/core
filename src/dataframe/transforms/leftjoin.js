@@ -1,6 +1,7 @@
 import { copyColumn } from "./copycolumn";
 import { arrayEquals } from "../dfutils";
 import { DataFrame } from "../dataFrame";
+import { normalizeParams } from "./fulljoin";
 
         // TODO: add check for non-marker space dimensions to contain only one value
         // -> save first row values and all next values should be equal to first
@@ -13,11 +14,10 @@ import { DataFrame } from "../dataFrame";
 export function leftJoin(left, rights) {
     const leftDf = left.dataFrame;
     const leftKey = leftDf.key;
-    
-    const rightCopies = rights.filter(r => leftKey.some(d => d in r.projection));
-    rights = rights.filter(r => !rightCopies.includes(r)).map(r => { 
+
+    rights = normalizeParams(rights);
+    rights.forEach(r => { 
         r.sameKey = arrayEquals(r.dataFrame.key, leftKey);
-        return r;
     });
 
     const result = DataFrame([], leftKey)
@@ -32,25 +32,15 @@ export function leftJoin(left, rights) {
             const rightRow = r.sameKey 
                 ? r.dataFrame.getByStr(keyStr) 
                 : r.dataFrame.get(row);
-            if (rightRow !== undefined) {
-                for(let key in r.projection) {
-                    for (let field of r.projection[key]) 
-                        leftRow[field] = rightRow[key];
-                }
+                
+            for(let key in r.projection) {
+                for (let field of r.projection[key]) 
+                    leftRow[field] = rightRow[key];
             }
         }
         
         // set row
         result.set(leftRow, keyStr);
-    }
-    for (let right of rightCopies) {
-        // weird chrome bug: using for(let col in right.projection) in combination with 
-        // assigning right.projection[col] to var or passing into function crashes chrome
-        // therefore for...of w/ object.keys
-        // for(let col in right.projection) {
-        for (let col of Object.keys(right.projection)) { 
-            copyColumn(result, col, right.projection[col]); 
-        }   
     }
     return result;
 }
