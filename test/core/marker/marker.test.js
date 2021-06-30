@@ -95,17 +95,16 @@ describe('create marker', () => {
         });
         const dataMap = await check(mrk, 'dataMap');
         //console.log(dataMap.get({geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))}));
-        const key = {geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))};
+        const key = { country: 'swe' };
         expect(dataMap.get(key)).toEqual({
-            gender: 'male',
-            geo: 'swe',
-            time: new Date(Date.UTC(2012)),
-            size: 4748680,
-            y: 79.9,
-            x: 43308,
-            label: { gender: 'Male', geo: 'Sweden' },
+            country: 'swe',
+            frame: new Date(Date.UTC(1800)),
+            time: new Date(Date.UTC(1800)),
+            size: 1413,
+            y: null,
+            x: null,
+            label: { country: 'Sweden' },
             [Symbol.for('key')]: createKeyFn(dataMap.key)(key)
         })
     })
 })
-
