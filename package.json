@@ -16,7 +16,7 @@
     "build": "npx rollup -c",
     "dev": "NODE_ENV=devserver rollup -c --watch",
     "rollup": "rollup -c",
-    "test": "jest",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "debug": "node --experimental-vm-modules node_modules/.bin/jest --runInBand --watch --no-cache"
   },
   "author": {
