@@ -6,6 +6,7 @@ import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/uti
  */
 export function inlineReader(argPromise) {
 
+    argPromise = Promise.resolve(argPromise);
     let dataPromise, conceptPromise;
 
     return {

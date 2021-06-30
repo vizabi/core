@@ -199,11 +199,11 @@ dataSource.nonObservable = function (config, parent, id) {
                 response.pop();
             }
             function forKey(key) {
-                const t0 = performance.now();   
+                //const t0 = performance.now();   
                 const keyStr = createKeyStr(key);
                 const df = cache[keyStr] ?? (cache[keyStr] = DataFrame(response, key)); 
-                const time = performance.now() - t0;
-                normalizingTime += time;
+                //const time = performance.now() - t0;
+                //normalizingTime += time;
                 //console.log('normalized: ', time, 'total: ' + normalizingTime)
                 return df;
             }

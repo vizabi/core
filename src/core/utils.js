@@ -143,15 +143,18 @@ export function combineStates(states) {
 
 /**
  * Checks all states sequantially (only check next if previous is fulfilled)
- * @param {string[]} states 
+ * @param {function[]} states state getters
  * @returns 
  */
 export function combineStatesSequential(states) {
+    if (!states.every(state => typeof state == 'function')) {
+        throw new Error("Every state given to combineStatesSequential should be wrapped in a getter function.")
+    }
     for (let state of states) {
         // state getter allows us to only read state (and thus trigger upstream computeds) when earlier states are fulfilled
-        state = typeof state == 'function' ? state() : state;
+        state = state()
         if (state == 'pending') return 'pending';
-        if (state == 'rejected') return 'rejected'; // imperfect, should return rejected if any of states are rejected, but that would interfere with the above lazy state evaluation
+        if (state == 'rejected') return 'rejected';
     }
     return 'fulfilled';
 }
@@ -258,7 +261,7 @@ export function createModel(modelType, config, parent, id) {
     let nameSuffix = id ? '-' + id : parent?.name ? '-' + parent.name : '';
     let model = observable(
         modelType.nonObservable(config, parent, id), 
-        Object.assign(modelType.decorate || {}, { config: observable.ref }), 
+        modelType.decorate,
         { name: (modelType.name || config.modelType || 'base') + nameSuffix }
     );
     if (model.onCreate) model.onCreate();

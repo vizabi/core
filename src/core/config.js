@@ -35,8 +35,8 @@ function resolveTreeRef(refStr, tree) {
     let prev;
     let node = tree;
     for (let i = 0; i < ref.length; i++) {
-        prev = node;
         let nextStep = ref[i];
+        prev = node;
         node = prev.get?.(nextStep) ?? prev[nextStep];
 
         if (typeof node == "undefined") {

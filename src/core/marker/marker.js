@@ -100,7 +100,7 @@ marker.nonObservable = function(config, parent, id) {
             }
         },
         get configState() {
-            return configSolver.markerStateBeforeSolving(this);
+            return configSolver.markerSolvingState(this);
         },
         get references() {
             return Object.fromEntries(Object.entries(this.config)
@@ -124,7 +124,7 @@ marker.nonObservable = function(config, parent, id) {
             }
 
             const encodingStates = [...Object.values(this.encoding)].map(enc => () => enc.state);
-            const states = [dataConfigSolverState, ...encodingStates];
+            const states = [() => dataConfigSolverState, ...encodingStates];
             return combineStatesSequential(states);
         },
         get availability() {
@@ -228,7 +228,7 @@ marker.nonObservable = function(config, parent, id) {
             if (this.encodingState !== 'fulfilled')
                 return DataFrame([], this.data.space);
 
-            console.time('dataMapCache ' + this.id);
+            //console.time('dataMapCache ' + this.id);
 
             // define markers (full join encoding data)
             const { defining, ammendWrite, ammendGet } = this.encodingByType;
@@ -259,7 +259,7 @@ marker.nonObservable = function(config, parent, id) {
                     row[name] = ammendFns[name](row, markerKey);
             }
             
-            console.timeEnd('dataMapCache ' + this.id);
+            //console.timeEnd('dataMapCache ' + this.id);
             return dataMap;
         },
         joinConfig(encoding, name) {
@@ -350,10 +350,10 @@ marker.nonObservable = function(config, parent, id) {
                     () => {
                         //trace();
                         const previous = prevResult.get();
-                        const t0 = performance.now();
+                        //const t0 = performance.now();
                         const result = fn(previous)
-                        const t1 = performance.now();
-                        pipelineTime += t1 - t0;
+                        //const t1 = performance.now();
+                        //pipelineTime += t1 - t0;
                         //console.log('Pipeline ' + fn.name + ':', t1-t0, 'Total:', pipelineTime);
                         return result;
                     }, 

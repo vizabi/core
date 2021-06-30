@@ -1,10 +1,13 @@
 import { dataConfig } from '../../../src/core/dataConfig/dataConfig';
 import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
-import { _resetGlobalState, configure, autorun } from "mobx"
+import { _resetGlobalState, autorun, runInAction } from "mobx"
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
 
 //console.log = jest.fn()
+
+const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
+dataSourceStore.createAndAddType('ddf', DDFReadObject);
 
 function check(model, propPath) {
     let destruct;
@@ -35,7 +38,7 @@ function multiCheck(model, propPath, fns) {
                 check(value); 
                 if (fns.length > 0) {
                     ({ check, action } = fns.shift());
-                    action();
+                    runInAction(action);
                 } else {
                     destruct();
                     resolve();
@@ -74,8 +77,6 @@ describe('create stand alone data configs', () => {
     })
 
     it('create a new dataConfig with 3d space from ddf', () => {
-        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
-        dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const data = dataConfig({
             source: { 
                 path: 'test/ddf--jheeffer--mdtest',
@@ -161,7 +162,7 @@ describe('create stand alone data configs', () => {
         return check(data, 'response').then(response => expect(response.get(1).x).toBe(5));
     })
 
-    it('set dataconfig source', () => {
+    it.only('set dataconfig source', () => {
         const data = dataConfig({
             source: {
                 values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -186,8 +187,6 @@ describe('create stand alone data configs', () => {
 
 
     it('returns spaceCatalog for current source/space', () => {
-        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
-        dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const data = dataConfig({
             source: { 
                 path: 'test/ddf--jheeffer--mdtest',

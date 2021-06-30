@@ -21,7 +21,7 @@ As the request is in a `computed`, no reactions will be triggered before the req
 
 The drawback of `computed` is that recomputes can happen during an action, breaking the action-is-atomic-change principle. This can trigger async requests while the action is underway and thus send out wrong queries (e.g. old concept, new space). So it fails req 3.
 
-This is the currently implemented async data loading pattern. The drawback can be worked around by dereferencing any needed async state to a local variable before making any changes to observables.
+This is the currently implemented async data loading pattern. The drawback can be worked around changing actions to dereference any needed async state before making changes to observables.
 
 Example JS Fiddle: https://jsfiddle.net/jasperh/2h6f5dv3/4/. You could solve the bug in this specific example: make `sync2` a computed which contains the `if` statement and observes a different base state. Sure, but (1) it shows unexpected bugs come with this pattern and (2) this is just an example to show this pattern can trigger async loading during the action, which may be harder to avoid in more complex systems.
 
@@ -49,6 +49,8 @@ autorun(
 
 window.setTimeout(action(() => {
   obs.sync = 5;
+  // triggers obs.promise recompute before sync is set
+  // can be prevented by doing `const async = obs.async` before setting obs.sync
   if (obs.async == 3)
     obs.sync2 = 6;
 }), 1000);

@@ -1,7 +1,7 @@
 import { createKeyStr } from "../../dataframe/dfutils";
 import { createFilterFn } from "../../dataframe/transforms/filter";
 import { isReference } from "../config";
-import { combineStates, createSpaceFilterFn, fromPromiseAll, isNonNullObject, mode, subsets } from "../utils";
+import { combineStates, createSpaceFilterFn, isNonNullObject, mode, subsets } from "../utils";
 
 /**
  * Finds a config which satisfies both marker.space and encoding.concept autoconfigs
@@ -13,7 +13,8 @@ export const configSolver = {
     configSolution,
     needsAutoConfig,
     encodingSolution,
-    markerStateBeforeSolving
+    markerSolvingState,
+    dataConfigSolvingState
 }
 
 function addSolveMethod(fn, name = fn.name) {
@@ -263,7 +264,7 @@ function needsSpaceAutoCfg(dataConfig) {
     const defaults = dataConfig.defaults;
     const explicitNoSpace = "space" in cfg && !cfg.space;
     const usesDefaultAutoConfig = !cfg.space && needsSolving(defaults.space);
-    return !explicitNoSpace 
+    return !dataConfig.isConstant && !explicitNoSpace 
         && (needsSolving(cfg.space) || usesDefaultAutoConfig)
 }
 
@@ -272,26 +273,26 @@ function needsConceptAutoCfg(dataConfig) {
     const defaults = dataConfig.defaults;
     const isStandAloneDataConfig = !dataConfig.marker;
     const explicitNoConcept = "concept" in cfg && !cfg.concept;
-    const isNotMarkerDataConfig = dataConfig.hasEncodingMarker;
+    const isEncodingDataConfig = dataConfig.hasEncodingMarker;
     const usesDefaultSolving = !("concept" in cfg) && needsSolving(defaults.concept);
-    return !isReference(dataConfig.config.concept) && !explicitNoConcept && (needsSolving(cfg.concept)
-        || ((isNotMarkerDataConfig || isStandAloneDataConfig) && usesDefaultSolving));
+    return !dataConfig.isConstant && !isReference(dataConfig.config.concept) && !explicitNoConcept && (needsSolving(cfg.concept)
+        || ((isEncodingDataConfig || isStandAloneDataConfig) && usesDefaultSolving));
 }
 
 function needsAutoConfig(dataConfig) {
     return needsSpaceAutoCfg(dataConfig) || needsConceptAutoCfg(dataConfig);
 }
 
-function dataConfigStateBeforeSolving(dataConfig) {
+function dataConfigSolvingState(dataConfig) {
     if (needsAutoConfig(dataConfig))
         return [dataConfig.source.conceptsState];
     else 
         return [];
 }
 
-function markerStateBeforeSolving(marker) {
+function markerSolvingState(marker) {
     const dataConfigs = [marker.data];
     for (const enc of Object.values(marker.encoding)) { dataConfigs.push(enc.data) };
-    const states = dataConfigs.flatMap(dataConfigStateBeforeSolving);
+    const states = dataConfigs.flatMap(dataConfigSolvingState);
     return combineStates(states);
 }

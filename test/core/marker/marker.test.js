@@ -3,7 +3,8 @@ import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
 
-
+const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
+dataSourceStore.createAndAddType('ddf', DDFReadObject);
 
 function check(model, prop) {
     let destruct;
@@ -38,8 +39,6 @@ function multiCheck(model, prop, fns) {
 
 describe('create marker', () => {
     it('create a new marker and get dataMap', async () => {
-        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
-        dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const mrk = marker({
             data: {   
                 source: { 
@@ -77,8 +76,6 @@ describe('create marker', () => {
 
     it('create a new marker with just dataset and encodings', async () => {
 
-        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
-        dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const mrk = marker({
             data: {   
                 source: { 

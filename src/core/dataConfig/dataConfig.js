@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { computed, observable, reaction, trace } from "mobx";
-import { arrayEquals, combineStates, createModel, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric, lazyAsync } from "../utils";
+import { arrayEquals, combineStates, combineStatesSequential, createModel, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
@@ -163,13 +163,13 @@ dataConfig.nonObservable = function(config, parent, id) {
                 return unique(data.rows(), concept); 
         },
         get configState() {
-            const states = [ this.marker.configState ]; // marker's configSolver should be ready
-            if (this.source) { states.push(this.source.conceptsState) } // conceptPromise needed for calcDomain()
-            return combineStates(states);
+            return this.marker?.configState ?? combineStates(configSolver.dataConfigSolvingState(this));
         },
         get state() {
-            const states = [ this.configState, this.responseState ];
-            const state = combineStates(states);
+            const states = [ () => this.configState ];
+            if (this.source) { states.push(() => this.source.conceptsState) } // conceptState needed for calcDomain()
+            states.push(() => this.responseState);
+            const state = combineStatesSequential(states);
             if (state == 'fulfilled' && this.domainDataSource == 'self') this.domain; 
             return state;
         },
@@ -179,7 +179,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             const keyStr = createKeyStr(space);
             concept = Array.isArray(concept) ? concept : [concept];
             concept = concept.filter(concept => {
-                return source.availability.keyValueLookup.get(keyStr).has(concept);
+                return source.availability.keyValueLookup.get(keyStr)?.has(concept);
             })
 
             query.select = {
@@ -201,7 +201,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             return query;
         },
         get ddfQuery() {    
-            return this.createQuery({ filter: [this.marker.data.filter, this.filter] })
+            return this.createQuery({ filter: [this.marker?.data?.filter, this.filter].filter(f => f != null) })
         },
         get response() {
             return this.responsePromise.value;
@@ -210,10 +210,8 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.fetchResponse();
         },
         get responseState() {
-            if (this.configState == 'fulfilled' && !this.hasOwnData) {
+            if (!this.hasOwnData) {
                 return 'fulfilled';
-            } else if (this.configState != 'fulfilled') {
-                return 'pending';
             } else {
                 if (this.responsePromise.state == 'rejected')
                     throw this.responsePromise.value;
@@ -239,7 +237,7 @@ dataConfig.nonObservable = function(config, parent, id) {
                         }
                     },
                     {
-                        name: 'loopback data-config-solver ' + this.parent.id,
+                        name: 'loopback data-config-solver ' + this.parent?.id,
                         onError: (error) => this.internalErrors.push(error)
                     }
                 )

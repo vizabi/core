@@ -1,5 +1,6 @@
 import { autorun } from 'mobx';
 import { encoding } from '../../../src/core/encoding/encoding';
+import { marker } from '../../../src/core/marker/marker';
 
 function multiCheck(model, propPath, fns) {
     return new Promise((resolve, reject) => {
