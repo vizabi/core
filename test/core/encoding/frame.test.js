@@ -1,8 +1,11 @@
-import { frame } from '../../../src/core/encoding/frame';
 import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import { _resetGlobalState, configure, autorun } from 'mobx';
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
+import { createKeyFn } from '../../../src/dataframe/dfutils';
+
+const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
+dataSourceStore.createAndAddType('ddf', DDFReadObject);
 
 function multiCheck(model, propPath, fns) {
     return new Promise((resolve, reject) => {
@@ -27,8 +30,6 @@ function multiCheck(model, propPath, fns) {
 
 describe('frame encoding', () => {
     it('marker with frame and play', () => {
-        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
-        dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const mrk = marker({
             data: {
                 source: {
@@ -46,28 +47,26 @@ describe('frame encoding', () => {
                 }
             }
         })
+        const key = { 
+            gender: 'male',
+            geo: 'prk'
+        }
         return multiCheck(mrk, 'dataMap', [
             {
                 check: map => {
-                    expect(map.get({ 
-                        gender: 'male',
-                        geo: 'prk'
-                    })).toEqual({
+                    expect(map.get(key)).toEqual({
                         gender: 'male', geo: 'prk', time: new Date(Date.UTC(1960)),
                         x: 5279170, y: 48.424, frame: new Date(Date.UTC(1960)), 
-                        [Symbol.for('key')]: 'gender-male-geo-prk'
+                        [Symbol.for('key')]: createKeyFn(map.key)(key)
                     })
                 }
             }, 
             { 
                 action: () => mrk.encoding.frame.startPlaying(),
-                check: map => expect(map.get({ 
-                    gender: 'male',
-                    geo: 'prk'
-                })).toEqual({
+                check: map => expect(map.get(key)).toEqual({
                     gender: 'male', geo: 'prk', time: new Date(Date.UTC(1961)),
                     x: 5403447, y: 48.708, frame: new Date(Date.UTC(1961)),
-                    [Symbol.for('key')]: 'gender-male-geo-prk'
+                    [Symbol.for('key')]: createKeyFn(map.key)(key)
                 })
             },
             { 
@@ -78,8 +77,6 @@ describe('frame encoding', () => {
 
 
     it('default autoconfig frame to time concept in space', () => {
-        const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
-        dataSourceStore.createAndAddType('ddf', DDFReadObject);
         const mrk = marker({
             data: {
                 source: {
@@ -96,29 +93,29 @@ describe('frame encoding', () => {
                 }
             }
         })
+        const key = { 
+            gender: 'male',
+            geo: 'prk'
+        };
         return multiCheck(mrk, 'dataMap', [
             {
                 check: map => {
-                    expect(map.get({ 
-                        gender: 'male',
-                        geo: 'prk'
-                    })).toEqual({
+                    expect(map.get(key)).toEqual({
                         gender: 'male', geo: 'prk', time: new Date(Date.UTC(1960)),
                         x: 5279170, y: 48.424, frame: new Date(Date.UTC(1960)), 
-                        [Symbol.for('key')]: 'gender-male-geo-prk'
+                        [Symbol.for('key')]: createKeyFn(map.key)(key)
                     })
                 }
             }, 
             { 
                 action: () => mrk.encoding.frame.startPlaying(),
-                check: map => expect(map.get({ 
-                    gender: 'male',
-                    geo: 'prk'
-                })).toEqual({
-                    gender: 'male', geo: 'prk', time: new Date(Date.UTC(1961)),
-                    x: 5403447, y: 48.708, frame: new Date(Date.UTC(1961)),
-                    [Symbol.for('key')]: 'gender-male-geo-prk'
-                })
+                check: map => {
+                    expect(map.get(key)).toEqual({
+                        gender: 'male', geo: 'prk', time: new Date(Date.UTC(1961)),
+                        x: 5403447, y: 48.708, frame: new Date(Date.UTC(1961)),
+                        [Symbol.for('key')]: createKeyFn(map.key)(key)
+                    })
+                }
             },
             { 
                 action: () => mrk.encoding.frame.dispose()

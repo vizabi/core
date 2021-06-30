@@ -162,7 +162,7 @@ describe('create stand alone data configs', () => {
         return check(data, 'response').then(response => expect(response.get(1).x).toBe(5));
     })
 
-    it.only('set dataconfig source', () => {
+    it('set dataconfig source', () => {
         const data = dataConfig({
             source: {
                 values: [{ x: 1, y: 2}, {x: 5, y: 6 }]

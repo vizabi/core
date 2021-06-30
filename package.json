@@ -17,7 +17,7 @@
     "dev": "NODE_ENV=devserver rollup -c --watch",
     "rollup": "rollup -c",
     "test": "jest",
-    "debug": "node --experimental-vm-modules node_modules/.bin/jest ./*/filter.test.js --runInBand --watch --no-cache"
+    "debug": "node --experimental-vm-modules node_modules/.bin/jest --runInBand --watch --no-cache"
   },
   "author": {
     "name": "Jasper Heeffer and others at Gapminder Foundation",

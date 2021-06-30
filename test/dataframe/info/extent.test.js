@@ -31,28 +31,28 @@ describe('dataframe extent', () => {
 
     it('returns grouped extent', () => {
         expect(extent(df, 'pop', ['geo'])).toEqual({ 
-            'geo-ger': [4, 4], 
-            'geo-swe': [2, 8] 
+            'ger': [4, 4], 
+            'swe': [2, 8] 
         })
     });
 
     it('returns grouped extent', () => {
         expect(extent(df2, 'pop', ['geo','gender'])).toEqual({ 
-            'geo-swe-gender-male': [3, 6],
-            'geo-swe-gender-female': [5, 12] 
+            'male¬swe': [3, 6],
+            'female¬swe': [5, 12] 
         })
     });
 
     it('returns grouped extent with subset', () => {
-        expect(extent(df, 'pop', ['geo'], ['geo-ger'])).toEqual({ 
-            'geo-ger': [4, 4]
+        expect(extent(df, 'pop', ['geo'], ['ger'])).toEqual({ 
+            'ger': [4, 4]
         })
     });
 
     it('returns grouped extent with subset non-array iterable', () => {
-        const map = new Map([['geo-ger', 'foo']]);
+        const map = new Map([['ger', 'foo']]);
         expect(extent(df, 'pop', ['geo'], map.keys())).toEqual({ 
-            'geo-ger': [4, 4]
+            'ger': [4, 4]
         })
     });
 
@@ -62,17 +62,17 @@ describe('dataframe extent', () => {
 
     it('returns grouped extent of group', () => {
         expect(extent(grouped, 'pop', ['geo'])).toEqual({ 
-            'geo-ger': [4, 4], 
-            'geo-swe': [2, 8] 
+            'ger': [4, 4], 
+            'swe': [2, 8] 
         })
     });
 
     it('returns grouped extent of group by key of group', () => {
         expect(extent(grouped, 'pop', ['time'])).toEqual({ 
-            'time-2011': [4, 8], 
-            'time-2012': [3, 3], 
-            'time-2013': [6, 6], 
-            'time-2014': [2, 2] 
+            '2011': [4, 8], 
+            '2012': [3, 3], 
+            '2013': [6, 6], 
+            '2014': [2, 2] 
         })
     });
 
@@ -82,28 +82,28 @@ describe('dataframe extent', () => {
 
     it('returns grouped extent of key of grouping by key of group', () => {
         expect(extent(grouped, 'time', ['geo'])).toEqual({ 
-            'geo-ger': [2011, 2011], 
-            'geo-swe': [2011, 2014] 
+            'ger': [2011, 2011], 
+            'swe': [2011, 2014] 
         })
     });
 
 
     it('returns special case: grouped extent of grouping by key of group', () => {
-        expect(extentOfGroupKeyPerMarker(grouped, ['geo-ger'], 'time', ['geo'])).toEqual({ 
-            'geo-ger': [2011, 2011]
+        expect(extentOfGroupKeyPerMarker(grouped, ['ger'], 'time', ['geo'])).toEqual({ 
+            'ger': [2011, 2011]
         })
     });
 
     it('returns special case: grouped extent of grouping by key of group, multidimensional', () => {
-        expect(extentOfGroupKeyPerMarker(grouped2, ['gender-female-geo-swe'], 'time', ['geo', 'gender'])).toEqual({ 
-            'gender-female-geo-swe': [2011, 2013]
+        expect(extentOfGroupKeyPerMarker(grouped2, ['female¬swe'], 'time', ['geo', 'gender'])).toEqual({ 
+            'female¬swe': [2011, 2013]
         })
     });
 
     it('returns special case: grouped extent of grouping by key of group, iterator for group subsets', () => {
-        const map = new Map([['gender-female-geo-swe', 'foo']])
+        const map = new Map([['female¬swe', 'foo']])
         expect(extentOfGroupKeyPerMarker(grouped2, map.keys(), 'time', ['geo', 'gender'])).toEqual({ 
-            'gender-female-geo-swe': [2011, 2013]
+            'female¬swe': [2011, 2013]
         })
     });
 

@@ -1,4 +1,4 @@
-import { autorun } from 'mobx';
+import { autorun, runInAction } from 'mobx';
 import { encoding } from '../../../src/core/encoding/encoding';
 import { marker } from '../../../src/core/marker/marker';
 
@@ -12,7 +12,7 @@ function multiCheck(model, propPath, fns) {
                 check(value); 
                 if (fns.length > 0) {
                     ({ check, action } = fns.shift());
-                    action();
+                    runInAction(action);
                 } else {
                     destruct();
                     resolve();
@@ -45,7 +45,7 @@ describe('tests', () => {
     })
 
     it('change marker datasource on the fly', () => {
-        const marker = marker({
+        const mrk = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -61,13 +61,13 @@ describe('tests', () => {
             }
         });
 
-        return multiCheck(marker, 'encoding.x.data.response', [
+        return multiCheck(mrk, 'encoding.x.data.response', [
             {
                 check: map => expect(map.get(0).x).toBe(1),
             }, 
             { 
                 action: () => {
-                    marker.config.data.source = {
+                    mrk.config.data.source = {
                         values: [{ x: 3, y: 2}]
                     }
                 },
@@ -78,7 +78,7 @@ describe('tests', () => {
 
 
     it('change from marker datasource to encoding datasource through setWhich', () => {
-        const marker = marker({
+        const mrk = marker({
             data: {
                 source: {
                     values: [{ x: 1, y: 2}, {x: 5, y: 6 }]
@@ -94,13 +94,13 @@ describe('tests', () => {
             }
         });
 
-        return multiCheck(marker, 'encoding.x.data.response', [
+        return multiCheck(mrk, 'encoding.x.data.response', [
             {
                 check: map => expect(map.get(0).x).toBe(1),
             }, 
             { 
                 action: () => {
-                    marker.encoding.x.setWhich({
+                    mrk.encoding.x.setWhich({
                         value: {
                             dataSource: {
                                 values: [{ x: 3, y: 2}]

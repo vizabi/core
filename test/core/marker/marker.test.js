@@ -2,6 +2,7 @@ import { autorun } from 'mobx';
 import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
+import { createKeyFn } from '../../../src/dataframe/dfutils';
 
 const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
 dataSourceStore.createAndAddType('ddf', DDFReadObject);
@@ -62,15 +63,16 @@ describe('create marker', () => {
         })
         const dataMap = await check(mrk, 'dataMap');
         //console.log(dataMap.get({geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))}));
-        expect(dataMap.get({geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))})).toEqual({
+        const key = {geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))};
+        expect(dataMap.get(key)).toEqual({
             gender: 'male',
             geo: 'swe',
             time: new Date(Date.UTC(2012)),
             size: 4748680,
             y: 79.9,
             x: 43308,
-            label: { gender: 'Male', geo: 'Sweden', time: new Date(Date.UTC(2012)) },
-            [Symbol.for('key')]: 'gender-male-geo-swe-time-2012\\-01\\-01T00:00:00.000Z'
+            label: { gender: 'Male', geo: 'Sweden' },
+            [Symbol.for('key')]: createKeyFn(dataMap.key)(key)
         })
     })
 
@@ -93,15 +95,16 @@ describe('create marker', () => {
         });
         const dataMap = await check(mrk, 'dataMap');
         //console.log(dataMap.get({geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))}));
-        expect(dataMap.get({geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))})).toEqual({
+        const key = {geo: 'swe', gender: 'male', time: new Date(Date.UTC(2012))};
+        expect(dataMap.get(key)).toEqual({
             gender: 'male',
             geo: 'swe',
             time: new Date(Date.UTC(2012)),
             size: 4748680,
             y: 79.9,
             x: 43308,
-            label: { gender: 'Male', geo: 'Sweden', time: new Date(Date.UTC(2012)) },
-            [Symbol.for('key')]: 'gender-male-geo-swe-time-2012\\-01\\-01T00:00:00.000Z'
+            label: { gender: 'Male', geo: 'Sweden' },
+            [Symbol.for('key')]: createKeyFn(dataMap.key)(key)
         })
     })
 })

@@ -155,7 +155,7 @@ marker.nonObservable = function(config, parent, id) {
         get encodingByType() {
 
             const defining = [];
-            const ammendWrite = []; // ammends by writing to object. Changes to encoding trigger pipeline, but pipeline is faster with direct writing.
+            let ammendWrite = []; // ammends by writing to object. Changes to encoding trigger pipeline, but pipeline is faster with direct writing.
             let ammendGet = []; // ammends by creating a getter. Allows changing config of encoding without triggering rest of pipeline.
             
             const transformFields = this.transformFields;
@@ -176,15 +176,17 @@ marker.nonObservable = function(config, parent, id) {
             }
                    
             // optimization: if ammending shares response with defining just let fullJoin handle it
-            const definingResponses = defining.map(name => this.encoding[name].data.response);
-            ammendGet = ammendGet.filter(name => {
-                const data = this.encoding[name].data;
-                if (data.hasOwnData && definingResponses.includes(data.response)) {
-                    defining.push(name);
-                    return false;
-                }
-                return true;
-            })
+            if (defining.concat(ammendWrite).every(name => this.encoding[name].data.state == 'fulfilled')) {
+                const definingResponses = defining.map(name => this.encoding[name].data.response);
+                ammendWrite = ammendWrite.filter(name => {
+                    const data = this.encoding[name].data;
+                    if (data.hasOwnData && definingResponses.includes(data.response)) {
+                        defining.push(name);
+                        return false;
+                    }
+                    return true;
+                })
+            }
 
             return {
                 defining,
@@ -204,7 +206,7 @@ marker.nonObservable = function(config, parent, id) {
             } else if (data.conceptInSpace) {
                 return row => row[concept];
             } else if (data.commonSpace.length < this.data.space.length
-                || isDataFrame(data.response) && !isIterable(data.response)
+                || data.iterableResponse === false
                 ) { 
                 // proper subset
                 // const response = data.response;

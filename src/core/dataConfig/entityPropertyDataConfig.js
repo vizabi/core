@@ -18,7 +18,7 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
     const base = dataConfig.nonObservable(cfg, parent);
 
     return composeObj(base, {
-
+        iterableResponse: false,
         get space() {
             return base.space?.filter(dim => this.source.isEntityConcept(dim));
         },
