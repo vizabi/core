@@ -126,7 +126,7 @@ scale.nonObservable = function(config, parent) {
                 // use cases: forcing zero-based bar charts and bubble size
                 if (this.zeroBaseline) {
                     domain = [...domain];
-                    const closestToZeroIdx = d3.scan(domain.map(Math.abs));
+                    const closestToZeroIdx = d3.leastIndex(domain.map(Math.abs));
                     domain[closestToZeroIdx] = 0;
                 } 
             } else {

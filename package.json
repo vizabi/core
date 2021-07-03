@@ -1,6 +1,6 @@
 {
   "name": "vizabi-reactive",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "description": "Vizabi core (data layer)",
   "main": "dist/Vizabi.js",
   "type": "module",
@@ -12,7 +12,7 @@
     "src"
   ],
   "scripts": {
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm test && npm run build",
     "build": "npx rollup -c",
     "dev": "NODE_ENV=devserver rollup -c --watch",
     "rollup": "rollup -c",
@@ -53,7 +53,7 @@
   "homepage": "http://vizabi.org",
   "peerDependencies": {
     "mobx": "^5.15.7",
-    "d3": "^6.6.0"
+    "d3": "^6.7.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^9.0.0",

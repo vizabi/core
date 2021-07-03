@@ -561,12 +561,12 @@ controls.append("div").append("input")
   
 controls.append("div").attr("class", "yearlabel");
 controls.append("div").attr("class", "spacepicker").append("select")
-  .on("change", function(d){
+  .on("change", function(event, d){
     marker.config.data.space = spaces[this.value];
   });
   
 controls.append("div").attr("class", "indicatorpicker").append("select")
-  .on("change", function(d){
+  .on("change", function(event, d){
     marker.config.encoding.y.data.concept = availability[this.value].value.concept;
   });
   

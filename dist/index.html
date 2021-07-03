@@ -108,7 +108,7 @@
         <div id="wrapper">
             <svg id="chart"></svg>
         </div>
-        <script src="https://d3js.org/d3.v5.js"></script>
+        <script src="https://d3js.org/d3.v6.js"></script>
         <script src="vizabi-ddfcsv-reader.js"></script>
         <script src="mobx.umd.js"></script>
         <script src="https://unpkg.com/mobx-utils/mobx-utils.umd.js"></script>
@@ -295,8 +295,8 @@ function chart() {
             })
         }, null, { name: 'zoomObj' });
 
-        function zoomed() {
-            zoomScales.setTransform(d3.event.transform);
+        function zoomed(event) {
+            zoomScales.setTransform(event.transform);
         }
     }
 
@@ -382,14 +382,14 @@ function chart() {
                 .attr("class", "dot")
                 .attr("id", d => d[Symbol.for('key')])
                 // must start with marker here, not use refs above so they don't keep referring to splash marker after full load
-                .on("click", d => {
+                .on("click", (event, d) => {
                     const selectedConfig = marker.encoding.selected;
                     const highlightFilter = marker.encoding.highlighted.data.filter;
                     if (!d[Symbol.for('trailHeadKey')]) selectedConfig.data.filter.toggle(d);
                     highlightFilter.delete(d);
                 })
-                .on("mouseover", d =>  marker.encoding.highlighted.data.filter.set(d))
-                .on("mouseout", d =>  marker.encoding.highlighted.data.filter.delete(d))
+                .on("mouseover", (event, d) =>  marker.encoding.highlighted.data.filter.set(d))
+                .on("mouseout", (event, d) =>  marker.encoding.highlighted.data.filter.delete(d))
 
             // remove old bubbles
             const exit = update.exit().remove();
@@ -574,11 +574,11 @@ function chart() {
                 .attr("width", 18)
                 .attr("height", 18)
                 .style("fill", d => colorConfig.scale.d3Scale(d.color))
-                .on("mouseover", d => {
+                .on("mouseover", (event, d) => {
                     const values = marker.dataArray.filter(d2 => d2["color"] == d["color"] && !d2[Symbol.for('trail')]);
                     superHighlight.data.filter.set(values);
                 })
-                .on("mouseout", d => {
+                .on("mouseout", (event, d) => {
                     const values = marker.dataArray.filter(d2 => d2["color"] == d["color"] && !d2[Symbol.for('trail')]);
                     superHighlight.data.filter.delete(values);
                 });
