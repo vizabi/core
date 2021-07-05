@@ -64,11 +64,8 @@ export function palette(config = {}, parent) {
                     palette = deepclone(this.defaultPalettes["_default"]);
                 }
             } else if (this.colorConceptProp.palette) {
-                //specific color palette from hook concept properties
+                //specific color palette from enc concept properties
                 palette = deepclone(this.colorConceptProp.palette);
-            } else if (this.defaultPalettes[this.encoding.data.concept]) {
-                //color palette for concept exists in palette defaults
-                palette = deepclone(this.defaultPalettes[this.encoding.data.concept]);
             } else {
                 palette = deepclone(this.defaultPalettes[this.paletteType]);
             }
@@ -123,6 +120,11 @@ export function palette(config = {}, parent) {
         },
         getColor(key, palette = this.palette) {
             const color = palette[key];
+            return Array.isArray(color) ? color[0] : color;
+        },
+        getColorByIndex(index, palette = this.palette) {
+            const length = Object.keys(palette).filter(f => f !== "_default").length;
+            const color = palette[index % length];
             return Array.isArray(color) ? color[0] : color;
         },
         setColor: action('setColor', function (value, pointer) {

@@ -38,8 +38,8 @@ color.nonObservable = function(config, parent) {
                 return palette.paletteDomain.map(m => palette.getColor(singlePoint ? palette.palette[palette.paletteDomain[0]] : m));
             }
 
-            return domain.map(d => {
-                return palette.getColor(d) || palette.getColor("_default");
+            return domain.map((d, i) => {
+                return palette.getColor(d) || palette.getColorByIndex(i) || palette.defaultColor;
             });
         },
 
