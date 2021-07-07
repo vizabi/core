@@ -48,10 +48,10 @@
   "license": "CC-BY-4.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vizabi/vizabi-reactive"
+    "url": "https://github.com/vizabi/core"
   },
   "bugs": {
-    "url": "https://github.com/vizabi/vizabi-reactive/issues"
+    "url": "https://github.com/vizabi/core/issues"
   },
   "homepage": "http://vizabi.org",
   "peerDependencies": {
