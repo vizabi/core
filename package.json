@@ -1,5 +1,5 @@
 {
-  "name": "vizabi-reactive",
+  "name": "@vizabi/core",
   "version": "1.17.1",
   "description": "Vizabi core (data layer)",
   "main": "dist/Vizabi.js",
@@ -11,6 +11,9 @@
     "dist/Dataframe.js.map",
     "src"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "prepublishOnly": "npm test && npm run build",
     "build": "npx rollup -c",
