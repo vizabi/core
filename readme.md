@@ -6,7 +6,7 @@ Vizabi data core uses [data visualization language](#configure-with-data-visuali
 
 Vizabi-data is built using MobX 5 for state management and expects it as a peer dependency, i.e. you include it on the page. It is not built in because this setup allows you to interact reactively with Vizabi-data [[docs]](https://mobx.js.org/configuration.html#isolateglobalstate-boolean) [[gh issue]](https://github.com/mobxjs/mobx/issues/1082).
 
-Another peer dependency D3. Used mostly for scales and some handy array functions. It is included as a peer dependency too because one is likely to already have it in the page for the purpose of visualisations.
+Another peer dependency is D3. Used mostly for scales and some handy array functions. It is included as a peer dependency too because one is likely to already have it in the page for the purpose of visualisations.
 
 # Usage 
 
@@ -59,14 +59,15 @@ Let `data.csv` have content as follows:
 # Developing the project
 
 ## Run a demo chart
-clone, run `npm install`, then `npm run dev`  
+clone, run `npm install`, then `npm start`,
+see output at http://localhost:9000
 
 ## Run tests
 `npm test`
 
 ## Build the bundle  
-`npx run build`, see output in /dist/Vizabi.js 
+`npm run build`, see output in /dist/Vizabi.js 
 
 ## Pubishing
-Upon publishing the package with `npm publish`, it will do automatically `npm test` && `npm run build` first.
+Upon publishing the package with `npm publish` it will automatically `npm test` && `npm run build` first
 

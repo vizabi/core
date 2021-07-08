@@ -11,23 +11,23 @@ const config = {
         },/*
         gap: {
             modelType: "ddfcsv",
-            path: "./ddf--jheeffer--mdtest/"
+            path: "./data/ddf--jheeffer--mdtest/"
         },/*
         sg: {
             type: "ddfcsv",
-            path: "./systema_globalis/"
+            path: "./data/systema_globalis/"
         },/*
         pcbs: {
             type: "ddfcsv",
-            path: "./ddf--pcbs--census2017/"
+            path: "./data/ddf--pcbs--census2017/"
         },/*
         gapcsv: {
             type: "csv",
-            path: "fullgap.gapodd.csv"
+            path: "./data/fullgap.gapodd.csv"
         },/*
         soder: {
             reader: "csv",
-            path: "soder.csv"
+            path: "./data/soder.csv"
         }
         */
     },
