@@ -17,9 +17,8 @@
     - [Working with individual marker items](./model-api.md#working-with-individual-marker-items)
     - [Working with slices of marker items degined by their dimensions](./model-api.md#working-with-slices-of-marker-items-degined-by-their-dimensions)
 
-- [Data loading](./data-loading.md)  
-  - [Mobx <-> Async requests interface](./data-loading.md#mobx---async-requests-interface)
-  - [Computeds](./data-loading.md#computeds)
+- [Data loading tradeoffs](./data-loading-tradeoffs.md)  
+  - [Computeds (the current way)](./data-loading.md#computeds)
   - [Autorun & action](./data-loading.md#autorun--action)
   - [Actions](./data-loading.md#actions)
   - [Autorun & Action with state update after async response](./data-loading.md#autorun--action-with-state-update-after-async-response)
