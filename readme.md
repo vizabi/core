@@ -71,3 +71,6 @@ see output at http://localhost:9000
 ## Pubishing
 Upon publishing the package with `npm publish` it will automatically `npm test` && `npm run build` first
 
+## Source code files overview, scale by file size
+![image](https://user-images.githubusercontent.com/3648190/124941497-1fefbf80-e00b-11eb-9fdf-b6359bd7b421.png)
+
