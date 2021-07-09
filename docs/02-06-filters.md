@@ -84,3 +84,7 @@ filter.config.dimensions = {
 ```
 
 Do the same for the female literacy rate on X encoding and you will have made a chart where each bubble is a `[country, time]` marker item, but X and Y show `[country, gender, time]` data
+
+![image](https://user-images.githubusercontent.com/3648190/125062691-f8523300-e0ae-11eb-8b2d-96af285288e8.png)
+
+  const selectedFilter = marker.encoding.selected.data.filter;
