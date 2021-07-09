@@ -3,7 +3,10 @@
 A filter defines a selection of rows either through configuring the keys to single rows, or selecting key dimension (property) values, capturing multiple rows at once. 
 
 # API reference
+Write through `filter.config`, read through `filter`.
+
 ## Working with individual marker items
+### Methods
 Individual keys are stored in a map inside `filter.markers`
 
 - `Boolean filter.any()`
@@ -39,6 +42,20 @@ autorun(() => {
     })
 }
 ```
+
+![FTqmz1PwxH](https://user-images.githubusercontent.com/3648190/125066404-41a48180-e0b3-11eb-9311-bbbecef4a682.gif)
+
+code to reproduce the above gif:
+
+```js
+// on tools page bar rank chart: https://www.gapminder.org/tools/#$chart-type=barrank&url=v1 paste this in JS console
+mobx.autorun(()=>{
+  slt = viz.model.markers.bar.encoding.selected.data.filter;
+  hlt = viz.model.markers.bar.encoding.highlighted.data.filter;
+  console.log("select filter.markers", js(slt.config.markers), "highlight filter.markers", js(hlt.config.markers));
+})
+```
+
 
 ## Working with slices of marker items 
 
@@ -111,4 +128,3 @@ Do the same for the female literacy rate on X encoding and you will have made a 
 
 ![image](https://user-images.githubusercontent.com/3648190/125062691-f8523300-e0ae-11eb-8b2d-96af285288e8.png)
 
-  const selectedFilter = marker.encoding.selected.data.filter;
