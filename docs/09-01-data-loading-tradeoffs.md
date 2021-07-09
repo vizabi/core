@@ -15,7 +15,7 @@ The API requirements (req 1-4) are:
  4. the request should be sent out before any external reactions are executed
 
 # Computeds (the current way)
-A `computed` named `promise` sends the async request and returns the `fromPromise()` of the request (req 1.3 and 2). The `state` observes `promise`, thus the moment `state` becomes observed `promise` sends the async request (req 1.1 and 1.2). The model's value and state are a computeds, returning `promise.value`, and `promise.state`, which always reflect the latest request (req 2).
+A `computed` named `responsePromise` sends the async request and returns the `fromPromise()` of the request (req 1.3 and 2). The `state` observes `responsePromise`, thus the moment `state` becomes observed `responsePromise` sends the async request (req 1.1 and 1.2). The model's value and state are a computeds, returning `responsePromise.value`, and `responsePromise.state`, which always reflect the latest request (req 2).
 
 As the request is in a `computed`, no reactions will be triggered before the request is sent out. Computeds will first fully resolve staleness before reactions are executed (req 4).
 

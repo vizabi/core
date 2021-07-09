@@ -117,6 +117,7 @@ marker.nonObservable = function(config, parent, id) {
             // observe (part of) the pipeline as long as state is observed to keep them cached
             if (dataConfigSolverState == 'fulfilled') {
                 if (this.encoding.frame?.changeBetweenFramesEncodings?.some(enc => this.encoding[enc].data.state !== 'fulfilled')) {
+                    //trigger combining encoding data responses in dataMapCache
                     this.dataMapCache;
                 } else {
                     this.dataMap;
@@ -375,6 +376,7 @@ marker.nonObservable = function(config, parent, id) {
             console.warn("Requesting unknown transformed data name: ", name);
         },
         get dataMap() {
+            //compute transformations backwards (pull data through trasformations)
             return this.transformedDataMaps.get('final').get();
         },
         get dataArray() {

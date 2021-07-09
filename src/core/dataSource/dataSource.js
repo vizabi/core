@@ -217,7 +217,8 @@ dataSource.nonObservable = function (config, parent, id) {
             }
         },
         query(query) {
-            //return [];
+            //TODO what does this do?
+            //https://github.com/vizabi/core/commit/0e8280f241870d1b042f21fd756a1bc1eef99961
             if (!query._id) {
                 query._id = this.identity;
             }
@@ -234,12 +235,15 @@ dataSource.nonObservable = function (config, parent, id) {
             if (this.cache.has(query)) 
                 return this.cache.get(query);
 
+            //find out which queries can be combined (stringify all fields minus select.value)
             const queryCombineId = this.calcCombineId(query);
             if (this.queue.has(queryCombineId)) {
+                //add an extra column to a query already found in the queue
                 const { baseQuery, promise } = this.queue.get(queryCombineId);
                 baseQuery.select.value = concatUnique(baseQuery.select.value, query.select.value);
                 return promise;
             } else {
+                //create a new query in a queue
                 const baseQuery = deepclone(query);
                 const promise = fromPromise(this.sendDelayedQuery(baseQuery));
                 this.queue.set(queryCombineId, { baseQuery, promise })
@@ -252,6 +256,7 @@ dataSource.nonObservable = function (config, parent, id) {
             // sleep first so other queries can fill up baseQuery's select.value
             await sleep();
             const queryCombineId = this.calcCombineId(query);
+            //after deleting from the queue nothing more can be added to the query
             this.queue.delete(queryCombineId);
             const response = await reader.read(query);
             return this.normalizeResponse(response, query);

@@ -1,0 +1,16 @@
+# Misc future work
+
+## rename dataMapCache
+## you can see joining as a transformation, so would be logical to move it into transformation pipeline too
+
+## layered config
+see layeredConfig.js in `big_jasper_update` stash branch
+better way to separate what user has set and what defaults are, what autoconfig created, etc
+you can add many layers of config and it would fallback automatically
+normally you'd be writing to the top config
+but if it will be equal to soome value below then it would remove it from the top config
+that way the user config would be as small as possible
+(but scale domain = null overwriting would still remain when we swtich a concept)
+
+## Adapters: dot to join, add explicit and
+we can get rid of those by making readers and WS support the query in the form before adapters

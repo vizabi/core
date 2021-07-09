@@ -42,9 +42,11 @@ viz.model.markers.bubble.getTransformedDataMap("filterRequired")
 
 Each marker item represents a row in the marker data. The marker data is determined as follows.
 
-## Step 1: Full join marker space responses
+## Step 1: Full join responses from marker-defining encodings
 
-At first, the marker data is a **full join** of the responses from encodings using the same space as marker. The full join is on the marker space (i.e. the responses' key). In the marker data the headers for the encodings are used instead of the data concepts. Encodings have unique names while concepts do not necessarily (e.g. male population & female population are both `population` with a different filter on the `gender` dimension).
+At first, the marker data is a **full join** of the responses from encodings using the same space as marker. The full join is on the marker space (i.e. the responses' key). 
+
+Notice that renaming of the columns (projection) happens while joining. In the marker data the headers for the encodings are used instead of the data concepts. Encodings have unique names while concepts do not necessarily (e.g. male population & female population are both `population` with a different filter on the `gender` dimension). 
 
 size encoding response:
 
@@ -68,9 +70,9 @@ marker data:
 | chn   | 2017   | 1300 |      |
 | swe   | 2017   |      | 800  |
 
-## Step 2: Left join marker subspace responses
+## Step 2: Left join responses from marker-ammending encodings
 
-After that, responses from encodings using subspaces of the marker space, e.g. `color.space: ["geo"]`, are **left joined** to the marker data on their overlapping space. Left join means that no new marker items will be created from this operation.
+After that, responses from encodings using subspaces of the marker space, e.g. `color.space: ["geo"]`, constants or concepts that are in the marker space, are **left joined** to the marker data on their overlapping space. Left join means that no new marker items will be created from this operation. Notice again that renaming of the columns (projection) happens while joining.
 
 color encoding response:
 
@@ -90,7 +92,7 @@ marker data:
 
 As you can see, the color encoding response `geo: ukr, world_4region: europe` is not joined to the marker data, because there was no row with `geo: ukr` in the marker data. This is the result of **left** joining instead of **full** joining.
 
-## Step 3: Remove markers missing important encodings
+## Step 3: Remove marker items missing data for the required encodings
 
 Some encoding data is required to draw a marker, other data is not. For example, in a bubble chart, the x, y and size of the bubble are required, while the color is not (missing data is represented by a white bubble).
 
