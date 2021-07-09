@@ -46,10 +46,15 @@ autorun(() => {
 //filter by individual entities (such as we do in line chart and pop by age)
 filter.config.dimensions = {
     country: {
-        country: {$in: ["aus", "blr", "bfa", "chl", "chn"]}
+        country: {$in: ["usa", "chn", "rus", "nga"]}
     }
 }
+```
 
+![image](https://user-images.githubusercontent.com/3648190/125064342-d8bc0a00-e0b0-11eb-9a09-cbf88fd7ee2c.png)
+
+
+```js
 //filter by a criteria on multiple dimensions
 filter.config.dimensions.age = {
     geo: {
@@ -57,8 +62,10 @@ filter.config.dimensions.age = {
     }
     age: {$gt: 30}
 }
+```
+![image](https://user-images.githubusercontent.com/3648190/125063121-64349b80-e0af-11eb-9f37-85467dea9ba4.png)
 
-
+```js
 //filter by entity set criteria
 filter.config.dimensions = {
     country: {
@@ -67,6 +74,23 @@ filter.config.dimensions = {
 }
 
 ```
+![image](https://user-images.githubusercontent.com/3648190/125064015-79f69080-e0b0-11eb-8e2a-add2b043da0c.png)
+
+```js
+//filter by multiple entity set criteria
+filter.config.dimensions = {
+    country: {
+        income_groups: {$in: ["low_income"]},
+        world_4region: {$in: ["asia"]}        
+    }
+}
+
+```
+![image](https://user-images.githubusercontent.com/3648190/125064277-c5a93a00-e0b0-11eb-8442-071af7eb6bb3.png)
+
+
+
+
 
 ## Working with encoding's extra dimensions
 Sometimes you want encoding dimensionality to be higher than marker dimensionality, that is to say, you want `encoding.data.space` to be a proper superset of `marker.data.space`. In this case you must restrict each complementing dimension of the encoding in order to avoid ambiguity of joining the data.
