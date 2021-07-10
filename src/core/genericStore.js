@@ -6,22 +6,28 @@ defaultType.nonObservable = config => ({ config })
 
 export const createStore = function(baseType = defaultType, extendedTypes = {}) {
     return observable({
+        // add types on store creation
         modelTypes: {
             baseType,
             ...extendedTypes
         },
         models: {},
+        // add types later during runtime
         addType: function(modelType, modelConstructor) {
             if (this.modelTypes[modelType])
                 console.warn("Adding model type " + modelType + " failed. Type already exists", this);
             this.modelTypes[modelType] = modelConstructor;
         },    
         create: action('create', function(config, parent, id) {
-            const modelType = this.modelTypes[config.modelType] || this.modelTypes.baseType;
-            const model = modelType(...arguments);
+            //model can be of a special type, such as frame or color scale
+            //otherwise it falls back to generic type: encoding or scale that would be
+            const createModelOfType = this.modelTypes[config.modelType] || this.modelTypes.baseType;
+            //see utils.createModel()
+            const model = createModelOfType(...arguments);
             if (id) this.set(id, model);
             return model;
         }),
+        //used for example when passing multiple markers in Vizabi()
         createMany: action('createMany', function(configs) {
             const models = {};
             for (let id in configs) {
@@ -32,13 +38,20 @@ export const createStore = function(baseType = defaultType, extendedTypes = {}) 
         has: function(id) {
             return id in this.models;
         },   
-        get(reference, parent, name) {
-            if (isString(reference)) {
-                return this.models[reference] // id
-            } else if (isModel(reference)) {
-                return reference;
+        get(arg, parent, name) {
+            //get or create actually
+            if (isString(arg)) {
+                //resolve arg as reference if it's a string - get it from the store
+                return this.models[arg] // id
+            } else if (isModel(arg)) {
+                //no-op: if asking for a model - return it without change
+                return arg;
             } else {
-                return this.create(reference, parent, name)
+                //otherwise assume arg is a config for a new model to be created
+                //allows creating multiple models from the same config
+                //e.g. order.data and size.data are created from the same config
+                //see marker get encoding(), marker.encodingCache() and encodingCache.js
+                return this.create(arg, parent, name)
             }
         },
         getAll: function() {

@@ -55,8 +55,60 @@ So, one config can be used by many models. That model is then only used in one p
 
 Autoconfiguring two models with a shared config is not yet implemented. Each model may end up solving to a different config value, since autoconfig is done in the model, and those are separate.
 
+# How are models created ans stored
 
+## Stores
+Markers, encodings, dataconfigs, datasources, filters and scales each have a store. A store is both a place that keeps model instances and a factory. Vizabi.js creates all the stores.
 
+## Model creation flow
+See `genericStore.create` and `utils.createModel()`
 
+Vizabi.js creates stores  
+—> geneticStore.js createMany() markers  
+—> geneticStore.js create()
+```js
+create: action('create', function(config, parent, id) {
+    const createModelOfType = this.modelTypes[config.modelType] || this.modelTypesbaseType;
+    const model = createModelOfType(...arguments);
+    if (id) this.set(id, model);
+}),
+```
+—> marker.js 
+```js
+export function marker(...args) {
+    return createModel(marker, ...args);
+}
+```
+—> utils.js createModel()
+```js
+model = observable(
+    //actual constructor
+    modelType.nonObservable(config, parent, id), 
+    //decorators
+    modelType.decorate,
+    //extra options: name of observable
+    { name: ... }
+};
+```
+As you get encodings from marker, it creates them in encoding store. See `genericStore.js get()` (this is a sort of getOrCreate function)  
 
+As you access scales, it creates those...  
+As you access filters, it creates those...
 
+## Why have `model.nonObservable`?
+The reason to have model.nonObservable in every model is to have an object that is not observable yet. Allows model to assign specific functions on itself. This assignment you can't do anymore when it's an observable. You can't overwrite computed etc. So it's easier to assign extra functions and getters before it all became an observable, which it doesn in the store.
+
+The reason to have an observable exported in each model anyway instead of creating it in stores
+```js
+export function frame(...args) {
+    return createModel(frame, ...args);
+}
+```
+This is needed to be able to run tests on a class by itself without having to go to the store in order to instanciate it. Makes a model a thing in itself.
+
+## Fancy `assign()`
+Each model uses a custom assign function
+```js
+return assign(marker, functions, configurable);
+```
+It copies properties using property descriptors so accessors (and other meta-properties) get correctly copied. Otherwise if you do regular Object.assign it would read directly from the object and execute getters and the return values would be what it assigns. But we want to actually copy getters and setters. See comment in `utils.assign()` for more info.

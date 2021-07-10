@@ -92,7 +92,10 @@ export function arrayEquals(a, b) {
 }
 
 // copies properties using property descriptors so accessors (and other meta-properties) get correctly copied
-// https://www.webreflection.co.uk/blog/2015/10/06/how-to-copy-objects-in-javascript
+// otherwise if you do regular Object.assign it would read directly from the object and execute getters 
+// and the return values would be what it assigns. but we want to actually copy getters and setters
+
+// source: https://www.webreflection.co.uk/blog/2015/10/06/how-to-copy-objects-in-javascript
 // rewrote for clarity and make sources overwrite target (mimic Object.assign)
 export function assign(target, ...sources) {
     sources.forEach(source => {
@@ -258,12 +261,17 @@ export function deepclone(object) {
 }
 
 export function createModel(modelType, config, parent, id) {
+    //suffix for debugging
     let nameSuffix = id ? '-' + id : parent?.name ? '-' + parent.name : '';
     let model = observable(
+        //actual constructor
         modelType.nonObservable(config, parent, id), 
+        //decorators
         modelType.decorate,
+        //extra options: name of observable
         { name: (modelType.name || config.modelType || 'base') + nameSuffix }
     );
+    //lifecycle function
     if (model.onCreate) model.onCreate();
     return model;
 }
