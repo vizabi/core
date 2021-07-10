@@ -56,10 +56,11 @@ an array of dimension keys, such as `["country", "time"]`
 ```
 
 ## reference: String | Object
+Shorthand notation
 ```js
 concept: { ref: "markers.bubble.encoding.color.data.concept" }
 ```
-
+Full notations
 ```
 data: {
   ref: {
