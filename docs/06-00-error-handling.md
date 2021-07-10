@@ -68,6 +68,6 @@ fetch(path)
 
 ```
 
-[Example](https://github.com/vizabi/vizabi-ddfservice-reader/commit/7cbce0ba1dcdaf98b16b953c367f8302e1ba1731)
+[Example](https://github.com/vizabi/reader-ddfservice/commit/7cbce0ba1dcdaf98b16b953c367f8302e1ba1731)
 
 Every action/reaction/autorun should have a name for easier debugging and more helpful error messages.

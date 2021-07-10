@@ -2,7 +2,7 @@ import { dataConfig } from '../../../src/core/dataConfig/dataConfig';
 import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import { _resetGlobalState, autorun, runInAction } from "mobx"
-import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
+import * as DDFCsvReader from '@vizabi/reader-ddfcsv';
 
 //console.log = jest.fn()
 

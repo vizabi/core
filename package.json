@@ -71,7 +71,7 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-visualizer": "^5.5.0",
-    "vizabi-ddfcsv-reader": "^4.0.1"
+    "@vizabi/reader-ddfcsv": "^4.0.1"
   },
   "serve": {
     "content": "./dist",

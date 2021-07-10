@@ -1,7 +1,7 @@
 import { marker } from '../../../src/core/marker/marker';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import { _resetGlobalState, configure, autorun } from 'mobx';
-import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
+import * as DDFCsvReader from '@vizabi/reader-ddfcsv';
 import { createKeyFn } from '../../../src/dataframe/dfutils';
 
 const DDFReadObject = DDFCsvReader.getDDFCsvReaderObject();
