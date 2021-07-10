@@ -7,7 +7,7 @@ import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline/inline';
 import { csvReader } from '../../reader/csv/csv';
 import { createKeyStr, isDataFrame } from '../../dataframe/dfutils';
-import { makeCache } from '../dataConfig/cache';
+import { makeCache } from './cache';
 
 let normalizingTime = 0;
 
@@ -176,9 +176,6 @@ dataSource.nonObservable = function (config, parent, id) {
         get state() {
             return combineStates([this.availabilityState, this.conceptsState]);
         },
-        get identity() {
-            return stableStringifyObject(this.config);
-        },
         getConcept(concept) {
             if (concept == "concept_type" || concept.indexOf('is--') === 0 || concept === "concept")
                 return { concept, name: concept }
@@ -217,19 +214,13 @@ dataSource.nonObservable = function (config, parent, id) {
             }
         },
         query(query) {
-            //return [];
-            if (!query._id) {
-                query._id = this.identity;
-            }
             query = dotToJoin(query);
             query = addExplicitAnd(query);
             //console.log('Processing query', query);
             return this.combineAndSendQueries(query);
         },
         cache: makeCache(),
-        get queue() {
-            return new Map();
-        },
+        queue: new Map(),
         combineAndSendQueries(query) {
             if (this.cache.has(query)) 
                 return this.cache.get(query);
@@ -278,9 +269,9 @@ dataSource.decorate = {
     // to prevent config.values from becoming observable
     // possibly paints with too broad a brush, other config might need to be deep later
     config: observable.shallow,
-    // queue should be mutable by computed methods
-    // this is introducing state manipulation and makes these computed methods impure
-    // other solutions are welcome : )
-    //queue: observable.ref,
+    // queue should be mutable by computed methods 
+    // this is introducing state manipulation and makes these computed methods impure 
+    // other solutions are welcome : ) 
+    queue: observable.ref,
     cache: observable.ref
 }
