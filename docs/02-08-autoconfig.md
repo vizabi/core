@@ -46,8 +46,7 @@ marker: {
 # Autoconfig flow
 Follow the call stack in a diagram
 
-![autoconfig call stack](https://user-images.githubusercontent.com/3648190/125870291-5d83ba1d-c1db-414b-86de-d62f05bb4c9f.png)
-
+![autoconfig call stack](https://user-images.githubusercontent.com/3648190/125870415-7befd14a-ad84-4031-94ad-75c88f3c7d6d.png)
 
 # Custom methods
 dataConfig models, encodings and markers can add methods
