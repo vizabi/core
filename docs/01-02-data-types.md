@@ -117,25 +117,19 @@ time: {
 
 
 ## configSolution: Object
-```js
-marker: {
-  data: {
-    configSolution: {
-      space: ["geo", "time"],
-      encodings: {
-        x: {space: ["geo", "time"], concept: "gdp"}
-        y: {space: ["geo", "time"], concept: "lex"}
-      }
-    }
-  },
-  encoding: {
-    x: {
-      data: {
-        configSolution: {
-          space: ["geo", "time"], concept: "gdp"
-        }
-      }
-    }
+marker.configSolution
+```json
+{
+  space: ["geo", "time"],
+  encodings: {
+    x: {space: ["geo", "time"], concept: "gdp"},
+    y: {space: ["geo", "time"], concept: "lex"},
+    color: {space: ["geo"], concept: "region"}
   }
 }
+```
+encoding.configSolution
+```json
+{space: ["geo"], concept: "region"}
+
 ```

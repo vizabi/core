@@ -50,6 +50,7 @@ dataConfig.nonObservable = function(config, parent, id) {
                 }
             })
         },
+        // it's possible to have an encoding without a marker in case of standalone enc (tests)
         get hasEncodingMarker() {
             return this.parent && this.parent.marker;
         },
