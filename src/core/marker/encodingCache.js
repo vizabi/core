@@ -1,5 +1,7 @@
 import { encodingStore } from "../encoding/encodingStore";
 
+//encoding cache makes sure encodings are not recreated every time
+
 export function encodingCache() {
     const cache = {};
     function fill(cfg, marker) {

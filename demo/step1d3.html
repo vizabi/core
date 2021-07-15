@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <svg width="960" height="500"></svg>
-<script src="https://d3js.org/d3.v5.min.js"></script>
-<script src="Vizabi.js"></script>
+<script src="./lib/d3.v6.min.js"></script>
+<script src="./Vizabi.js"></script>
 <script>
 
 var data = [
@@ -13,7 +13,7 @@ var data = [
 ];
 
 var source = Vizabi.dataSource({ 
-  path: "step1d3.csv"
+  path: "./data/step1d3.csv"
 });
 var marker = Vizabi.marker({
   data: { source: source },

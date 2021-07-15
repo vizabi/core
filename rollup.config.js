@@ -36,11 +36,11 @@ const plugins = (outputName) => [
         })
       }),
     __DEVSERVER__ && serve({
-        contentBase: ["dist"],
+        contentBase: ["demo", "dist"],
         port: 9000,
         verbose: true
     }),
-    __DEVSERVER__ && livereload("dist/"),
+    __DEVSERVER__ && livereload(["dist/", "demo/"]),
     !__DEVSERVER__ && visualizer({
         filename: `./dist/stats-${outputName}.html`
     }),

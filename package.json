@@ -17,7 +17,7 @@
   "scripts": {
     "prepublishOnly": "npm test && npm run build",
     "build": "npx rollup -c",
-    "dev": "NODE_ENV=devserver rollup -c --watch",
+    "start": "NODE_ENV=devserver rollup -c --watch",
     "rollup": "rollup -c",
     "test": "node --experimental-vm-modules node_modules/.bin/jest",
     "debug": "node --experimental-vm-modules node_modules/.bin/jest --runInBand --watch --no-cache"
@@ -48,10 +48,10 @@
   "license": "CC-BY-4.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vizabi/vizabi-reactive"
+    "url": "https://github.com/vizabi/core"
   },
   "bugs": {
-    "url": "https://github.com/vizabi/vizabi-reactive/issues"
+    "url": "https://github.com/vizabi/core/issues"
   },
   "homepage": "http://vizabi.org",
   "peerDependencies": {
@@ -71,7 +71,7 @@
     "rollup-plugin-replace": "^2.2.0",
     "rollup-plugin-serve": "^1.1.0",
     "rollup-plugin-visualizer": "^5.5.0",
-    "vizabi-ddfcsv-reader": "^4.0.1"
+    "@vizabi/reader-ddfcsv": "^4.0.1"
   },
   "serve": {
     "content": "./dist",

@@ -1,8 +1,9 @@
-# References
+# REFERENCES
 
 References are ways to link different parts of the model to each other. 
 
-## Direct reference to an existing model
+# Usage
+## 1. Direct reference to an existing model
 
 Reusing a model in the model tree at another location. All state is shared. This doesn't work when the model's state is/can be dependent on its place in the tree. For example an encoding's data source is dependent on its marker's data source.
 
@@ -13,26 +14,18 @@ Idea: This is not the case if we have a singleton cache and query joining object
 ```json
 data: { 
 	source: {
-        ref: { model: "dataSource.gap" }
+        ref: { path: "dataSource.gap" }
 	}
 }
 ```
 
-## New model from model
+## 2. New model from model
 
 New model whose config depends on another model's values. This means the new model will have values dependent on the original model's derived state (derived from user config, parent models and/or data).
 
 The new model's config is observing the referenced model and will thus react to changes in said model.
 
-```
-ref: {
-    model: "datasource
-}
-```
-
-
-
-E.g. color legend data filter depends on bubble color domain. Not config domain (as that is user given), but actual domain as used in the visualization. In this example, a transform is also necessary to get the correct config for the new model.
+E.g. color legend data filter depends on bubble color domain. Not scale config domain (as that is user given), but actual domain as used in the visualization. In this example, a transform is also necessary to get the correct config for the new model.
 
 ```json
 bubble: {
@@ -45,8 +38,8 @@ bubble: {
 colorlegend: { 
     data: { 
         ref: { 
-            transform: "entityPropertyData", 
-            model: "marker.bubble.encoding.color" 
+            transform: "entityConcept", 
+            path: "marker.bubble.encoding.color" 
         }
     }
 }
@@ -65,7 +58,7 @@ colorlegend: {
 }
 ```
 
-## New model from config
+## 3. New model from config
 
 New model whose config depends on other model's config. This makes the new model only be dependent on specifically user configuration. Any other properties will be derived in the usual way (generally from data or parent state). 
 
@@ -77,14 +70,14 @@ E.g. two bubble markers with different data sources share encoding configuration
 un {
     data: { source: "un", space: ["country","year"] },
     encoding: {
-		x: { ref: { config: "marker.wb.encoding.x" } }
+		x: { ref: { config: "marker.wb.encoding.x" } },
 		y: { ref: { config: "marker.wb.encoding.y" } }
 	}
 },
 wb: { 
     data: { source: "wb", space: ["nation", "time"] },
     encoding: {
-		x: { data: { concept: "gdppcap" } }
+		x: { data: { concept: "gdppcap" } },
 		y: { data: { concept: "lifeexp" } }
 	}
 }
@@ -96,4 +89,8 @@ Or you can use the shorthand:
 x: { ref: "marker.wb.encoding.x" },
 y: { ref: "marker.wb.encoding.y" }
 ```
+
+## Transforms
+### `entityConcept` and `entityConceptSkipFilter`
+Transforms are only used for legend marker at the moment: getting color encoding and making a dataConfig out of it. `space` of legend should be linked to the `concept` of encoding (but if enc is constant or not an entity concept, then space is empty). `entityConceptSkipFilter` variant is needed because otherwise legend will also link the filter and miss some entries if main marker doesn't have data for them. E.g. Asian part of the minimap would not draw when main marker filter excludes Asia. See example 2 above, we don't want the filter in colorLegend.
 

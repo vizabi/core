@@ -449,6 +449,11 @@ function markerWithFallback(marker, fallback) {
     })
 }
 
+//instead of selecting an unused concept it selects a frame concept
+//gives preference to concepts in space that are of type time and measure
+//if there is no time or measure in space then check candidate concepts given by solveMethod
+//if notheing there either, then pick the last dimension of the space
+//it woud fail if space is an empty array
 configSolver.addSolveMethod(
     function selectFrameConcept({ concepts, space, dataConfig }) {
         const spaceConcepts = space.map(dim => dataConfig.source.getConcept(dim));

@@ -1,4 +1,4 @@
-# Mobx <-> Async requests interface
+# DATA LOADING TRADEOFFS
 
 Vizabi sends out async requests to data sources whenever related state changes. It uses mobx to handle this reactive behaviour. However, there are different patterns to set this up, each with their own drawbacks.
 
@@ -9,13 +9,13 @@ The API requirements (req 1-4) are:
     1. They are lazy; They are only sent when a model is actively used, i.e. when its state is observed, not on model creation. I.e. State observation is necessary.
     2. They are sent when a model's state becomes observed, without additional code; I.e. State observation is sufficient.
     3. They are resent when any observable they use updates.
-    4. Users and vizabi-data devs do not have to distuinguish async-related state from sync state. They can just write to the model and observe the `state` prop.
+    4. Users and vizabi-core devs do not have to distuinguish async-related state from sync state. They can just write to the model config and observe the `state` prop.
  2. when a new request is sent out, the old request should be discarded/cancelled to prevent race conditions (an earlier request resolving after later request).
  3. the request should only be sent out after any actions have finished
  4. the request should be sent out before any external reactions are executed
 
-## Computeds
-A `computed` named `promise` sends the async request and returns the `fromPromise()` of the request (req 1.3 and 2). The `state` observes `promise`, thus the moment `state` becomes observed `promise` sends the async request (req 1.1 and 1.2). The model's value and state are a computeds, returning `promise.value`, and `promise.state`, which always reflect the latest request (req 2).
+# Computeds (the current way)
+A `computed` named `responsePromise` sends the async request and returns the `fromPromise()` of the request (req 1.3 and 2). The `state` observes `responsePromise`, thus the moment `state` becomes observed `responsePromise` sends the async request (req 1.1 and 1.2). The model's value and state are a computeds, returning `responsePromise.value`, and `responsePromise.state`, which always reflect the latest request (req 2).
 
 As the request is in a `computed`, no reactions will be triggered before the request is sent out. Computeds will first fully resolve staleness before reactions are executed (req 4).
 
@@ -56,7 +56,7 @@ window.setTimeout(action(() => {
 }), 1000);
 ```
 
-## Autorun & action
+# Autorun & action
 An autorun runs the async request when upstream state changes (req 1.3). It assigns the request's promise to a `promise` property on the model. The async value and state are a computeds, reading  `promise.value`, and `promise.state`, which always reflect the latest request (req 2).
 
 Using `mobx.onBecomeObserved` and `mobx.onBecomeUnobserved` we only create the autorun when `promise` is observed (e.g. through `state`), and dispose of it when it's unobserved (req 1.1 and 1.2).
@@ -102,7 +102,7 @@ function lazyAsync(obj, prop, fn) {
 }
 ```
 
-## Actions
+# Actions
 This is a variation on how the [mobx docs recommend handling async data](https://mobx.js.org/actions.html#asynchronous-actions).
 
 A promise property on the model holds the current promise. An action runs the async request and assigns its promise to the property (req 2). This action needs to be called "manually" after every state change that could trigger a new async request. `mobx.onBecomeObserved` makes sure it's also called when `state` starts being observed (req 1.1 & 1.2).
@@ -148,7 +148,7 @@ window.setTimeout(() => obs.changeSync(5), 1000);
 ```
 
 
-## Autorun & Action with state update after async response
+# Autorun & Action with state update after async response
 
 This is basically the "Autorun & Action" pattern, but any sync base state gets set to a temporary object which is unavailable to external reactions. The async autorun has access and will run once the action is complete. Then, when the async request is complete, the temp object and the async response will together become available to the external reactions through the promise resolve value.
 

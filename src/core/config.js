@@ -8,7 +8,7 @@ import { stores } from "./vizabi";
  * @returns config Config object as described in reference config
  */
  export function resolveRef(possibleRef) {
-    // no ref
+    // not a ref
     if (!isReference(possibleRef))
         return { state: 'fulfilled', value: possibleRef }
 
@@ -34,9 +34,11 @@ function resolveTreeRef(refStr, tree) {
     const ref = refStr.split('.');
     let prev;
     let node = tree;
+    //walk the tree
     for (let i = 0; i < ref.length; i++) {
         let nextStep = ref[i];
         prev = node;
+        //use get function where there is one, i.e. stores, otherwise assume it's an object
         node = prev.get?.(nextStep) ?? prev[nextStep];
 
         if (typeof node == "undefined") {
@@ -46,6 +48,16 @@ function resolveTreeRef(refStr, tree) {
     }
 
     return { 
+        //prev state is needed for example when we get a ref to a concept
+        //concept doesn't have state, so we problby want to know the state of dataConfig instead
+
+        //and since it's a getter we don't read it immediately
+        //this prevents circulat computations from happening if we do it right away
+        //for example between order and the size encodings
+        //referring to the state of size --> getting state of size -->
+        //size checks marker config resolving state --> which wants to knoe order state
+        //fortunately we don't need to read the state when constucting the reference
+        //therefore we can have it in a computed
         get state() { return node.state ?? prev.state ?? 'fulfilled' }, 
         value: node 
     }

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <div id="container"></div>
-<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="./lib/d3.v6.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vega@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/vega-embed@3"></script>
-<script src="Vizabi.js"></script>
-<script src="vizabi-ddfcsv-reader.js"></script>
+<script src="./Vizabi.js"></script>
+<script src="./lib/reader-ddfcsv.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.js"></script>
 <script>
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
@@ -171,7 +171,7 @@ Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
 //* * * * * * *
 //var data = Vizabi.dataSource({
 //  modelType: "ddfcsv",
-//  path: "./ddf--jheeffer--mdtest/"
+//  path: "./data/ddf--jheeffer--mdtest/"
 //});
 //var marker = Vizabi.marker({
 //  data: {
@@ -274,7 +274,7 @@ Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
 //* * * * * * *
 var data = Vizabi.dataSource({
   modelType: "ddfcsv",
-  path: "./ddf--jheeffer--mdtest/"
+  path: "./data/ddf--jheeffer--mdtest/"
 });
 
 var initialMarkerConfig = {

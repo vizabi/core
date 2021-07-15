@@ -1,7 +1,7 @@
 import { entityPropertyDataConfig } from '../../../src/core/dataConfig/entityPropertyDataConfig';
 import { dataSourceStore } from '../../../src/core/dataSource/dataSourceStore';
 import { _resetGlobalState, configure, autorun } from 'mobx';
-import * as DDFCsvReader from 'vizabi-ddfcsv-reader';
+import * as DDFCsvReader from '@vizabi/reader-ddfcsv';
 
 function check(model, prop) {
     return new Promise((resolve, reject) => {
