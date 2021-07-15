@@ -1,3 +1,6 @@
+## Dimension, space, measure, concept...
+to be described
+
 ## Reactive programming (user and developer of vizabi core needs to know)
 See autorun(), action() and reaction() from MobX
 
