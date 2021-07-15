@@ -145,7 +145,7 @@ export function combineStates(states) {
 }
 
 /**
- * Checks all states sequantially (only check next if previous is fulfilled)
+ * Checks all states sequantially (only check-trigger next state if previous is fulfilled)
  * @param {function[]} states state getters
  * @returns 
  */

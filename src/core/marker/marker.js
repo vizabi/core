@@ -109,9 +109,12 @@ marker.nonObservable = function(config, parent, id) {
             );
         },
         get referenceState() {
+            //normal combineStates works in parallel (reads-triggers all states at once)
             return combineStates(Object.values(this.references).map(ref => ref.state))
         },
         get state() {
+            //checking state should not send any queries before reference state and config state are resolved
+            //Checks all states sequantially (only check-trigger next state if previous is fulfilled)
             const dataConfigSolverState = combineStatesSequential([() => this.referenceState, () => this.configState]);
 
             // observe (part of) the pipeline as long as state is observed to keep them cached
