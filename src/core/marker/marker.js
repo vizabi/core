@@ -213,10 +213,9 @@ marker.nonObservable = function(config, parent, id) {
                 || data.iterableResponse === false
                 ) { 
                 // proper subset
-                // const response = data.response;
                 return row => data.response.get(row)?.[concept];
             } else if (required.length > 0 && !required.includes(name)) {
-                //const response = data.response;
+                // superset and not a required enc when required is used (otherwise it would be a defining)
                 return (row, key) => data.response.getByStr(key)?.[concept];
             } else {
                 return 'defining'; // defining encoding
@@ -241,7 +240,13 @@ marker.nonObservable = function(config, parent, id) {
             const joinConfigs = defining.map(name => this.joinConfig(this.encoding[name], name));
             let dataMap = fullJoin(joinConfigs, this.data.space);
 
-            // ammend markers with getter        
+            // ammend markers with getter
+            // part of the optimisation to not redo the whole data pipeline 
+            //ammending encodings are split in 2 groups: ammending with getter and ammending by writing
+            //the once that use the getter won't trigger pipeline (constants, concepts in space)
+            //the idea with getter is to postpone calculation or reading to a later point
+            //in the standard bubble chart color is through the getter too
+            //calcualtions are more expensive but we can postpone them
             for (const encName of ammendGet) {
                 for (const markerKey of dataMap.keys()) {
                     const row = dataMap.get(markerKey); 
@@ -258,6 +263,15 @@ marker.nonObservable = function(config, parent, id) {
             }
 
             // ammend markers by writing
+            //this is the faster way. doesn't have to go through a getter function
+            //quicker access compared to reading from a getter
+            //we do this when the values are computed in trasformation pipeline anyway
+            //see getEncodingByType()
+
+            //each enc has a field. if that field is included in transformFields array of a marker (which adds its own transformfileds and those of every encoding)
+            //then it's a written encoding
+
+            //if we change something that uses getter field then the whole pipele doesn't need to rerun
             const ammendFns = Object.fromEntries(ammendWrite.map(enc => [enc, this.ammendFnForEncoding(enc)]));
             for (const markerKey of dataMap.keys()) {
                 const row = dataMap.get(markerKey);
