@@ -7,7 +7,7 @@ import { stores } from "./vizabi";
  * @param {*} possibleRef 
  * @returns config Config object as described in reference config
  */
- export function resolveRef(possibleRef) {
+ export function resolveRef(possibleRef, root = stores) {
     // not a ref
     if (!isReference(possibleRef))
         return { state: 'fulfilled', value: possibleRef }
@@ -21,7 +21,7 @@ import { stores } from "./vizabi";
     }
 
     // model ref includes resolved defaults
-    const result = resolveTreeRef(ref.path, stores);
+    const result = resolveTreeRef(ref.path, root);
     result.value = transformModel(result.value, ref.transform);
     return result;
 }

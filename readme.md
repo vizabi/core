@@ -103,7 +103,17 @@ clone, run `npm install`, then `npm start`,
 see output at http://localhost:9000
 
 ## Run tests
-`npm test`
+run all tests  
+`npm test`  
+
+run a single test 
+`npm test -- /config.test.js`  
+
+run a single test with watch 
+`npm test -- /config.test.js --watch`  
+
+debug a single test with breakpoints in VS Code  
+`npm run debug -- /config.test.js`  
 
 ## Build the bundle  
 `npm run build`, see output in /dist/Vizabi.js 
