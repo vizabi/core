@@ -72,7 +72,7 @@ filter.config.dimensions = {
 
 
 ```js
-//filter by a criteria on multiple dimensions
+//filter by a criteria on multiple dimensions (this is implicitly turned into an `$and`)
 filter.config.dimensions.age = {
     geo: {
         geo: {$in: ["world"]}
@@ -83,7 +83,7 @@ filter.config.dimensions.age = {
 ![image](https://user-images.githubusercontent.com/3648190/125063121-64349b80-e0af-11eb-9f37-85467dea9ba4.png)
 
 ```js
-//filter by entity set criteria
+//filter by dimensions property
 filter.config.dimensions = {
     country: {
         income_groups: {$in: ["low_income"]}
@@ -94,7 +94,7 @@ filter.config.dimensions = {
 ![image](https://user-images.githubusercontent.com/3648190/125064015-79f69080-e0b0-11eb-8e2a-add2b043da0c.png)
 
 ```js
-//filter by multiple entity set criteria
+//filter by multiple dimensions properties
 filter.config.dimensions = {
     country: {
         income_groups: {$in: ["low_income"]},

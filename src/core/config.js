@@ -52,10 +52,10 @@ function resolveTreeRef(refStr, tree) {
         //concept doesn't have state, so we problby want to know the state of dataConfig instead
 
         //and since it's a getter we don't read it immediately
-        //this prevents circulat computations from happening if we do it right away
+        //this prevents circular computations from happening if we do it right away
         //for example between order and the size encodings
         //referring to the state of size --> getting state of size -->
-        //size checks marker config resolving state --> which wants to knoe order state
+        //size checks marker config resolving state --> which wants to know order state
         //fortunately we don't need to read the state when constucting the reference
         //therefore we can have it in a computed
         get state() { return node.state ?? prev.state ?? 'fulfilled' }, 

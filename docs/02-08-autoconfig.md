@@ -57,9 +57,14 @@ how to filter concepts in availability and get valid candidate concepts for a gi
 ## Default method `defaultConceptSolver`
 Apply the filter that is set by `dataConfig.config.concept` being set to an object
 
-```json
+```js
 concept: { filter: { concept: { "$eq": "y" } }}
 ```
+same as 
+```js
+concept: { filter: { concept: "y" }}
+```
+due to "$eq" normalisation
 
 ### Special case `mostCommonDimensionProperty`
 Used in entityPropertyDataConfig (dc of labels encoding). Takes all properties of all dimensions (entitity sets) in a given space, pushes them into an array then gets the mode of that array, i.e. most common value. `entityPropertyDataConfig` additionally restricts `allowedProperties` to be either "name" or "title".

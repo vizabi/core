@@ -102,6 +102,7 @@ const comparisonToString = {
     "$nin": (field, val) => `!${val}.includes(row.${field})`,
 }
 
+//used by "filterRequired" transform
 export function filterNullish(df, fields) {
     let filterParam = fields.every(isString)
         ? simpleNullishCheck(fields)
@@ -113,12 +114,15 @@ export function filterNullish(df, fields) {
 function simpleNullishCheck(fields) {
     const l = fields.length;
     return row => {
+        //faster implementation with a for-loop
         for (let i = 0; i < l; i++) {
             if (row[fields[i]] == null) return false;
         }
         return true;
     }
 }
+
+// used for "repeat" encoding for example
 // allows defining fields with logical conditions like: [{ $or: ['x','x1'] }, 'y']
 function nullishFilterSpec(fields) {
     return { $nor: makeSpec(fields) }

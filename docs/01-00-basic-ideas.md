@@ -27,7 +27,7 @@ js(viz.model.markers.bubble.encoding.y.config)
 ```
 
 ## Maker-defining and marker-ammending encodings
-- Defining encodings are those that create marker items (superspace encoding that's iterable)
+- Defining encodings are those that create marker items (superspace encoding that's iterable). Definign encodings are not related with required encodings.
 - Amending encs are those that don't (proper subspaces, constants, labels, concepts that are in the marker space)
 
 ## Required encodings
