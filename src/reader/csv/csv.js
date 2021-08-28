@@ -2,6 +2,7 @@ import { inlineReader } from "./../inline/inline";
 import { guessDelimiter } from './guess-delimiter.js';
 import { timeInColumns } from './time-in-columns';
 
+const TIME_LIKE_CONCEPTS = ["time", "year", "month", "week", "quarter"];
 const GOOGLE_DOC_PREFIX = 'https://docs.google.com/spreadsheets/';
 const MISSED_INDICATOR_NAME = 'indicator';
 const ERRORS = {
@@ -23,7 +24,7 @@ export function csvReader({
         isTimeInColumns = false,
         assetsPath = "",
         delimiter = "",
-        keyConcepts = [], 
+        keyConcepts, 
         dtypes 
     }) {
     
@@ -32,7 +33,7 @@ export function csvReader({
 
     path = _googleSpreadsheetURLAdaptor(path, sheet);
 
-    return Object.assign(inlineReader(getValues().then(values => ({ 
+    return Object.assign(inlineReader(getValues().then(({values, keyConcepts}) => ({ 
             values,
             keyConcepts,
             dtypes
@@ -48,7 +49,7 @@ export function csvReader({
             .then(parseTextToTable)
             .then(transformNameColumn)
             .then(transformTimeInColumns)
-            .then(returnRowsOnly);
+            .then(returnValuesAndKeyConcepts);
     }
   
     function loadFile(){
@@ -97,8 +98,22 @@ export function csvReader({
         return {rows, columns};
     }
 
-    function returnRowsOnly({rows}){
+    function returnValuesAndKeyConcepts({rows, columns}){
+        return {
+            values: autotype(rows),
+            keyConcepts: guessKeyConcepts(columns, keyConcepts)
+        }
+    }
+
+    function autotype(rows){
         return rows.map(row => d3.autoType(row));
+    }
+
+    function guessKeyConcepts(columns, keyConcepts){
+        if(keyConcepts) return keyConcepts;
+        const index = columns.findIndex((f) => TIME_LIKE_CONCEPTS.includes(f));
+        // +1 because we want to include time itself as well
+        return columns.slice(0, index + 1);
     }
 
     function makeError(e){

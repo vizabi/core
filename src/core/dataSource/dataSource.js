@@ -14,7 +14,7 @@ let normalizingTime = 0;
 const defaultConfig = {
     path: null,
     sheet: null,
-    keyConcepts: [],
+    keyConcepts: null,
     values: null,
     transforms: []
 }

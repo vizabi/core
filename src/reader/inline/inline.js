@@ -6,7 +6,11 @@ import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/uti
  */
 export function inlineReader(argPromise) {
 
-    argPromise = Promise.resolve(argPromise);
+    argPromise = Promise.resolve(argPromise).then((args) => {
+        args.keyConcepts = args.keyConcepts ?? []; 
+        return args;
+    });
+
     let dataPromise, conceptPromise;
 
     return {
@@ -49,7 +53,7 @@ export function inlineReader(argPromise) {
     }
 }
 
-function parseValues({ values, dtypes, keyConcepts = [] }) {
+function parseValues({ values, dtypes, keyConcepts}) {
     return DataFrame(makeParser(dtypes)(values), keyConcepts);
 }
 
