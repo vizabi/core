@@ -4,6 +4,9 @@ import { dataSourceStore } from './dataSource/dataSourceStore'
 import * as utils from './utils'
 import { observable } from 'mobx';
 import * as mobx from 'mobx';
+import { csvReader } from '../reader/csv/csv';
+import { inlineReader } from '../reader/inline/inline';
+
 
 export const stores = {
     markers: markerStore,
@@ -54,5 +57,7 @@ vizabi.disposeAll = () => {
         stores[storeName].disposeAll();
     }
 }
+vizabi.csvReader = csvReader;
+vizabi.inlineReader = inlineReader;
 
 export default vizabi;

@@ -18,7 +18,7 @@ const ERRORS = {
 export function csvReader({ 
         path = "data.csv", 
         sheet = "", 
-        exernalTextReader,
+        externalTextReader,
         externalJsonReader,
         hasNameColumn = false,
         isTimeInColumns = false,
@@ -40,7 +40,8 @@ export function csvReader({
         })
     )), {
         getDatasetInfo,
-        getAsset
+        getAsset,
+        getValues
     });
 
     function getValues(){
@@ -53,7 +54,7 @@ export function csvReader({
     }
   
     function loadFile(){
-        let textReader = exernalTextReader || d3.text;
+        let textReader = externalTextReader || d3.text;
         return textReader(path)
             .catch(error => {
                 error.name = ERRORS.FILE_NOT_FOUND;
@@ -101,7 +102,8 @@ export function csvReader({
     function returnValuesAndKeyConcepts({rows, columns}){
         return {
             values: autotype(rows),
-            keyConcepts: guessKeyConcepts(columns, keyConcepts)
+            keyConcepts: guessKeyConcepts(columns, keyConcepts),
+            columns
         }
     }
 
