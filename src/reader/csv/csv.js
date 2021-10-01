@@ -2,7 +2,7 @@ import { inlineReader } from "./../inline/inline";
 import { guessDelimiter } from './guess-delimiter.js';
 import { timeInColumns } from './time-in-columns';
 
-const TIME_LIKE_CONCEPTS = ["time", "year", "month", "week", "quarter"];
+const TIME_LIKE_CONCEPTS = ["time", "year", "month", "day", "week", "quarter"];
 const GOOGLE_DOC_PREFIX = 'https://docs.google.com/spreadsheets/';
 const MISSED_INDICATOR_NAME = 'indicator';
 const ERRORS = {

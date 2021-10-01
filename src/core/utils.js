@@ -360,6 +360,8 @@ const defaultParsers = [
     d3.utcParse('%Y'),
     d3.utcParse('%Y-%m'),
     d3.utcParse('%Y-%m-%d'),
+    d3.utcParse('%Yw%V'),
+    d3.utcParse('%Yq%q'),
     d3.utcParse('%Y-%m-%dT%HZ'),
     d3.utcParse('%Y-%m-%dT%H:%MZ'),
     d3.utcParse('%Y-%m-%dT%H:%M:%SZ'),

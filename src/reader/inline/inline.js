@@ -137,7 +137,8 @@ const dtypeParsers = {
     year: d3.utcParse("%Y"),
     month: d3.utcParse("%Y-%m"),
     day: d3.utcParse("%Y-%m-%d"),
-    week: d3.utcParse("%Yw%V")
+    week: d3.utcParse("%Yw%V"),
+    quarter: d3.utcParse("%Yq%q")
 }
 
 function parserFromDtypes(dtypes) {
