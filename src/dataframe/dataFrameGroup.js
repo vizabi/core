@@ -43,7 +43,7 @@ function createGroup(key, descendantKeys) {
     group.interpolate = mapCall(group, "interpolate");
     group.extrapolate = mapCall(group, "extrapolate");
     group.reindexGroup = index => reindexGroup(group, index);
-    group.reindexToKeyDomain = keyConcept => reindexGroupToKeyDomain(group, keyConcept);
+    group.reindexToKeyDomain = intervalSize => reindexGroupToKeyDomain(group, intervalSize);
     group.interpolateOverMembers = options => interpolateGroup(group, options)
     group.extrapolateOverMembers = options => extrapolateGroup(group, options)
     group.copy = () => group.map(member => member.copy());

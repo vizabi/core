@@ -23,6 +23,8 @@ const defaultConfig = {
     }
 }
 
+const POSSIBLE_INTERVALS = ["year", "month", "day", "week", "quarter"];
+
 const defaults = {
     interpolate: true,
     extrapolate: false,
@@ -30,6 +32,7 @@ const defaults = {
     loop: false,
     playbackSteps: 1,
     speed: 100,
+    interval: "year",
     splash: false
 }
 
@@ -85,7 +88,7 @@ frame.nonObservable = function(config, parent, id) {
             const frameMap = this.marker.getTransformedDataMap("filterRequired");
             if (this.playEmptyFrames) {
                 const domain = frameMap.keyExtent();
-                return inclusiveRange(domain[0], domain[1], this.data.conceptProps);
+                return inclusiveRange(domain[0], domain[1], this.interval);
             } else {
                 let frameValues = [];
                 for (let frame of frameMap.values()) {
@@ -216,7 +219,7 @@ frame.nonObservable = function(config, parent, id) {
             // reindex framemap - add missing frames within domain
             // i.e. not a single defining encoding had data for these frame
             // reindexing also sorts frames
-            return frameMap.reindexToKeyDomain(this.data.conceptProps);
+            return frameMap.reindexToKeyDomain(this.interval);
         },
         get rowKeyDims() {
             // remove frame concept from key if it's in there
@@ -249,6 +252,11 @@ frame.nonObservable = function(config, parent, id) {
                     return enc[prop].data.hasOwnData 
                         && enc[prop].data.space.includes(this.data.concept);
                 })
+        },
+
+        get interval() { 
+            const interval = this.config.interval ?? this.data.conceptProps.concept;
+            return POSSIBLE_INTERVALS.includes(interval) ? interval : defaults.interval;
         },
 
         // extrapolate transform

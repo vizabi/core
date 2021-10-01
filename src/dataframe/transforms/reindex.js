@@ -40,10 +40,10 @@ export function reindexGroup(group, index) {
     return newGroup;
 }
 
-export function reindexGroupToKeyDomain(group, keyConcept) {
+export function reindexGroupToKeyDomain(group, intervalSize) {
     if (group.size > 1) {
         const domain = group.keyExtent();
-        const newIndex = inclusiveRange(domain[0], domain[1], keyConcept);
+        const newIndex = inclusiveRange(domain[0], domain[1], intervalSize);
         group = reindexGroup(group, newIndex);
     }
     return group;
