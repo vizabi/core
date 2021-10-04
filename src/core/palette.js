@@ -128,7 +128,8 @@ export function palette(config = {}, parent) {
             return Array.isArray(color) ? color[0] : color;
         },
         setColor: action('setColor', function (value, pointer) {
-            this.config.palette["" + pointer] = value ? d3.color(value).hex() : value;
+            if(!this.parent.config.palette) this.parent.config.palette = {palette: {}};
+            this.parent.config.palette.palette["" + pointer] = value ? d3.color(value).hex() : value;
         }),
         removeColor: action('removeColor', function (pointer) {
             if(this.config.palette.hasOwnProperty("" + pointer))
