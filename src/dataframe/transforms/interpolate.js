@@ -74,8 +74,8 @@ export function interpolateGroup(group, { fields = group.fields, ammendNewRow = 
             for (const markerKey of frame.keys()) {
                 const marker = frame.getByStr(markerKey);
                 if (marker[field] != null) {
-                    let lastIndex = lastIndexPerMarker.get(markerKey);
-                    if (lastIndex && (i - lastIndex) > 1) {
+                    const lastIndex = lastIndexPerMarker.get(markerKey);
+                    if (lastIndex !== undefined && (i - lastIndex) > 1) {
                         const gapRows = []; // d3.range(lastIndex + 1, i).map(i => group.get(frameKeys[i]))
                         for (let j = lastIndex + 1; j < i; j++) {
                             const gapFrame = group.get(frameKeys[j]);
