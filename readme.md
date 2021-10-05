@@ -112,7 +112,7 @@ run a single test
 run a single test with watch 
 `npm test -- /config.test.js --watch`  
 
-debug a single test with breakpoints in VS Code  
+debug a single test with breakpoints: in VS Code open JS Debug terminal (not the regular console) and run
 `npm run debug -- /config.test.js`  
 
 ## Build the bundle  
