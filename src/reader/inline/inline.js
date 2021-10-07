@@ -66,7 +66,7 @@ function isSchemaQuery(query) {
 }
 
 function getConcepts(data) {
-    const types = getTypes(data);
+    const types = getConceptTypes(data);
     return [...data.fields].map(concept => ({
         concept,
         concept_type: types.get(concept)
@@ -197,17 +197,17 @@ function autoParse(value) {
     return value;
 }
 
-function getTypes(data) {
+function getConceptTypes(data) {
     const types = new Map();
 
     // get types from first row
     const [firstRow] = data.values();
     for (let field in firstRow) {
-        types.set(field, getType(firstRow[field]));
+        types.set(field, getConceptType(firstRow[field], field, data.key));
     }
     // check if those types are consistent
     for (let [field, type] in types) {
-        if (!validateType(data, field, type)) {
+        if (!validateConceptType(data, field, type)) {
             console.warn("Field " + field + " is not consistently typed " + type);
             types.set(field, "mixed");
         }
@@ -215,20 +215,21 @@ function getTypes(data) {
     return types;
 }
 
-function validateType(data, field, type) {
+function validateConceptType(data, field, type) {
     for (row of data.values()) {
-        if (getType(row[field]) !== type)
+        if (getConceptType(row[field], field, data.key) !== type)
             return false;
     }
 }
 
-function getType(value) {
-    if (isDate(value))     return 'time';
+function getConceptType(value, field, datakey) {
+    if (isDate(value)) return 'time';
+    if(datakey.includes(field)) return 'entity_domain';
     const type = typeof value;
     if (type == "string")  return 'string';
     if (type == "boolean") return 'boolean';
     if (type == "number" || isNumber(value))  return 'measure';
-    console.warn("Couldn't decide type of value.", { value });
+    console.warn("Couldn't decide type of value", { value, field, datakey });
 }
 
 const isDate = val => val instanceof Date
