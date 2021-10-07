@@ -273,11 +273,14 @@ function mostCommonDimensionProperty(space, dataConfig) {
     const occurences = [];
     for (let dim of entitySpace) {
         let concepts;
-        let allProperties = kvLookup.get(createKeyStr([dim]));
-        if (allowedProperties) {
+        const allProperties = kvLookup.get(createKeyStr([dim]));
+        if (allProperties && allowedProperties) {
             concepts = allowedProperties.filter(c => allProperties.has(c));
-        } else {
+        } else if (allProperties) {
             concepts = allProperties.keys();
+        } else {
+            //dimension has no entity properties --> return dimension name itself
+            concepts = [dim];
         }
         occurences.push(...concepts);
     }
