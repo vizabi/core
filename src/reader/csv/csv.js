@@ -33,7 +33,7 @@ export function csvReader({
 
     path = _googleSpreadsheetURLAdaptor(path, sheet);
 
-    return Object.assign(inlineReader(getValues().then(({values, keyConcepts}) => ({ 
+    return Object.assign(inlineReader(getValues().then(({values, dtypes, keyConcepts}) => ({ 
             values,
             keyConcepts,
             dtypes
@@ -50,7 +50,7 @@ export function csvReader({
             .then(parseTextToTable)
             .then(transformNameColumn)
             .then(transformTimeInColumns)
-            .then(returnValuesAndKeyConcepts);
+            .then(returnValuesDtypesAndKeyConcepts);
     }
   
     function loadFile(){
@@ -99,11 +99,12 @@ export function csvReader({
         return {rows, columns};
     }
 
-    function returnValuesAndKeyConcepts({rows, columns}){
+    function returnValuesDtypesAndKeyConcepts({rows, columns}){
         return {
             values: autotype(rows),
             keyConcepts: guessKeyConcepts(columns, keyConcepts),
-            columns
+            columns,
+            dtypes: TIME_LIKE_CONCEPTS.reduce((dtypes, t) => (dtypes[t] = t, dtypes), {})
         }
     }
 

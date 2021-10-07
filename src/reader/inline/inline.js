@@ -134,6 +134,13 @@ const dtypeParsers = {
     number: d => +d,
     boolean: d => d == '1' || d.toLowerCase() == 'true',
     auto: autoParse,
+    time: (d) => {
+        if ((""+d).length == 4) return dtypeParsers.year(d);
+        if (d.length == 7 && d[4] == "-") return dtypeParsers.month(d);
+        if (d.length == 10) return dtypeParsers.day(d);
+        if (d[4].toLowerCase() == "w") return dtypeParsers.week(d);
+        if (d[4].toLowerCase() == "q") return dtypeParsers.quarter(d);
+    }, 
     year: d3.utcParse("%Y"),
     month: d3.utcParse("%Y-%m"),
     day: d3.utcParse("%Y-%m-%d"),
