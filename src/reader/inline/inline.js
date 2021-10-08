@@ -95,8 +95,13 @@ function applyQuery(data, query) {
     const { key, value } = select;
     const projection = [...key, ...value];
 
-    if ("join" in query)
-        console.warn('Inline reader does not handle joins as it handles only one table.', { query })
+    if ("join" in query){
+        console.warn('Inline reader does not handle joins as it has only one table. Sections of "where" statement that refer to joins will be ignored.', { query })
+        //delete where statements that refer to joins
+        for (let w in where) {
+            if(Object.keys(join).includes(where[w])) delete where[w]; 
+        }
+    }
 
     if (relativeComplement([...data.fields], projection).length > 0)
         console.error('Concepts found in query.select which are not in data', { query, dataFields: data.fields});
