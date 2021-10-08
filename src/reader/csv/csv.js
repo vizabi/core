@@ -3,6 +3,7 @@ import { guessDelimiter } from './guess-delimiter.js';
 import { timeInColumns } from './time-in-columns';
 
 const TIME_LIKE_CONCEPTS = ["time", "year", "month", "day", "week", "quarter"];
+const NAME_LIKE_CONCEPTS = ["name", "title"];
 const GOOGLE_DOC_PREFIX = 'https://docs.google.com/spreadsheets/';
 const MISSED_INDICATOR_NAME = 'indicator';
 const ERRORS = {
@@ -25,6 +26,7 @@ export function csvReader({
         assetsPath = "",
         delimiter = "",
         keyConcepts, 
+        nameColumnIndex,
         dtypes 
     }) {
     
@@ -85,9 +87,12 @@ export function csvReader({
     function transformNameColumn({rows, columns}){
         // move column "name" so it goes after "time"
         // turns [name, geo, gender, time, lex] into [geo, gender, time, name, lex]
-        if (hasNameColumn)
-            columns.splice(this.keySize + 1, 0, columns.splice(this.nameColumnIndex, 1)[0]);
-
+        nameColumnIndex = nameColumnIndex ?? NAME_LIKE_CONCEPTS.map(n => columns.indexOf(n)).find(f => f > -1);
+        if (hasNameColumn && nameColumnIndex != undefined){
+            const nameColumn = columns.splice(nameColumnIndex, 1); //mutates columns array
+            const keySize = guessKeyConcepts(columns, keyConcepts).length;
+            columns = columns.slice(0, keySize).concat(nameColumn).concat(columns.slice(keySize))
+        }
         return {rows, columns};
     }
 
