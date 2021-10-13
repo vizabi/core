@@ -186,6 +186,9 @@ dataSource.nonObservable = function (config, parent, id) {
         isEntityConcept(conceptId) {
             return ["entity_set", "entity_domain"].includes(this.getConcept(conceptId).concept_type);
         },
+        isTimeConcept(conceptId) {
+            return this.getConcept(conceptId).concept_type === "time";
+        },
         normalizeResponse(response, query) {
             const cache = {}
             if (isDataFrame(response)) {

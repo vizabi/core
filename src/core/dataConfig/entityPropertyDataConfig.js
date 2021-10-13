@@ -20,12 +20,12 @@ entityPropertyDataConfig.nonObservable = function (cfg, parent) {
     return composeObj(base, {
         iterableResponse: false,
         get space() {
-            return base.space?.filter(dim => this.source.isEntityConcept(dim));
+            return base.space?.filter(dim => !this.source.isTimeConcept(dim));
         },
         get queries() {
             const kvLookup = this.source.availability.keyValueLookup;
             return this.space
-                .filter(dim => kvLookup.get(dim).has(this.concept))
+                .filter(dim => kvLookup.get(dim)?.has(this.concept))
                 .map(dim => {
                     return this.createQuery({ space: [dim] });
                 });
