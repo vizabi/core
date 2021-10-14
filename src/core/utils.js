@@ -348,6 +348,8 @@ export function interval(intervalSize) {
         ceil: Math.ceil,
         round: Math.round
     };
+    //special case to make weeks start from monday as per ISO 8601, not sunday
+    if(intervalSize === "week") intervalSize = "monday";
     return d3['utc' + ucFirst(intervalSize)] || nonTimeInterval;
 }
 
