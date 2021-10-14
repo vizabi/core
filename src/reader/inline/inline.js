@@ -85,7 +85,17 @@ function getSchema(data, from) {
         return [{ key: ["concept"], value: "concept_type"}];
     }
     if (from == "entities.schema") {
-        return [];
+        //make the key itself always present in schema
+        const conceptTpes = getConceptTypes(data);
+        const entitiesSchema = data.key
+            .filter(f => conceptTpes.get(f) !== "time")
+            .map(m => ({key: [m], value: m}));
+        
+        //this only supports names for the first dimension, but it is possible to add more, i.e. with dot notation
+        if (data.fields.includes("name"))
+            entitiesSchema.push({ key: [data.key[0]], value: "name" }); 
+       
+        return entitiesSchema;
     }
     console.warn("Invalid schema query `from` clause: ", from);
 }
