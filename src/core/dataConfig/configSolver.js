@@ -278,9 +278,15 @@ function mostCommonDimensionProperty(space, dataConfig) {
             concepts = allowedProperties.filter(c => allProperties.has(c));
         } else if (allProperties) {
             concepts = allProperties.keys();
-        } else {
-            //dimension has no entity properties --> return dimension name itself
+        } else if (entitySpace.length === 1) {
+            //dimension has no entity properties --> return dimension name itself if it's the only dimension
             concepts = [dim];
+        } else {
+            //otherwise setting concept to a single dim in a multidim situation would result
+            //in ambiguity (i.e. "chn" label for "geo:chn gender:male" marker)
+            //therefore we set concept to null and let the encoding be underconfigured
+            //this situation can be handled later
+            concepts = [null];
         }
         occurences.push(...concepts);
     }
