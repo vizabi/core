@@ -211,7 +211,12 @@ dataSource.nonObservable = function (config, parent, id) {
                 return forKey(query.select.key);
             }
             return {
-                raw: response,
+                //Sometimes the raw response is a dataframe (such as from CSV/inline reader)
+                //And sometimes it's a plain array (such as from ws-service reader)
+                //Some downstream code however expects "raw" to be a plain array, 
+                //for example, the for loop in entityPropertyDataConfig.js: lookups()
+                //hence, this converts response back to plain array
+                raw: isDataFrame(response) ? [...response.values()] : response,
                 forKey,
                 forQueryKey
             }
