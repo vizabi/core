@@ -5,7 +5,6 @@ import { timeInColumns } from './time-in-columns';
 const TIME_LIKE_CONCEPTS = ["time", "year", "month", "day", "week", "quarter"];
 const NAME_LIKE_CONCEPTS = ["name", "title"];
 const GOOGLE_DOC_PREFIX = 'https://docs.google.com/spreadsheets/';
-const MISSED_INDICATOR_NAME = 'indicator';
 const ERRORS = {
     WRONG_TIME_COLUMN_OR_UNITS: 'reader/error/wrongTimeUnitsOrColumn',
     NOT_ENOUGH_ROWS_IN_FILE: 'reader/error/notEnoughRows',
@@ -98,8 +97,13 @@ export function csvReader({
 
     function transformTimeInColumns({rows, columns}){
 
-        if (isTimeInColumns)
-            return timeInColumns({rows, columns});
+        if (isTimeInColumns) {
+            try {
+                return timeInColumns({rows, columns}, ERRORS);
+            } catch (error) {
+                throw makeError(error);
+            }
+        }
         
         return {rows, columns};
     }

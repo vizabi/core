@@ -1,26 +1,28 @@
-export function timeInColumns({columns, rows}, parsers) {
-    const keySize = this.keySize;
+import { ucFirst } from "../../core/utils";
 
+const MISSED_INDICATOR_NAME = 'indicator';
+
+export function timeInColumns({columns, rows, hasNameColumn, timeKey = "time", keySize = 1}, ERRORS, parsers) {
     let nameConcept = null;
     
     // remove column "name" as array's k+1 th element, but remember its header in a variable.
     // if it's an empty string, call it "name"
     // name column is not at its original index because it was moved by csv reader "load" method
-    if (this.hasNameColumn) {
+    if (hasNameColumn) {
         nameConcept = columns.splice(keySize + 1, 1)[0] || 'name';
     }
     
-    const missedIndicator = parsers && parsers[this.timeKey] && !!parsers[this.timeKey](columns[keySize]);
+    const missedIndicator = parsers && parsers[timeKey] && !!parsers[timeKey](columns[keySize]);
 
     if (missedIndicator) {
-        Vizabi.utils.warn('Indicator column is missed.');
+        console.warn('Indicator column is missed.');
     }
 
-    const indicatorKey = missedIndicator ? this.MISSED_INDICATOR_NAME : columns[keySize];
+    const indicatorKey = missedIndicator ? MISSED_INDICATOR_NAME : columns[keySize];
     const concepts = columns.slice(0, keySize)
-        .concat(this.timeKey)
+        .concat(timeKey)
         .concat(nameConcept || [])
-        .concat(missedIndicator ? Vizabi.utils.capitalize(this.MISSED_INDICATOR_NAME) : rows.reduce((result, row) => {
+        .concat(missedIndicator ? ucFirst(MISSED_INDICATOR_NAME) : rows.reduce((result, row) => {
             const concept = row[indicatorKey];
             if (!result.includes(concept) && concept) {
             result.push(concept);
@@ -39,21 +41,21 @@ export function timeInColumns({columns, rows}, parsers) {
 
             if (resultRows.length) {
             if (resultRows[0][row[indicatorKey]] !== null) {
-                throw this.error(ERRORS.REPEATED_KEYS, null, {
-                indicator: row[indicatorKey],
-                key: row[entityDomain]
-                });
+                throw {
+                    name: ERRORS.REPEATED_KEYS,
+                    message: `indicator: ${row[indicatorKey]}, key: ${row[entityDomain]}`
+                }
             }
 
             resultRows.forEach(resultRow => {
-                resultRow[row[indicatorKey]] = row[resultRow[this.timeKey]];
+                resultRow[row[indicatorKey]] = row[resultRow[timeKey]];
             });
             } else {
             Object.keys(row).forEach(key => {
                 if (![entityDomain, indicatorKey, nameConcept].includes(key)) {
                 const domainAndTime = {
                     [entityDomain]: row[entityDomain], 
-                    [this.timeKey]: key
+                    [timeKey]: key
                 };
                 const optionalNameColumn = !nameConcept ? {} : {
                     [nameConcept]: row[nameConcept]
