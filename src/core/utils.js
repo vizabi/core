@@ -348,8 +348,10 @@ export function interval(intervalSize) {
         ceil: Math.ceil,
         round: Math.round
     };
+    //case for quarter
+    if (intervalSize === "quarter") return d3.utcMonth.every(3);
     //special case to make weeks start from monday as per ISO 8601, not sunday
-    if(intervalSize === "week") intervalSize = "monday";
+    if (intervalSize === "week") intervalSize = "monday";
     return d3['utc' + ucFirst(intervalSize)] || nonTimeInterval;
 }
 
