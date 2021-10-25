@@ -20,6 +20,7 @@ const defaults = {
     requiredEncodings: [],
     transformations: [
         "aggregate.aggregate",
+        //"facet.facet",
         "frame.frameMap",
         "frame.interpolate",
         "frame.extrapolate",

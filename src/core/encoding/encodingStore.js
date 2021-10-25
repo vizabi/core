@@ -6,6 +6,7 @@ import { order } from './order'
 import { trail } from './trail'
 import { repeat } from './repeat'
 import { aggregate } from './aggregate'
+import { facet } from './facet'
 
 export const encodingStore = createStore(encoding, {
     frame,
@@ -13,5 +14,6 @@ export const encodingStore = createStore(encoding, {
     order,
     trail,
     repeat,
-    aggregate
+    aggregate,
+    facet
 });
