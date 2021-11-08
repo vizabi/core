@@ -109,11 +109,17 @@ export function csvReader({
     }
 
     function returnValuesDtypesAndKeyConcepts({rows, columns}){
+        const values = autotype(rows);
         return {
-            values: autotype(rows),
+            values,
             keyConcepts: guessKeyConcepts(columns, keyConcepts),
             columns,
-            dtypes: TIME_LIKE_CONCEPTS.reduce((dtypes, t) => (dtypes[t] = t, dtypes), {})
+            dtypes: columns.reduce((dtypes, column) => {
+                const lowerCaseColumn = column.toLowerCase();
+                //skip dtypes config for time column which typed to Date with d3.autoType already ('day' and 'month' timeformats for ex.)
+                if (TIME_LIKE_CONCEPTS.includes(lowerCaseColumn) && !(values[0][column] instanceof Date)) dtypes[column] = lowerCaseColumn;
+                return dtypes;
+            }, {})
         }
     }
 
@@ -123,7 +129,7 @@ export function csvReader({
 
     function guessKeyConcepts(columns, keyConcepts){
         if(keyConcepts) return keyConcepts;
-        const index = columns.findIndex((f) => TIME_LIKE_CONCEPTS.includes(f));
+        const index = columns.findIndex((f) => TIME_LIKE_CONCEPTS.includes(f.toLowerCase()));
         // +1 because we want to include time itself as well
         return columns.slice(0, index + 1);
     }
