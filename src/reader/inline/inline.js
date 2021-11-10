@@ -221,23 +221,33 @@ function getConceptTypes(data) {
         types.set(field, getConceptType(firstRow[field], field, data.key));
     }
     // check if those types are consistent
-    for (let [field, type] in types) {
-        if (!validateConceptType(data, field, type)) {
+    for (let [field, type] of types) {
+        const checkedType = validateConceptType(data, field, type);
+        if (!checkedType) {
             console.warn("Field " + field + " is not consistently typed " + type);
             types.set(field, "mixed");
+        } else if (type === "null") {
+            types.set(field, checkedType !== type ? checkedType : undefined);
         }
     }
     return types;
 }
 
 function validateConceptType(data, field, type) {
-    for (row of data.values()) {
-        if (getConceptType(row[field], field, data.key) !== type)
-            return false;
+    let conceptType;
+    for (let row of data.values()) {
+        conceptType = getConceptType(row[field], field, data.key);
+        if ( type !== conceptType ) {
+            if (type === "null") {
+                type = conceptType;
+            } else if (conceptType !== "null") return false;
+        }
     }
+    return type;
 }
 
 function getConceptType(value, field, datakey) {
+    if (value === null) return 'null';
     if (isDate(value)) return 'time';
     if(datakey.includes(field)) return 'entity_domain';
     const type = typeof value;
