@@ -98,9 +98,9 @@ describe('create marker', () => {
         const key = { country: 'swe' };
         expect(dataMap.get(key)).toEqual({
             country: 'swe',
-            frame: new Date(Date.UTC(1800)),
-            time: new Date(Date.UTC(1800)),
-            size: 1413,
+            frame: new Date(Date.UTC(2018)),
+            time: new Date(Date.UTC(2018)),
+            size: 47520,
             y: null,
             x: null,
             label: { country: 'Sweden' },

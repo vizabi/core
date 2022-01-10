@@ -51,7 +51,7 @@ frame.nonObservable = function(config, parent, id) {
                 value = this.parseValue(this.config.value);
                 value = this.scale.clampToDomain(value);
             } else {
-                value = this.scale.domain[0];
+                value = this.scale.domain.at(-1);
             }
             return value;
         },

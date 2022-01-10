@@ -55,8 +55,8 @@ describe('frame encoding', () => {
             {
                 check: map => {
                     expect(map.get(key)).toEqual({
-                        gender: 'male', geo: 'prk', time: new Date(Date.UTC(1960)),
-                        x: 5279170, y: 48.424, frame: new Date(Date.UTC(1960)), 
+                        gender: 'male', geo: 'prk', time: new Date(Date.UTC(2016)),
+                        x: 12407156, y: 68.055, frame: new Date(Date.UTC(2016)), 
                         [Symbol.for('key')]: createKeyFn(map.key)(key)
                     })
                 }
@@ -101,8 +101,8 @@ describe('frame encoding', () => {
             {
                 check: map => {
                     expect(map.get(key)).toEqual({
-                        gender: 'male', geo: 'prk', time: new Date(Date.UTC(1960)),
-                        x: 5279170, y: 48.424, frame: new Date(Date.UTC(1960)), 
+                        gender: 'male', geo: 'prk', time: new Date(Date.UTC(2016)),
+                        x: 12407156, y: 68.055, frame: new Date(Date.UTC(2016)), 
                         [Symbol.for('key')]: createKeyFn(map.key)(key)
                     })
                 }
