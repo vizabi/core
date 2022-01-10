@@ -416,7 +416,7 @@ frame.nonObservable = function(config, parent, id) {
 
 frame.splashMarker = function splashMarker(marker) {
     const frame = marker.encoding.frame;
-    if (frame?.splash) {
+    if (frame?.splash && frame?.config.value) {
         const concept = resolveRef(frame.config.data.concept).value;
         if (typeof concept == "string") {
             let splashConfig = Vizabi.utils.deepclone(marker.config);
