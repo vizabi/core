@@ -61,8 +61,8 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.0.4",
     "install-peers": "^1.0.3",
-    "jest": "^27.1.0",
-    "jest-cli": "^27.1.0",
+    "jest": "^27.4.7",
+    "jest-cli": "^27.4.7",
     "mobx": "^5.15.7",
     "mobx-formatters": "^1.0.2",
     "mobx-utils": "^5.5.2",
