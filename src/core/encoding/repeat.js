@@ -39,8 +39,7 @@ export const repeat = defaultDecorator({
             }, {})
         },
         get useConnectedRowsAndColumns(){
-            const {allowEnc, row, column} = this;
-            return row && row.length && column && column.length && allowEnc.length == 2;
+          return !!this.config.useConnectedRowsAndColumns;
         },
         //[{x: x1, y: y1}, {x: x2, y: y1}]
         get rowcolumn() {
