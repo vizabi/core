@@ -43,6 +43,10 @@ color.nonObservable = function(config, parent) {
             });
         },
 
+        get isPattern() {
+            return !!(this.domain && this.domain.length && this.domain.some(color => color && color.length && color[0] == "<"));
+        },
+
         get palette() {
             const config = resolveRef(this.config.palette).value || defaultConfig.palette;
             return observable(palette(config, this));
