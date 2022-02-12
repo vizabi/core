@@ -305,10 +305,13 @@ frame.nonObservable = function(config, parent, id) {
         get frameKey() {
             return createKeyFn([this.name])({ [this.name]: this.value }) // ({ [this.name]: this.value });
         },
+        get interpolationFields() {
+            return [this.name, this.data.concept, ...this.changeBetweenFramesEncodings];
+        },
         getInterpolatedFrame(df, step, stepsAround) {
             const keys = Array.from(df.keys());
             const [before, after] = stepsAround.map(step => df.get(keys[step]));
-            return before.interpolateTowards(after, step % 1);
+            return before.interpolateTowards(after, step % 1, this.interpolationFields);
         },
         get stepsAround() {
             return [Math.floor(this.step), Math.ceil(this.step)];
