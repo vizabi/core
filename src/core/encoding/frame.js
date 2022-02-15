@@ -1,7 +1,7 @@
 import { encoding } from './encoding';
 import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, createModel } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, createModel, zeroOrderIterpolate } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
@@ -238,6 +238,7 @@ frame.nonObservable = function(config, parent, id) {
 
             return newFrameMap.interpolateOverMembers({ 
                 fields: this.changeBetweenFramesEncodings,
+                interpolates: this.fieldInterpolates,
                 ammendNewRow: row => row[this.data.concept] = row[encName]
             });
 
@@ -252,6 +253,16 @@ frame.nonObservable = function(config, parent, id) {
                     return enc[prop].data.hasOwnData 
                         && enc[prop].data.space.includes(this.data.concept);
                 })
+        },
+        get fieldInterpolates() {
+            const enc = this.marker.encoding;
+            return this.changeBetweenFramesEncodings.reduce((result, encName) => {
+                if(enc[encName].data.conceptProps?.interpolate === "false") {
+                    //use zero order interpolation instead default d3.interpolate
+                    result[encName] = zeroOrderIterpolate;
+                }
+                return result;
+            }, {});
         },
 
         get interval() { 
@@ -311,7 +322,7 @@ frame.nonObservable = function(config, parent, id) {
         getInterpolatedFrame(df, step, stepsAround) {
             const keys = Array.from(df.keys());
             const [before, after] = stepsAround.map(step => df.get(keys[step]));
-            return before.interpolateTowards(after, step % 1, this.interpolationFields);
+            return before.interpolateTowards(after, step % 1, this.interpolationFields, this.fieldInterpolates);
         },
         get stepsAround() {
             return [Math.floor(this.step), Math.ceil(this.step)];
