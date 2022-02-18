@@ -606,3 +606,11 @@ export function isIterable(obj) {
   }
   return typeof obj[Symbol.iterator] === 'function';
 }
+
+export function stepBeforeInterpolator(startVal, endVal) {
+    if (typeof startVal === "object") {
+        const jsonStartVal = JSON.stringify(startVal);
+        const jsonEndtVal = JSON.stringify(endVal);
+        return t => JSON.parse(t < 1 ? jsonStartVal : jsonEndtVal);
+    } else return t => t < 1 ? startVal : endVal;
+}

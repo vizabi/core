@@ -42,7 +42,7 @@ function constructDataFrame(storage) {
             addColumn: (name, value) => addColumn(df, name, value),
             groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
             interpolate: () => interpolate(df),
-            interpolateTowards: (df2, mu) => interpolateBetween(df, df2, mu),
+            interpolateTowards: (df2, mu, fields, interpolators) => interpolateBetween(df, df2, mu, fields, interpolators),
             reindex: (iterable) => reindex(df, iterable),
             fillNull: (fillValues) => fillNull(df, fillValues),
             copy: () => copy(df),
