@@ -257,7 +257,9 @@ frame.nonObservable = function(config, parent, id) {
         get fieldInterpolates() {
             const enc = this.marker.encoding;
             return this.changeBetweenFramesEncodings.reduce((result, encName) => {
-                if(enc[encName].data.conceptProps?.interpolate === "false") {
+                if(!["measure", "time"].includes(enc[encName].data?.conceptProps?.concept_type)
+                    && !enc[encName].scale?.interpolate
+                    && !enc[encName].data?.conceptProps?.interpolate){
                     //use zero order interpolation instead default d3.interpolate
                     result[encName] = zeroOrderIterpolate;
                 }
