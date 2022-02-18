@@ -1,7 +1,7 @@
 import { encoding } from './encoding';
 import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, createModel, zeroOrderIterpolate } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, createModel, stepBeforeInterpolator } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
@@ -238,7 +238,7 @@ frame.nonObservable = function(config, parent, id) {
 
             return newFrameMap.interpolateOverMembers({ 
                 fields: this.changeBetweenFramesEncodings,
-                interpolates: this.fieldInterpolates,
+                interpolators: this.fieldCustomInterpolators,
                 ammendNewRow: row => row[this.data.concept] = row[encName]
             });
 
@@ -254,14 +254,14 @@ frame.nonObservable = function(config, parent, id) {
                         && enc[prop].data.space.includes(this.data.concept);
                 })
         },
-        get fieldInterpolates() {
+        get fieldCustomInterpolators() {
             const enc = this.marker.encoding;
             return this.changeBetweenFramesEncodings.reduce((result, encName) => {
                 if(!["measure", "time"].includes(enc[encName].data?.conceptProps?.concept_type)
                     && !enc[encName].scale?.interpolate
                     && !enc[encName].data?.conceptProps?.interpolate){
                     //use zero order interpolation instead default d3.interpolate
-                    result[encName] = zeroOrderIterpolate;
+                    result[encName] = stepBeforeInterpolator;
                 }
                 return result;
             }, {});
@@ -318,13 +318,13 @@ frame.nonObservable = function(config, parent, id) {
         get frameKey() {
             return createKeyFn([this.name])({ [this.name]: this.value }) // ({ [this.name]: this.value });
         },
-        get interpolationFields() {
+        get fieldsToInterpolate() {
             return [this.name, this.data.concept, ...this.changeBetweenFramesEncodings];
         },
         getInterpolatedFrame(df, step, stepsAround) {
             const keys = Array.from(df.keys());
             const [before, after] = stepsAround.map(step => df.get(keys[step]));
-            return before.interpolateTowards(after, step % 1, this.interpolationFields, this.fieldInterpolates);
+            return before.interpolateTowards(after, step % 1, this.fieldsToInterpolate, this.fieldCustomInterpolators);
         },
         get stepsAround() {
             return [Math.floor(this.step), Math.ceil(this.step)];

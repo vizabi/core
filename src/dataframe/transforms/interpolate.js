@@ -4,17 +4,17 @@ import { assign, pickGetters, relativeComplement } from "../../core/utils";
  * Interpolate within a dataframe. Fill missing values in rows. Inplace.
  * @param {*} df 
  */
-export function interpolate(df, fields = df.fields, interpolates = {}) {
+export function interpolate(df, fields = df.fields, interpolators = {}) {
     for (let field of fields) {
-        interpolateField(df, field, interpolates[field]);
+        interpolateField(df, field, interpolators[field]);
     }
     return df;
 }
 
-function interpolateField(df, field, interpolate) {
+function interpolateField(df, field, interpolator) {
     const gap = newGap();
     for (let row of df.values()) {
-        evaluateGap(row, field, gap, interpolate);
+        evaluateGap(row, field, gap, interpolator);
     }
 }
 
@@ -25,7 +25,7 @@ export function newGap() {
     }
 }
 
-export function evaluateGap(row, field, gap, interpolate) {
+export function evaluateGap(row, field, gap, interpolator) {
     const { rows, start } = gap;
     const fieldVal = row[field];
     if (fieldVal == null) { // faster for undefined/null check
@@ -34,17 +34,17 @@ export function evaluateGap(row, field, gap, interpolate) {
     } else {
         // fill gap if it exists and is inner
         if (rows.length > 0) {
-            interpolateGap(rows, start, row, field, interpolate);
+            interpolateGap(rows, start, row, field, interpolator);
             rows.length = 0;
         }
         gap.start = row;
     }
 }
 
-function interpolateGap(gapRows, startRow, endRow, field, interpolate) {
+function interpolateGap(gapRows, startRow, endRow, field, interpolator = d3.interpolate) {
     const startVal = startRow[field];
     const endVal = endRow[field];
-    const int = (interpolate ? interpolate : d3.interpolate)(startVal, endVal);
+    const int = interpolator(startVal, endVal);
     const delta = 1 / (gapRows.length+1);
     let mu = 0;
     for (let gapRow of gapRows) {
@@ -57,7 +57,7 @@ function interpolateGap(gapRows, startRow, endRow, field, interpolate) {
 }
 
 
-export function interpolateGroup(group, { fields = group.fields, interpolates = {}, ammendNewRow = () => {} } = {}) {
+export function interpolateGroup(group, { fields = group.fields, interpolators = {}, ammendNewRow = () => {} } = {}) {
     
     // what fields to interpolate?
     const groupFields = group.values().next().value.fields;
@@ -96,7 +96,7 @@ export function interpolateGroup(group, { fields = group.fields, interpolates = 
                         }
                         const startRow = group.get(frameKeys[lastIndex]).get(markerKey);
                         const endRow = group.get(frameKeys[i]).get(markerKey);
-                        interpolateGap(gapRows, startRow, endRow, field, interpolates[field]);
+                        interpolateGap(gapRows, startRow, endRow, field, interpolators[field]);
                     }
                     lastIndexPerMarker.set(markerKey, i);
                 }

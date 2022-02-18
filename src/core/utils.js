@@ -607,7 +607,7 @@ export function isIterable(obj) {
   return typeof obj[Symbol.iterator] === 'function';
 }
 
-export function zeroOrderIterpolate(startVal, endVal) {
+export function stepBeforeInterpolator(startVal, endVal) {
     if (typeof startVal === "object") {
         const jsonStartVal = JSON.stringify(startVal);
         const jsonEndtVal = JSON.stringify(endVal);
