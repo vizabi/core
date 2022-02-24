@@ -1,9 +1,56 @@
 import { DataFrame } from "./dataFrame";
-import { isDataFrame, createKeyFn, arrayEquals, pick } from "./dfutils";
+import { isDataFrame, createKeyFn, arrayEquals, pick, pickMultiGroup } from "./dfutils";
 import { extent, extentIndicesOfGroupKey, extentOfGroupKey, extentOfGroupKeyPerMarker } from "./info/extent";
 import { extrapolateGroup } from "./transforms/extrapolate";
 import { interpolateGroup } from "./transforms/interpolate";
 import { reindexGroup, reindexGroupToKeyDomain } from "./transforms/reindex";
+
+export function DataFrameMultiGroup(data, key, descKeys = []) {
+
+    if (!Array.isArray(descKeys)) descKeys = [[descKeys]]; // desc keys is single string (e.g. 'year')
+    if (!Array.isArray(descKeys[0])) descKeys = [descKeys]; // desc keys is one key (e.g. ['year'])
+    if (!Array.isArray(key)) key = [key]; // key is single string (e.g. 'year')
+    if (descKeys.length === 0 && data.key) descKeys = [data.key];  // descKeys is empty
+    
+    const group = createGroup(key, descKeys);
+    group.setRow = (row, key) => {
+        return getDataFrameMultiGroup(group, row).map(df => df.set(row, key));
+    }
+    group.batchSetRow = (data) => {
+        const descKeys = group.descendantKeys;
+        if (data.key?.length > 0 && arrayEquals(data.key, descKeys[descKeys.length - 1])) {
+            for (let row of data.values()) {
+                getDataFrameMultiGroup(group, row).forEach(df => df.setByStr(row[Symbol.for('key')], row));
+            }
+        } else {
+            for (let row of data.values()) {
+                getDataFrameMultiGroup(group, row).forEach(df => df.set(row));
+            }
+        }
+        return group;
+    }
+
+    return group.batchSetRow(data);
+}
+
+function getDataFrameMultiGroup(group, row) {
+    if (group.type == 'DataFrame') return [group];
+    let members;
+    if (!row) {
+        members = [group.values().next().value];
+    } else {
+        members = pickMultiGroup(row, group.key).map(keyObj => {
+            const keyStr = group.keyFn(keyObj);
+            if (group.has(keyStr)) {
+                return group.get(keyStr);
+            } else {
+                return group.createMember(keyObj);
+            }
+        })
+    }
+    return members.flatMap(member => getDataFrameMultiGroup(member, row));
+}
+
 
 /**
  * 

@@ -117,6 +117,17 @@ export function pick(object, keys) {
     }
     return result;
 }
+export function pickMultiGroup(object, keys) {
+    let result = [{}];
+    for (const key of keys) {
+        if (key in object) {
+            result = [].concat(object[key]).flatMap(objKey => 
+                result.map(res => Object.assign({}, res,{[key]: objKey}))
+            );
+        }
+    }
+    return result;
+}
 
 export function unique(...arrays) {
     const uniqueSet = new Set(arrays.flat());

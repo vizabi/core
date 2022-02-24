@@ -1,4 +1,4 @@
-import { DataFrameGroup } from "../dataFrameGroup";
+import { DataFrameGroup, DataFrameMultiGroup } from "../dataFrameGroup";
 
 export function groupBy(df, groupKey, memberKey = df.key) {
 
@@ -6,3 +6,8 @@ export function groupBy(df, groupKey, memberKey = df.key) {
     
 }
 
+export function groupByWithMultiGroupMembership(df, groupKey, memberKey = df.key) {
+
+    return DataFrameMultiGroup(df, groupKey, memberKey);
+    
+}

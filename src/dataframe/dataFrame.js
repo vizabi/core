@@ -7,7 +7,7 @@ import { leftJoin } from "./transforms/leftjoin";
 import { filter, filterNullish } from "./transforms/filter";
 import { project } from "./transforms/project";
 import { addColumn } from "./transforms/addColumn";
-import { groupBy } from "./transforms/group";
+import { groupBy, groupByWithMultiGroupMembership } from "./transforms/group";
 import { interpolate } from "./transforms/interpolate";
 import { reindex } from "./transforms/reindex";
 import { fillNull } from "./transforms/fillnull";
@@ -41,6 +41,7 @@ function constructDataFrame(storage) {
             project: (projection) => project(df, projection),
             addColumn: (name, value) => addColumn(df, name, value),
             groupBy: (groupKey, memberKey) => groupBy(df, groupKey, memberKey),
+            groupByWithMultiGroupMembership: (groupKey, memberKey) => groupByWithMultiGroupMembership(df, groupKey, memberKey),
             interpolate: () => interpolate(df),
             interpolateTowards: (df2, mu, fields, interpolators) => interpolateBetween(df, df2, mu, fields, interpolators),
             reindex: (iterable) => reindex(df, iterable),
