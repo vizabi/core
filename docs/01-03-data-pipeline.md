@@ -159,7 +159,7 @@ And every value of map comes in the form of d (MarkerItemData)
 mentions-triggers `dataMapCache` or `dataMap` (which through transformations also leads to `dataMapCache`)  
 
 —> `get dataMapCache()` 
-Each encoding has its own response (which might come from the same combined query to a datasource and they might even be in the same dataframe if the key is the same). Marker model combines all encoding responses in its dataMapCache. The combination should result in a table of marker items. We have 2 types of encs: marker-defining, marker-amending and no-op encodings. Combination happens using fullJoin and leftJoin. Renaming (projection in database language) also happens while joining.
+Each encoding has its own response (which might come from the same combined query to a datasource and they might even be in the same dataframe if the key is the same). Marker model combines all encoding responses in its dataMapCache. The combination should result in a table of marker items. We have 2 types of encs: marker-defining, marker-amending and no-op encodings. Combination happens using fullJoin and leftJoin. Renaming ("projection" in database language) also happens while joining.
 
 A third type of encoding are encodings that don’t do anythin (no-op), such as select and highlight, they don’t modify data. 
 

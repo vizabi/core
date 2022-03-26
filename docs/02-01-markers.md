@@ -72,7 +72,7 @@ marker data:
 
 ## Step 2: Left join responses from marker-ammending encodings
 
-After that, responses from encodings using subspaces of the marker space, e.g. `color.space: ["geo"]`, constants or concepts that are in the marker space, are **left joined** to the marker data on their overlapping space. Left join means that no new marker items will be created from this operation. Notice again that renaming of the columns (projection) happens while joining.
+After that, responses from encodings using subspaces of the marker space, e.g. `color.space: ["geo"]`, constants or concepts that can be expressed through marker space, are **left joined** to the marker data on their overlapping space. Left join means that no new marker items will be created from this operation. Notice again that renaming of the columns (projection) happens while joining.
 
 color encoding response:
 

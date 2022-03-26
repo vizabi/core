@@ -28,7 +28,7 @@ js(viz.model.markers.bubble.encoding.y.config)
 
 ## Maker-defining and marker-ammending encodings
 - Defining encodings are those that create marker items (superspace encoding that's iterable). Definign encodings are not related with required encodings.
-- Amending encs are those that don't (proper subspaces, constants, labels, concepts that are in the marker space)
+- Amending encs are those that don't (proper subspaces, constants, labels, concepts that can be expressed via marker space)
 
 ## Required encodings
 If a marker item doesn't have data from any of the required encodings it will be removed from marker dataArray. This makes bubbles disappear when data is missing for X or Y or size, but remain if data is missing for color.

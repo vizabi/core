@@ -108,10 +108,26 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.constant != null;
         },
         get hasOwnData() {
-            return !!(this.source && this.concept && !this.conceptInSpace);
+            return !!(this.source && this.concept && !this.conceptExpressedThroughSpace);
         },
         get conceptInSpace() {
+            //example: space ["geo"], concept: "geo"
             return this.concept && this.space && this.space.includes(this.concept);
+        },
+        get conceptIsEntitySetAndItsDomainIsInSpace() {
+            //example: space ["geo"], concept: "world_4region"
+            return this.concept && this.space && this.conceptProps.concept_type === "entity_set" && this.space.includes(this.conceptProps.domain);
+        },
+        get conceptExpressedThroughSpace(){
+            //if concept can be expressed through dimensions alone,
+            //this method returns a property, which can be used to access data via dimension like so: row => row[conceptExpressedThroughSpace]
+            //returns false if concept can not be expressed through dimensions
+            if (this.conceptInSpace)
+                return this.concept;
+            else if (this.conceptIsEntitySetAndItsDomainIsInSpace)
+                return this.conceptProps.domain;
+            else
+                return false;
         },
         isConceptAvailableInSpace(space, concept) {
             const dataSource = this.source;
@@ -134,7 +150,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             if (source === 'auto') {
                 source = this.hasOwnData
                     ? 'self'
-                    : this.conceptInSpace
+                    : this.conceptExpressedThroughSpace
                         ? 'filterRequired'
                         : undefined;
             }
@@ -161,7 +177,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             if (["measure","time"].includes(concept_type)) // continuous
                 return extent(data.rows(), concept);
             else // ordinal (entity_set, entity_domain, string)
-                return unique(data.rows(), concept); 
+                return unique(data.rows(), this.conceptExpressedThroughSpace || concept); 
         },
         get configState() {
             return this.marker?.configState ?? combineStates(configSolver.dataConfigSolvingState(this));

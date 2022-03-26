@@ -207,8 +207,8 @@ marker.nonObservable = function(config, parent, id) {
                 return 'no-op';
             else if (data.isConstant) {
                 return row => data.constant;
-            } else if (data.conceptInSpace) {
-                return row => row[concept];
+            } else if (data.conceptExpressedThroughSpace) {
+                return row => row[data.conceptExpressedThroughSpace];
             } else if (data.commonSpace.length < this.data.space.length
                 || data.iterableResponse === false
                 ) { 
