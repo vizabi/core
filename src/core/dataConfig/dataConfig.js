@@ -219,8 +219,29 @@ dataConfig.nonObservable = function(config, parent, id) {
                 return this.responsePromise.state;
             }
         },
+        get conceptIsEntitySetAndItsDomainIsInSpace() {
+            //example: space ["geo"], concept: "world_4region"
+            return this.concept && this.space && this.conceptProps.concept_type === "entity_set" && this.space.includes(this.conceptProps.domain);
+        },
+        responseAdaptorHack_MoveItToDSource(response){
+            //this adapter handles situations such as getting world_4region property
+            //of geos that are themselves world_4regions 
+            // Jasper: you could have that as an extra layer in datasource even or smth
+            // for any entity query to a domain, add all is--<sets> properties for that domain to the query,
+            // and when result comes back add <set> properties for entities that have is--<set> TRUE
+            // or do that just when you see the key is <domain> and one of the queried properties is a set in the domain.
+            // more specific. so only add it if it's asked for :)
+
+            if (this.conceptIsEntitySetAndItsDomainIsInSpace) {
+                response.raw.forEach(m => {
+                    m[this.concept] = m[this.concept] ?? m[this.conceptProps.domain];
+                });
+            }
+            return response;
+        },
         fetchResponse() {
             const promise = this.source.query(this.ddfQuery)
+                .then(this.responseAdaptorHack_MoveItToDSource.bind(this))
                 .then(response => response.forKey(this.commonSpace));
             return fromPromise(promise);
         },
