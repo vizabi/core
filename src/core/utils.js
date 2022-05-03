@@ -563,6 +563,7 @@ export function getConceptsCatalog(concepts, dataConfig, maxDepth) {
                 space: [conceptId],  
                 concept: ["name", "rank", ...setMembershipFlags],
                 locale: dataConfig.locale,
+                filter: null,
                 source
             })
             promises.push(source.query(entityQuery).then(response => {
