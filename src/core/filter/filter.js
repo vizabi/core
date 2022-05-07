@@ -87,6 +87,51 @@ filter.nonObservable = function (config, parent, id) {
             else 
                 return this.set(marker);
         }),
+        deleteInDimensions: action("deleteInDimensions", function(markerItem) {
+            if (Array.isArray(markerItem)) {
+                for (const el of markerItem) this.deleteInDimensions(el)
+                return;
+            }
+            const cfg = this.config.dimensions;
+            const item = this.getKey(markerItem);
+            //traverse object in search of an array containing key
+
+            function findAndRemoveInArray(array, item){
+                const index = array.indexOf(item);
+                if (index !== -1) array.splice(index, 1);
+            }
+
+            function findAndRemoveInObject(obj, item, key, parent) {
+                if (key === "$in") {
+                    findAndRemoveInArray(obj, item);
+                    if(obj.length === 0) delete parent[key];
+                    return;
+                }
+                if (typeof obj === "object") {
+                    for (const objKey in obj){
+                        findAndRemoveInObject(obj[objKey], item, objKey, obj);
+                    }
+                    if (Object.keys(obj).length === 0) {
+                        if (Array.isArray(parent)) {
+                            parent.splice(key,1);
+                        }
+                        else if (typeof parent === "object"){
+                            delete parent[key];
+                        }
+                    }
+                    return;
+                }
+                if (Array.isArray(obj)) {
+                    obj.forEach((d, i) => findAndRemoveInObject(d, i, item, obj));
+                    if(obj.length === 0) delete parent[key];
+                    return;
+                }
+            }
+
+            findAndRemoveInObject(cfg, item);
+
+            
+        }),
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];
         },
