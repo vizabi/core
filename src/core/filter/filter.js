@@ -11,6 +11,24 @@ export function filter(...args) {
     return createModel(filter, ...args)
 }
 
+function cleanEmptyObjectsAndArrays(obj){
+
+    function notEmpty(arg) {
+        if (arg instanceof Date) return true;
+        return !(arg == null || typeof arg === "object" && Object.keys(arg).length === 0 || Array.isArray(arg) && arg.length === 0);
+    }
+
+    if (Array.isArray(obj)){
+        obj = obj.map( d => cleanEmptyObjectsAndArrays(d) ).filter(notEmpty);
+    } else if (typeof obj === "object"){
+        for (const objKey in obj) {
+            obj[objKey] = cleanEmptyObjectsAndArrays(obj[objKey]);
+            if (!notEmpty(obj[objKey])) delete obj[objKey];
+        }
+    }
+
+    return obj;
+}
 filter.nonObservable = function (config, parent, id) {
 
     if (!("markers" in config)) config.markers = [];
@@ -64,19 +82,9 @@ filter.nonObservable = function (config, parent, id) {
                 }
             }
         }),
-        delete: action("deleteFilter", function(marker) {
-            if (Array.isArray(marker)) {
-                for (const el of marker) this.delete(el)
-                return;
-            }
-            const cfg = this.config.markers;
-            const key = this.getKey(marker);
-            if (Array.isArray(cfg)) {
-                removeOnce(cfg, key);
-            } else {
-                delete cfg[key];
-            }
-            return !this.markers.has(key);
+        delete: action("deleteFilter", function(markerItem) {
+            this.deleteFromMarkers(markerItem);
+            this.deleteFromDimensionsAllINstatements(markerItem);
         }),
         clear: action("clearFilter", function() {
             this.config.markers = [];
@@ -87,50 +95,82 @@ filter.nonObservable = function (config, parent, id) {
             else 
                 return this.set(marker);
         }),
-        deleteInDimensions: action("deleteInDimensions", function(markerItem) {
+        deleteFromMarkers: action("deleteInMarkers", function(markerItem) {
             if (Array.isArray(markerItem)) {
-                for (const el of markerItem) this.deleteInDimensions(el)
+                for (const el of markerItem) this.deleteInMarkers(el)
+                return;
+            }
+            const cfg = this.config.markers;
+            const key = this.getKey(markerItem);
+            if (Array.isArray(cfg)) {
+                removeOnce(cfg, key);
+            } else {
+                delete cfg[key];
+            }
+            return !this.markers.has(key);
+        }),
+        addToDimensionsFirstINstatement: action("deleteInDimensions", function(markerItem, path) {
+            if (Array.isArray(markerItem)) {
+                for (const el of markerItem) this.addToDimensionsFirstINstatement(el)
                 return;
             }
             const cfg = this.config.dimensions;
             const item = this.getKey(markerItem);
-            //traverse object in search of an array containing key
+            let addedOnce = false;
+
+            function findAndAddInArray(array, item){
+                const index = array.indexOf(item);
+                if (index == -1 && !addedOnce) {
+                    array.push(item);
+                    addedOnce = true;
+                }
+            }
+
+            function findAndAddInObject(obj, item, key) {
+                if (key === "$in")
+                    findAndAddInArray(obj, item);
+                else if (Array.isArray(obj))
+                    obj.forEach( d => findAndAddInObject(d, item) );
+                else if (typeof obj === "object")
+                    for (const objKey in obj) findAndAddInObject(obj[objKey], item, objKey);
+            }
+
+            if (path) {
+                const inArray = path.reduce((a, p)=>{
+                    if (a[p] == null) a[p] = ["$in", "$or", "$and", "$nin"].includes(p) ? [] : {};
+                    return a[p];
+                }, cfg);
+                findAndAddInArray(inArray, item);
+            } else {
+                findAndAddInObject(cfg, item);
+            }
+        }),
+        deleteFromDimensionsAllINstatements: action("deleteInDimensions", function(markerItem) {
+            if (Array.isArray(markerItem)) {
+                for (const el of markerItem) this.deleteFromDimensionsAllINstatements(el)
+                return;
+            }
+            const cfg = this.config.dimensions;
+            const item = this.getKey(markerItem);
+
+            //traverse object in search of an array containing markerItem
 
             function findAndRemoveInArray(array, item){
                 const index = array.indexOf(item);
                 if (index !== -1) array.splice(index, 1);
             }
 
-            function findAndRemoveInObject(obj, item, key, parent) {
-                if (key === "$in") {
-                    findAndRemoveInArray(obj, item);
-                    if(obj.length === 0) delete parent[key];
-                    return;
-                }
-                if (typeof obj === "object") {
-                    for (const objKey in obj){
-                        findAndRemoveInObject(obj[objKey], item, objKey, obj);
-                    }
-                    if (Object.keys(obj).length === 0) {
-                        if (Array.isArray(parent)) {
-                            parent.splice(key,1);
-                        }
-                        else if (typeof parent === "object"){
-                            delete parent[key];
-                        }
-                    }
-                    return;
-                }
-                if (Array.isArray(obj)) {
-                    obj.forEach((d, i) => findAndRemoveInObject(d, i, item, obj));
-                    if(obj.length === 0) delete parent[key];
-                    return;
-                }
+            function findAndRemoveInObject(obj, item, key) {
+                if (key === "$in")
+                    findAndRemoveInArray(obj, item);                
+                else if (Array.isArray(obj))
+                    obj.forEach( d => findAndRemoveInObject(d, item) );
+                else if (typeof obj === "object")
+                    for (const objKey in obj) findAndRemoveInObject(obj[objKey], item, objKey);
             }
 
             findAndRemoveInObject(cfg, item);
-
-            
+            cleanEmptyObjectsAndArrays(cfg);
         }),
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];
