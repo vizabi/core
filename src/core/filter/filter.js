@@ -97,7 +97,7 @@ filter.nonObservable = function (config, parent, id) {
         }),
         deleteFromMarkers: action("deleteInMarkers", function(markerItem) {
             if (Array.isArray(markerItem)) {
-                for (const el of markerItem) this.deleteInMarkers(el)
+                for (const el of markerItem) this.deleteFromMarkers(el)
                 return;
             }
             const cfg = this.config.markers;
