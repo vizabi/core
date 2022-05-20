@@ -557,7 +557,7 @@ export function getConceptsCatalog(concepts, dataConfig, maxDepth) {
         if (source.isEntityConcept(conceptId)) {
             const setMembershipFlags = source.availability.data
                 .map(m => m.value)
-                .filter(f => f.includes("is--"));
+                .filter(f => f.includes("is--") || f == "un_state");
 
             const entityQuery = dataConfig.createQuery({ 
                 space: [conceptId],  

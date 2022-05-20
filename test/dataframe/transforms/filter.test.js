@@ -2,16 +2,16 @@ import { DataFrame } from "../../../src/dataframe/dataFrame";
 import { filter } from "../../../src/dataframe/transforms/filter";
 
 const df = DataFrame([
-    { geo: 'swe', pop: 5 },
-    { geo: 'ger', pop: 6 }
+    { geo: 'swe', "un_state": true, "is--nordic": true, pop: 5 },
+    { geo: 'ger', "un_state": true, "is--nordic": false, pop: 6 }
 ])
 
 const df2 = DataFrame([
-    { geo: 'ger', pop: 6 }
+    { geo: 'ger', "un_state": true, "is--nordic": false, pop: 6 }
 ])
 
 const df3 = DataFrame([
-    { geo: 'swe', pop: 5 }
+    { geo: 'swe', "un_state": true, "is--nordic": true, pop: 5 }
 ])
 
 describe('dataframe filter', () => {
@@ -80,5 +80,12 @@ describe('dataframe filter', () => {
             { pop: 5 },
             { pop: 7 }
         ]})).toEqual(df2)
+    });
+
+    it('filter spec on property that contains _', () => {
+        expect(filter(df, { "un_state": true})).toEqual(df)
+    });
+    it('filter spec on property that contains --', () => {
+        expect(filter(df, { "is--nordic": true})).toEqual(df3)
     });
 });

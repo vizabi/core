@@ -92,14 +92,14 @@ const logicalToString = {
     '$nor': (spec) => `!(${spec.map(createFilterFnString).join(' || ')})`,
 }
 const comparisonToString = {
-    "$eq":  (field, val) => `row.${field} === ${val}`,
-    "$ne":  (field, val) => `row.${field} !== ${val}`,
-    "$gt":  (field, val) => `row.${field} > ${val}`,
-    "$gte": (field, val) => `row.${field} >= ${val}`,
-    "$lt":  (field, val) => `row.${field} < ${val}`,
-    "$lte": (field, val) => `row.${field} <= ${val}`,
-    "$in":  (field, val) => `${val}.includes(row.${field})`,
-    "$nin": (field, val) => `!${val}.includes(row.${field})`,
+    "$eq":  (field, val) => `row["${field}"] === ${val}`,
+    "$ne":  (field, val) => `row["${field}"] !== ${val}`,
+    "$gt":  (field, val) => `row["${field}"] > ${val}`,
+    "$gte": (field, val) => `row["${field}"] >= ${val}`,
+    "$lt":  (field, val) => `row["${field}"] < ${val}`,
+    "$lte": (field, val) => `row["${field}"] <= ${val}`,
+    "$in":  (field, val) => `${val}.includes(row["${field}"])`,
+    "$nin": (field, val) => `!${val}.includes(row["${field}"])`,
 }
 
 //used by "filterRequired" transform
