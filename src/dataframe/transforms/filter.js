@@ -92,8 +92,8 @@ const logicalToString = {
     '$nor': (spec) => `!(${spec.map(createFilterFnString).join(' || ')})`,
 }
 const comparisonToString = {
-    "$eq":  (field, val) => `row["${field}"] === ${val}`,
-    "$ne":  (field, val) => `row["${field}"] !== ${val}`,
+    "$eq":  (field, val) => `row["${field}"] == ${val}`,
+    "$ne":  (field, val) => `row["${field}"] != ${val}`,
     "$gt":  (field, val) => `row["${field}"] > ${val}`,
     "$gte": (field, val) => `row["${field}"] >= ${val}`,
     "$lt":  (field, val) => `row["${field}"] < ${val}`,
