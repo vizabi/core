@@ -125,7 +125,7 @@ function createGroup(key, descendantKeys) {
         for (let [key, member] of group) {
             const keyObj = group.keyObject(member);
             const newMember = member.filterGroups(filterFn, inplace);
-            const filterApplies = filterFn(newMember);
+            const filterApplies = filterFn(newMember, key);
             if (!inplace && filterApplies)
                 result.set(keyObj, newMember);
             if (inplace && !filterApplies) 
