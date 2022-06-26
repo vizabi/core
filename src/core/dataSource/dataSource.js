@@ -332,7 +332,7 @@ dataSource.nonObservable = function (config, parent, id) {
                         }
                     })
                     if (founded.length) {
-                        result[entitySet] = [...new Set(founded)];
+                        result[entitySet] = [...new Set(founded)].sort();
                     }
                 };
                 return Object.keys(result).length ? result : null;
