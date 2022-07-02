@@ -34,9 +34,9 @@ const mrk = marker({
 
 
 //.drilldown({dim: "geo", entity: "asia"}) // =>{country: ["chn", "ind", "idn" ..... ]}
-//.drilldown({dim: "geo", entity: "usa"}) // => null
+//.drilldown({dim: "geo", entity: "usa"}) // =>{country: ["usa"]}
 //.drilldown({dim: "geo", entity: ["landlocked"]}) // => {country: ["afg", "rwa",  .... ]}
-//.drilldown({dim: "geo", entity: ["usa", "landlocked"]}) // => {country: ["afg", "rwa",  .... ]} (same)
+//.drilldown({dim: "geo", entity: ["usa", "landlocked"]}) // => {country: ["afg", "rwa",  ...., "usa"]} (same plus USA)
 //.drilldown({dim: "geo", entity: ["asia", "landlocked"]}) // => {country:  [chn", "ind", "afg", "rwa",  .... ] } 
 
 
@@ -51,7 +51,7 @@ describe('test drilldown', () => {
         const data = await check(mrk, "data");
         const drilldown = await data.source.drilldown({dim: "geo", entity: "usa"});
         
-        expect(drilldown).toEqual(null);
+        expect(drilldown.country.length).toEqual(1);
     });
     it('test drilldown for one entity in array', async () => {
         const data = await check(mrk, "data");
@@ -63,19 +63,19 @@ describe('test drilldown', () => {
         const data = await check(mrk, "data");
         const drilldown = await data.source.drilldown({dim: "geo", entity: ["usa", "landlocked"]});
 
-        expect(drilldown.country.length).toEqual(47);
+        expect(drilldown.country.length).toEqual(48);
     });
     it('test drilldown for entities in array', async () => {
         const data = await check(mrk, "data")
         
-        const drilldownLandlocked = await data.source.drilldown({dim: "geo", entity: ["landlocked"]});
-        const drilldownUsaLandlocked = await data.source.drilldown({dim: "geo", entity: ["usa", "landlocked"]});
+        const drilldownLandlocked = await data.source.drilldown({dim: "geo", entity: "landlocked"});
+        const drilldownLandlockedAsArray = await data.source.drilldown({dim: "geo", entity: ["landlocked"]});
         const drilldownAsia = await data.source.drilldown({dim: "geo", entity: ["asia"]});
         const drilldownAsiaLandlocked = await data.source.drilldown({dim: "geo", entity: ["asia", "landlocked"]});
         
         const uniqueAsiaLandlockedEntities = [...new Set([...drilldownLandlocked.country, ...drilldownAsia.country])].sort();
         
-        expect(drilldownLandlocked).toEqual(drilldownUsaLandlocked);
+        expect(drilldownLandlocked).toEqual(drilldownLandlockedAsArray);
         expect(drilldownAsiaLandlocked.country).toEqual(uniqueAsiaLandlockedEntities);
     });
 });

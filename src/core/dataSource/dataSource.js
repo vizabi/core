@@ -310,9 +310,9 @@ dataSource.nonObservable = function (config, parent, id) {
         },
 
         //.drilldown({dim: "geo", entity: "asia"}) // =>{country: ["chn", "ind", "idn" ..... ]}
-        //.drilldown({dim: "geo", entity: "usa"}) // => null
+        //.drilldown({dim: "geo", entity: "usa"}) // => {country: ["usa"]}
         //.drilldown({dim: "geo", entity: ["landlocked"]}) // => {country: ["afg", "rwa",  .... ]}
-        //.drilldown({dim: "geo", entity: ["usa", "landlocked"]}) // => {country: ["afg", "rwa",  .... ]} (same)
+        //.drilldown({dim: "geo", entity: ["usa", "landlocked"]}) // => {country: ["afg", "rwa",  ...., "usa"]} (same plus USA)
         //.drilldown({dim: "geo", entity: ["asia", "landlocked"]}) // => {country:  [chn", "ind", "afg", "rwa",  .... ] } 
         
         drilldown(obj) {
@@ -329,6 +329,8 @@ dataSource.nonObservable = function (config, parent, id) {
                     entities.forEach(e => {
                         if (c[dim][entitySet].has(e)) {
                             founded.push(...[...c[dim][entitySet].get(e).values()].map(v => v[entitySet]));
+                        } else if (c[dim][entitySet].get(Symbol.for("drill_up")).has(e)){
+                            founded.push(e);
                         }
                     })
                     if (founded.length) {
