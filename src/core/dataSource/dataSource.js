@@ -1,7 +1,7 @@
 import { fromPromise } from 'mobx-utils'
 import { assign, applyDefaults, deepclone, stableStringifyObject, concatUnique, sleep, lazyAsync, combineStates, createModel } from "../utils";
 import { configurable } from '../configurable';
-import { trace, observable, toJS } from 'mobx';
+import { trace, observable, toJS, reaction } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
 import { DataFrame } from '../../dataframe/dataFrame';
 import { inlineReader } from '../../reader/inline/inline';
@@ -259,13 +259,121 @@ dataSource.nonObservable = function (config, parent, id) {
             const response = await reader.read(query);
             return this.normalizeResponse(response, query);
         },
+
+        _getDrillupCatalog(concepts = this.concepts) {
+            const promises = [];
+            const result = {};
+            const drillup = "drill_up";
+
+            for (const conceptId of this.availability.keyValueLookup.keys()) {
+                if (this.isEntityConcept(conceptId)) {
+                    const concept = concepts.get(conceptId);
+                    if (concept[drillup]) {
+                        const dim = concept["domain"] || conceptId;
+                        if (!result[dim]) result[dim] = {};
+                        const drillups = JSON.parse(concept[drillup]);
+                        const entityQuery = { 
+                            select: {
+                                key: [conceptId],
+                                value: [...drillups]
+                            },
+                            from: "entities",
+                            locale: this.locale,
+                        };
+                        promises.push(this.query(entityQuery).then(response => {
+                            result[dim][conceptId] = [];
+
+                            const res = response.forQueryKey();
+                            result[dim][conceptId].push([Symbol.for(drillup), res]);
+                            drillups.forEach(drillup => {
+                                result[dim][conceptId].push(...res.groupByWithMultiGroupMembership(drillup).filterGroups(( _, k) => {
+                                    return k !== "";
+                                }, true).entries());
+                            });
+                            result[dim][conceptId] = new Map(result[dim][conceptId]);
+                        }));
+                    }
+                }
+            }
+
+            return fromPromise(Promise.all(promises).then(() => result));
+        },
+
+        enableDrillup: false,
+
+        get drillupCatalog() {
+            if (this.enableDrillup) {
+                return this._getDrillupCatalog();
+            } else {
+                return fromPromise.resolve({});
+            }
+        },
+
+        //.drilldown({dim: "geo", entity: "asia"}) // =>{country: ["chn", "ind", "idn" ..... ]}
+        //.drilldown({dim: "geo", entity: "usa"}) // => {country: ["usa"]}
+        //.drilldown({dim: "geo", entity: ["landlocked"]}) // => {country: ["afg", "rwa",  .... ]}
+        //.drilldown({dim: "geo", entity: ["usa", "landlocked"]}) // => {country: ["afg", "rwa",  ...., "usa"]} (same plus USA)
+        //.drilldown({dim: "geo", entity: ["asia", "landlocked"]}) // => {country:  [chn", "ind", "afg", "rwa",  .... ] } 
+        
+        drilldown(obj) {
+            this.enableDrillup = true;
+
+            const entities = Array.isArray(obj.entity) ? obj.entity : [obj.entity];
+            const concept = this.concepts.get(obj.dim);
+            const dim = concept.domain ? concept.domain : obj.dim;
+
+            return this.drillupCatalog.then(c => {
+                const result = {}; 
+                for (const entitySet in c[dim]) {
+                    const founded = [];
+                    entities.forEach(e => {
+                        if (c[dim][entitySet].has(e)) {
+                            founded.push(...[...c[dim][entitySet].get(e).values()].map(v => v[entitySet]));
+                        } else if (c[dim][entitySet].get(Symbol.for("drill_up")).has(e)){
+                            founded.push(e);
+                        }
+                    })
+                    if (founded.length) {
+                        result[entitySet] = [...new Set(founded)].sort();
+                    }
+                };
+                return Object.keys(result).length ? result : null;
+            });
+        },
+
+        //.drillup({dim: "geo", entity: "usa"}) // => {world_4region: americas, landlocked: coastline, religion: christian ...}
+        drillup(obj) {
+            this.enableDrillup = true;
+
+            const concept = this.concepts.get(obj.dim);
+            const dim = concept.domain ? concept.domain : obj.dim;
+            const drillup = "drill_up";
+
+            const result = {};
+            return this.drillupCatalog.then(c => {
+                for (const entitySet in c[dim]) {
+                    const drillupValue = c[dim][entitySet].get(Symbol.for(drillup)).get(obj.entity);
+                    Object.assign(result, drillupValue);
+                    delete result[entitySet];
+                    delete result[Symbol.for("key")];
+                };
+                return result;
+
+            });
+
+        },
+
         calcCombineId(query) {
             const clone = deepclone(query);
             delete clone.select.value;
             return stableStringifyObject(clone);
         },
         disposers: [],
-        onCreate() { },
+        onCreate() {
+            this.disposers.push(
+                reaction(() => this.state == 'fulfilled' ? this.drillupCatalog : {}, ()=>{})
+            );
+        },
         dispose() {
             let dispose;
             while (dispose = this.disposers.pop()) {
