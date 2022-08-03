@@ -199,6 +199,8 @@ describe('create stand alone data configs', () => {
             expect(Object.keys(response)).toEqual(data.space)
         });
     })
+
+    
 })
 
 
@@ -315,4 +317,74 @@ describe('create marker with encoding dataconfigs', () => {
             expect(response.get(0).x).toBe(1)
         });
     })
-}) 
+})
+
+
+describe('test isFullEntitySet', () => {
+
+    const data = dataConfig({
+        source: { 
+            path: 'test/ddf--jheeffer--mdtest',
+            modelType: 'ddf'
+        },
+        concept: 'population_total',
+        space: ['geo', 'time']
+    });
+
+
+    it('test isFullEntitySet("geo", ["usa"]) => false', async () => {
+        const sc = await check(data, 'spaceCatalog');
+        
+        const result = await data.isFullEntitySet("geo", ["usa"]);
+        
+        expect(result).toEqual(false);
+    });
+
+    it('test isFullEntitySet("geo", ["asia", "coastline"]) => false', async () => {
+        const sc = await check(data, 'spaceCatalog');
+        
+        const result = await data.isFullEntitySet("geo", ["asia", "coastline"]);
+        
+        expect(result).toEqual(false);
+    });
+
+    it('test isFullEntitySet("geo", ["landlocked", "coastline"]) => ["landlocked"]', async () => {
+        const sc = await check(data, 'spaceCatalog');
+        
+        const result = await data.isFullEntitySet("geo", ["landlocked", "coastline"]);
+        
+        expect(result).toEqual(["landlocked"]);
+    });
+
+    it('test isFullEntitySet("geo", ["europe", "americas", "africa", "asia"]) => ["world_4region"]', async () => {
+        const sc = await check(data, 'spaceCatalog');
+        
+        const result = await data.isFullEntitySet("geo", ["europe", "americas", "africa", "asia"]);
+        
+        expect(result).toEqual(["world_4region"]);
+    });
+
+    it('test isFullEntitySet("geo", ["europe", "americas", "africa", "asia", "landlocked"]) => ["world_4region"]', async () => {
+        const sc = await check(data, 'spaceCatalog');
+        
+        const result = await data.isFullEntitySet("geo", ["europe", "americas", "africa", "asia", "landlocked"]);
+        
+        expect(result).toEqual(["world_4region"]);
+    });
+
+    it('test isFullEntitySet("geo", ["europe", "americas", "africa", "asia", "landlocked", "coastline"]) => ["world_4region", "landlocked"]', async () => {
+        const sc = await check(data, 'spaceCatalog');
+        
+        const result = await data.isFullEntitySet("geo", ["europe", "americas", "africa", "asia", "landlocked", "coastline"]);
+        
+        expect(result).toEqual(["landlocked", "world_4region"]);
+    });
+
+    it('test isFullEntitySet("geo", ["europe", "americas", "africa", "asia", "landlocked", "coastline", "usa"]) => ["world_4region", "landlocked"]', async () => {
+        const sc = await check(data, 'spaceCatalog');
+        
+        const result = await data.isFullEntitySet("geo", ["europe", "americas", "africa", "asia", "landlocked", "coastline", "usa"]);
+        
+        expect(result).toEqual(["landlocked", "world_4region"]);
+    });
+})

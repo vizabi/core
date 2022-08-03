@@ -33,6 +33,27 @@ dataConfig.nonObservable = function(config, parent, id) {
         parent,
         id,
         type: 'dataConfig',
+        isFullEntitySet(domain, entitySetValues = []) {
+            return this.spaceCatalog.then(sc => {
+                if (!sc[domain]) return false;
+
+                const distinctValues = [...new Set(entitySetValues)];
+                const resultNames = [];
+                const properties = sc[domain].properties;
+                let inSetValuesCount;
+                for (const property in properties) {
+                    if (properties[property].concept.concept_type == "entity_set") {
+                        inSetValuesCount = 0;
+                        for (const entityValue of properties[property].entities.keys()) {
+                            if (distinctValues.includes(entityValue)) inSetValuesCount++;                            
+                        }
+                        if (inSetValuesCount == properties[property].entities.size) resultNames.push(property);
+                    }
+                }
+
+                return resultNames.length ? resultNames.sort() : false;
+            });
+        },
         get allow() {
             return observable({
                 config: this.config.allow,
