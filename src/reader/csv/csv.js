@@ -49,6 +49,7 @@ export function csvReader({
         return cache[cacheKey] ? cache[cacheKey] : cache[cacheKey] = loadFile()
             .then(guessDelim)
             .then(parseTextToTable)
+            .then(removeEmptyRows)
             .then(transformNameColumn)
             .then(transformTimeInColumns)
             .then(returnValuesDtypesAndKeyConcepts);
@@ -80,6 +81,13 @@ export function csvReader({
         //remove empty columns
         const columns = rows.columns.filter(c => c !== "");
 
+        return {rows, columns};
+    }
+
+    //removes empty rows like these
+    //'', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '\n', '', '', ''
+    function removeEmptyRows({rows, columns}){
+        rows = rows.filter(r => !Object.values(r).every(e => !e || e === "\n") );
         return {rows, columns};
     }
 
@@ -152,7 +160,7 @@ export function csvReader({
         const path = assetsPath + assetName;
         const jsonReader = externalJsonReader || d3.json;
 
-        return jsonReader()
+        return jsonReader(path)
             .catch(error => {
                 error.name = ERRORS.FILE_NOT_FOUND;
                 error.message = `No permissions, missing or empty file: ${path}`;
