@@ -238,10 +238,18 @@ frame.nonObservable = function(config, parent, id) {
 
             return newFrameMap.interpolateOverMembers({ 
                 fields: this.changeBetweenFramesEncodings,
-                interpolators: this.fieldCustomInterpolators,
-                ammendNewRow: row => row[this.data.concept] = row[encName]
+                frameField: encName,
+                frameCopyFields: this.encodingsThatCopyFrame.concat(this.data.concept),
+                interpolators: this.fieldCustomInterpolators
             });
-
+        },
+        get encodingsThatCopyFrame() {
+            const enc = this.marker.encoding;
+            return Object.keys(enc).filter(prop => 
+                enc[prop] != this 
+                && enc[prop].data.concept === this.data.concept
+                && enc[prop].data.space.includes(this.data.concept)
+            );
         },
         get changeBetweenFramesEncodings() {
             const enc = this.marker.encoding;
@@ -454,7 +462,8 @@ frame.splashMarker = function splashMarker(marker) {
     }
 }
 frame.decorate = {
-    changeBetweenFramesEncodings: computed.struct
+    changeBetweenFramesEncodings: computed.struct,
+    encodingsThatCopyFrame: computed.struct
 }
 
 function markerWithFallback(marker, fallback) {

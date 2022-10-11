@@ -57,11 +57,11 @@ function interpolateGap(gapRows, startRow, endRow, field, interpolator = d3.inte
 }
 
 
-export function interpolateGroup(group, { fields = group.fields, interpolators = {}, ammendNewRow = () => {} } = {}) {
+export function interpolateGroup(group, { fields = group.fields, frameField = "", frameCopyFields = [], interpolators = {}, ammendNewRow = () => {} } = {}) {
     
     // what fields to interpolate?
     const groupFields = group.values().next().value.fields;
-    const copyFields = relativeComplement(fields, groupFields);
+    const copyFields = relativeComplement(fields, groupFields).filter(f => !frameCopyFields.includes(f));
     copyFields.push(Symbol.for('key'));
 
     //console.time('interpolate');
@@ -82,6 +82,7 @@ export function interpolateGroup(group, { fields = group.fields, interpolators =
                             let gapRow = gapFrame.get(markerKey);
                             if (gapRow === undefined) {
                                 gapRow = Object.assign(pickGetters(marker, copyFields), group.keyObject(gapFrame));
+                                for (let frameCopyField of frameCopyFields) gapRow[frameCopyField] = gapRow[frameField];
                                 ammendNewRow(gapRow);
                                 gapRow[Symbol.for('interpolated')] = {};
                                 gapFrame.setByStr(markerKey, gapRow);
