@@ -322,15 +322,19 @@ describe('create marker with encoding dataconfigs', () => {
 
 describe('test isFullEntitySet', () => {
 
-    const data = dataConfig({
-        source: { 
-            path: 'test/ddf--jheeffer--mdtest',
-            modelType: 'ddf'
-        },
-        concept: 'population_total',
-        space: ['geo', 'time']
-    });
-
+    let data;
+    beforeEach(() => {
+        //sandbox = sinon.sandbox.create()
+        data = dataConfig({
+            source: { 
+                path: 'test/ddf--jheeffer--mdtest',
+                modelType: 'ddf'
+            },
+            concept: 'population_total',
+            space: ['geo', 'time']
+        });
+    
+    })
 
     it('test isFullEntitySet("geo", ["usa"]) => false', async () => {
         const sc = await check(data, 'spaceCatalog');
@@ -387,4 +391,53 @@ describe('test isFullEntitySet', () => {
         
         expect(result).toEqual(["landlocked", "world_4region"]);
     });
+})
+
+describe('recursive dataConfigs', () => {
+    it('concats two dataConfigs', () => {
+
+        const data = dataConfig({
+            data: [{
+                source: {
+                    values: [{ x: 1, y: 2}, {x: 2, y: 6 }]
+                },
+                space: ['x'],
+                concept: 'y'
+            }, {
+                source: {
+                    values: [{ x: 3, y: 2}, {x: 4, y: 6 }]
+                },
+                space:  ['x'],
+                concept: 'y'
+            }]
+        })
+
+        return check(data, 'response').then(response => expect(response.size).toBe(4))
+    });
+
+    it('concats two dataConfigs and its own query response', () => {
+
+        const data = dataConfig({
+            data: [{
+                source: {
+                    values: [{ x: 1, y: 2}, {x: 2, y: 6 }]
+                },
+                space: ['x'],
+                concept: 'y'
+            }, {
+                source: {
+                    values: [{ x: 3, y: 2}, {x: 4, y: 6 }]
+                },
+                space:  ['x'],
+                concept: 'y'
+            }],
+            source: {
+                values: [{ x: 5, y: 2}, {x: 6, y: 6 }]
+            },
+            space:  ['x'],
+            concept: 'y'
+        })
+
+        return check(data, 'response').then(response => expect(response.size).toBe(6))
+    })
 })

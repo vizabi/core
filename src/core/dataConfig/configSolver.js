@@ -334,7 +334,7 @@ function needsSolving(config) {
 }
 
 function needsAutoConfig(dataConfig) {
-    return needsSpaceAutoCfg(dataConfig) || needsConceptAutoCfg(dataConfig);
+    return dataConfig.source && (needsSpaceAutoCfg(dataConfig) || needsConceptAutoCfg(dataConfig));
 }
 
 function dataConfigSolvingState(dataConfig) {

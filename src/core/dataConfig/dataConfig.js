@@ -8,6 +8,7 @@ import { unique } from "../../dataframe/info/unique";
 import { createKeyStr } from "../../dataframe/dfutils";
 import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
+import { DataFrame } from "../../dataframe/dataFrame";
 
 export function dataConfig(...args) {
     return createModel(dataConfig, ...args)
@@ -22,6 +23,7 @@ dataConfig.nonObservable = function(config, parent, id) {
         defaults: {
             filter: null,
             constant: null,
+            data: [],
             concept: { filter: { concept_type: "measure" } },
             space: { /* solve from data */ },
             value: null,
@@ -155,7 +157,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             if (source === 'auto') {
                 source = this.hasOwnData
                     ? 'self'
-                    : this.conceptInSpace
+                    : this.source && this.conceptInSpace
                         ? 'filterRequired'
                         : undefined;
             }
@@ -188,10 +190,14 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.marker?.configState ?? combineStates(configSolver.dataConfigSolvingState(this));
         },
         get state() {
-            const states = [ () => this.configState ];
-            if (this.source) { states.push(() => this.source.conceptsState) } // conceptState needed for calcDomain()
-            states.push(() => this.responseState);
-            const state = combineStatesSequential(states);
+            const selfStates = [ () => this.configState ];
+            if (this.source) { 
+                selfStates.push(() => this.source.conceptsState);  // conceptState needed for calcDomain()
+                selfStates.push(() => this.responseState);
+            } 
+            const selfState = combineStatesSequential(selfStates);
+            const childState = combineStates(this.data.map(data => data.state));
+            const state = combineStates([selfState, childState]);
             if (state == 'fulfilled' && this.domainDataSource == 'self') this.domain; 
             return state;
         },
@@ -225,8 +231,21 @@ dataConfig.nonObservable = function(config, parent, id) {
         get ddfQuery() {    
             return this.createQuery({ filter: [this.marker?.data?.filter, this.filter].filter(f => f != null) })
         },
+        get data() {
+            return (this.config.data ?? this.defaults.data).map(cfg => {
+                const datacfg = resolveRef(cfg).value;
+                return dataConfig(datacfg);
+            });
+        },
         get response() {
-            return this.responsePromise.value;
+            if (this.data.length > 0) { 
+                const compositeData = DataFrame();
+                this.data.forEach(child => compositeData.batchSet(child.response))
+                if (this.source) { compositeData.batchSet(this.responsePromise.value) }
+                return compositeData;
+            } else {
+                return this.responsePromise.value;
+            }
         },
         get responsePromise() {
             return this.fetchResponse();
