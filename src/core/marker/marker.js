@@ -26,6 +26,7 @@ const defaults = {
         "filterRequired", // after framemap so doesn't remove interpolatable rows
         "trail.addPreviousTrailHeads", // before ordering so trailheads get ordered
         "order.order", 
+        "orderFacets.order",
         "trail.addTrails", // after ordering so trails stay together
         "frame.currentFrame" // final to make it quick
     ]

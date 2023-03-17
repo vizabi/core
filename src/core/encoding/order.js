@@ -1,4 +1,5 @@
 import { encoding } from './encoding';
+import { resolveRef } from "../config";
 import { defaultDecorator, isString } from '../utils';
 
 const directions = {
@@ -6,7 +7,8 @@ const directions = {
     descending: "descencding"
 }
 const defaults = {
-    direction: directions.ascending
+    direction: directions.ascending,
+    custom: []
 }
 
 export const order = defaultDecorator({
@@ -21,9 +23,14 @@ export const order = defaultDecorator({
         order(df) {
             if (this.data.isConstant)
                 return df;
-            const name = this.name;
-            const direction = this.direction;
-            return df.order([{ [name]: direction }]);
+            
+            if (this.custom?.length)
+                return df.order( new Map([[this.name, this.custom]]) );
+
+            return df.order([{ [this.name]: this.direction }]);
+        },
+        get custom() {
+            return resolveRef(this.config.custom).value || defaults.custom;
         },
         get transformationFns() {
             return {
