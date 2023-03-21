@@ -9,25 +9,25 @@ const directions = {
     order_by can be
     a string - projected column along which to sort the DF: "color"
     an array of strings: columns along which to nested-sort the DF: ["color", "side"]
-    an array of objects: columns along which to nested-sort the DF: [{ ["color"]: ascending }]
-    or a map of columns with their custom sorting order: color => ["asia", "africa"]
+    an array of objects: columns along which to nested-sort the DF: [{ "color": "asc" }]
+    an array of objects: columns with their custom sorting order along which to nested-sort the DF: [{ "color": ["asia", "africa"] }]
 */
 export function order(df, order_by = []) {
     if (order_by.length == 0) return df;
 
     const data = Array.from(df.values());
-    const orderNormalized = normalizeOrder(order_by instanceof Map ?  [...order_by.keys()] : order_by);
+    const orderNormalized = normalizeOrder(order_by);
     const n = orderNormalized.length;
 
     data.sort((a,b) => {
         for (var i = 0; i < n; i++) {
-            const order = orderNormalized[i];
-            if (order_by instanceof Map && order_by.get(order.concept))
-                return (order_by.get(order.concept).indexOf(a[order.concept]) - order_by.get(order.concept).indexOf(b[order.concept]));
-            if (a[order.concept] < b[order.concept])
-                return -1 * order.direction;
-            else if (a[order.concept] > b[order.concept])
-                return order.direction;
+            const { concept, direction } = orderNormalized[i];
+            if (Array.isArray(direction))
+                return (direction.indexOf(a[concept]) - direction.indexOf(b[concept]));
+            if (a[concept] < b[concept])
+                return -1 * direction;
+            else if (a[concept] > b[concept])
+                return direction;
         } 
         return 0;
     });
@@ -48,10 +48,12 @@ function normalizeOrder(order_by) {
         if (typeof orderPart == "string") {
             return { concept: orderPart, direction: directions.ascending };
         }	else {
-            const concept   = Object.keys(orderPart)[0];
-            const direction = orderPart[concept] == "asc" 
-                ? directions.ascending 
-                : directions.decending;
+            const concept = Object.keys(orderPart)[0];
+            const direction = Array.isArray(orderPart[concept]) 
+                ? orderPart[concept] 
+                : orderPart[concept] == "asc" 
+                    ? directions.ascending 
+                    : directions.decending;
             return { concept, direction };
         }
     });

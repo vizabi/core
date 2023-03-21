@@ -24,10 +24,7 @@ export const order = defaultDecorator({
             if (this.data.isConstant)
                 return df;
             
-            if (this.custom?.length)
-                return df.order( new Map([[this.name, this.custom]]) );
-
-            return df.order([{ [this.name]: this.direction }]);
+            return df.order([{ [this.name]: this.custom?.length ? this.custom : this.direction }]);
         },
         get custom() {
             return resolveRef(this.config.custom).value || defaults.custom;
