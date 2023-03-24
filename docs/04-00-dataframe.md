@@ -51,7 +51,12 @@ Array of fields in the dataframe (specifically in the first row, or just the key
 ## Methods
 
 ### `df.order(order_by): DataFrame`
-Returns copy of `df` with reordered rows according to `order_by`.
+Returns copy of `df` with reordered rows according to `order_by`, which can be:
+* a string: projected name of the column along which to sort the DF: `"color"`
+* an array of strings: columns along which to nested-sort the DF: `["color", "side"]`
+* an array of objects: columns along which to nested-sort the DF with directions: `[{ "color": "asc" }, { "side": "asc" }]`
+* an array of objects: columns with their custom sorting order along which to nested-sort the DF: `[{ "color": ["asia", "africa"] }, { "side": ["male","female"] }]`
+
 
 #### Parameters
   - `order_by: (string|object)[]`: an array of fields or objects with field as key, direction as value. If array element is a field, direction will be ascending.

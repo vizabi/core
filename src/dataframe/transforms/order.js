@@ -5,13 +5,6 @@ const directions = {
     decending: -1
 }
 
-/*
-    order_by can be
-    a string - projected column along which to sort the DF: "color"
-    an array of strings: columns along which to nested-sort the DF: ["color", "side"]
-    an array of objects: columns along which to nested-sort the DF: [{ "color": "asc" }]
-    an array of objects: columns with their custom sorting order along which to nested-sort the DF: [{ "color": ["asia", "africa"] }]
-*/
 export function order(df, order_by = []) {
     if (order_by.length == 0) return df;
 
