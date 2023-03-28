@@ -20,10 +20,11 @@ const output = (name, output) => ({
     banner: copyright,
     sourcemap: true,
     globals: {
-        "mobx": "mobx"
+        "mobx": "mobx",
+        "d3": "d3"
     }
 });
-const external = ["mobx"];
+const external = ["mobx", "d3"];
 const plugins = (outputName) => [
     resolve(),
     replace({

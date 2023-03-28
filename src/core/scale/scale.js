@@ -1,15 +1,28 @@
 import { createModel, isNumeric, parseConfigValue, sortDateSafe } from "../utils";
 import { computed } from "mobx";
+import {
+    scaleLinear as d3_scaleLinear,
+    scaleLog as d3_scaleLog,
+    scaleSymlog as d3_scaleSymlog,
+    scaleSqrt as d3_scaleSqrt,
+    scaleOrdinal as d3_scaleOrdinal,
+    scalePoint as d3_scalePoint,
+    scaleBand as d3_scaleBand,
+    scaleUtc as d3_scaleUtc,
+    leastIndex as d3_leastIndex,
+    min as d3_min,
+    max as d3_max,
+} from "d3";
 
 const scales = {
-    "linear": d3.scaleLinear,
-    "log": d3.scaleLog,
-    "genericLog": d3.scaleSymlog,
-    "sqrt": d3.scaleSqrt,
-    "ordinal": d3.scaleOrdinal,
-    "point": d3.scalePoint,
-    "band": d3.scaleBand,
-    "time": d3.scaleUtc
+    "linear": d3_scaleLinear,
+    "log": d3_scaleLog,
+    "genericLog": d3_scaleSymlog,
+    "sqrt": d3_scaleSqrt,
+    "ordinal": d3_scaleOrdinal,
+    "point": d3_scalePoint,
+    "band": d3_scaleBand,
+    "time": d3_scaleUtc
 }
 
 export function scale(...args) {
@@ -21,7 +34,7 @@ scale.nonObservable = function(config, parent) {
     function isArrayOneSided(array){
         if (!array) return false;
         if (array.length < 2) return true;
-        return !(d3.min(array) <= 0 && d3.max(array) >= 0);
+        return !(d3_min(array) <= 0 && d3_max(array) >= 0);
     }
 
     return {
@@ -126,7 +139,7 @@ scale.nonObservable = function(config, parent) {
                 // use cases: forcing zero-based bar charts and bubble size
                 if (this.zeroBaseline) {
                     domain = [...domain];
-                    const closestToZeroIdx = d3.leastIndex(domain.map(Math.abs));
+                    const closestToZeroIdx = d3_leastIndex(domain.map(Math.abs));
                     domain[closestToZeroIdx] = 0;
                 } 
             } else {
@@ -168,7 +181,7 @@ scale.nonObservable = function(config, parent) {
             return scaleType == "ordinal" || scaleType == "band" || scaleType == "point";
         },
         domainIncludes(value, domain = this.domain) {
-            if ([d3.scaleLinear, d3.scaleLog, d3.scaleSymlog, d3.scaleSqrt, d3.scaleUtc].includes(this.d3Type)) {
+            if ([d3_scaleLinear, d3_scaleLog, d3_scaleSymlog, d3_scaleSqrt, d3_scaleUtc].includes(this.d3Type)) {
                 const [min, max] = domain;
                 return min <= value && value <= max;
             } else {

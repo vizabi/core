@@ -1,5 +1,6 @@
 import { action } from 'mobx';
 import { applyDefaults, deepclone } from "./utils";
+import {rgb as d3_rgb, color as d3_color} from "d3";
 
 const defaultConfig = {
     palette: {},
@@ -114,7 +115,7 @@ export function palette(config = {}, parent) {
 
             const color = this.palette[args.colorID];
             // if the resolved colr value is not an array (has only one shade) -- return it
-            if (!Array.isArray(color)) return args.shadeID == "shade" ? d3.rgb(palette[args.colorID] || this.parent.d3Scale(args.colorID)).darker(0.5).toString() : color;
+            if (!Array.isArray(color)) return args.shadeID == "shade" ? d3_rgb(palette[args.colorID] || this.parent.d3Scale(args.colorID)).darker(0.5).toString() : color;
 
             return color[this.shades[args.shadeID]];
         },
@@ -129,7 +130,7 @@ export function palette(config = {}, parent) {
         },
         setColor: action('setColor', function (value, pointer) {
             if(!this.parent.config.palette) this.parent.config.palette = {palette: {}};
-            this.parent.config.palette.palette["" + pointer] = value ? d3.color(value).hex() : value;
+            this.parent.config.palette.palette["" + pointer] = value ? d3_color(value).hex() : value;
         }),
         removeColor: action('removeColor', function (pointer) {
             if(this.config.palette.hasOwnProperty("" + pointer))

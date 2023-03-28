@@ -1,4 +1,5 @@
 import { DataFrame } from "../dataFrame";
+import {interpolate as d3_interpolate} from "d3";
 /**
  * Interplate between two DataFrames
  * @param {*} from 
@@ -16,7 +17,7 @@ export function interpolateBetween(from, to, mu, fields = from.fields, interpola
         if (row2 !== row1) { // same object, depends on trails using same object for trail markers across frames.
             newRow = Object.assign({}, row1);
             for (let field of fields) {
-                newRow[field] = (interpolators[field] || d3.interpolate)(row1[field], row2[field])(mu);
+                newRow[field] = (interpolators[field] || d3_interpolate)(row1[field], row2[field])(mu);
             }
         } else {
             newRow = row1;

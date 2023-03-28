@@ -4,6 +4,7 @@ import { encoding } from "./encoding";
 import { DataFrameGroup } from "../../dataframe/dataFrameGroup";
 import { DataFrame } from "../../dataframe/dataFrame";
 import { createKeyFn } from "../../dataframe/dfutils";
+import {min as d3_min} from "d3";
 
 const defaultConfig = {
     data: {
@@ -61,7 +62,7 @@ trail.nonObservable = function(config, parent, id) {
             let key, min, max;
             for (key in this.starts) {
                 [min, max] = limits[key];
-                max = d3.min([max, this.starts[key]]);
+                max = d3_min([max, this.starts[key]]);
                 this.data.filter.set(key, value, [min, max]);
             }
         }),

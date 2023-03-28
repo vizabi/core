@@ -3,12 +3,13 @@ import { observable } from "mobx";
 import { scale } from "./scale";
 import { palette } from "../palette";
 import { resolveRef } from "../config";
+import {schemeCategory10 as d3_schemeCategory10, interpolateRgb as d3_interpolateRgb} from "d3";
 
 const defaultConfig = {
 }
 
 const colors = {
-    schemeCategory10: d3.schemeCategory10
+    schemeCategory10: d3_schemeCategory10
 }
 
 export function color(...args) {
@@ -73,7 +74,7 @@ color.nonObservable = function(config, parent) {
                     domain = domain.map(d => s.invert(d));
                 }
                 
-                scale.interpolate(d3.interpolateRgb.gamma(2.2));
+                scale.interpolate(d3_interpolateRgb.gamma(2.2));
             }
             
             scale.domain(domain);

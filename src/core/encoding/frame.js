@@ -1,13 +1,13 @@
 import { encoding } from './encoding';
 import { action, observable, reaction, computed, trace } from 'mobx'
 import { FULFILLED } from 'mobx-utils'
-import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, combineStates, equals, createModel, stepBeforeInterpolator } from '../utils';
+import { assign, applyDefaults, relativeComplement, configValue, parseConfigValue, inclusiveRange, POSSIBLE_INTERVALS, combineStates, equals, createModel, stepBeforeInterpolator } from '../utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { createKeyFn } from '../../dataframe/dfutils';
 import { configSolver } from '../dataConfig/configSolver';
 import { DataFrame } from '../../dataframe/dataFrame';
-import { extentOfOrdered } from '../../dataframe/info/extent';
 import { resolveRef } from '../config';
+import {range as d3_range} from "d3";
 
 const defaultConfig = {
     modelType: "frame",
@@ -22,8 +22,6 @@ const defaultConfig = {
         clampDomainToData: true
     }
 }
-
-const POSSIBLE_INTERVALS = ["year", "month", "day", "week", "quarter"];
 
 const defaults = {
     interpolate: true,
@@ -69,7 +67,7 @@ frame.nonObservable = function(config, parent, id) {
          * @returns D3 scale
          */
         get stepScale() {
-            const range = d3.range(0, this.stepCount);
+            const range = d3_range(0, this.stepCount);
             const scale = this.scale.d3Type(this.domainValues, range); 
     
             // fake clamped invert for ordinal scale

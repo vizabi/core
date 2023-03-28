@@ -1,4 +1,5 @@
 import { assign, pickGetters, relativeComplement } from "../../core/utils";
+import {interpolate as d3_interpolate} from "d3";
 
 /**
  * Interpolate within a dataframe. Fill missing values in rows. Inplace.
@@ -41,7 +42,7 @@ export function evaluateGap(row, field, gap, interpolator) {
     }
 }
 
-function interpolateGap(gapRows, startRow, endRow, field, interpolator = d3.interpolate) {
+function interpolateGap(gapRows, startRow, endRow, field, interpolator = d3_interpolate) {
     const startVal = startRow[field];
     const endVal = endRow[field];
     const int = interpolator(startVal, endVal);
@@ -76,7 +77,7 @@ export function interpolateGroup(group, { fields = group.fields, frameField = ""
                 if (marker[field] != null) {
                     const lastIndex = lastIndexPerMarker.get(markerKey);
                     if (lastIndex !== undefined && (i - lastIndex) > 1) {
-                        const gapRows = []; // d3.range(lastIndex + 1, i).map(i => group.get(frameKeys[i]))
+                        const gapRows = []; // d3_range(lastIndex + 1, i).map(i => group.get(frameKeys[i]))
                         for (let j = lastIndex + 1; j < i; j++) {
                             const gapFrame = group.get(frameKeys[j]);
                             let gapRow = gapFrame.get(markerKey);

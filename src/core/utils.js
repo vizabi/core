@@ -1,5 +1,14 @@
 import { fromPromise } from "mobx-utils";
 import { action, autorun, isObservableArray, observable, onBecomeObserved, onBecomeUnobserved } from "mobx";
+import {
+    utcParse as d3_utcParse, 
+    utcFormat as d3_utcFormat, 
+    range as d3_range, 
+    utcMonth as d3_utcMonth, 
+    utcYear as d3_utcYear, 
+    utcDay as d3_utcDay,
+    utcMonday as d3_utcMonday,
+} from "d3";
 import { createFilterFn } from "../dataframe/transforms/filter";
 
 export const isNumeric = (n) => !isNaN(n) && isFinite(n);
@@ -330,7 +339,7 @@ export function clamp(value, min, max) {
 
 export function configValue(value, concept) {
     if (value instanceof Date) {
-        return concept?.format ? d3.utcFormat(concept.format)(value) : formatDate(value);
+        return concept?.format ? d3_utcFormat(concept.format)(value) : formatDate(value);
     }
     return ""+value;
 }
@@ -340,19 +349,24 @@ export function range(start, stop, intervalSize) {
     return interval(intervalSize).range(start, stop);
 }
 
+export const POSSIBLE_INTERVALS = ["year", "month", "day", "week", "quarter"];
+
 export function interval(intervalSize) {
-    const nonTimeInterval = {
-        offset: (n, d) => isNumeric(n) && isNumeric(d) ? n + d : console.error("Can't offset using non-numeric values", { n, d }),
-        range: d3.range,
-        floor: Math.floor,
-        ceil: Math.ceil,
-        round: Math.round
-    };
-    //case for quarter
-    if (intervalSize === "quarter") return d3.utcMonth.every(3);
-    //special case to make weeks start from monday as per ISO 8601, not sunday
-    if (intervalSize === "week") intervalSize = "monday";
-    return d3['utc' + ucFirst(intervalSize)] || nonTimeInterval;
+    switch (intervalSize) {
+        case "year": return d3_utcYear;
+        case "day": return d3_utcDay;
+        case "month": return d3_utcMonth;
+        case "week": return d3_utcMonday;
+        case "quarter": return d3_utcMonth.every(3);
+        default: return {
+            //not a time interval
+            offset: (n, d) => isNumeric(n) && isNumeric(d) ? n + d : console.error("Can't offset using non-numeric values", { n, d }),
+            range: d3_range,
+            floor: Math.floor,
+            ceil: Math.ceil,
+            round: Math.round
+        };
+    }
 }
 
 export function inclusiveRange(start, stop, intervalSize) {
@@ -361,15 +375,15 @@ export function inclusiveRange(start, stop, intervalSize) {
 }
 
 const defaultParsers = [
-    d3.utcParse('%Y'),
-    d3.utcParse('%Y-%m'),
-    d3.utcParse('%Y-%m-%d'),
-    d3.utcParse('%Yw%V'),
-    d3.utcParse('%Yq%q'),
-    d3.utcParse('%Y-%m-%dT%HZ'),
-    d3.utcParse('%Y-%m-%dT%H:%MZ'),
-    d3.utcParse('%Y-%m-%dT%H:%M:%SZ'),
-    d3.utcParse('%Y-%m-%dT%H:%M:%S.%LZ')
+    d3_utcParse('%Y'),
+    d3_utcParse('%Y-%m'),
+    d3_utcParse('%Y-%m-%d'),
+    d3_utcParse('%Yw%V'),
+    d3_utcParse('%Yq%q'),
+    d3_utcParse('%Y-%m-%dT%HZ'),
+    d3_utcParse('%Y-%m-%dT%H:%MZ'),
+    d3_utcParse('%Y-%m-%dT%H:%M:%SZ'),
+    d3_utcParse('%Y-%m-%dT%H:%M:%S.%LZ')
 ];
 
 function tryParse(timeString, parsers) {
@@ -396,7 +410,7 @@ export function parseConfigValue(valueStr, concept) {
 
     if (concept_type === "time") {
         let parsers = concept.format 
-            ? [d3.utcParse(concept.format), ...defaultParsers]
+            ? [d3_utcParse(concept.format), ...defaultParsers]
             : defaultParsers;
         return tryParse(valueStr, parsers);
     }

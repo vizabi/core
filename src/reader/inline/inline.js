@@ -1,5 +1,9 @@
 import { DataFrame } from "../../dataframe/dataFrame";
 import { arrayEquals, isNonNullObject, relativeComplement } from "../../core/utils";
+import {
+    utcParse as d3_utcParse,
+    autoType as d3_autoType,
+} from "d3";
 
 /**
  * @param {*} argPromise promise resolving to object { values, keyConcepts, dtypes }
@@ -156,17 +160,17 @@ const dtypeParsers = {
         if (d[4].toLowerCase() == "w") return dtypeParsers.week(d);
         if (d[4].toLowerCase() == "q") return dtypeParsers.quarter(d);
     }, 
-    year: d3.utcParse("%Y"),
-    month: d3.utcParse("%Y-%m"),
-    day: d3.utcParse("%Y-%m-%d"),
-    week: d3.utcParse("%Yw%V"),
-    quarter: d3.utcParse("%Yq%q")
+    year: d3_utcParse("%Y"),
+    month: d3_utcParse("%Y-%m"),
+    day: d3_utcParse("%Y-%m-%d"),
+    week: d3_utcParse("%Yw%V"),
+    quarter: d3_utcParse("%Yq%q")
 }
 
 function parserFromDtypes(dtypes) {
 
     if (dtypes == "auto") 
-        return d3.autoType;
+        return d3_autoType;
 
     // create field parsers
     const parsers = {};
@@ -177,7 +181,7 @@ function parserFromDtypes(dtypes) {
 
         let parser;
         if (dtype in dtypeParsers) parser = dtypeParsers[dtype];
-        if (isNonNullObject(dtype) && "timeFormat" in dtype) parser = d3.utcParse(dtype.timeFormat);
+        if (isNonNullObject(dtype) && "timeFormat" in dtype) parser = d3_utcParse(dtype.timeFormat);
 
         if (!parser) {
             console.warn('Unknown data type given, fall back to identity parser.', dtype);
@@ -198,7 +202,7 @@ function parserFromDtypes(dtypes) {
 }
 
 /**
- * Parse string to js primitives or Date. Based on d3.autoType
+ * Parse string to js primitives or Date. Based on d3_autoType
  * @param {any} value Value to be parsed 
  */
 function autoParse(value) {

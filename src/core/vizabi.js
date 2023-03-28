@@ -3,7 +3,6 @@ import { encodingStore } from './encoding/encodingStore'
 import { dataSourceStore } from './dataSource/dataSourceStore'
 import * as utils from './utils'
 import { observable } from 'mobx';
-import * as mobx from 'mobx';
 import { csvReader } from '../reader/csv/csv';
 import { inlineReader } from '../reader/inline/inline';
 
@@ -31,7 +30,6 @@ const vizabi = function(cfg) {
 
 }
 vizabi.versionInfo = { version: __VERSION, build: __BUILD, package: __PACKAGE_JSON_FIELDS };
-vizabi.mobx = mobx;
 vizabi.utils = utils;
 vizabi.stores = stores;
 vizabi.dataSource = (cfg, id) =>{

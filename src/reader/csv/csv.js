@@ -1,6 +1,12 @@
 import { inlineReader } from "./../inline/inline";
 import { guessDelimiter } from './guess-delimiter.js';
 import { timeInColumns } from './time-in-columns';
+import {
+    json as d3_json, 
+    autoType as d3_autoType, 
+    dsvFormat as d3_dsvFormat, 
+    text as d3_text,
+} from "d3";
 
 const TIME_LIKE_CONCEPTS = ["time", "year", "month", "day", "week", "quarter"];
 const NAME_LIKE_CONCEPTS = ["name", "title"];
@@ -56,7 +62,7 @@ export function csvReader({
     }
   
     function loadFile(){
-        let textReader = externalTextReader || d3.text;
+        let textReader = externalTextReader || d3_text;
         return textReader(path)
             .catch(error => {
                 error.name = ERRORS.FILE_NOT_FOUND;
@@ -74,7 +80,7 @@ export function csvReader({
 
     function parseTextToTable(text){
 
-        const rows = d3.dsvFormat(delimiter)
+        const rows = d3_dsvFormat(delimiter)
             //parse, and exclude empty rows
             .parse(text, row => Object.values(row).every(v => !v) ? null : row);
 
@@ -124,7 +130,7 @@ export function csvReader({
             columns,
             dtypes: columns.reduce((dtypes, column) => {
                 const lowerCaseColumn = column.toLowerCase();
-                //skip dtypes config for time column which typed to Date with d3.autoType already ('day' and 'month' timeformats for ex.)
+                //skip dtypes config for time column which typed to Date with d3_autoType already ('day' and 'month' timeformats for ex.)
                 if (TIME_LIKE_CONCEPTS.includes(lowerCaseColumn) && !(values[0][column] instanceof Date)) dtypes[column] = lowerCaseColumn;
                 return dtypes;
             }, {})
@@ -132,7 +138,7 @@ export function csvReader({
     }
 
     function autotype(rows){
-        return rows.map(row => d3.autoType(row));
+        return rows.map(row => d3_autoType(row));
     }
 
     function guessKeyConcepts(columns, keyConcepts){
@@ -158,7 +164,7 @@ export function csvReader({
 
     function getAsset(assetName) {
         const path = assetsPath + assetName;
-        const jsonReader = externalJsonReader || d3.json;
+        const jsonReader = externalJsonReader || d3_json;
 
         return jsonReader(path)
             .catch(error => {

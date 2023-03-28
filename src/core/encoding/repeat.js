@@ -1,5 +1,6 @@
 import { encoding } from './encoding';
 import { defaultDecorator } from '../utils';
+import {ascending as d3_ascending} from "d3";
 
 const defaultConfig = {
     data: {
@@ -69,7 +70,7 @@ export const repeat = defaultDecorator({
         },
         getName: function(d) {
             const hash = Object.keys(d)
-                .sort(d3.ascending)
+                .sort(d3_ascending)
                 .map(key => key + "-" + d[key])
                 .join("--");
             return `chart-repeated--${hash}`;
