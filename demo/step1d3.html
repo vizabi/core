@@ -2,8 +2,9 @@
 <meta charset="utf-8">
 <svg width="960" height="500"></svg>
 <script src="./lib/d3.v6.min.js"></script>
-<script src="./Vizabi.js"></script>
-<script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.js"></script>
+<script src="../dist/Vizabi.js"></script>
+<script defer>
 
 var data = [
   {month: "2016-01", apples: 3840, bananas: 1920, cherries: -1960, dates: -400},
@@ -30,7 +31,7 @@ var marker = Vizabi.marker({
 //marker.on('fulfilled', draw);
 //marker.on('rejected', console.warn);
 
-Vizabi.mobx.autorun(() => {
+mobx.autorun(() => {
   if (marker.state === "fulfilled")
     draw(marker.dataArray)
 });

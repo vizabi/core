@@ -4,10 +4,10 @@
 <script src="./lib/d3.v6.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vega@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/vega-embed@3"></script>
-<script src="./Vizabi.js"></script>
-<script src="./lib/reader-ddfcsv.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mobx/5.9.0/mobx.umd.js"></script>
-<script>
+<script src="./lib/reader-ddfcsv.js"></script>
+<script src="../dist/Vizabi.js"></script>
+<script defer>
 var ddfcsv = new DDFCsvReader.getDDFCsvReaderObject();
 Vizabi.stores.dataSources.createAndAddType('ddfcsv', ddfcsv);
 
@@ -497,7 +497,7 @@ var spaces = [];
   
 
 
-Vizabi.mobx.autorun(() => {
+mobx.autorun(() => {
   if (marker.state === "fulfilled")
     draw(marker.dataArray)
 })
