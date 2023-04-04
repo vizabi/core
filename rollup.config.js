@@ -19,6 +19,7 @@ const output = (name, output) => ({
     format: "umd",
     banner: copyright,
     sourcemap: true,
+    interop: "esModule",
     globals: {
         "mobx": "mobx",
         "d3": "d3"
