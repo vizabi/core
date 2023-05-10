@@ -536,6 +536,13 @@ export function filterObject(obj, filter) {
     return result;
 }
 
+export function createConceptFilterFn(filterSpec = {}) {
+    if (Object.keys(filterSpec) == 0) {
+        return () => true;
+    }
+    return createFilterFn(filterSpec);
+}
+
 export function createSpaceFilterFn(filterSpec = {}, dataConfig) {
     if (Object.keys(filterSpec) == 0) {
         return () => true;

@@ -1,7 +1,7 @@
 import { resolveRef } from "../config";
 import { dataSourceStore } from "../dataSource/dataSourceStore";
 import { computed, observable, reaction, trace } from "mobx";
-import { arrayEquals, combineStates, combineStatesSequential, createModel, createSpaceFilterFn, getConceptsCatalog, intersect, isNumeric } from "../utils";
+import { arrayEquals, combineStates, combineStatesSequential, createModel, createSpaceFilterFn, createConceptFilterFn, getConceptsCatalog, intersect, isNumeric } from "../utils";
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
@@ -64,7 +64,9 @@ dataConfig.nonObservable = function(config, parent, id) {
                     }
                 },
                 get concept() {
-                    return this.config.concept;
+                    return { 
+                        filter: createConceptFilterFn(this.config.concept?.filter)
+                    }
                 },
                 get source() {
                     return this.config.source;
