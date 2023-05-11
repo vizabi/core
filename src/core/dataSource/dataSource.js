@@ -42,7 +42,7 @@ dataSource.nonObservable = function (config, parent, id) {
             if (this.values)
                 return inlineReader({ values: this.values, keyConcepts: this.keyConcepts, dtypes: this.dtypes });
             else if (this.path)
-                return csvReader(this.config);
+                return csvReader(this.config, this.id);
             console.warn("No inline values or csv path found. Please set `values` or `path` property on dataSource.", this)
         },
         get values() { 

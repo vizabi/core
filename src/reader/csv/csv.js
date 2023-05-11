@@ -33,7 +33,7 @@ export function csvReader({
         keyConcepts, 
         nameColumnIndex,
         dtypes 
-    }) {
+    }, parent_id) {
     
     let cache = {};
     const cacheKey = path + sheet;
@@ -159,7 +159,7 @@ export function csvReader({
      * @returns {object} object of info about the dataset
      */
     function getDatasetInfo() {
-        return {name: sheet ? sheet : path.split('/').pop()};
+        return {name: sheet ? (parent_id ? parent_id + ": " : "") + sheet : path.split('/').pop()};
     }
 
     function getAsset(assetName) {
