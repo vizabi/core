@@ -54,6 +54,7 @@ frame.nonObservable = function(config, parent, id) {
             return value;
         },
         parseValue(value){
+            if (typeof value === "number") value = "" + value;
             return parseConfigValue(value, this.data.conceptProps);
         },
         formatValue(value){

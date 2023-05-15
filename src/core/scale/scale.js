@@ -124,6 +124,13 @@ scale.nonObservable = function(config, parent) {
             return this.calcRange();
         },
         get clampDomainToData() { return this.config.clampDomainToData ?? this.defaults.clampDomainToData },
+        get isSameAsFrameEncScale() {
+            const enc = this.parent;
+            const marker = this.parent.marker;
+            const frame = marker?.encoding?.frame;
+
+            return enc.config.modelType !== "frame" && frame && enc.data.concept === frame.data.concept;
+        },
         get domain() {
             let domain;
             if (this.config.domain) {
@@ -132,6 +139,8 @@ scale.nonObservable = function(config, parent) {
                     .map(v => this.clampDomainToData ? this.clampToDomain(v, this.data.domain) : v);
             } else if (this.data.isConstant && this.config.range) {
                 domain = [...this.range].sort(sortDateSafe);
+            } else if (this.isSameAsFrameEncScale) {
+                domain = this.parent.marker.encoding.frame.scale.domain;
             } else if (this.data.domain) {
                 domain = this.data.domain;
                 // zeroBaseline can override the domain if defined and if data domain is one-sided
