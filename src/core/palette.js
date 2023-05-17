@@ -106,18 +106,20 @@ export function palette(config = {}, parent) {
         get shades() {
             return this.colorConceptProp.shades;
         },
-        // args: {colorID, shadeID}
-        getColorShade(args) {
-            if (!args) return utils.warn("getColorShade() is missing arguments");
+        getColorShade({colorID, shadeID = "shade"}) {
+            if (!colorID) 
+                return false;
 
-            // if colorID is not given or not found in the palette, replace it with default color
-            //if (!args.colorID || !this.defaultPalette[args.colorID]) args.colorID = "_default";
-
-            const color = this.palette[args.colorID];
+            const color = this.palette[colorID];
+            
+            //a specific shade is available
+            if (Array.isArray(color))
+                return color[this.shades[shadeID]];
+            
             // if the resolved colr value is not an array (has only one shade) -- return it
-            if (!Array.isArray(color)) return args.shadeID == "shade" ? d3_rgb(palette[args.colorID] || this.parent.d3Scale(args.colorID)).darker(0.5).toString() : color;
-
-            return color[this.shades[args.shadeID]];
+            return shadeID === "shade" 
+                ? d3_rgb(palette[colorID] || this.parent.d3Scale(colorID)).darker(0.5).toString() 
+                : color;
         },
         getColor(key, palette = this.palette) {
             const color = palette[key];
