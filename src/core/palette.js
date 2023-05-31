@@ -17,7 +17,7 @@ const defaults = {
           "100": "#e83030" //"hsl(0, 80%, 55%)"
         },
         "_ordinal": {
-          "_default": "#ffb600",
+          "_default": "#aaa",
           "0": "#4cd843",
           "1": "#e83739",
           "2": "#ff7f00",
@@ -31,7 +31,7 @@ const defaults = {
           "10": "#f4f459",
           "11": "#7fb5ed"
         },
-        "_default": {
+        "_constant": {
           "_default": "#ffb600"
         }
     },
@@ -62,7 +62,7 @@ export function palette(config = {}, parent) {
                 if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/.test(this.encoding.data.constant)) {
                     palette = { "_default": this.encoding.data.constant };
                 } else {
-                    palette = deepclone(this.defaultPalettes["_default"]);
+                    palette = deepclone(this.defaultPalettes["_constant"]);
                 }
             } else if (this.colorConceptProp.palette) {
                 //specific color palette from enc concept properties
@@ -75,7 +75,7 @@ export function palette(config = {}, parent) {
         },
         get paletteType() {
             //constant
-            if (this.encoding.data.isConstant) return "_default";
+            if (this.encoding.data.isConstant) return "_constant";
             //measure
             if (["time", "measure"].includes(this.encoding.data.conceptProps.concept_type)) return "_continuous";
             
@@ -95,7 +95,7 @@ export function palette(config = {}, parent) {
             return obj;
         },
         get defaultColor() {
-            return this.getColor("_default") || this.defaultPalettes["_default"]["_default"];
+            return this.getColor("_default") || this.defaultPalettes[this.paletteType]["_default"];
         },
         get paletteDomain() {
             return Object.keys(this.palette).filter(f => f !== "_default").sort((a, b) => a - b);
