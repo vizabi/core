@@ -201,6 +201,11 @@ dataConfig.nonObservable = function(config, parent, id) {
             const query = {};
             
             const keyStr = createKeyStr(space);
+            
+            //add isness for entity sets
+            if(concept === this.concept && this.conceptIsEntitySetAndItsDomainIsInSpace) 
+                concept = [concept, "is--" + concept];
+
             concept = Array.isArray(concept) ? concept : [concept];
             concept = concept.filter(concept => {
                 return source.availability.keyValueLookup.get(keyStr)?.has(concept);
@@ -257,7 +262,7 @@ dataConfig.nonObservable = function(config, parent, id) {
 
             if (this.conceptIsEntitySetAndItsDomainIsInSpace) {
                 response.raw.forEach(m => {
-                    m[this.concept] = m[this.concept] ?? m[this.conceptProps.domain];
+                    if(m[this.concept] == null && m["is--" + this.concept]) m[this.concept] = m[this.conceptProps.domain];
                 });
             }
             return response;
