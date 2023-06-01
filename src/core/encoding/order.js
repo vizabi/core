@@ -7,15 +7,14 @@ const directions = {
     descending: "descencding"
 }
 const defaults = {
-    direction: directions.ascending,
-    custom: []
+    direction: directions.ascending
 }
 
 export const order = defaultDecorator({
     base: encoding,
     functions: {
         get direction() {
-            return this.config.direction || defaults.direction;
+            return resolveRef(this.config.direction).value || defaults.direction;
         },
         get transformFields() {
             return this.data.isConstant ? [] : [this.name];
@@ -24,10 +23,7 @@ export const order = defaultDecorator({
             if (this.data.isConstant)
                 return df;
             
-            return df.order([{ [this.name]: this.custom?.length ? this.custom : this.direction }]);
-        },
-        get custom() {
-            return resolveRef(this.config.custom).value || defaults.custom;
+            return df.order([{ [this.name]: this.direction }]);
         },
         get transformationFns() {
             return {
