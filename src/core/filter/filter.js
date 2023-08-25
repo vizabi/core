@@ -145,7 +145,7 @@ filter.nonObservable = function (config, parent, id) {
                 findAndAddInObject(cfg, item);
             }
         }),
-        deleteFromDimensionsAllINstatements: action("deleteInDimensions", function(markerItem) {
+        deleteFromDimensionsAllINstatements: action("deleteInDimensions", function(markerItem, statement = "$in") {
             if (Array.isArray(markerItem)) {
                 for (const el of markerItem) this.deleteFromDimensionsAllINstatements(el)
                 return;
@@ -161,7 +161,7 @@ filter.nonObservable = function (config, parent, id) {
             }
 
             function findAndRemoveInObject(obj, item, key) {
-                if (key === "$in")
+                if (key === statement)
                     findAndRemoveInArray(obj, item);                
                 else if (Array.isArray(obj))
                     obj.forEach( d => findAndRemoveInObject(d, item) );
