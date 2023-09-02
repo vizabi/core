@@ -1,6 +1,6 @@
 {
   "name": "@vizabi/core",
-  "version": "1.29.0",
+  "version": "1.29.1",
   "description": "Vizabi core (data layer)",
   "main": "dist/Vizabi.js",
   "type": "module",
