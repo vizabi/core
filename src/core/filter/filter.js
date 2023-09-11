@@ -109,7 +109,7 @@ filter.nonObservable = function (config, parent, id) {
             }
             return !this.markers.has(key);
         }),
-        addToDimensionsFirstINstatement: action("deleteInDimensions", function(markerItem, path) {
+        addToDimensionsFirstINstatement: action("addInDimensions", function(markerItem, path) {
             if (Array.isArray(markerItem)) {
                 for (const el of markerItem) this.addToDimensionsFirstINstatement(el)
                 return;
@@ -145,7 +145,42 @@ filter.nonObservable = function (config, parent, id) {
                 findAndAddInObject(cfg, item);
             }
         }),
-        deleteFromDimensionsAllINstatements: action("deleteInDimensions", function(markerItem, statement = "$in") {
+        deleteFromDimensionsFirstINstatement: action("deleteInDimensions", function(markerItem, path ) {
+            if (Array.isArray(markerItem)) {
+                for (const el of markerItem) this.deleteFromDimensionsAllINstatements(el)
+                return;
+            }
+            const cfg = this.config.dimensions;
+            const item = this.getKey(markerItem);
+
+            //traverse object in search of an array containing markerItem
+
+            function findAndRemoveInArray(array, item){
+                const index = array.indexOf(item);
+                if (index !== -1) array.splice(index, 1);
+            }
+
+            function findAndRemoveInObject(obj, item, key) {
+                if (key === "$in")
+                    findAndRemoveInArray(obj, item);                
+                else if (Array.isArray(obj))
+                    obj.forEach( d => findAndRemoveInObject(d, item) );
+                else if (typeof obj === "object")
+                    for (const objKey in obj) findAndRemoveInObject(obj[objKey], item, objKey);
+            }
+
+            if (path) {
+                const inArray = path.reduce((a, p)=>{
+                    if (a[p] == null) a[p] = ["$in", "$or", "$and", "$nin"].includes(p) ? [] : {};
+                    return a[p];
+                }, cfg);
+                findAndRemoveInArray(inArray, item);
+            } else {
+                findAndRemoveInObject(cfg, item);
+            }
+            cleanEmptyObjectsAndArrays(cfg);
+        }),
+        deleteFromDimensionsAllINstatements: action("deleteAllInDimensions", function(markerItem, statement = "$in") {
             if (Array.isArray(markerItem)) {
                 for (const el of markerItem) this.deleteFromDimensionsAllINstatements(el)
                 return;
