@@ -22,7 +22,8 @@ const scales = {
     "ordinal": d3_scaleOrdinal,
     "point": d3_scalePoint,
     "band": d3_scaleBand,
-    "time": d3_scaleUtc
+    "time": d3_scaleUtc,
+    "rank": d3_scaleLinear
 }
 
 export function scale(...args) {
@@ -141,6 +142,8 @@ scale.nonObservable = function(config, parent) {
                 domain = [...this.range].sort(sortDateSafe);
             } else if (this.isSameAsFrameEncScale) {
                 domain = this.parent.marker.encoding.frame.scale.domain;
+            } else if (this.config.type == "rank" ) {
+                domain = [0, this.parent.totalTrackNumber];
             } else if (this.data.domain) {
                 domain = this.data.domain;
                 // zeroBaseline can override the domain if defined and if data domain is one-sided

@@ -27,6 +27,8 @@ const defaults = {
         "trail.addPreviousTrailHeads", // before ordering so trailheads get ordered
         "order.order", 
         "orderFacets.order",
+        "x.addTrack",
+        "y.addTrack",
         "trail.addTrails", // after ordering so trails stay together
         "frame.currentFrame" // final to make it quick
     ]
