@@ -402,12 +402,12 @@ marker.nonObservable = function(config, parent, id) {
         get dataArray() {
             return this.dataMap?.toJSON();
         },
-        getDataMapByFrameValue(value) {
+        getDataMapByFrameValue(value, transformedDataMap = 'filterRequired' ) {
             const frame = this.encoding.frame;
             if (!frame) return this.dataMap;
     
             const frameKey = createKeyFn([frame.name])({ [frame.name]: value });
-            const data = this.getTransformedDataMap('filterRequired');
+            const data = this.getTransformedDataMap(transformedDataMap);
             return data.has(frameKey) ? 
                 data.get(frameKey)
                 :
