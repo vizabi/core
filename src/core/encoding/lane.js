@@ -1,5 +1,5 @@
 import { encoding } from './encoding';
-import { assign, defaultDecorator, getConceptsCatalog } from '../utils';
+import { assign, combineStates, defaultDecorator, getConceptsCatalog } from '../utils';
 import { fromPromise } from 'mobx-utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -115,7 +115,15 @@ export const lane = defaultDecorator({
             }
             return _df;
         },
-        
+
+        get state() {
+            return combineStates(this.config.scale.type !== "rank" ? 
+                [this.data.state, this.referenceState]
+                :
+                [this.data.state, this.referenceState, this.conceptCatalogPromise.state]
+            );
+        },
+
         get transformationFns() {
             return {
                 addTrack: this.addTrack.bind(this)
