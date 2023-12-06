@@ -19,7 +19,7 @@ size.nonObservable = function(config, parent) {
 
     return assign(s, {
         get extent() {
-            return this.config.extent || [this.defaults.extent[0], this.data.isConstant ? null : this.defaults.extent[1]];
+            return this.config.extent || this.defaults.extent;
         },
         set extent(extent) {
             this.config.extent = extent;

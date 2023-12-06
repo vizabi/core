@@ -114,10 +114,6 @@ scale.nonObservable = function(config, parent) {
             if (this.config.range != null)
                 return this.config.range;
 
-            // default for constant is identity
-            if (this.data.isConstant)
-                return domain;
-
             // default
             return this.defaults.range;
         }, 
@@ -138,8 +134,8 @@ scale.nonObservable = function(config, parent) {
                 domain = this.config.domain
                     .map(v => parseConfigValue(v, this.data.conceptProps))
                     .map(v => this.clampDomainToData ? this.clampToDomain(v, this.data.domain) : v);
-            } else if (this.data.isConstant && this.config.range) {
-                domain = [...this.range].sort(sortDateSafe);
+            } else if (this.data.isConstant) {
+                domain = [this.data.constant];
             } else if (this.isSameAsFrameEncScale) {
                 domain = this.parent.marker.encoding.frame.scale.domain;
             } else if (this.config.type == "rank" ) {
