@@ -97,7 +97,7 @@ export const lane = defaultDecorator({
         },
 
         addTrack(df) {
-            if (this.scale.type !== "rank" || this.data.isConstant || !this.conceptEntities.size)
+            if (this.config.scale.type !== "rank" || this.data.isConstant || !this.conceptEntities.size)
                 return df;
             this.rollup;
             const _df = DataFrameGroup([], df.key, df.descendantKeys);
