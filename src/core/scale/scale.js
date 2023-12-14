@@ -14,7 +14,7 @@ import {
     max as d3_max,
 } from "d3";
 
-const scales = {
+export const scales = {
     "linear": d3_scaleLinear,
     "log": d3_scaleLog,
     "genericLog": d3_scaleSymlog,
@@ -22,8 +22,7 @@ const scales = {
     "ordinal": d3_scaleOrdinal,
     "point": d3_scalePoint,
     "band": d3_scaleBand,
-    "time": d3_scaleUtc,
-    "rank": d3_scaleLinear
+    "time": d3_scaleUtc
 }
 
 export function scale(...args) {
@@ -70,7 +69,7 @@ scale.nonObservable = function(config, parent) {
             let scale;
             if (scales[this.config.type]) {
                 scaleType = this.config.type;
-            } else if (concept && concept.scales && (scale = JSON.parse(concept.scales)[0]) && scales[scale]) {
+            } else if (concept && concept.scales && (scale = JSON.parse(concept.scales).filter(s => !this.allowedTypes || this.allowedTypes.includes(s))[0]) && scales[scale]) {
                 scaleType = scale;
             } else if (
                 concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)
@@ -138,8 +137,6 @@ scale.nonObservable = function(config, parent) {
                 domain = [this.data.constant];
             } else if (this.isSameAsFrameEncScale) {
                 domain = this.parent.marker.encoding.frame.scale.domain;
-            } else if (this.config.type == "rank" ) {
-                domain = [0, this.parent.totalTrackNumber];
             } else if (this.data.domain) {
                 domain = this.data.domain;
                 // zeroBaseline can override the domain if defined and if data domain is one-sided
