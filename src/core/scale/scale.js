@@ -22,7 +22,8 @@ export const scales = {
     "ordinal": d3_scaleOrdinal,
     "point": d3_scalePoint,
     "band": d3_scaleBand,
-    "time": d3_scaleUtc
+    "time": d3_scaleUtc,
+    "rank": d3_scaleLinear,
 }
 
 export function scale(...args) {
@@ -63,6 +64,9 @@ scale.nonObservable = function(config, parent) {
         get orderDomain() {
             return this.config.orderDomain ?? this.defaults.orderDomain;
         },
+        get isScaleTypeEqualsRank() {
+            return (this.allowedTypes || ["rank"]).includes("rank") && this.scaleTypeNoGenLog([]) == "rank";
+        },
         scaleTypeNoGenLog(domain = this.domain) {
             const concept = this.data.conceptProps;
             let scaleType = null;
@@ -79,7 +83,7 @@ scale.nonObservable = function(config, parent) {
                 if (!range.every(isNumeric) || range.length != 2)
                     scaleType = "ordinal"
                 else
-                    scaleType = "point";
+                    scaleType = domain.length == 1 ? "point" : "rank";
             } else if (concept && ["time"].includes(concept.concept_type)) {
                 scaleType = "time";
             } else {
@@ -137,6 +141,8 @@ scale.nonObservable = function(config, parent) {
                 domain = [this.data.constant];
             } else if (this.isSameAsFrameEncScale) {
                 domain = this.parent.marker.encoding.frame.scale.domain;
+            } else if (this.isScaleTypeEqualsRank) {
+                domain = [0, this.parent.totalTrackNumber];
             } else if (this.data.domain) {
                 domain = this.data.domain;
                 // zeroBaseline can override the domain if defined and if data domain is one-sided
