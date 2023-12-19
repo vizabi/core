@@ -180,6 +180,7 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.calcDomain(this.domainData, this.conceptProps);
         },
         calcDomain(data, { concept, concept_type } = this.conceptProps) { 
+            if (!data) return;
             // use rows api implemented by both group and df
             if (["measure","time"].includes(concept_type)) // continuous
                 return extent(data.rows(), concept);
