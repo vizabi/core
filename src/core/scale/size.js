@@ -6,6 +6,7 @@ const defaults = {
     extent: [0, 1],
     range: [0, 20],
     zeroBaseline: true,
+    categoricalType: "point",
 }
 
 export function size(...args) {

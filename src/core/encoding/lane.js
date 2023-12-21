@@ -40,7 +40,7 @@ export const lane = defaultDecorator({
             }
             
             const rollup = d3.rollups(
-              this.data.response,
+              this.data.response || [],
               (a) => {
                 const array = a.map(([k, v]) => v);
       
@@ -90,14 +90,14 @@ export const lane = defaultDecorator({
         get conceptEntities() {
             const empty = new Map();
             return this.conceptCatalogPromise.case({
-                fulfilled: v => v[this.data.concept].entities || this.placeholderEntities,
+                fulfilled: v => v[this.data.concept].entities ? new Map(v[this.data.concept].entities) : this.placeholderEntities,
                 pending: () => empty,
                 rejected: (e) => empty
             })
         },
 
         addTrack(df) {
-            if (this.config.scale.type !== "rank" || this.data.isConstant || !this.conceptEntities.size)
+            if (this.scale.type !== "rank" || this.data.isConstant || !this.conceptEntities.size)
                 return df;
             this.rollup;
             const _df = DataFrameGroup([], df.key, df.descendantKeys);
@@ -117,10 +117,10 @@ export const lane = defaultDecorator({
         },
 
         get state() {
-            return combineStates(this.config.scale.type !== "rank" ? 
-                [this.data.state, this.referenceState]
-                :
+            return combineStates(this.scale.type === "rank" ? 
                 [this.data.state, this.referenceState, this.conceptCatalogPromise.state]
+                :
+                [this.data.state, this.referenceState]
             );
         },
 
