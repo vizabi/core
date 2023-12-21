@@ -97,7 +97,7 @@ export const lane = defaultDecorator({
         },
 
         addTrack(df) {
-            if (!this.scale.isScaleTypeEqualsRank || this.data.isConstant || !this.conceptEntities.size)
+            if (this.scale.type !== "rank" || this.data.isConstant || !this.conceptEntities.size)
                 return df;
             this.rollup;
             const _df = DataFrameGroup([], df.key, df.descendantKeys);
@@ -117,7 +117,7 @@ export const lane = defaultDecorator({
         },
 
         get state() {
-            return combineStates(this.scale.isScaleTypeEqualsRank ? 
+            return combineStates(this.scale.type === "rank" ? 
                 [this.data.state, this.referenceState, this.conceptCatalogPromise.state]
                 :
                 [this.data.state, this.referenceState]

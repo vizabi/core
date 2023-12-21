@@ -9,12 +9,13 @@ import {
     scalePoint as d3_scalePoint,
     scaleBand as d3_scaleBand,
     scaleUtc as d3_scaleUtc,
+    scaleIdentity as d3_scaleIdentity,
     leastIndex as d3_leastIndex,
     min as d3_min,
     max as d3_max,
 } from "d3";
 
-export const scales = {
+const scales = {
     "linear": d3_scaleLinear,
     "log": d3_scaleLog,
     "genericLog": d3_scaleSymlog,
@@ -24,8 +25,11 @@ export const scales = {
     "band": d3_scaleBand,
     "time": d3_scaleUtc,
     "rank": d3_scaleLinear,
+    "svg": d3_scaleIdentity,
 }
 
+const categoricalScaleTypes = ["ordinal", "band", "point", "rank", "svg"];
+const numericScaleTypes = ["linear", "log", "genericLog", "sqrt", "time"]; 
 export function scale(...args) {
     return createModel(scale, ...args)
 }
@@ -49,11 +53,12 @@ scale.nonObservable = function(config, parent) {
             orderDomain: true,
             domain: [0, 1],
             range: [0, 1],
-            type: 'linear',
+            numericType: 'linear',
+            categoricalType: "point",
             zeroBaseline: false,
         },
         get zeroBaseline() {
-            return (this.config.zeroBaseline ?? this.defaults.zeroBaseline) && !this.isDiscrete(this.data.domain) && isArrayOneSided(this.data.domain);
+            return (this.config.zeroBaseline ?? this.defaults.zeroBaseline) && !this.isDiscrete() && isArrayOneSided(this.data.domain);
         },
         get clamp() {
             return this.config.clamp ?? this.defaults.clamp;
@@ -64,30 +69,20 @@ scale.nonObservable = function(config, parent) {
         get orderDomain() {
             return this.config.orderDomain ?? this.defaults.orderDomain;
         },
-        get isScaleTypeEqualsRank() {
-            return (this.allowedTypes || ["rank"]).includes("rank") && this.scaleTypeNoGenLog([]) == "rank";
-        },
-        scaleTypeNoGenLog(domain = this.domain) {
+        getScaleTypeWithoutLookingAtDomain() {
             const concept = this.data.conceptProps;
             let scaleType = null;
             let scale;
             if (scales[this.config.type]) {
                 scaleType = this.config.type;
-            } else if (concept && concept.scales && (scale = JSON.parse(concept.scales).filter(s => !this.allowedTypes || this.allowedTypes.includes(s))[0]) && scales[scale]) {
-                scaleType = scale;
-            } else if (
-                concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)
-                || domain.length == 1
-            ) {
-                const range = this.calcRange(domain);
-                if (!range.every(isNumeric) || range.length != 2)
-                    scaleType = "ordinal"
-                else
-                    scaleType = domain.length == 1 ? "point" : "rank";
-            } else if (concept && ["time"].includes(concept.concept_type)) {
+            } else if (concept?.scales && (scale = JSON.parse(concept.scales).filter(s => !this.allowedTypes || this.allowedTypes.includes(s))[0]) && scales[scale]) {
+                scaleType = scale;            
+            } else if (concept?.concept_type === "time") {
                 scaleType = "time";
+            } else if (this.data.constant || concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)) {
+                scaleType = [...d3.intersection(this.allowedTypes, categoricalScaleTypes)][0] || this.defaults.categoricalType
             } else {
-                scaleType = this.defaults.type;
+                scaleType = [...d3.intersection(this.allowedTypes, numericScaleTypes)][0] || this.defaults.numericType
             }
             return scaleType;
         },
@@ -95,18 +90,14 @@ scale.nonObservable = function(config, parent) {
             return this.config.allowedTypes ?? this.defaults.allowedTypes;
         },
         get type() {
-
-            let scaleType = this.scaleTypeNoGenLog();
+            let scaleType = this.getScaleTypeWithoutLookingAtDomain();
             let allowedTypes = this.allowedTypes;
             
-            if (scaleType == "log" && !isArrayOneSided(this.domain)) {
+            if (scaleType == "log" && !isArrayOneSided(this.domain))
                 scaleType = "genericLog";
-            }
 
-            if (allowedTypes && !allowedTypes.includes(scaleType)) {
+            if (allowedTypes && !allowedTypes.includes(scaleType))
                 console.warn('Scale type not in allowedTypes, please change scale type.', { scaleType, allowedTypes })
-                return;
-            }
                 
             return scaleType;    
         },
@@ -141,7 +132,7 @@ scale.nonObservable = function(config, parent) {
                 domain = [this.data.constant];
             } else if (this.isSameAsFrameEncScale) {
                 domain = this.parent.marker.encoding.frame.scale.domain;
-            } else if (this.isScaleTypeEqualsRank) {
+            } else if (this.getScaleTypeWithoutLookingAtDomain() === "rank" && this.parent.config.modelType === "lane") {
                 domain = [0, this.parent.totalTrackNumber];
             } else if (this.data.domain) {
                 domain = this.data.domain;
@@ -156,13 +147,13 @@ scale.nonObservable = function(config, parent) {
             } else {
                 domain = this.defaults.domain;
             }     
-            return this.isDiscrete(domain) && this.orderDomain ? [...domain].sort(sortDateSafe) : domain;
+            return this.isDiscrete() && this.orderDomain ? [...domain].sort(sortDateSafe) : domain;
         },
         set domain(domain) {
             this.config.domain = domain;
         },
         clampToDomain(val, domain = this.domain) {
-            if (this.isDiscrete(domain))
+            if (this.isDiscrete())
                 return domain.includes(val) ? val : undefined;
             
             if (val < domain[0]) return domain[0];
@@ -187,9 +178,9 @@ scale.nonObservable = function(config, parent) {
         set zoomed(zoomed) {
             this.config.zoomed = zoomed;
         },
-        isDiscrete(domain) {
-            const scaleType = this.scaleTypeNoGenLog(domain);
-            return scaleType == "ordinal" || scaleType == "band" || scaleType == "point";
+        isDiscrete() {
+            const scaleType = this.getScaleTypeWithoutLookingAtDomain();
+            return categoricalScaleTypes.includes(scaleType);
         },
         domainIncludes(value, domain = this.domain) {
             if ([d3_scaleLinear, d3_scaleLog, d3_scaleSymlog, d3_scaleSqrt, d3_scaleUtc].includes(this.d3Type)) {

@@ -1,11 +1,12 @@
-import { applyDefaults, assign, createModel, isString } from "../utils";
+import { deepmerge, assign, createModel, isString } from "../utils";
 import { observable } from "mobx";
 import { scale } from "./scale";
 import { palette } from "../palette";
 import { resolveRef } from "../config";
 import {schemeCategory10 as d3_schemeCategory10, interpolateRgb as d3_interpolateRgb} from "d3";
 
-const defaultConfig = {
+const defaults = {
+    categoricalType: "ordinal",
 }
 
 const colors = {
@@ -18,9 +19,8 @@ export function color(...args) {
 
 color.nonObservable = function(config, parent) {
     
-    applyDefaults(config, defaultConfig);
-
     const s = scale.nonObservable(config, parent);
+    s.defaults = deepmerge(s.defaults, defaults);
 
     return assign(s, {
         calcRange(domain = this.domain) {
@@ -49,7 +49,7 @@ color.nonObservable = function(config, parent) {
         },
 
         get palette() {
-            const config = resolveRef(this.config.palette).value || defaultConfig.palette;
+            const config = resolveRef(this.config.palette).value || defaults.palette;
             return observable(palette(config, this));
         },
 
