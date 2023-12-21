@@ -87,7 +87,7 @@ scale.nonObservable = function(config, parent) {
             return scaleType;
         },
         get allowedTypes() {
-            return this.config.allowedTypes ?? this.defaults.allowedTypes;
+            return this.config.allowedTypes ?? Object.keys(scales).filter(s => s !== "rank" || this.parent.config.modelType === "lane");
         },
         get type() {
             let scaleType = this.getScaleTypeWithoutLookingAtDomain();
@@ -132,7 +132,7 @@ scale.nonObservable = function(config, parent) {
                 domain = [this.data.constant];
             } else if (this.isSameAsFrameEncScale) {
                 domain = this.parent.marker.encoding.frame.scale.domain;
-            } else if (this.getScaleTypeWithoutLookingAtDomain() === "rank" && this.parent.config.modelType === "lane") {
+            } else if (this.getScaleTypeWithoutLookingAtDomain() === "rank") {
                 domain = [0, this.parent.totalTrackNumber];
             } else if (this.data.domain) {
                 domain = this.data.domain;
