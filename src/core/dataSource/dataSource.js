@@ -265,8 +265,9 @@ dataSource.nonObservable = function (config, parent, id) {
             const result = {};
             const drillup = "drill_up";
 
-            for (const conceptId of this.availability.keyValueLookup.keys()) {
-                if (this.isEntityConcept(conceptId)) {
+            for (const conceptKeys of this.availability.keyLookup.values()) {
+                if (conceptKeys.length == 1 && this.isEntityConcept(conceptKeys[0])) {
+                    const conceptId = conceptKeys[0];
                     const concept = concepts.get(conceptId);
                     if (concept[drillup]) {
                         const dim = concept["domain"] || conceptId;
