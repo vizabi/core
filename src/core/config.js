@@ -86,6 +86,11 @@ function transformModel(model, transform) {
                 get source() { return model.data.source },
                 get locale() { return model.data.locale }
             });
+        case "orderDirection":
+            const dim = model.parent.space[0];
+            return observable(
+                model.config.dimensions?.[dim]?.$or?.[0]?.[dim]?.$in || []
+            ) 
         default:
             return model;
     }
