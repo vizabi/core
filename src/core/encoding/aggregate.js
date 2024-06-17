@@ -4,8 +4,10 @@ import { DataFrame } from '../../dataframe/dataFrame';
 import { pick } from '../../dataframe/dfutils';
 
 const defaultConfig = {
-  space: undefined,
-  concept: undefined
+    data: {
+        concept: undefined,
+        space: undefined
+    }
 }
 
 export const aggregate = defaultDecorator({
