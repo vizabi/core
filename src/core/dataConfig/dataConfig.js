@@ -237,6 +237,9 @@ dataConfig.nonObservable = function(config, parent, id) {
             return this.responsePromise.value;
         },
         get responsePromise() {
+            //don't attempt fetching data when we know there is nothing to fetch
+            //for example, the "concept" is missing, see https://github.com/vizabi/core/issues/45
+            if(!this.hasOwnData) return fromPromise(Promise.resolve());
             return this.fetchResponse();
         },
         get responseState() {
