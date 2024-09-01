@@ -239,6 +239,7 @@ dataSource.nonObservable = function (config, parent, id) {
                 //add an extra column to a query already found in the queue
                 const { baseQuery, promise } = this.queue.get(queryCombineId);
                 baseQuery.select.value = concatUnique(baseQuery.select.value, query.select.value);
+                this.cache.set(baseQuery, promise);
                 return promise;
             } else {
                 //create a new query in a queue
