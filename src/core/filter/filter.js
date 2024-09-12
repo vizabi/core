@@ -1,5 +1,5 @@
 import { action, isObservableArray, observable, toJS, trace } from 'mobx';
-import { isString, deepmerge, arrayEquals, configValue, removeOnce, createModel } from '../utils';
+import { isString, deepmerge, arrayEquals, configValue, removeOnce, createModel, isNumeric } from '../utils';
 import { resolveRef } from '../config';
 
 const defaults = {
@@ -109,11 +109,58 @@ filter.nonObservable = function (config, parent, id) {
             }
             return !this.markers.has(key);
         }),
-        addToDimensionsFirstINstatement: action("addInDimensions", function(markerItem, path) {
-            if (Array.isArray(markerItem)) {
-                for (const el of markerItem) this.addToDimensionsFirstINstatement(el)
+
+        // WHAT IS LIMITED STRUCTURE?
+        // THE LIMITED STRUCTURE LOOKS LIKE THIS
+        // notice how this says add geo="americas" but remove all where world_4region="americas"
+        //
+        // filter = { 
+        //   "dimensions": {
+        //     "geo": {
+        // // additive section
+        //       "$or": [
+        //         { "un_state": true },
+        //         { "geo": { "$in": ["world", "americas"] } },
+        //         { "unhcr_region": { "$in": ["unhcr_asia_pacific"] } }
+        //       ],
+        // // substractive section
+        //       "west_and_rest": { "$nin": ["west"] },
+        //       "world_4region": { "$nin": ["americas"] }
+        //     }
+        //   }, 
+        //   "markers": [] 
+        // }
+
+        addUsingLimitedStructure: action("addUsingLimitedStructure", function ({key, dim, prop}) {
+            if (Array.isArray(key)) {
+                for (const el of key) this.addUsingLimitedStructure({key: el, dim, prop})
                 return;
             }
+
+            if (this.isAlreadyRemovedUsingLimitedStructure({key, dim, prop}))
+              this.eraseItemFromClause(key, [dim, prop, "$nin"]);
+            else
+              this.writeItemToClause(key, [dim, "$or", prop, "$in"]);
+        }),
+        deleteUsingLimitedStructure: action("eraseItemFromClause", function ({key, dim, prop}) {
+            if (Array.isArray(key)) {
+                for (const el of key) this.deleteUsingLimitedStructure({key: el, dim, prop})
+                return;
+            }
+
+            if (this.isAlreadyAddedUsingLimitedStructure({key, dim, prop}))
+              this.eraseItemFromClause(key, [dim, "$or", prop, "$in"]);
+            else
+              this.writeItemToClause(key, [dim, prop, "$nin"]);
+        }),
+        isAlreadyAddedUsingLimitedStructure: function({key, dim, prop}) {
+            return this.config.dimensions?.[dim]?.$or?.find( f => f[prop])?.[prop]?.$in?.includes(key);
+        },
+        isAlreadyRemovedUsingLimitedStructure: function({key, dim, prop}) {
+            return this.config.dimensions?.[dim]?.[prop]?.$nin?.includes(key);
+        },
+
+        writeItemToClause: function(markerItem, path) {
             const cfg = this.config.dimensions;
             const item = this.getKey(markerItem);
             let addedOnce = false;
@@ -137,6 +184,18 @@ filter.nonObservable = function (config, parent, id) {
 
             if (path) {
                 const inArray = path.reduce((a, p)=>{
+                    //if encountered an array and there is no specific index provided,
+                    //look for a = [{p: value}] kind of situation and return value
+                    //if not found, add a new element {p: {}} and return it
+                    if (Array.isArray(a) && !isNumeric(p)) {
+                        const found = a.find(f => f[p]);
+                        if (found)
+                            return found[p];
+                        else {
+                            a.push({[p]: {}});
+                            return a.at(-1)[p]; 
+                        }
+                    }
                     if (a[p] == null) a[p] = ["$in", "$or", "$and", "$nin"].includes(p) ? [] : {};
                     return a[p];
                 }, cfg);
@@ -144,12 +203,8 @@ filter.nonObservable = function (config, parent, id) {
             } else {
                 findAndAddInObject(cfg, item);
             }
-        }),
-        deleteFromDimensionsFirstINstatement: action("deleteInDimensions", function(markerItem, path ) {
-            if (Array.isArray(markerItem)) {
-                for (const el of markerItem) this.deleteFromDimensionsAllINstatements(el)
-                return;
-            }
+        },
+        eraseItemFromClause: function(markerItem, path ) {
             const cfg = this.config.dimensions;
             const item = this.getKey(markerItem);
 
@@ -171,6 +226,13 @@ filter.nonObservable = function (config, parent, id) {
 
             if (path) {
                 const inArray = path.reduce((a, p)=>{
+                    //if encountered an array and there is no specific index provided,
+                    //look for a = [{p: value}] kind of situation and return value
+                    //return {} if not found
+                    if (Array.isArray(a) && !isNumeric(p)) {
+                        const found = a.find(f => f[p]);
+                        return found ? found[p] : {};
+                    }
                     if (a[p] == null) a[p] = ["$in", "$or", "$and", "$nin"].includes(p) ? [] : {};
                     return a[p];
                 }, cfg);
@@ -179,7 +241,7 @@ filter.nonObservable = function (config, parent, id) {
                 findAndRemoveInObject(cfg, item);
             }
             cleanEmptyObjectsAndArrays(cfg);
-        }),
+        },
         deleteFromDimensionsAllINstatements: action("deleteAllInDimensions", function(markerItem, statement = "$in") {
             if (Array.isArray(markerItem)) {
                 for (const el of markerItem) this.deleteFromDimensionsAllINstatements(el)
