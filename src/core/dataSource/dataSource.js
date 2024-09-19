@@ -354,10 +354,10 @@ dataSource.nonObservable = function (config, parent, id) {
             const result = {};
             return this.drillupCatalog.then(c => {
                 for (const entitySet in c[dim]) {
-                    const drillupValue = c[dim][entitySet].get(Symbol.for(drillup)).get(obj.entity);
+                    const drillupValue = Object.assign({}, c[dim][entitySet].get(Symbol.for(drillup)).get(obj.entity) || {});
+                    delete drillupValue[entitySet];
+                    delete drillupValue[Symbol.for("key")];
                     Object.assign(result, drillupValue);
-                    delete result[entitySet];
-                    delete result[Symbol.for("key")];
                 };
                 return result;
 
