@@ -10,6 +10,8 @@ export function extrapolateGroup(group, options) {
     const copyFields = relativeComplement(fields, groupFields);
     copyFields.push(Symbol.for('key'));
 
+    const newGroup = group.copy();
+
     function copyOrCreate(member, rowKey, sourceMarker) {
         let extraRow = member.getByStr(rowKey);
         if (extraRow !== undefined) {
@@ -20,15 +22,13 @@ export function extrapolateGroup(group, options) {
                 member.setByStr(rowKey, extraRow);
             }
         } else {
-            extraRow = Object.assign(pickGetters(sourceMarker, copyFields), group.keyObject(member));
+            extraRow = Object.assign(pickGetters(sourceMarker, copyFields), newGroup.keyObject(member));
             ammendNewRow(extraRow);
             extraRow[Symbol.for('extrapolated')] = {}
             member.setByStr(rowKey, extraRow);
         }
         return extraRow;
     }
-
-    const newGroup = group.copy();
 
     for (const field of fields) {
         const lastIndices = new Map();
