@@ -306,7 +306,16 @@ frame.nonObservable = function(config, parent, id) {
                 fields: this.changeBetweenFramesEncodings,
                 sizeLimit: this.extrapolate,
                 indexLimit: requiredExtentIndices,
-                ammendNewRow: row => row[this.data.concept] = row[encName]
+                ammendNewRow: row => {
+                    row[this.data.concept] = row[encName];
+                    this.encodingsThatCopyFrame.forEach(enc => {
+                        Object.defineProperty(row, enc, {
+                            value: row[encName],
+                            enumerable: true,
+                            configurable: true
+                        })
+                    })
+                }
             });
         },
 
