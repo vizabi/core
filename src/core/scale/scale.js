@@ -13,6 +13,7 @@ import {
     leastIndex as d3_leastIndex,
     min as d3_min,
     max as d3_max,
+    intersection as d3_intersection
 } from "d3";
 
 const scales = {
@@ -80,9 +81,9 @@ scale.nonObservable = function(config, parent) {
             } else if (concept?.concept_type === "time") {
                 scaleType = "time";
             } else if (this.data.constant || concept && ["entity_domain", "entity_set", "string", "boolean"].includes(concept.concept_type)) {
-                scaleType = [...d3.intersection(this.allowedTypes, categoricalScaleTypes)][0] || this.defaults.categoricalType
+                scaleType = [...d3_intersection(this.allowedTypes, categoricalScaleTypes)][0] || this.defaults.categoricalType
             } else {
-                scaleType = [...d3.intersection(this.allowedTypes, numericScaleTypes)][0] || this.defaults.numericType
+                scaleType = [...d3_intersection(this.allowedTypes, numericScaleTypes)][0] || this.defaults.numericType
             }
             return scaleType;
         },

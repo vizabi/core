@@ -3,6 +3,10 @@ import { assign, combineStates, defaultDecorator, getConceptsCatalog } from '../
 import { fromPromise } from 'mobx-utils';
 import { DataFrameGroup } from '../../dataframe/dataFrameGroup';
 import { DataFrame } from '../../dataframe/dataFrame';
+import { 
+    rollups as d3_rollups,
+    ascending as d3_ascending
+} from "d3";
 
 const defaults = {
 }
@@ -39,7 +43,7 @@ export const lane = defaultDecorator({
                 trackLookup.set(this.lookupID(d), d.track)
             }
             
-            const rollup = d3.rollups(
+            const rollup = d3_rollups(
               this.data.response || [],
               (a) => {
                 const array = a.map(([k, v]) => v);
@@ -75,7 +79,7 @@ export const lane = defaultDecorator({
         },
 
         comparator(a, b) {
-            return !a ? -1 : d3.ascending(this.conceptEntities.get(a)?.rank, this.conceptEntities.get(b)?.rank);
+            return !a ? -1 : d3_ascending(this.conceptEntities.get(a)?.rank, this.conceptEntities.get(b)?.rank);
         },
 
         get placeholderEntities() {
