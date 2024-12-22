@@ -4,7 +4,7 @@ import { defaultDecorator, isString } from '../utils';
 
 const directions = {
     ascending: "ascending",
-    descending: "descencding"
+    descending: "descending"
 }
 const defaults = {
     direction: directions.ascending
