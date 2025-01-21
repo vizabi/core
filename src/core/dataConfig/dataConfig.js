@@ -5,7 +5,7 @@ import { arrayEquals, combineStates, combineStatesSequential, createModel, creat
 import { fromPromise } from "mobx-utils";
 import { extent } from "../../dataframe/info/extent";
 import { unique } from "../../dataframe/info/unique";
-import { createKeyStr } from "../../dataframe/dfutils";
+import { createKeyStr, createKeyFn } from "../../dataframe/dfutils";
 import { configSolver } from "./configSolver";
 import { filterStore } from "../filter/filterStore";
 
@@ -276,6 +276,9 @@ dataConfig.nonObservable = function(config, parent, id) {
                 .then(this.responseAdaptorHack_MoveItToDSource.bind(this))
                 .then(response => response.forKey(this.commonSpace));
             return fromPromise(promise);
+        },
+        createKeyFn(space = this.space){
+            return createKeyFn(space);
         },
         disposers: [],
         onCreate() {
