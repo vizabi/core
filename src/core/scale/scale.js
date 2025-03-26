@@ -58,6 +58,9 @@ scale.nonObservable = function(config, parent) {
             categoricalType: "point",
             zeroBaseline: false,
         },
+        get modelType() {
+            return this.config.modelType
+        },
         get zeroBaseline() {
             return (this.config.zeroBaseline ?? this.defaults.zeroBaseline) && !this.isDiscrete() && isArrayOneSided(this.data.domain);
         },
