@@ -1,7 +1,7 @@
 import { trace, computed, observable, toJS, autorun } from 'mobx';
 import { dataSourceStore } from '../dataSource/dataSourceStore'
 import { dataConfigStore } from '../dataConfig/dataConfigStore'
-import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable, combineStatesSequential, createModel } from "../utils";
+import { assign, applyDefaults, isProperSubset, combineStates, relativeComplement, isString, isIterable, combineStatesSequential, createModel, fieldsNullishCheck } from "../utils";
 import { configurable } from '../configurable';
 import { fullJoin } from '../../dataframe/transforms/fulljoin';
 import { DataFrame } from '../../dataframe/dataFrame';
@@ -18,12 +18,14 @@ const defaultConfig = {
 
 const defaults = {
     requiredEncodings: [],
+    requiredFields: {},
     transformations: [
         "aggregate.aggregate",
         "frame.frameMap",
         "frame.interpolate",
         "frame.extrapolate",
         "filterRequired", // after framemap so doesn't remove interpolatable rows
+        "fillRequiredFields",
         "trail.addPreviousTrailHeads", // before ordering so trailheads get ordered
         "order.order", 
         "orderFacets.order",
@@ -298,11 +300,31 @@ marker.nonObservable = function(config, parent, id) {
                 enc => this.encoding[enc].data.hasOwnData
             ); 
         },
+        get requiredFields() {
+            return toJS(this.config.requiredFields || defaults.requiredFields);
+        },
+        get requiredFieldKeys() {
+            return Object.keys(this.requiredFields).map(key => Symbol.for(key));
+        },
         filterRequired(data) {            
             const required = this.requiredEncodings;
             return data
                 .filterNullish(this.requiredEncodings)
                 .filterGroups(group => group.size > 0, true);
+        },
+        fillRequiredFields(data) {
+            const keys = Object.keys(this.requiredFields);
+            if (keys.length == 0) return data;
+
+            const checkFns = keys.map(key => {
+                return fieldsNullishCheck(this.requiredFields[key]);
+            });
+            for (const row of data.rows()) {
+                for (let i = 0; i < keys.length; i++) {
+                    row[this.requiredFieldKeys[i]] = checkFns[i](row);
+                }
+            }
+            return data;
         },
         differentiate(xField, data) {
             const frame = this.encoding.frame
@@ -316,7 +338,8 @@ marker.nonObservable = function(config, parent, id) {
         get transformationFns() {
             // marker transformation
             const transformations = {
-                "filterRequired": this.filterRequired.bind(this)
+                "filterRequired": this.filterRequired.bind(this),
+                "fillRequiredFields": this.fillRequiredFields.bind(this)
             };
             // encoding transformations
             for (let [name, enc] of Object.entries(this.encoding)) {

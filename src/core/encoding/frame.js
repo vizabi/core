@@ -335,7 +335,7 @@ frame.nonObservable = function(config, parent, id) {
             return createKeyFn([this.name])({ [this.name]: this.value }) // ({ [this.name]: this.value });
         },
         get fieldsToInterpolate() {
-            return [this.name, this.data.concept, ...this.changeBetweenFramesEncodings, ...this.encodingsThatCopyFrame];
+            return [this.name, this.data.concept, ...this.changeBetweenFramesEncodings, ...this.encodingsThatCopyFrame, ...this.marker.requiredFieldKeys];
         },
         getInterpolatedFrame(df, step, stepsAround) {
             const keys = Array.from(df.keys());

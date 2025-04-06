@@ -640,3 +640,15 @@ export function stepBeforeInterpolator(startVal, endVal) {
         return t => JSON.parse(t < 1 ? jsonStartVal : jsonEndtVal);
     } else return t => t < 1 ? startVal : endVal;
 }
+
+// simple, fast filtering using function that checks for nullish value
+export function fieldsNullishCheck(fields) {
+    const l = fields.length;
+    return row => {
+        //faster implementation with a for-loop
+        for (let i = 0; i < l; i++) {
+            if (row[fields[i]] == null || row[fields[i]] == undefined) return 1;
+        }
+        return 0;
+    }
+}
