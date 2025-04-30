@@ -6,8 +6,8 @@ const config = {
         },/**/
         gapbw: {
             modelType: "bw",
-            service: 'https://big-waffle.gapminder.org', 
-            name: "sg-master"
+            service: 'https://small-waffle.gapminder.org', 
+            name: "fasttrack"
         },/*
         gap: {
             modelType: "ddfcsv",
@@ -231,7 +231,7 @@ const config = {
                 },
                 "x": {
                     data: {
-                        concept: "income_per_person_gdppercapita_ppp_inflation_adjusted"
+                        concept: "gdp_pcap"
                     },
                     scale: {
                         type: "log"
@@ -239,7 +239,7 @@ const config = {
                 },
                 "y": {
                     data: {
-                        concept: 'life_expectancy_years', // concept: "life_expectancy",
+                        concept: 'lex', // concept: "life_expectancy",
                         /*space: ['country', 'time'], //["country", "gender", "time"],
                         filter: {
                             dimensions: {
@@ -261,7 +261,7 @@ const config = {
                 },
                 "size": {
                     data: {
-                        concept: "population_total"
+                        concept: "pop"
                     },
                     scale: {
                         modelType: "size",
