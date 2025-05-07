@@ -164,14 +164,14 @@ scale.nonObservable = function(config, parent) {
             if (val > domain[1]) return domain[1];
             return val;
         },
-        d3ScaleCreate() {
+        d3ScaleCreate(domain = this.domain, range = this.range) {
             const scale = scales[this.type]();
             if (this.type === "genericLog") {
                 //TODO
                 //scale.constant(limitsObj.minAbsNear0);
             }
             if(scale.clamp) scale.clamp(this.clamp);
-            return scale.domain(this.domain).range(this.range);
+            return scale.domain(domain).range(range);
         },
         get d3Scale() {
             return this.d3ScaleCreate();

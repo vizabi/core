@@ -1,4 +1,4 @@
-import { deepmerge, assign, createModel, isString } from "../utils";
+import { deepmerge, assign, createModel, parseConfigValue, isString } from "../utils";
 import { observable } from "mobx";
 import { scale } from "./scale";
 import { palette } from "../palette";
@@ -7,6 +7,7 @@ import {schemeCategory10 as d3_schemeCategory10, interpolateRgb as d3_interpolat
 
 const defaults = {
     categoricalType: "ordinal",
+    clamp: true,
 }
 
 const colors = {
@@ -53,9 +54,44 @@ color.nonObservable = function(config, parent) {
             return observable(palette(config, this));
         },
 
+        get matchEncsToBorrowZoom() {
+            return this.config.matchEncsToBorrowZoom;
+        },
+
+        get borrowZoom() {
+            return this.config.borrowZoom;
+        },
+
+        set borrowZoom(arg) {
+            this.config.borrowZoom = arg;
+        },
+
+        get zoomed() {
+            const zoomed = this.config.zoomed;
+            if (this.data.conceptProps?.concept_type !== "measure")
+                return this.domain;
+
+            if (this.borrowZoom && Array.isArray(this.matchEncsToBorrowZoom)) {
+                const matchingEncoding = this.matchEncsToBorrowZoom.find(
+                    enc => this.parent.marker.encoding[enc]?.data.concept === this.parent.data.concept
+                )
+                if (matchingEncoding)
+                    return this.parent.marker.encoding[matchingEncoding]?.scale?.zoomed || this.domain;
+                else
+                    return this.domain;
+            }
+            
+            if (Array.isArray(zoomed))
+                return zoomed.map(c => parseConfigValue(c, this.data.conceptProps));
+        },
+
+        set zoomed(zoomed) {
+            this.config.zoomed = zoomed;
+        },
+
         get d3Scale() {
 
-            const scale = this.d3ScaleCreate();
+            const scale = this.d3ScaleCreate(this.zoomed);
             let domain = scale.domain();
 
             if (this.palette.paletteType == "_continuous") { 
