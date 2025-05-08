@@ -2,39 +2,39 @@ import { action } from 'mobx';
 import { applyDefaults, deepclone } from "./utils";
 import {rgb as d3_rgb, color as d3_color} from "d3";
 
+//user-configurable palettes during runtime. they get reset on concept change to default palettes!
 const defaultConfig = {
     palette: {},
 }
 
-const defaults = {
-    defaultPalettes: {
-        "_continuous": {
-          "_default": "#ffb600",
-          "0": "#8c30e8", //"hsl(270, 80%, 55%)",
-          "25": "#30a3e8", //"hsl(202.5, 80%, 55%)",
-          "50": "#30e85e", //"hsl(135, 80%, 55%)",
-          "75": "#e2c75a", //"hsl(48, 70%, 62%)",
-          "100": "#e83030" //"hsl(0, 80%, 55%)"
-        },
-        "_ordinal": {
-          "_default": "#aaa",
-          "0": "#4cd843",
-          "1": "#e83739",
-          "2": "#ff7f00",
-          "3": "#c027d4",
-          "4": "#d66425",
-          "5": "#0ab8d8",
-          "6": "#bcfa83",
-          "7": "#ff8684",
-          "8": "#ffb04b",
-          "9": "#f599f5",
-          "10": "#f4f459",
-          "11": "#7fb5ed"
-        },
-        "_constant": {
-          "_default": "#ffb600"
-        }
+//default palettes configurable during admin work
+const defaultPalettes = {
+    "_continuous": {
+        "_default": "#ffb600",
+        "0": "#8c30e8", //"hsl(270, 80%, 55%)",
+        "25": "#30a3e8", //"hsl(202.5, 80%, 55%)",
+        "50": "#30e85e", //"hsl(135, 80%, 55%)",
+        "75": "#e2c75a", //"hsl(48, 70%, 62%)",
+        "100": "#e83030" //"hsl(0, 80%, 55%)"
     },
+    "_ordinal": {
+        "_default": "#aaa",
+        "0": "#4cd843",
+        "1": "#e83739",
+        "2": "#ff7f00",
+        "3": "#c027d4",
+        "4": "#d66425",
+        "5": "#0ab8d8",
+        "6": "#bcfa83",
+        "7": "#ff8684",
+        "8": "#ffb04b",
+        "9": "#f599f5",
+        "10": "#f4f459",
+        "11": "#7fb5ed"
+    },
+    "_constant": {
+        "_default": "#ffb600"
+    }
 }
 
 export function palette(config = {}, parent) {
@@ -52,7 +52,7 @@ export function palette(config = {}, parent) {
             return conceptProps ? JSON.parse(this.encoding.data.conceptProps.color || "{}") : {};
         },
         get defaultPalettes() {
-            return this.config.defaultPalettes || defaults.defaultPalettes;
+            return Object.assign({}, defaultPalettes, this.config.defaultPalettes || {});
         },
         get defaultPalette() {
             let palette;

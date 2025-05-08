@@ -93,7 +93,7 @@ encoding.nonObservable = function(config, parent, id) {
             this.config.scale.domain = null;
             this.config.scale.type = null;
             this.config.scale.zoomed = null;
-            this.config.scale.palette = {};
+            if(this.config.scale.palette) this.config.scale.palette.palette = {};
         }),
         internalErrors: [],
         dispose() {
