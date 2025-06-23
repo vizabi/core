@@ -41,23 +41,44 @@ export function dotToJoin(query) {
     return newq;
 }
 
-// needed for WS
+// needed for WS. adds $AND statements RECURSIVELY
 export function addExplicitAnd(query) {
-    // return if no where or only single where
-    const props = query.where && Object.keys(query.where);
-    if (!props || props.length < 2)
-        return query;
+
+    function recurse(obj) {
+        // leaves returned immediately
+        if (!obj || typeof obj !== 'object') 
+            return obj;
+    
+        // arrays get traversed recursively
+        if (Array.isArray(obj)) 
+            return obj.map(m => recurse(m));
+
+        const keys = Object.keys(obj);
+
+        // objects with exactly one property get traversed recursively
+        // these may already be $and, $or etc but it's ok, because at the next 
+        // recursive pass they will be treated as arrays
+        if (keys.length === 1)
+            return {[keys[0]]: recurse(obj[keys[0]])}; 
+
+        // objects with more than one prop get wrapped in "$and"
+        if (keys.length > 1) 
+            return {"$and": keys.map(key => ({[key]: recurse(obj[key])}) )}
+    }
 
     const newq = deepmerge({}, query);
-    newq.where = {
-        "$and": []
-    }
-    props.forEach(prop => {
-        newq.where["$and"].push({
-            [prop]: query.where[prop]
-        })
-    })
+    newq.where = recurse(query.where);
 
+    //do the same for "where" clause of each "join"
+    if (query.join){
+        for (let joinKey in newq.join) {
+            const where = newq.join[joinKey].where;
+            if (where) newq.join[joinKey].where = recurse(query.join[joinKey].where);
+        }  
+    }
+   
     //console.log("Transformed query: ", query, newq);
     return newq;
 }
+
+  
