@@ -11,6 +11,39 @@ export function filter(...args) {
     return createModel(filter, ...args)
 }
 
+function compare(object, prop, isness){
+    return (object[isness] || !isness) && object[prop];
+}
+
+function getObjectBlueprint(obj = {}){
+    return Object.keys(obj).sort().join(",");
+}
+function union(targetArray = [], sourceArray = []){
+    return [...new Set([...targetArray, ...sourceArray])];
+}
+function substract(targetArray = [], sourceArray = []){
+    const sourceSet = new Set(sourceArray);
+    return targetArray.filter(f => !sourceSet.has(f));
+}
+
+/**
+ * Returns all key–value combinations for an object whose values
+ * may be arrays or singletons.
+ *
+ * @param {Object<string, any|any[]>} obj
+ * @returns {Object<string, any>[]}
+ */
+function cartesianPermutations(obj) {
+    return Object.entries(obj)
+        .reduce((combos, [key, values]) => {
+            // wrap non-arrays so they “repeat”
+            const vals = Array.isArray(values) ? values : [values];
+            return combos.flatMap(combo =>
+                vals.map(val => ({ ...combo, [key]: val }))
+            );
+        }, [{}]);
+}
+
 function cleanEmptyObjectsAndArrays(obj){
 
     function notEmpty(arg) {
@@ -84,7 +117,6 @@ filter.nonObservable = function (config, parent, id) {
         }),
         delete: action("deleteFilter", function(markerItem) {
             this.deleteFromMarkers(markerItem);
-            this.deleteFromDimensionsAllINstatements(markerItem);
         }),
         clear: action("clearFilter", function() {
             this.config.markers = [];
@@ -109,169 +141,210 @@ filter.nonObservable = function (config, parent, id) {
             }
             return !this.markers.has(key);
         }),
-
-        // WHAT IS LIMITED STRUCTURE?
-        // THE LIMITED STRUCTURE LOOKS LIKE THIS
-        // notice how this says add geo="americas" but remove all where world_4region="americas"
-        //
-        // filter = { 
-        //   "dimensions": {
-        //     "geo": {
-        // // additive section
-        //       "$or": [
-        //         { "un_state": true },
-        //         { "geo": { "$in": ["world", "americas"] } },
-        //         { "unhcr_region": { "$in": ["unhcr_asia_pacific"] } }
-        //       ],
-        // // substractive section
-        //       "west_and_rest": { "$nin": ["west"] },
-        //       "world_4region": { "$nin": ["americas"] }
-        //     }
-        //   }, 
-        //   "markers": [] 
-        // }
-
-        addUsingLimitedStructure: action("addUsingLimitedStructure", function ({key, dim, prop}) {
-            if (Array.isArray(key)) {
-                for (const el of key) this.addUsingLimitedStructure({key: el, dim, prop})
-                return;
-            }
-
-            if (this.isAlreadyRemovedUsingLimitedStructure({key, dim, prop}))
-              this.eraseItemFromClause(key, [dim, prop, "$nin"]);
-            else
-              this.writeItemToClause(key, [dim, "$or", prop, "$in"]);
-        }),
-        deleteUsingLimitedStructure: action("eraseItemFromClause", function ({key, dim, prop}) {
-            if (Array.isArray(key)) {
-                for (const el of key) this.deleteUsingLimitedStructure({key: el, dim, prop})
-                return;
-            }
-
-            if (this.isAlreadyAddedUsingLimitedStructure({key, dim, prop}))
-              this.eraseItemFromClause(key, [dim, "$or", prop, "$in"]);
-            else
-              this.writeItemToClause(key, [dim, prop, "$nin"]);
-        }),
-        isAlreadyAddedUsingLimitedStructure: function({key, dim, prop}) {
-            return this.config.dimensions?.[dim]?.$or?.find( f => f[prop])?.[prop]?.$in?.includes(key);
-        },
-        isAlreadyRemovedUsingLimitedStructure: function({key, dim, prop}) {
-            return this.config.dimensions?.[dim]?.[prop]?.$nin?.includes(key);
-        },
-
-        writeItemToClause: function(markerItem, path) {
-            const cfg = this.config.dimensions;
-            const item = this.getKey(markerItem);
-            let addedOnce = false;
-
-            function findAndAddInArray(array, item){
-                const index = array.indexOf(item);
-                if (index == -1 && !addedOnce) {
-                    array.push(item);
-                    addedOnce = true;
-                }
-            }
-
-            function findAndAddInObject(obj, item, key) {
-                if (key === "$in")
-                    findAndAddInArray(obj, item);
-                else if (Array.isArray(obj))
-                    obj.forEach( d => findAndAddInObject(d, item) );
-                else if (typeof obj === "object")
-                    for (const objKey in obj) findAndAddInObject(obj[objKey], item, objKey);
-            }
-
-            if (path) {
-                const inArray = path.reduce((a, p)=>{
-                    //if encountered an array and there is no specific index provided,
-                    //look for a = [{p: value}] kind of situation and return value
-                    //if not found, add a new element {p: {}} and return it
-                    if (Array.isArray(a) && !isNumeric(p)) {
-                        const found = a.find(f => f[p]);
-                        if (found)
-                            return found[p];
-                        else {
-                            a.push({[p]: {}});
-                            return a.at(-1)[p]; 
-                        }
-                    }
-                    if (a[p] == null) a[p] = ["$in", "$or", "$and", "$nin"].includes(p) ? [] : {};
-                    return a[p];
-                }, cfg);
-                findAndAddInArray(inArray, item);
-            } else {
-                findAndAddInObject(cfg, item);
-            }
-        },
-        eraseItemFromClause: function(markerItem, path ) {
-            const cfg = this.config.dimensions;
-            const item = this.getKey(markerItem);
-
-            //traverse object in search of an array containing markerItem
-
-            function findAndRemoveInArray(array, item){
-                const index = array.indexOf(item);
-                if (index !== -1) array.splice(index, 1);
-            }
-
-            function findAndRemoveInObject(obj, item, key) {
-                if (key === "$in")
-                    findAndRemoveInArray(obj, item);                
-                else if (Array.isArray(obj))
-                    obj.forEach( d => findAndRemoveInObject(d, item) );
-                else if (typeof obj === "object")
-                    for (const objKey in obj) findAndRemoveInObject(obj[objKey], item, objKey);
-            }
-
-            if (path) {
-                const inArray = path.reduce((a, p)=>{
-                    //if encountered an array and there is no specific index provided,
-                    //look for a = [{p: value}] kind of situation and return value
-                    //return {} if not found
-                    if (Array.isArray(a) && !isNumeric(p)) {
-                        const found = a.find(f => f[p]);
-                        return found ? found[p] : {};
-                    }
-                    if (a[p] == null) a[p] = ["$in", "$or", "$and", "$nin"].includes(p) ? [] : {};
-                    return a[p];
-                }, cfg);
-                findAndRemoveInArray(inArray, item);
-            } else {
-                findAndRemoveInObject(cfg, item);
-            }
-            cleanEmptyObjectsAndArrays(cfg);
-        },
-        deleteFromDimensionsAllINstatements: action("deleteAllInDimensions", function(markerItem, statement = "$in") {
-            if (Array.isArray(markerItem)) {
-                for (const el of markerItem) this.deleteFromDimensionsAllINstatements(el)
-                return;
-            }
-            const cfg = this.config.dimensions;
-            const item = this.getKey(markerItem);
-
-            //traverse object in search of an array containing markerItem
-
-            function findAndRemoveInArray(array, item){
-                const index = array.indexOf(item);
-                if (index !== -1) array.splice(index, 1);
-            }
-
-            function findAndRemoveInObject(obj, item, key) {
-                if (key === statement)
-                    findAndRemoveInArray(obj, item);                
-                else if (Array.isArray(obj))
-                    obj.forEach( d => findAndRemoveInObject(d, item) );
-                else if (typeof obj === "object")
-                    for (const objKey in obj) findAndRemoveInObject(obj[objKey], item, objKey);
-            }
-
-            findAndRemoveInObject(cfg, item);
-            cleanEmptyObjectsAndArrays(cfg);
-        }),
         getKey(d) {
             return isString(d) ? d : d[Symbol.for('key')];
         },
+
+        /* WHAT IS LIMITED STRUCTURE?
+        * THE LIMITED STRUCTURE LOOKS LIKE THIS
+        * notice how this says add geo="americas" but remove all where world_4region="americas"
+        *
+        * filter = { 
+        *   "dimensions": {
+        *     "geo": {
+        *       // additive section
+        *       "$or": [{ 
+        *           "is--global": true 
+        *         },{ 
+        *           "is--worl4region": true, 
+        *           "geo": { "$in": ["africa", "americas"] } 
+        *         },{ 
+        *           "is--country": true, 
+        *           "unhcr_region": { "$in": ["unhcr_asia_pacific"] } 
+        *       }],
+        *       // substractive section
+        *       "$nor": [{
+        *           "is--country": true,
+        *           "west_and_rest": {"$in": ["west"]} 
+        *       },{
+        *           "is--worl4region": true, 
+        *           "geo": {"$in": ["asia"]} 
+        *       },
+        *     }
+        *   }, 
+        *   "markers": [] 
+        * }
+        * 
+        * READER LIMITATION THING
+        * if prop matches isness, we must replace it with generic dim,
+        * because reader can't handle situations like {is--region:true, region: {$in: [asia]}}
+        * so instead we use {is--region:true, geo: {$in: [asia]}}
+        */
+        findOutIsnessUsingLimitedStructure: function({dim}){
+            //looks for patterns like {something: true, ...} in additive section $or
+            const extractIsness = (entry) => Object.entries(entry).map( ([k, v]) => v === true ? k : null );
+            const candidates = this.config.dimensions?.[dim]?.$or?.map(extractIsness).flat().filter(f => f) || [];
+            const unique = [...new Set(candidates)];
+            if(unique.length < 1) return null;
+            if(unique.length === 1) return unique[0];
+            if(unique.length > 1) return unique;
+        },
+
+        getLimitedStructureAdditiveSpec({key, dim, prop, isness}){
+            if ("is--" + prop === isness) prop = dim; //see reader limitation thing
+            return isness 
+                ? { [dim]: { "$or": [ { [prop]: { "$in": [key] }, [isness]: true }]} }
+                : { [dim]: { "$or": [ { [prop]: { "$in": [key] } }]} }
+        },
+        getLimitedStructureSubstractiveSpec({key, dim, prop, isness}){
+            if ("is--" + prop === isness) prop = dim; //see reader limitation thing
+            return isness
+                ? { [dim]: { "$nor": [ { [prop]: { "$in": [key] }, [isness]: true }]} }
+                : { [dim]: { "$nor": [ { [prop]: { "$in": [key] } }]} }
+        },
+        
+
+        addUsingLimitedStructure: action("addUsingLimitedStructure", function (vectorisedParams) {  
+            const unpackedParams = cartesianPermutations(vectorisedParams);
+
+            for (let params of unpackedParams) {
+                if (this.isAlreadyRemovedUsingLimitedStructure(params)){
+                    this.substractFromFilterSpec(this.getLimitedStructureSubstractiveSpec(params))
+                    this.prune(params);
+                } else
+                    this.appendToFilterSpec(this.getLimitedStructureAdditiveSpec(params));
+            }
+        }),
+        deleteUsingLimitedStructure: action("deleteUsingLimitedStructure", function (vectorisedParams) {
+            const unpackedParams = cartesianPermutations(vectorisedParams);
+           
+            for (let params of unpackedParams) {
+                if (this.isAlreadyAddedUsingLimitedStructure(params)){
+                    this.substractFromFilterSpec(this.getLimitedStructureAdditiveSpec(params))
+                    this.prune(params);
+                } else
+                    this.appendToFilterSpec(this.getLimitedStructureSubstractiveSpec(params));
+            }
+        }),
+        clearFilterUsingLimitedStructure: function({dim}){
+            this.config.dimensions[dim] = null;
+        },
+        switchIsenssUsingLimitedStructure: action("switchIsenssUsingLimitedStructure", function({dim, isness}){
+            const currentIsness = this.findOutIsnessUsingLimitedStructure({dim});
+            
+            //hard switch (reset filter to new isness) if soft switch is not possible
+            if (!currentIsness || Array.isArray(currentIsness))
+                return this.config.dimensions[dim] = {"$or": [{[isness]: true}]};
+            
+            function swichIsnesOfEveryItemInArray(array){
+                if (array)
+                    for (let item of array) {
+                        delete item[currentIsness];
+                        item[isness] = true;
+
+                        //rename prop to dim if it now matches the isness. see reader limitation thing
+                        const propMatchingIsness = item[isness.replace("is--","")];
+                        if (propMatchingIsness) {
+                            item[dim] = propMatchingIsness;
+                            delete item[isness.replace("is--","")];
+                        }
+                    }
+            }
+            
+            //soft switch if isness is singular
+            swichIsnesOfEveryItemInArray(this.config.dimensions[dim]?.["$or"]);
+            swichIsnesOfEveryItemInArray(this.config.dimensions[dim]?.["$nor"]);
+        }),
+        isAlreadyAddedUsingLimitedStructure: function({key, dim, prop, isness}) {
+            if ("is--" + prop === isness) prop = dim; //see reader limitation thing
+            return this.config.dimensions?.[dim]?.$or?.find( f => compare(f, prop, isness) )?.[prop]?.$in?.includes(key);
+        },
+        isAlreadyRemovedUsingLimitedStructure: function({key, dim, prop, isness}) {
+            if ("is--" + prop === isness) prop = dim; //see reader limitation thing
+            return this.config.dimensions?.[dim]?.$nor?.find( f => compare(f, prop, isness) )?.[prop]?.$in?.includes(key);
+        },
+
+        //TODO this is not pretty and probably can be done better
+        //detect sub-clause with $in = [] empty array and kill isness in the subclause
+        //thus marking it for deletion by cleanEmptyObjectsAndArrays
+        prune({dim, prop, isness}){
+            if ("is--" + prop === isness) prop = dim;
+
+            if (this.config.dimensions[dim]?.["$nor"])
+                for (let item of this.config.dimensions[dim]["$nor"])
+                    if (item[prop] && item[prop]["$in"]?.length === 0) 
+                        item[isness] = null;
+
+            if (this.config.dimensions[dim]?.["$or"])
+                for (let item of this.config.dimensions[dim]["$or"])
+                    if (item[prop] && item[prop]["$in"]?.length === 0) 
+                        item[isness] = null;
+            cleanEmptyObjectsAndArrays(this.config.dimensions);
+        },
+
+        /**
+         * Deep-merge a spec into the filter clause, filling out missing steps on the go
+         * - For plain objects: recurse.
+         * - For arrays
+         *   • Try to find an existing entry clause where all keys match
+         *   • If found, merge the keys, union-appending $in/$nin parts if present
+         *   • Otherwise, push the new clause to array
+         *
+         * @param spec
+         *   A partial `dimension` object, that starts with dim, e.g.
+         *     { geo: { $or: [ { is--region: true, country: { $in: ['fin'] } } ] } }
+         */
+        substractFromFilterSpec(spec){
+            this.appendToFilterSpec(spec, "SUBSTRACT");
+        },
+        appendToFilterSpec(spec, action = "APPEND") {
+            function mergeObj(target, src) {
+                for (const key of Object.keys(src)) {
+                    const val = src[key];
+
+                    //special case where we are actually appending the item
+                    if (key === "$in" || key === "$nin") {
+                        if (action === "APPEND")
+                            target[key] = union(target[key], val);
+                        else if (action === "SUBSTRACT")
+                            target[key] = substract(target[key], val);
+                    }
+                    // Array - special function
+                    else if (Array.isArray(val)) {
+                        target[key] = target[key] || [];
+                        mergeArray(target[key], val);
+                    }
+                    // Nested object - recurse
+                    else if (val && typeof val === 'object') {
+                        target[key] = target[key] || {};
+                        mergeObj(target[key], val);
+                    }
+                    // Primitives - override
+                    else {
+                        target[key] = val;
+                    }
+                }
+            }
+                
+            function mergeArray(targetArr, srcArr) {
+                for (const newEntry of srcArr) {
+                    // find an existing clause where all matchKeys line up
+                    const existing = targetArr.find(oldEntry => getObjectBlueprint(oldEntry) === getObjectBlueprint(newEntry));
+                    if (existing)
+                        // found matching blueprints! now merge properties one by one
+                        // the properties can contain objects or arrays, so recurse
+                        mergeObj(existing, newEntry);
+                    else
+                        // no match → add whole clause
+                        targetArr.push(newEntry);
+                }
+            }
+        
+            const target = this.config.dimensions;
+            mergeObj(target, spec);
+        },
+  
+        
         whereClause(space) {
             let filter = {};
 
