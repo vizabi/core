@@ -138,7 +138,7 @@ dataSource.nonObservable = function (config, parent, id) {
             const locale = this.locale
             return fromPromise(this.availabilityPromise.then(av => {
                 const conceptKeyString = createKeyStr(["concept"]);
-                const avConcepts = [...av.keyValueLookup.get(conceptKeyString).keys()];
+                const avConcepts = [...av.keyValueLookup.get(conceptKeyString)?.keys() || []];
         
                 const query = {
                     select: {
@@ -250,6 +250,9 @@ dataSource.nonObservable = function (config, parent, id) {
                 return promise;
             }
         },
+
+        responseError: null,
+
         async sendDelayedQuery(query) {
             const reader = this.reader; // deref read before await so it's observed & memoized
             // sleep first so other queries can fill up baseQuery's select.value
@@ -258,7 +261,9 @@ dataSource.nonObservable = function (config, parent, id) {
             //after deleting from the queue nothing more can be added to the query
             this.queue.delete(queryCombineId);
             const response = await reader.read(query);
-            return this.normalizeResponse(response, query);
+            const isErrorResponse = response instanceof Error;
+            this.responseError = isErrorResponse ? response : null;
+            return this.normalizeResponse(isErrorResponse ? [] : response, query);
         },
 
         _getDrillupCatalog(concepts = this.concepts) {
