@@ -106,7 +106,7 @@ function autoConfigSpace(dataConfig, extraOptions = {}, getFurtherResult) {
         }
     }
     
-    console.warn("Could not autoconfig to a space which also satisfies further results for " + dataConfig.parent.id + ".", { 
+    console.warn("Marker " + dataConfig.marker.id + ": Could not autoconfig to a space which also satisfies further results for " + dataConfig.parent.id + ".", { 
         dataConfig,
         spaceCfg: dataConfig.config.space || dataConfig.defaults.space, 
         availableSpaces, 
