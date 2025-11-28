@@ -100,9 +100,9 @@ describe('test drillup', () => {
 
         expect(drillup).toEqual({
             g77_and_oecd_countries: 'others',
-            income_groups: '',
-            landlocked: '',
-            main_religion_2008: '',
+            income_groups: null,
+            landlocked: null,
+            main_religion_2008: null,
             world_4region: 'europe',
             world_6region: 'europe_central_asia'
         });
