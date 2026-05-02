@@ -1,4 +1,4 @@
-import { createModel, isNumeric, parseConfigValue, sortDateSafe } from "../utils";
+import { createModel, isNumeric, parseConfigValue, sortDateSafe, parseListField } from "../utils";
 import { computed } from "mobx";
 import {
     scaleLinear as d3_scaleLinear,
@@ -79,7 +79,7 @@ scale.nonObservable = function(config, parent) {
             let scale;
             if (scales[this.config.type]) {
                 scaleType = this.config.type;
-            } else if (concept?.scales && (scale = JSON.parse(concept.scales).filter(s => !this.allowedTypes || this.allowedTypes.includes(s))[0]) && scales[scale]) {
+            } else if (concept?.scales && (scale = parseListField(concept.scales).filter(s => !this.allowedTypes || this.allowedTypes.includes(s))[0]) && scales[scale]) {
                 scaleType = scale;            
             } else if (concept?.concept_type === "time") {
                 scaleType = "time";

@@ -652,3 +652,35 @@ export function fieldsNullishCheck(fields) {
         return 0;
     }
 }
+
+/**
+ * Parse a concept list field (drill_up, scales, tags) from its raw string value
+ * into an array of strings. This is the single authoritative place for this parsing.
+ *
+ * New format: space-separated  e.g. "log linear"  or  "world_6region income_groups"
+ * Old formats (transitionary — emit a console warning to help track down datasets to migrate):
+ *   JSON array string:   '["log","linear"]'
+ *   Comma-separated:     '_root,newborn_infants'
+ */
+export function parseListField(value) {
+    if (!value) return [];
+    const str = String(value).trim();
+    if (!str) return [];
+    // Old format: JSON array string
+    if (str.startsWith('[')) {
+        try {
+            const parsed = JSON.parse(str);
+            if (Array.isArray(parsed)) {
+                console.warn(`[DDF] Old-format JSON array in concept list field. Migrate dataset to space-separated format. Value: ${str}`);
+                return parsed.map(s => String(s).trim()).filter(Boolean);
+            }
+        } catch(e) { /* not valid JSON — fall through to comma/space handling */ }
+    }
+    // Old format: comma-separated
+    if (str.includes(',')) {
+        console.warn(`[DDF] Old-format comma-separated value in concept list field. Migrate dataset to space-separated format. Value: ${str}`);
+        return str.split(',').map(s => s.trim()).filter(Boolean);
+    }
+    // New format: space-separated (multiple consecutive spaces = one separator)
+    return str.split(/\s+/).filter(Boolean);
+}

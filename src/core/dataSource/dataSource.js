@@ -1,5 +1,5 @@
 import { fromPromise } from 'mobx-utils'
-import { assign, applyDefaults, deepclone, stableStringifyObject, concatUnique, sleep, lazyAsync, combineStates, createModel } from "../utils";
+import { assign, applyDefaults, deepclone, stableStringifyObject, concatUnique, sleep, lazyAsync, combineStates, createModel, parseListField } from "../utils";
 import { configurable } from '../configurable';
 import { trace, observable, toJS, reaction } from 'mobx';
 import { dotToJoin, addExplicitAnd } from '../ddfquerytransform';
@@ -278,7 +278,7 @@ dataSource.nonObservable = function (config, parent, id) {
                     if (concept[drillup]) {
                         const dim = concept["domain"] || conceptId;
                         if (!result[dim]) result[dim] = {};
-                        const drillups = JSON.parse(concept[drillup]);
+                        const drillups = parseListField(concept[drillup]);
                         const entityQuery = { 
                             select: {
                                 key: [conceptId],
