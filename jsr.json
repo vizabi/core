@@ -1,0 +1,41 @@
+{
+  "name": "@vizabi/core",
+  "version": "1.38.0",
+  "description": "Vizabi core (data layer)",
+  "exports": {
+    ".": "./dist/Vizabi.js",
+    "./dataframe": "./dist/Dataframe.js"
+  },
+  "publish": {
+    "exclude": ["!dist/Vizabi.js", "!dist/Dataframe.js"]
+  },
+  "author": {
+    "name": "Jasper Heeffer and others at Gapminder Foundation",
+    "url": "https://www.gapminder.org",
+    "email": "info@gapminder.org"
+  },
+  "contributors": [
+    {
+      "name": "Jasper",
+      "url": "https://github.com/jheeffer"
+    },
+    {
+      "name": "Angie",
+      "url": "https://github.com/angiehjort"
+    },
+    {
+      "name": "Dima",
+      "url": "https://github.com/dab2000"
+    },
+    {
+      "name": "Ola",
+      "url": "https://github.com/olarosling"
+    }
+  ],
+  "license": "CC-BY-4.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vizabi/core"
+  },
+  "homepage": "http://vizabi.org"
+}
