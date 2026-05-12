@@ -146,35 +146,9 @@ filter.nonObservable = function (config, parent, id) {
         },
 
         /* WHAT IS LIMITED STRUCTURE?
-        * THE LIMITED STRUCTURE LOOKS LIKE THIS
-        * notice how this says add geo="americas" but remove all where world_4region="americas"
-        *
-        * filter = { 
-        *   "dimensions": {
-        *     "geo": {
-        *       // additive section
-        *       "$or": [{ 
-        *           "is--global": true 
-        *         },{ 
-        *           "is--worl4region": true, 
-        *           "geo": { "$in": ["africa", "americas"] } 
-        *         },{ 
-        *           "is--country": true, 
-        *           "unhcr_region": { "$in": ["unhcr_asia_pacific"] } 
-        *       }],
-        *       // substractive section
-        *       "$nor": [{
-        *           "is--country": true,
-        *           "west_and_rest": {"$in": ["west"]} 
-        *       },{
-        *           "is--worl4region": true, 
-        *           "geo": {"$in": ["asia"]} 
-        *       },
-        *     }
-        *   }, 
-        *   "markers": [] 
-        * }
-        * 
+        * read in `09-03-filter-limited-structure.md`
+        */
+        /* 
         * READER LIMITATION THING
         * if prop matches isness, we must replace it with generic dim,
         * because reader can't handle situations like {is--region:true, region: {$in: [asia]}}
